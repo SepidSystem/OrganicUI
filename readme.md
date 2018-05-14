@@ -1,83 +1,71 @@
-# preact-starter
+# Organic Framework
+It is a framework for making Proven Business Application with edge of new features.     
 
-> Webpack3 boilerplate for building SPA / PWA / offline front-end apps with :atom_symbol: [Preact](https://github.com/developit/preact)
+## Preface
 
-Using `preact-starter` will kickstart your next application! :100: It is designed to fit the "90% use-case" for those who want to build offline-first web apps (see [features](#features) below).
+before creating computers ,means of `web` was the classic circular form spider's web.
+- pros :  flexural , compressional ,tensional
+- cons : unclear,dirty,unsafe,non-structural
 
-> :triangular_flag_on_post: **Important:** This is meant for _client-side_ apps only; there is **no support** included for universal / server-side rendering. I plan to release my own SSR kit shortly!
+after become internet these properties inspired in WEB(W3C).
 
-**Please note:** Boilerplate _does not_ incorporate the latest ["css-in-js" or "css modules" technique](https://github.com/MicheleBertoli/css-in-js). Instead, the more traditional approach is taken, wherein `styles` and `scripts` are kept separate. That said, you may **certainly and easily** take that route if desired. :white_check_mark:
+primary web programming for web browser is javascript . it is similar to classic circular form spider's web . 
+- pros: Speed,Simplicity,Versatility,light for Server Load
+- cons : low-security,dirty-code,reliance on End User. 
+ 
+ after 17 years from raise javascript , introduce  typescript by microsoft , typescript is more realiable , fixed many cons of JS , also it is compile(transpire) to high-qulity-js  
+`TypeScript = C# + Java + JS + JS + (0.3*Pascal) `
+  
+we decide for better and simpler code use "View Only" approach for frontend-section,
+in "view only" frontend developer focus on render functions with functional programming paradigm. According many research best framework for functional frontend was react, react has not DSL language for view , it is use ES6Feaures(New Version of JS) for preparing & rendering. It is strong milestone for many developer. also we need to application development for structural Lanaguge , we choice TypeScript language. It is more clear,developer-friendly and fun.
 
----
 
-<p align="center">:warning: Boilerplate & commands will evolve as my own development process does. :warning:</p>
-
----
-
-## Install
-
-```sh
-git clone https://github.com/lukeed/preact-starter
-cd preact-starter
-npm install
-npm run build
-npm start
-```
-
-> :exclamation: **Pro Tip:** Use [Yarn](https://yarnpkg.com/) to install dependencies 3x faster than NPM!
+every view in our project is a tsx(typescript+xml) file, for example /view/dashboard route to dashboard.tsx, 
+**In others words  we select with all powers react+typescript** .
 
 ## Features
 
-* Offline Caching (via `serviceWorker`)
-* SASS & Autoprefixer
-* Asset Versioning (aka "cache-busting")
-* ES2015 (ES6) and ES2016 (ES7) support
-* Hot Module Replacement (HMR) for all files
-* Preact's [Developer Tools](#preact-developer-tools)
-* [Lighthouse](https://github.com/GoogleChrome/lighthouse) certified
+Features of Frontend 
+- Functional View
+- Improved Build System(less one second )
+- Hot Module Loader With State Saver
+- Developer Panel with many features(tracking request,debug templates)
+- Two way binding 
+- Dashboard Designer 
+- Search engine
+- Responsive Application in framework level
+- PWA Application in framework level
+- Automatic Headless Testing
+    - Backend Test
+    - Frontend Test
+    - Take Screenshot from issue 
+- Easy Deploy
+- Localize i18n
+- Suitable Workbreakdown on team & balanced workload cross members of team
 
-  ![lightouse](src/static/img/lighthouse.jpg)
+Features of Backend
+- NodeJS server (cross-platform,ES6,ES7,ES8)
+- Easy-to-devel 
+- use sql,js,json,typescript,etc for api routes 
+- live reload for module 
+- Show Executed SQL Codes on Frontend
+- Support mysql & ms-sql
+- Speed Server
+- Rest Fully JSON Server
+ 
+## Rules
+for more maintenance-able code ,frontend developers should regard bellow rules
 
-## Development
+- approach: "Functional Programming" paradigm & OOP
+- every block(panel,table,subcontainer) split to seperated function
+- i18n standard (source code limit to  english file).
+- IDE: VSCode(recommended)
+- Less Code level(ident)
+- typescript file are more elegant
+- Use bulma css
+- Use npm&node for frontend-tooling
+- IE(or even Edge) is not important
 
-### Commands
+# Timing
 
-Any of the following commands can (and should :wink:) be run from the command line.
-
-> If using [Yarn](https://yarnpkg.com/), all instances of `npm` can be replaced with `yarn`. :ok_hand:
-
-#### build
-
-```
-$ npm run build
-```
-
-Compiles all files. Output is sent to the `dist` directory.
-
-#### start
-
-```
-$ npm start
-```
-
-Runs your application (from the `dist` directory) in the browser.
-
-#### watch
-
-```
-$ npm run watch
-```
-
-Like [`start`](#start), but will auto-compile & auto-reload the server after any file changes within the `src` directory.
-
-### Preact Developer Tools
-
-You can inspect and modify the state of your Preact UI components at runtime using the [React Developer Tools](https://github.com/facebook/react-devtools) browser extension.
-
-1. Install the [React Developer Tools](https://github.com/facebook/react-devtools) extension
-2. [Import the `preact/devtools`](src/index.js#L23) module in your app
-3. Reload and go to the 'React' tab in the browser's development tools
-
-## License
-
-MIT © [Luke Edwards](https://lukeed.com)
+Frontend Features : 
