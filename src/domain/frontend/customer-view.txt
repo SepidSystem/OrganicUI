@@ -1,0 +1,24 @@
+/// <reference path="../../platform.d.ts" />  
+/// <reference path="../../core.d.ts" />
+/// <reference path="entities.d.ts" />
+/// <reference path="api.d.ts" />
+
+const { Field, ObjectField } = Core.Data;
+const { Table } = Core.Components;
+const { DataList, GridColumn, DataForm, DataPanel, SimpleTable } = Core.UiKit;
+const { TemplateForCRUD } = Platform;
+const { i18n } = Core;
+
+const actions={
+
+};
+const CustomerSingleView=(p,store)=>(<SingleViewBox >
+</SingleView>);
+
+const CustomerListView=(p,store)=>(<ListViewBox>
+</ListViewBox>);
+
+Platform.listViews.set('customers', '/view/customer');
+Platform.listViews.set('goals', '/view/goal');
+Core.routeTable.set('/customer', CustomerListView );
+Core.routeTable.set('/customer/:id', CustomerSingleView );

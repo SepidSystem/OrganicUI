@@ -1,0 +1,6 @@
+{
+    "serverPort":"/tmp/nezam-backend.sock",
+    "childProcesses":[
+        {"commandName":"memcached","args":["-s","/tmp/nezam24-mem.sock"]}
+    ]
+}

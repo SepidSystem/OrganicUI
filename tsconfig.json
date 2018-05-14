@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+      "sourceMap": true,
+      "allowJs": true,
+      "target": "es5",
+      "jsx": "react",
+       "module": "commonjs",
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "moduleResolution": "node",       
+       "lib": [
+        "es6",
+        "es7",
+        "es2017.object","es2016.array.include","es2017",
+        "dom"
+      ]
+    },
+    "exclude": [
+      "dist",
+      "build",
+      "node_modules"
+    ],
+    "files":[
+         "./src/core.d.ts",
+        "./src/platform.d.ts",
+        "./src/domain/frontend/api.d.ts",
+        "./src/domain/frontend/entities.d.ts"
+    ]
+    ,"include": [
+      "./src/core.d.ts",
+      "./src/platform.d.ts"
+    ]
+  }

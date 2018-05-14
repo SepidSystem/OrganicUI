@@ -1,0 +1,21 @@
+{
+    "tag":[
+        {"tag":"a22"}
+    ],
+    "folder":[         
+        {"id":1,"name":"اطلاعات سیستم","parentId":0},
+        {"id":2,"name":"بایگانی","parentId":0},
+        {"id":3,"name":"محیط آموزش و تست","parentId":0}
+    ],
+    "paper":[
+        {"id":1,"type":"profile","kind":"engineer","folderId":0},
+        {"id":2,"type":"profile","kind":"doctor","folderId":0},
+        {"id":3,"type":"profile","kind":"engineer","folderId":0},
+        {"id":4,"type":"project","folderId":0},
+        {"id":1,"type":"project","kind":"engineer","folderId":1},
+        {"id":2,"type":"project","kind":"doctor","folderId":1},
+        {"id":3,"type":"profile","kind":"engineer","folderId":1},
+        {"id":4,"type":"payment","folderId":1}
+
+    ]
+}

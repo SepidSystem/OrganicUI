@@ -1,0 +1,132 @@
+.react-grid-Cell {
+    border-right: none !important;
+}
+
+.pagination {
+    margin-top: 5px;
+}
+
+.full-cell {
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .react-grid-Cell__value {
+        position: initial !important;
+        transform: none !important;
+    }
+}
+
+.react-grid-HeaderRow {
+    left: auto !important;
+    right: -2px !important;
+}
+
+.react-loading-row {
+    position: relative;
+    .spinner {
+        position: absolute;
+        top: 10px;
+        right: 7px;
+        bottom: 0;
+        z-index: 0;
+        display: flex;
+        z-index: 100000;
+    }
+}
+
+.field.is-horizontal {
+    .label {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+.data-panel {
+    margin-bottom:5px; 
+    * {
+        outline: none;
+    }
+    .label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .label:not(:last-child) {
+        margin-bottom: 0 !important;
+    }
+    .field:not(:last-child) {
+        margin-bottom: 0rem;
+    }
+    &.primary-data-panel {
+        .panel-content {
+            display: flex;
+            .field:is(:last-child) {
+                margin-bottom: 0.75rem;
+            }
+        }
+    }
+    &.readonly {
+        .input {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+    }
+}
+.panel-content{
+    border: 1px solid #dbdbdb;
+    border-top:none;
+     padding:3px;
+}
+.field{
+    .control{
+        flex:1;
+        padding:2px;
+    }
+    .label{
+        min-width:100px;
+        max-width:100px;
+        text-align: left;
+        overflow:hidden;
+        text-overflow: ellipsis;
+    }
+}
+/*
+.react-grid-Cell {
+    border-bottom: none !important;
+}
+.react-grid-Row{
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}*/
+.data-list-panel-fields{
+    footer{
+        display: flex;
+        justify-content: center;
+        button{
+            width:300px;
+            margin:2px;
+        }
+    }
+}
+.panel-content{
+    padding:5px 6px;
+}
+a.close{
+    color:#000;
+} 
+.readonly-mode{
+    border:none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.readonly-mode *{
+    border:none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+ 

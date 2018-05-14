@@ -1,0 +1,30 @@
+.single-view {
+    footer.buttons {
+        button{
+            clear:both !important;
+            font-size:12px;
+            padding-top:7px;
+            padding-bottom:7px;
+            max-width:200px;
+            min-width:200px;
+        }
+    }
+}
+.list-view{
+    
+    footer.buttons{
+        margin-top:5px;
+         button{
+            max-width:150px;
+            min-width:150px;
+             
+        }
+        .is-link{
+            background: none;
+            color:#000;
+            max-width:24px;
+            min-width:24px;
+            float:left;
+        }
+    } 
+}

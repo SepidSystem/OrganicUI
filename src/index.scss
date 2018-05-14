@@ -1,0 +1,31 @@
+@import './styles/all';
+ 
+#root,.main-container ,.ms-Layer{
+    direction: rtl;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.hero-body {
+    flex-grow: 1;
+    flex-shrink: 0;
+    padding: 1rem 1.5rem;
+}
+ 
+.button {
+    margin: 0 0.3rem;
+    .icon {
+        margin: 0 4px !important;
+    }
+}
+
+.panel {
+    .is-active {
+        font-weight: bold;
+    }
+}
+.buttons:not(:last-child) {
+    margin-bottom: 0rem !important;
+} 
