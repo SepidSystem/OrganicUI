@@ -273,7 +273,6 @@ export function dialogBox<P>(renderFunc: (p: P) => React.ReactNode): {
 } {
     return null;
 }
-export const createElement = React.createElement;
 export interface ILogicProps {
     name: string, onExecute: Function
 }
@@ -317,7 +316,7 @@ export const dialogArray: ((resolve?, reject?) => React.ReactNode)[] = [];
 export function dialog(componentClass: (resolve?, reject?) => React.ReactNode) {
     dialogArray.push(componentClass);
 }
-export { PureComponent, Component } from 'react';
+export { PureComponent, Component,createElement,cloneElement } from 'react';
 export { Template, ViewLogic, Action } from './lib/decorators';
 
 export function Spinner(p: { title?: any }) {
@@ -333,3 +332,4 @@ export function StateListener(p: IStateListener) {
 
     </span>);
 }
+ 
