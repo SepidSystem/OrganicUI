@@ -1,17 +1,17 @@
 /// <reference path="../../platform.d.ts" />  
-/// <reference path="../../core.d.ts" />
+/// <reference path="../../organicUI.d.ts" />
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
 import { SingleViewBox } from "../../lib/platform/boxes";
 
 
-const { Field, ObjectField } = Core.Data;
-const { Table } = Core.Components;
-const { DataList, GridColumn, DataForm, DataPanel, DataListPanel } = Core.UiKit;
+const { Field, ObjectField } = OrganicUI.Data;
+const { Table } = OrganicUI.Components;
+const { DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI.UiKit;
 const { DetailsList, SelectionMode, TextField } = FabricUI;
 const { TemplateForCRUD } = Platform;
-const { i18n } = Core;
+const { i18n } = OrganicUI;
 class CustomerView extends Platform.TemplateForCRUD<{}, CustomerDTO, CustomerAPI>
     implements IViewsForCRUD<CustomerDTO> {
 
@@ -33,7 +33,7 @@ class CustomerView extends Platform.TemplateForCRUD<{}, CustomerDTO, CustomerAPI
             <GridColumn name="phone" accessor="phone" resizable={true} />
         </DataList >);
     renderSingleView = (formData: CustomerDTO) => (formData.personals = formData.personals || [], formData.licenses = formData.licenses || [],
-        <DataForm onGet={key => formData[key]} onSet={(key, value) => formData[key] = value}   >
+        <DataForm onFieldRead={key => formData[key]} onFieldWrite={(key, value) => formData[key] = value}   >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode">
@@ -95,9 +95,9 @@ class CustomerView extends Platform.TemplateForCRUD<{}, CustomerDTO, CustomerAPI
 
 Platform.listViews.set('customers', '/view/customer');
 Platform.listViews.set('goals', '/view/goal');
-Core.routeTable.set('/view/customer', CustomerView, { mode: 'list' });
-//Core.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-const api = Core.remoteApi as CustomerAPI;
+OrganicUI.routeTable.set('/view/customer', CustomerView, { mode: 'list' });
+//OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
+const api = OrganicUI.remoteApi as CustomerAPI;
 const actions: IActionsForCRUD<CustomerDTO> = {
     handleCreate: dto => api.createCustomer(dto),
     handleRead: id => api.findCustomerById(id), handleLoadData: params => api.readCustomerList(params),
@@ -160,4 +160,4 @@ const singleView = (p) =>
             </Field>
         </DataPanel>
     </SingleViewBox>);
-Core.routeTable.set('/view/customer/:id', singleView);
+OrganicUI.routeTable.set('/view/customer/:id', singleView);

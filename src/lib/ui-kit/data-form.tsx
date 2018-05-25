@@ -1,4 +1,4 @@
-import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../core";
+import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../organicUI";
 import { classNames } from "../utils";
 
 import * as ReactDataGrid from 'react-data-grid';
@@ -125,7 +125,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
         const detailList = React.createElement(FabricUI.DetailsList, detailListProps);
         if (s.targetSelector && s.targetSelector.includes('delete'))
-            setTimeout(() => Core.Utils.makeReadonly(this.refs['dataForm']), 100);
+            setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataForm']), 100);
 
 
         const targetClick = targetSelector => () => this.repatch(s.targetSelector == targetSelector ? { isOpen: false, targetSelector: null } : { isOpen: true, targetSelector });
@@ -187,11 +187,11 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
     }
     handledActions = {
         edit: () => {
-            Core.Utils.makeWritable(this.root);
+            OrganicUI.Utils.makeWritable(this.root);
             this.repatch({ readonly: false });
         },
         'done-edit': () => {
-            Core.Utils.makeReadonly(this.root);
+            OrganicUI.Utils.makeReadonly(this.root);
             this.repatch({ readonly: true });
         }
     }

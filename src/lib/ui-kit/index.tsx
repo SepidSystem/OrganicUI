@@ -1,5 +1,5 @@
 import * as React from "react";
-import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../core";
+import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../organicUI";
 import { classNames } from "../utils";
 declare const h: any;
 

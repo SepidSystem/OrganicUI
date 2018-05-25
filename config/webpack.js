@@ -19,7 +19,7 @@ module.exports = env => {
 		watch: !env,
 		entry: {
 			vendors: ['react', 'react-dom', 'change-case-object', 'react-data-grid', 'react-table'],
-			core: ['./src/core.tsx', './src/core-init.tsx'],
+			organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
 			platform: ['./src/platform.tsx', './src/platform-init.tsx'],
 			domain: './src/domain/domain.tsx',
 			'domain-FA_IR': './src/domain/domain-FA_IR.tsx',

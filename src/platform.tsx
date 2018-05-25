@@ -1,5 +1,5 @@
-/// <reference path="./core.d.ts" />   
-const { registryFactory } = Core;
+/// <reference path="./organicUI.d.ts" />   
+const { registryFactory } = OrganicUI;
 import {  } from "";
 
 export interface IReport {

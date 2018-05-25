@@ -1,5 +1,5 @@
 import * as React from "react";
-import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText } from "../../core";
+import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText } from "../../organicUI";
 declare const h: any;
 const { DropDownButton } = require('./index');
 interface IErrorBoxProps {

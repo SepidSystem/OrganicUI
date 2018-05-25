@@ -1,4 +1,4 @@
-import * as CoreMod from './core';
+import * as OrganicUIMod from './organicUI';
 import * as Components from "bloomer";
 import { View, funcAsViewClass, ViewWithFluentAPI } from "./lib/view";
 import { ActionManager } from "./lib/action-manager";
@@ -47,7 +47,7 @@ declare global {
   
   export const FabricUI: typeof FabricUiMod;
   export const React: typeof ReactMod;
-  export const Core: typeof CoreMod & {
+  export const OrganicUI: typeof OrganicUIMod & {
     Components: typeof Components,
     View: typeof View,
     UiKit: typeof UiKit,

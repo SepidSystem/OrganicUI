@@ -1,7 +1,7 @@
-/// <reference path="../core.d.ts" />   
+/// <reference path="../organicUI.d.ts" />   
 module DashboardView {
-    const { ActionManager, routeTable, i18n, icon } = Core;
-    const { View } = Core;
+    const { ActionManager, routeTable, i18n, icon } = OrganicUI;
+    const { View } = OrganicUI;
      class API extends ActionManager {
         findFolderById(id: number): any {
             return this.refetch('GET', `/api/folder/${id}`);

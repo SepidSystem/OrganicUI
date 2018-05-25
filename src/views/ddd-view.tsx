@@ -1,3 +1,3 @@
-/// <reference path="../core.d.ts" />   
+/// <reference path="../organicUI.d.ts" />   
 
  

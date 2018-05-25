@@ -21,10 +21,10 @@ const codeTemplates = {
 SELECT * FROM  ${tableName}
 WHERE (1=1)`,
     view: (viewId) => (
-        `/// <reference path="../core.d.ts" />   
+        `/// <reference path="../organicUI.d.ts" />   
 module ${prettyCase(viewId)}View {
-    const { BaseView, ActionManager, routeTable, i18n, icon, showIconAndText, showIconText,funcAsViewClass } = Core;
-    const { Card, Panel,SearchInput } = Core.Controls;
+    const { BaseView, ActionManager, routeTable, i18n, icon, showIconAndText, showIconText,funcAsViewClass } = OrganicUI;
+    const { Card, Panel,SearchInput } = OrganicUI.Controls;
     class ActionManager extends ActionManager {
         // ActionManager with OOP Appoarch
     }

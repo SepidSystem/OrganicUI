@@ -1,6 +1,6 @@
 import * as React from "react";
 import { classNames } from '../utils';
-import { funcAsComponentClass, FuncComponent } from '../../core';
+import { funcAsComponentClass, FuncComponent } from '../../organicUI';
 declare const h: any;
 export function Tiles(p: any) {
     let children = p.children instanceof Array ? p.children : [p.children];

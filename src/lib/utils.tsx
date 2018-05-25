@@ -1,4 +1,4 @@
-import { mountViewToRoot } from "../core";
+import { mountViewToRoot } from "../organicUI";
 
 export function showModal(title, body) {
 

@@ -1,11 +1,11 @@
-/// <reference path="./core.d.ts" />
+/// <reference path="./organicUI.d.ts" />
 
 import * as Platform from './platform'
 
 import './lib/platform/default-layout';
 import './lib/platform/crud-templ';
  
-const { menuBar } = Core;
+const { menuBar } = OrganicUI;
 import { listViews } from './platform';
 Object.assign(window, { Platform });
 

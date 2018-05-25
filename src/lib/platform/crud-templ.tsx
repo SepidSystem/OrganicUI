@@ -1,18 +1,18 @@
 import * as React from "react";
 import { Component } from 'react';
-import { templates, icon, i18n, showIconText, Utils, showIconAndText } from '../../core'
-const { Panel } = Core.Components;
+import { templates, icon, i18n, showIconText, Utils, showIconAndText } from '../../organicUI'
+const { Panel } = OrganicUI.Components;
 
-const { View } = Core;
+const { View } = OrganicUI;
 
 import { listViews } from '../../platform';
 import { ReactElement } from 'react';
 import { IDataListProps } from '../ui-kit/data-list';
 
 import { navigate } from '../utils';
-const { Spinner } = Core;
-const { AdvButton } = Core.UiKit;
-const { OverflowSet, SearchBox, DefaultButton, css } = Core.FabricUI;
+const { Spinner } = OrganicUI;
+const { AdvButton } = OrganicUI.UiKit;
+const { OverflowSet, SearchBox, DefaultButton, css } = OrganicUI.FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
@@ -34,7 +34,7 @@ interface IPartialStateForCRUD<TDto> {
     currentMainContainerHeight: number;
     adjustedDataListHeight: number;
 }
-export class OverflowSetCustomExample extends Core.BaseComponent<any, any> {
+export class OverflowSetCustomExample extends OrganicUI.BaseComponent<any, any> {
 
     public render() {
         return (
@@ -109,7 +109,7 @@ export class OverflowSetCustomExample extends Core.BaseComponent<any, any> {
         );
     }
 }
-export class TemplateForCRUD<TState, TDto, TApi> extends Core.ViewWithFluentAPI<TState & IPartialStateForCRUD<TDto>, TApi>
+export class TemplateForCRUD<TState, TDto, TApi> extends OrganicUI.ViewWithFluentAPI<TState & IPartialStateForCRUD<TDto>, TApi>
 {
     adjustTimeOutId: any;
     state: TState & IPartialStateForCRUD<TDto>;
@@ -134,7 +134,7 @@ export class TemplateForCRUD<TState, TDto, TApi> extends Core.ViewWithFluentAPI<
         }
         const id = crudView.getId(currentRow);
         const url = crudView.getUrlForSingleView(id || 'new');
-        return Core.renderViewToComplete(url).then(() => navigate(url));
+        return OrganicUI.renderViewToComplete(url).then(() => navigate(url));
     }
     componentDidMount(){ 
         this.adjustLayout()

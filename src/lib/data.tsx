@@ -1,4 +1,4 @@
-import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../core";
+import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
 import * as React from "react";
 import { ReactNode } from "react";
 import { classNames } from "./utils";
@@ -28,7 +28,7 @@ export interface IFieldProps {
     children: any;
     className?: string;
 }
-export class Field extends Core.BaseComponent<IFieldProps, IFieldProps>{
+export class Field extends OrganicUI.BaseComponent<IFieldProps, IFieldProps>{
     static Dictionary = registryFactory();
     refs: {
         root: HTMLElement;
@@ -39,7 +39,7 @@ export class Field extends Core.BaseComponent<IFieldProps, IFieldProps>{
         this.handleGetData = this.handleGetData.bind(this);
 
     }
-    static getLabel = (accessor, label?) => Core.i18n(label || Core.changeCase.paramCase(accessor))
+    static getLabel = (accessor, label?) => OrganicUI.i18n(label || OrganicUI.changeCase.paramCase(accessor))
     handleGetData() {
         if (this.props.onGet instanceof Function) return this.props.onGet();
         const { root } = this.refs as any;

@@ -1,7 +1,7 @@
-/// <reference path="../../core.d.ts" />   
-const { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, BaseComponent, registryFactory } = Core;
+/// <reference path="../../organicUI.d.ts" />   
+const { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, BaseComponent, registryFactory } = OrganicUI;
 import { classNames } from "../utils";
-const { Spinner } = Core;
+const { Spinner } = OrganicUI;
 import * as ReactDataGrid from 'react-data-grid';
 import * as  React from 'react';
 import * as ReactDOM from "react-dom";

@@ -1,4 +1,4 @@
-/// <reference path="../core.d.ts" />
+/// <reference path="../organicUI.d.ts" />
 /// <reference path="../platform.d.ts" />
 
 
@@ -12,4 +12,4 @@ reports.set('report3', null);
 reports.set('report4', null);
 
 
-window.addEventListener('DOMContentLoaded', () => Core.startApp());
+window.addEventListener('DOMContentLoaded', () => OrganicUI.startApp());

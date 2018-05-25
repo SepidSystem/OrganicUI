@@ -1,5 +1,5 @@
 
-import { routeTable } from "../core";
+import { routeTable } from "../organicUI";
 
 import { View } from "../lib/view";
 import * as React from "react";

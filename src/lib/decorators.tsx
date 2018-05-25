@@ -1,6 +1,6 @@
 import { remoteApiProxy } from "./action-manager";
 import * as React from "react";
-import { routeTable } from "../core";
+import { routeTable } from "../organicUI";
 const noThisMessage = 'cannot use this(target) in Templated Function , see MVT section in document '
 
 // @Template

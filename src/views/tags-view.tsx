@@ -1,7 +1,7 @@
-/// <reference path="../core.d.ts" />   
+/// <reference path="../organicUI.d.ts" />   
 import { tags } from "../platform";
 declare const React:any;
-const { View, ActionManager, routeTable, i18n, icon, showIconAndText, showIconText, funcAsViewClass } = Core;
+const { View, ActionManager, routeTable, i18n, icon, showIconAndText, showIconText, funcAsViewClass } = OrganicUI;
  
 class API extends ActionManager {
    

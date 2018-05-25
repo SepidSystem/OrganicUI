@@ -1,7 +1,7 @@
-/// <reference path="../core.d.ts" />   
+/// <reference path="../organicUI.d.ts" />   
 module ReportView {
-    const { ActionManager, View, routeTable, i18n, icon, showIconAndText, showIconText } = Core;
-    const { Panel } = Core.UiKit;
+    const { ActionManager, View, routeTable, i18n, icon, showIconAndText, showIconText } = OrganicUI;
+    const { Panel } = OrganicUI.UiKit;
     const Card = (p) => p.children;
     class API extends ActionManager {
         getFolder(id: number): any {

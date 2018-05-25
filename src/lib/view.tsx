@@ -1,8 +1,8 @@
 import * as React   from "react";
  
 import { ActionManager, remoteApiProxy } from './action-manager';
-import * as Core from '../core';
-import { icon, i18n, routeTable, BaseComponent } from '../core';
+import * as OrganicUI from '../organicUI';
+import { icon, i18n, routeTable, BaseComponent } from '../organicUI';
  
 type discoverFunc = (func: () => Promise<any>) => void;
 interface IDiscoverForBaseView {
@@ -119,4 +119,4 @@ export class ViewWithFluentAPI<S, TAPI> extends View<S, TAPI>{
         this.api = (remoteApiProxy() as any) as TAPI;
     }
 }
-Object.assign(Core, { funcAsViewClass });
+Object.assign(OrganicUI, { funcAsViewClass });

@@ -1,4 +1,4 @@
-import { changeCase } from "../core";
+import { changeCase } from "../organicUI";
 import * as LRU from "lru-cache";
 function delayedValue<T>(v: T, timeout): Promise<T> {
 

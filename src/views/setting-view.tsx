@@ -1,6 +1,6 @@
-/// <reference path="../core.d.ts" />   
+/// <reference path="../organicUI.d.ts" />   
 
-import { routeTable, showIconText } from "../core";
+import { routeTable, showIconText } from "../organicUI";
 
 import { View } from "../lib/view";
 declare const React: any;

@@ -1,9 +1,9 @@
-/// <reference path="../core.d.ts" /> 
+/// <reference path="../organicUI.d.ts" /> 
 /// <reference path="../platform.d.ts" />     
 module HomeView {
-    const { ActionManager, routeTable, i18n, icon } = Core;
-    const { View } = Core;
-    const { DropDownButton, Tabs, SearchInput } = Core.Components;
+    const { ActionManager, routeTable, i18n, icon } = OrganicUI;
+    const { View } = OrganicUI;
+    const { DropDownButton, Tabs, SearchInput } = OrganicUI.Components;
     const { listViews } = Platform;
     class API extends ActionManager {
         findFolderById(id: number): any {

@@ -1,10 +1,10 @@
 
-/// <reference path="../../core.d.ts" />
+/// <reference path="../../organicUI.d.ts" />
 
-const { Fabric } = Core.FabricUI;
-const { menuBar, templates, Component, showIconText, icon, route, showIconAndText } = Core;
+const { Fabric } = OrganicUI.FabricUI;
+const { menuBar, templates, Component, showIconText, icon, route, showIconAndText } = OrganicUI;
 
-const { View } = Core;
+const { View } = OrganicUI;
 
 
 function GeneralHeader() {
@@ -13,7 +13,7 @@ function GeneralHeader() {
             lin.project
     </div>
         <div className="column  is-9">
-            <Core.FabricUI.SearchBox />
+            <OrganicUI.FabricUI.SearchBox />
         </div>
         <div className="column is-2">
             {icon('fav-')}
@@ -27,7 +27,7 @@ class BaseView extends Component {
         const content = this['renderContent'] instanceof Function && this['renderContent']();
         const viewClass = (route(location.pathname, {}) || View) as typeof View;
 
-        const dialogFunc = Core.dialogArray[Core.dialogArray.length - 1];
+        const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
         const heightForContent = window.innerHeight - 100;
         return ((<Fabric className="master-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
@@ -52,9 +52,9 @@ class BaseView extends Component {
                 </section>
                 <div className="container" style={{ visibility: 'hidden', maxHeight: '2px' }}>
                     <div className=" " style={{ display: "flex", justifyContent: "space-around", alignItems: 'center' }}>
-                        {Object.keys(Core.menuBar.data).map(key => (
-                            <a href={Core.menuBar.data[key]}
-                                className={` nav column ${location.pathname.startsWith(Core.menuBar.data[key]) ? 'is-active' : ''}`}
+                        {Object.keys(OrganicUI.menuBar.data).map(key => (
+                            <a href={OrganicUI.menuBar.data[key]}
+                                className={` nav column ${location.pathname.startsWith(OrganicUI.menuBar.data[key]) ? 'is-active' : ''}`}
                             >
                                 {showIconAndText(key)}
                             </a>))}
@@ -64,9 +64,9 @@ class BaseView extends Component {
             <footer className="hero is-white footer-section" style={{ height: '60px', maxHeight: '60px', minHeight: '60px' }}>
                 <div className="container">
                     <div className=" " style={{ display: "flex", justifyContent: "space-around" }}>
-                        {Object.keys(Core.menuBar.data).map(key => (
-                            <a href={(Core.menuBar(key)) as string}
-                                className={` nav column ${location.pathname.startsWith((Core.menuBar(key) as string)) ? 'is-active' : ''}`}
+                        {Object.keys(OrganicUI.menuBar.data).map(key => (
+                            <a href={(OrganicUI.menuBar(key)) as string}
+                                className={` nav column ${location.pathname.startsWith((OrganicUI.menuBar(key) as string)) ? 'is-active' : ''}`}
                             >
                                 {showIconAndText(key)}
                             </a>))}

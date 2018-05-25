@@ -6,14 +6,12 @@ const urlStacks = [];
 async function browserProcess(mode, urls) {
     const capturedUrl = [];
     let result;
-    const { Core } = window;
+    const { OrganicUI } = window;
     while (urls.length) {
         const url = urls.shift();
         navigator.pushState(null, null, url);
-        const { errorCount } = Core.BaseView.Instance;
-        if (mode == 'i18n')
-            if (mode == 'test')
-        
+        const { errorCount } = OrganicUI.BaseView.Instance;
+
     }
     return { capturedUrl, result };
 }
@@ -28,7 +26,7 @@ const loadUrls = () => Promise.resolve([]);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const surf = async (surfMode, pageCount) => {
     const browser = await puppeteer.launch();
-    browser.userAgent += '|HEADLESS|'+surfMode;
+    browser.userAgent += '|HEADLESS|' + surfMode;
     urlStacks.push(...(await loadUrls()));
     Array.from({ length: pageCount }).forEach(() => {
         const page = await browser.newPage();

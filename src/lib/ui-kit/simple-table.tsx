@@ -1,6 +1,6 @@
 declare const React: any;
-const { t, i18n } = Core;
-const { Table } = Core.Components;
+const { t, i18n } = OrganicUI;
+const { Table } = OrganicUI.Components;
 interface SimpleTableColumn {
     accessor: string;
     columnHeader: any;
@@ -12,7 +12,7 @@ interface SimpleTableProps {
     className?: string;
 
 }
-export default class SimpleTable extends Core.BaseComponent<SimpleTableProps, never>{
+export default class SimpleTable extends OrganicUI.BaseComponent<SimpleTableProps, never>{
     render() {
         const p = this.props;
         const cols: SimpleTableColumn[] = p.columns.map(accessor => typeof accessor == 'string' ? { accessor, columnHeader: accessor } : accessor);

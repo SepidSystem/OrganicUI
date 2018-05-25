@@ -21,13 +21,13 @@
       "node_modules"
     ],
     "files":[
-         "./src/core.d.ts",
+         "./src/organicUI.d.ts",
         "./src/platform.d.ts",
         "./src/domain/frontend/api.d.ts",
         "./src/domain/frontend/entities.d.ts"
     ]
     ,"include": [
-      "./src/core.d.ts",
+      "./src/organicUI.d.ts",
       "./src/platform.d.ts"
     ]
   }

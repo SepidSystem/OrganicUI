@@ -1,17 +1,17 @@
 /// <reference path="../../platform.d.ts" />  
-/// <reference path="../../core.d.ts" />
+/// <reference path="../../organicUI.d.ts" />
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
 import { ListViewBox, SingleViewBox } from "../../lib/platform/boxes";
 
 
-const { Field, ObjectField } = Core.Data;
-const { Table } = Core.Components;
-const { DataList, GridColumn, DataForm, DataPanel, DataListPanel } = Core.UiKit;
+const { Field, ObjectField } = OrganicUI.Data;
+const { Table } = OrganicUI.Components;
+const { DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI.UiKit;
 const { DetailsList, SelectionMode, TextField } = FabricUI;
 const { TemplateForCRUD } = Platform;
-const { i18n, remoteApi } = Core;
+const { i18n, remoteApi } = OrganicUI;
 const api = (remoteApi as any) as CustomerAPI;
 const actions: IActionsForCRUD<CustomerDTO> = {
     handleCreate: dto => api.createCustomer(dto),
@@ -37,8 +37,8 @@ const customerListView = (s: State) => (ListViewBox.prepareState(s),
 const customerSingleView = (s: State) => {
     SingleViewBox.prepareState(s);
     const { formData } = s;
-    return <SingleViewBox actions={actions} formData={s.formData} id={s.id}  >
-        <DataForm onGet={key => s.formData[key]} onSet={(key, value) => s.formData[key] = value}   >
+    return <SingleViewBox actions={actions}  id={s.id}  >
+        <DataForm onFieldRead={key => s.formData[key]} onFieldWrite={(key, value) => s.formData[key] = value}   >
             <DataPanel header="primary-fields" primary >
                 <Field accessor="customerCode">
                     <TextField type="text" />
@@ -101,8 +101,8 @@ const customerSingleView = (s: State) => {
         </DataForm>
     </SingleViewBox >
 }
-Core.setFunctionalView('/customer', customerListView);
-Core.setFunctionalView('/customer/:id', customerSingleView);
+OrganicUI.setFunctionalView('/customer', customerListView);
+OrganicUI.setFunctionalView('/customer/:id', customerSingleView);
 
 Platform.listViews.set('customers', '/view/customer');
 Platform.listViews.set('goals', '/view/goal');

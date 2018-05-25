@@ -143,13 +143,13 @@ export function mountViewToRoot(selector?, url?) {
     for (let key in viewType.prototype) {
         const method = viewType.prototype[key] as Function;
         if (method instanceof Function)
-            Core.View.Instance[key] = method.bind(Core.View.Instance);
+            OrganicUI.View.Instance[key] = method.bind(OrganicUI.View.Instance);
     }
 }
 
 
 function handleResize() {
-    Core.View.Instance.forceUpdate();
+    OrganicUI.View.Instance.forceUpdate();
 }
 window.addEventListener('resize', handleResize);
 export function renderViewToComplete(url) {

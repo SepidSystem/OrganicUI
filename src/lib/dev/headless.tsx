@@ -1,5 +1,5 @@
 
-/// <reference path="../../core.d.ts" />
+/// <reference path="../../organicUI.d.ts" />
 
 import { View } from "../view";
 // NOTE :  headlessAPIs are in surf.js(headless-agent) , there are  event driven(IPC) , these API are *not* SERVER-API(Backend)

@@ -1,8 +1,8 @@
-import { funcAsComponentClass, FabricUI } from '../core';
+import { funcAsComponentClass, FabricUI } from '../organicUI';
 import { classNames } from './utils';
 import { Callout } from 'office-ui-fabric-react';
 
-const { i18n, icon } = Core;
+const { i18n, icon } = OrganicUI;
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
     const isActive = !!s.root && s.root.classList && s.root.classList.contains('is-active');
@@ -91,7 +91,7 @@ interface IAdvButtonProps {
     calloutWidth?: number;
     lastMod?: number;
 }
-export class AdvButton extends Core.BaseComponent<FabricUI.IButtonProps & IAdvButtonProps, IAdvButtonProps>{
+export class AdvButton extends OrganicUI.BaseComponent<FabricUI.IButtonProps & IAdvButtonProps, IAdvButtonProps>{
     refs: {
         root: Element
     }

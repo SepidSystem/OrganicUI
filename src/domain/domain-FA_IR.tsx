@@ -1,8 +1,8 @@
 
-/// <reference path="../core.d.ts" />
-import '../core-FA_IR';
+/// <reference path="../organicUI.d.ts" />
+import '../organicUI-FA_IR';
 module LocalizeFA_IR {
-    const { icon, i18n, setIconAndText } = Core;
+    const { icon, i18n, setIconAndText } = OrganicUI;
     setIconAndText('search','mi-search','جستجو');
     setIconAndText('save','mi-save','ذخیره');
     i18n.set('cancel','لغو');
