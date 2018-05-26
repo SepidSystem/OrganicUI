@@ -1,15 +1,15 @@
 import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
 import { HTMLAttributes, ReactElement } from "react";
-
+export { default as JsonInspector } from 'react-json-inspector';
 function isDevMode() {
 
     return !!DevFriendlyPort.developerFriendlyEnabled;
 }
-export const devTools = registryFactory<any>();
 export type DevFriendlyCommand = (target, devPort: DevFriendlyPort) => void;
+export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
     targetText: string, target: any;
-    noDevBar: boolean;
+    noDevBar?: boolean;
 }
 export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevFriendlyPortProps, never>{
 
@@ -76,24 +76,17 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
         </div>;
     }
     render() {
-        if (!isDevMode()) return this.props.children;
-        return createElement('div', Object.assign({}, this.props, {
-            ref: `root`, className: Utils.classNames(`developer-friendly `, this.props.className), children: undefined
-        }), this.getDevBar(), this.devElement || this.props.children);
+        // debugger; 
+        //  if (!isDevMode()) return this.props.children;
+        
+        const divProps = Object.keys(this.props).filter(key => key != 'target' && key != 'targetText' && key != 'noDevBar')
+            .reduce((accum, key) => (accum[key] = this.props[key], accum), {});
+        return createElement('div', Object.assign({}, divProps, {
+            ref: `root`, className: Utils.classNames(`developer-port`, this.props.className), children: undefined
+        }), isDevMode() && this.getDevBar(), (isDevMode() && this.devElement) || this.props.children);
     }
 }
-document.addEventListener('keydown', e => {
-    if (e.key == 'F1') {
-        DevFriendlyPort.developerFriendlyEnabled =
-            !DevFriendlyPort.developerFriendlyEnabled;
-        const componentRefs =
-            Array.from(document.querySelectorAll('developer-friendly'))
-                .map(ele => ele['componentRef'] as React.Component<any>)
-                .filter(ele => !!ele);
-        componentRefs.forEach(item => item.forceUpdate());
-    }
-}
-);
+
 
 function DevPlaceHolder() {
 

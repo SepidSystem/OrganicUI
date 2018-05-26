@@ -25,8 +25,9 @@ export { Spinner } from './lib/spinner';
 export {AdvButton,DropDownButton,IPanelProps,Panel,Placeholder,SearchInput} from './lib/ui-kit';
 export { default as SimpleTable } from './lib/simple-table';
 export { DataList, GridColumn } from './lib/data-list';
-export { DataForm, DataPanel, DataListPanel } from './lib/data-form';
+export { DataForm, DataPanel, DataListPanel } from   './lib/data-form';
 export { SingleViewBox,ListViewBox } from './lib/boxes';
+export { DevFriendlyPort,devTools,JsonInspector} from './lib/developer-friendly';
 export let currentView: any
 
  

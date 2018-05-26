@@ -39,6 +39,7 @@
     "react-data-grid": "^3.0.11",
     "react-data-grid-addons": "^3.0.11",
     "react-dom": "^15.4.0",
+    "react-json-inspector": "^7.1.1",
     "react-table": "^6.8.2",
     "require-reload": "^0.2.2",
     "sweetalert2": "^7.18.0",

@@ -3,6 +3,7 @@ const ExtractText = require('extract-text-webpack-plugin');
 const babelOpts = require('./babel');
 const styles = require('./styles');
 const setup = require('./setup');
+const package=require('../package.json'); 
 const dist = join(__dirname, '..', 'assets', 'bundle');
 const exclude = /(node_modules|bower_components)/;
 module.exports = env => {
@@ -19,11 +20,12 @@ module.exports = env => {
 		watch: !env,
 		entry: {
 			vendors: ['./src/imported-vendors',
-				'react', 'react-dom', 'change-case-object', 'react-data-grid', 'react-table'
+				'react', 'react-dom', 'react-data-grid', 'react-table','react-json-inspector'
+				, 'change-case-object',
 			],
 			organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
-			domain: './src/domain/domain.tsx',
-			'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
+			devtools:['./src/dev-tools.tsx'],
+			domain: './src/domain/domain.tsx','domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 		},
 		output: {
 			path: dist,

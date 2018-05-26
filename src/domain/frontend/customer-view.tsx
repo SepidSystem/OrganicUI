@@ -2,10 +2,7 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
-import { ListViewBox } from "../../lib/boxes";
-
-
-const { Field, ObjectField, SingleViewBox } = OrganicUI;
+const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
 
 const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
 const { DetailsList, SelectionMode, TextField } = FabricUI;

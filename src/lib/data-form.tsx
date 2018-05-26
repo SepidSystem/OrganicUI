@@ -1,18 +1,19 @@
 /// <reference path="../organicUI.d.ts" />
 
 
-import { icon, i18n, funcAsComponentClass, FuncComponent, BaseComponent,FabricUI } from "../organicUI";
+import { icon, i18n, DevFriendlyPort, funcAsComponentClass, FuncComponent, BaseComponent, FabricUI } from "../organicUI";
 import { Utils } from './utils';
 
- 
+
 import { Panel } from "./ui-kit";
- 
+
 import { PanelType } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
 import { IFieldProps, Field, IFieldReaderWriter } from "./data";
 
 interface IDataFormProps extends IFieldReaderWriter {
-
+    noDevBar?: boolean;
+    data?: any;
 }
 interface IDataListState {
     selectedItem: any;
@@ -34,10 +35,13 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
         DataForm.DataFormCount++;
     }
     render() {
+        const p = this.props;
         return (
-            <div className="data-form" ref="root" >
+            <div   className="data-form" ref="root">
+            <DevFriendlyPort noDevBar={!!p.noDevBar} target={this} targetText={'data-form'} >
 
                 {this.props.children}
+            </DevFriendlyPort>
             </div>
         );
     }
@@ -63,7 +67,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
 
     }
     componentDidMount() {
-    
+
         this.processFields()
     }
     componentDidUpdate() {
@@ -79,7 +83,7 @@ interface IDataPanelState {
     readonly?: boolean;
 
 }
-interface DataListPanelProps extends Partial< FabricUI.IDetailsListProps>, IDataPanelProps {
+interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataPanelProps {
     formMode?: 'modal' | 'callout' | 'panel' | 'section';
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
     accessor?: string;
@@ -211,4 +215,3 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
     }
 
 }
- 
