@@ -62,3 +62,4 @@ typings/
 .next
 assets/bundle/organicUI.js
 *.js
+package-lock.json
