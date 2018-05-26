@@ -1,15 +1,16 @@
 import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory, FabricUI } from "../organicUI";
 import { HTMLAttributes, ReactElement } from "react";
-import { registryFactory } from '../organicUI';
+
 function isDevMode() {
 
-    return !!DevFriendlyDiv.developerFriendlyEnabled;
+    return !!DevFriendlyPort.developerFriendlyEnabled;
 }
-class DevFriendlyDiv extends Component<HTMLAttributes<never> & { targetText: string, target: any }>{
+export const devTools = registryFactory<any>();
+export type DevFriendlyCommand = (target, devPort: DevFriendlyPort) => void;
+export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & { targetText: string, target: any }, never>{
 
-    behindElement: any;
+    devElement: any;
     static developerFriendlyEnabled: boolean;
-    static plugins = registryFactory<any>();
     refs: {
         devBar: HTMLElement;
         root: HTMLElement;
@@ -20,21 +21,26 @@ class DevFriendlyDiv extends Component<HTMLAttributes<never> & { targetText: str
     }
     getDevBar() {
         const { targetText } = this.props;
-        const { plugins } = DevFriendlyDiv;
-        return <div ref="devBar" style={{maxHeight:'0px'}}> 
+        return <div ref="devBar" className="dev-bar" style={{ maxHeight: '0px' }}>
+            {!!this.devElement &&
+                <FabricUI.DefaultButton text={`Reset DevTools`} onClick={() => (
+                    this.devElement = null,
+                    this.forceUpdate()
+                )} />
+            }
             {<FabricUI.DefaultButton
                 id={`DevTools${targetText}`}
                 text={`DevTools for ${targetText}`}
                 menuProps={{
                     shouldFocusOnMount: true,
                     items:
-                        Object.keys(plugins.data)
+                        Object.keys(devTools.data)
                             .filter(key =>
                                 key.startsWith(targetText + '|'))
-                            .map(key => [key, plugins.data[key]])
+                            .map(key => [key, devTools.data[key]])
                             .map(([key, onExecute]) => ({
                                 key: key.split('|')[1],
-                                name: 'New',
+                                name: key.split('|')[1],
                                 onClick: () => onExecute(this.props.target, this)
                             }))
                 }}
@@ -45,13 +51,13 @@ class DevFriendlyDiv extends Component<HTMLAttributes<never> & { targetText: str
         if (!isDevMode()) return this.props.children;
         return createElement('div', Object.assign({}, this.props, {
             ref: `root`, className: Utils.classNames(`developer-friendly `, this.props.className), children: undefined
-        }), this.getDevBar(), this.behindElement || this.props.children);
+        }), this.getDevBar(), this.devElement || this.props.children);
     }
 }
 document.addEventListener('keydown', e => {
     if (e.key == 'F1') {
-        DevFriendlyDiv.developerFriendlyEnabled =
-            !DevFriendlyDiv.developerFriendlyEnabled;
+        DevFriendlyPort.developerFriendlyEnabled =
+            !DevFriendlyPort.developerFriendlyEnabled;
         const componentRefs =
             Array.from(document.querySelectorAll('developer-friendly')).map(ele => ele['componentRef'] as React.Component<any>);
         componentRefs.forEach(item => item.forceUpdate());

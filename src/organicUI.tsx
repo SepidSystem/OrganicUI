@@ -297,7 +297,7 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
     }
     componentDidMount() {
         const { root } = this.refs;
-        root && Object.assign(root, { vdom: this });
+        root && Object.assign(root, { vdom: this,componentRef:this });
 
     }
     repatch(delta: Partial<S>, target?) {
