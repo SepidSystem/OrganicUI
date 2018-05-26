@@ -1,12 +1,11 @@
-/// <reference path="../../organicUI.d.ts" />   
-const { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, BaseComponent, registryFactory } = OrganicUI;
-import { classNames } from "../utils";
-const { Spinner } = OrganicUI;
-import * as ReactDataGrid from 'react-data-grid';
-import * as  React from 'react';
-import * as ReactDOM from "react-dom";
-import * as LRU from 'lru-cache';
-
+/// <reference path="../organicUI.d.ts" />   
+import { BaseComponent } from './base-component';
+import { icon, i18n } from './shared-vars';
+import { registryFactory } from './registry-factory';
+import { funcAsComponentClass } from './functional-component';
+import { Spinner } from './spinner';
+import { Utils } from './utils';
+ 
 export interface IDataListLoadReq {
     startFrom: number;
     rowCount: number;
@@ -37,7 +36,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                         n == p.totalPages - 1 && ((p.totalPages - targetPageIndex) >= (defaultNormalPageCount * 2) - 1)
                         && ellipsis,
                         <li className="">
-                            <a onClick={e => (e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n))} className={classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}  >{n + 1}</a>
+                            <a onClick={e => (e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n))} className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}  >{n + 1}</a>
                         </li>,
                         n == 0 && (targetPageIndex >= (defaultNormalPageCount * 2) - 1) && ellipsis
                     ]
@@ -96,8 +95,9 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         (this as any).state = {};
         Object.assign(this.state, { loadingPageIndex: 0 });
     }
+   
     root: HTMLElement;
-    cache: LRU.Cache<number, any>;
+    cache:any;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
         const s = this.state, p = this.props;
@@ -138,7 +138,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     }
 
     render() {
-         const columnArray: React.ReactElement<ColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+        const columnArray: React.ReactElement<ColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const columns: any[] =
             columnArray.filter(col => col && (col.type == GridColumn)).map(col => Object.assign({}, col.props || {}, { key: col.props.accessor }) as any)
                 .concat([{
@@ -149,18 +149,18 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         const p = this.props, s: IDataListState = this.state;
         s.listData = s.listData || this.loadDataIfNeeded(0) as any;
         const rowCount = p.rowCount || 10;
-      
+
         const reactGridProps = Object.assign({}, {
             columns,
             rowGetter: this.rowGetter,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : rowCount)
                 : (!!listData && rowCount)),
-            minHeight: p.height ,
+            minHeight: p.height,
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as AdazzleReactDataGrid.GridProps;
         return (
-           !!p.height && <div className="" ref={root => this.root = root as any} >
+            !!p.height && <div className="" ref={root => this.root = root as any} >
                 {React.createElement(ReactDataGrid, reactGridProps)}
                 {p.paginationMode != 'scrolled' && !!listData
                     && <Pagination

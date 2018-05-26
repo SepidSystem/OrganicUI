@@ -1,8 +1,8 @@
 
-/// <reference path="../../organicUI.d.ts" />
+/// <reference path="../organicUI.d.ts" />
 
 const { Fabric } = OrganicUI.FabricUI;
-const { menuBar, templates, Component, showIconText, icon, route, showIconAndText } = OrganicUI;
+const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
 
 const { View } = OrganicUI;
 
@@ -24,10 +24,8 @@ const root = document.querySelector('#root');
 class BaseView extends Component {
 
     render() {
-        const content = this['renderContent'] instanceof Function && this['renderContent']();
-        const viewClass = (route(location.pathname, {}) || View) as typeof View;
-
-        const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
+       
+        //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
         const heightForContent = window.innerHeight - 100;
         return ((<Fabric className="master-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
@@ -47,8 +45,7 @@ class BaseView extends Component {
                 </div>
 
                 <section style={{ padding: '5px', maxHeight: heightForContent + 'px', minHeight: heightForContent + 'px', overflow: 'hidden' }}>
-                    {content}
-                    {!(this['renderContent'] instanceof Function) && (this.props.children || 'renderContent Not Found')}
+                {this.props.children}
                 </section>
                 <div className="container" style={{ visibility: 'hidden', maxHeight: '2px' }}>
                     <div className=" " style={{ display: "flex", justifyContent: "space-around", alignItems: 'center' }}>
@@ -56,7 +53,7 @@ class BaseView extends Component {
                             <a href={OrganicUI.menuBar.data[key]}
                                 className={` nav column ${location.pathname.startsWith(OrganicUI.menuBar.data[key]) ? 'is-active' : ''}`}
                             >
-                                {showIconAndText(key)}
+                                {Utils.showIconAndText(key)}
                             </a>))}
                     </div>
                 </div>
@@ -68,21 +65,15 @@ class BaseView extends Component {
                             <a href={(OrganicUI.menuBar(key)) as string}
                                 className={` nav column ${location.pathname.startsWith((OrganicUI.menuBar(key) as string)) ? 'is-active' : ''}`}
                             >
-                                {showIconAndText(key)}
+                                {Utils.showIconAndText(key)}
                             </a>))}
                     </div>
                 </div>
 
 
             </footer>
-            {dialogFunc && <div className="modal is-active">
-                <div className="modal-background"></div>
-                <div className="modal-content">
 
-                </div>}
-  <button className="modal-close is-large" aria-label="close"></button>
-            </div>}
         </Fabric>))
     }
 }
-templates.set('base', BaseView as any);
+templates.set('default', BaseView as any);

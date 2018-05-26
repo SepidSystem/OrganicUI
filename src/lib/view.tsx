@@ -1,9 +1,10 @@
-import * as React   from "react";
- 
+import * as React from "react";
+
 import { ActionManager, remoteApiProxy } from './action-manager';
 import * as OrganicUI from '../organicUI';
-import { icon, i18n, routeTable, BaseComponent } from '../organicUI';
- 
+import { icon, i18n } from './shared-vars';
+import { routeTable } from './router';
+import { BaseComponent } from './base-component';
 type discoverFunc = (func: () => Promise<any>) => void;
 interface IDiscoverForBaseView {
     message: discoverFunc,
@@ -31,9 +32,9 @@ export class View<S, AC> extends BaseComponent<any, S> {
         super(props);
 
         this.repatch = this.repatch.bind(this);
-         window['currentView'] = this;
-         
-         (this as any).state= this.state || {};
+        window['currentView'] = this;
+
+        (this as any).state = this.state || {};
         View.Instance = this;
         this.discover = this.makeDiscover();
     }
@@ -69,7 +70,7 @@ export class View<S, AC> extends BaseComponent<any, S> {
     }
 
 
-     
+
     loadingCount = 0;
     showLoading() {
         this.loadingCount++;
@@ -115,7 +116,7 @@ export function funcAsViewClass<S, AC>(func: FuncView<S, AC>, actionManagerClass
 }
 export class ViewWithFluentAPI<S, TAPI> extends View<S, TAPI>{
     constructor(p) {
-            super(p);
+        super(p);
         this.api = (remoteApiProxy() as any) as TAPI;
     }
 }

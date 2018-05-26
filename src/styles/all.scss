@@ -8,7 +8,7 @@
 @import './crud'; 
 @import './flexboxgrid'; 
 @import "node_modules/react-table/react-table";
-@import 'node_modules/bulma-extensions/extensions';
+@import 'node_modules/bulma-extensions/dist/bulma-extensions.min.css';
 
 .actionable {
     position: relative;

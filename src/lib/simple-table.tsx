@@ -1,6 +1,8 @@
+import { BaseComponent } from "./base-component";
+import {i18n} from './shared-vars';
 declare const React: any;
-const { t, i18n } = OrganicUI;
-const { Table } = OrganicUI.Components;
+ 
+ 
 interface SimpleTableColumn {
     accessor: string;
     columnHeader: any;
@@ -12,7 +14,9 @@ interface SimpleTableProps {
     className?: string;
 
 }
-export default class SimpleTable extends OrganicUI.BaseComponent<SimpleTableProps, never>{
+declare const Table:any;
+declare const t:any;
+export default class SimpleTable extends  BaseComponent<SimpleTableProps, never>{
     render() {
         const p = this.props;
         const cols: SimpleTableColumn[] = p.columns.map(accessor => typeof accessor == 'string' ? { accessor, columnHeader: accessor } : accessor);

@@ -1,8 +1,9 @@
-import { funcAsComponentClass, FabricUI } from '../organicUI';
-import { classNames } from './utils';
-import { Callout } from 'office-ui-fabric-react';
-
-const { i18n, icon } = OrganicUI;
+/// <reference path="../organicUI.d.ts"  
+import { BaseComponent } from './base-component';
+import { funcAsComponentClass } from './functional-component';
+import { Utils } from './utils';
+import { Callout, IButtonProps } from 'office-ui-fabric-react';
+import { i18n, icon } from './shared-vars';
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
     const isActive = !!s.root && s.root.classList && s.root.classList.contains('is-active');
@@ -10,7 +11,7 @@ function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     return <div className={["dropdown", p.isReverse ? 'is-right' : 'is-left', p.className, isActive && 'is-active'].filter(x => !!x).join(' ')}>
         <div className="dropdown-trigger">
             <button
-                className={classNames("button", 'is-text', p.buttonClass)}
+                className={Utils.classNames("button", 'is-text', p.buttonClass)}
                 style={{ padding: '0' }}
                 onClick={e => {
                     e.preventDefault();
@@ -68,7 +69,7 @@ interface IDropDownState {
 }
 export const DropDownButton = funcAsComponentClass<IDropDownProps, IDropDownProps>(dropDownButton);
 export function SearchInput(p: { className?: string }) {
-    return <p className={classNames("control has-icons-right", p.className)}>
+    return <p className={Utils.classNames("control has-icons-right", p.className)}>
         <input className={["input", p.className].filter(x => x).join(' ')} type="text" placeholder="search"></input>
         <span className={["icon is-right", p.className].filter(x => x).join(' ')}>
             <i className="fa fa-search"></i>
@@ -76,8 +77,7 @@ export function SearchInput(p: { className?: string }) {
     </p>
 }
 
-export { DataList, GridColumn } from './ui-kit/data-list';
-export { DataForm, DataPanel, DataListPanel } from './ui-kit/data-form';
+
 interface IAdvButtonProps {
     children: any;
     isLoading?: boolean;
@@ -91,7 +91,8 @@ interface IAdvButtonProps {
     calloutWidth?: number;
     lastMod?: number;
 }
-export class AdvButton extends OrganicUI.BaseComponent<FabricUI.IButtonProps & IAdvButtonProps, IAdvButtonProps>{
+
+export class AdvButton extends BaseComponent<IButtonProps & IAdvButtonProps, IAdvButtonProps>{
     refs: {
         root: Element
     }
@@ -100,7 +101,7 @@ export class AdvButton extends OrganicUI.BaseComponent<FabricUI.IButtonProps & I
 
             Object.assign({}, p, {
 
-                className: classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
+                className: Utils.classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
                 iconProps: !s.isLoading && p.iconProps,
                 onClick: e => {
                     e.preventDefault();
@@ -120,7 +121,7 @@ export class AdvButton extends OrganicUI.BaseComponent<FabricUI.IButtonProps & I
             !s.isLoading && s.callout && i18n('hide-result'),
             s.isLoading && <FabricUI.Spinner />)}
             {React.isValidElement(s.callout) &&
-                <Callout directionalHint={FabricUI.DirectionalHint.topCenter} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null,lastMod:+new Date() })} target={this.refs.root} >
+                <Callout directionalHint={FabricUI.DirectionalHint.topCenter} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
                     {s.callout}
                 </Callout>}
         </span>
@@ -205,7 +206,6 @@ function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
     );
 }
 export const Panel = funcAsComponentClass<IPanelProps, IPanelProps>(panel);
-export { default as SimpleTable } from './ui-kit/simple-table';
 
 export function Placeholder(p: { for, children }) {
     return <span className="placeholder-item" data-for={p.for} style={{ display: 'none' }}>{p && p.children}</span>;

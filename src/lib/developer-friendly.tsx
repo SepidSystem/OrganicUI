@@ -1,4 +1,4 @@
-import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory, FabricUI } from "../organicUI";
+import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
 import { HTMLAttributes, ReactElement } from "react";
 
 function isDevMode() {
@@ -7,7 +7,11 @@ function isDevMode() {
 }
 export const devTools = registryFactory<any>();
 export type DevFriendlyCommand = (target, devPort: DevFriendlyPort) => void;
-export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & { targetText: string, target: any }, never>{
+export interface IDevFriendlyPortProps {
+    targetText: string, target: any;
+    noDevBar: boolean;
+}
+export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevFriendlyPortProps, never>{
 
     devElement: any;
     static developerFriendlyEnabled: boolean;
@@ -15,11 +19,35 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & { tar
         devBar: HTMLElement;
         root: HTMLElement;
     }
-    componentDidMount() {
-        (this.refs.root)
-            && Object.assign(this.refs.root, { componentRef: this });
+    getButtons() {
+        const { targetText } = this.props;
+        return [!!this.devElement &&
+            <FabricUI.DefaultButton text={`Reset DevTools for ${targetText} `} onClick={() => (
+                this.devElement = null,
+                this.forceUpdate()
+            )} />,
+
+        <FabricUI.DefaultButton
+            id={`DevTools${targetText}`}
+            text={`DevTools for ${targetText}`}
+            menuProps={{
+                shouldFocusOnMount: true,
+                items:
+                    Object.keys(devTools.data)
+                        .filter(key =>
+                            key.startsWith(targetText + '|'))
+                        .map(key => [key, devTools.data[key]])
+                        .map(([key, onExecute]) => ({
+                            key: key.split('|')[1],
+                            name: key.split('|')[1],
+                            onClick: () => onExecute(this.props.target, this)
+                        }))
+            }} />
+        ]
+
     }
     getDevBar() {
+        if (!!this.props.noDevBar) return null;
         const { targetText } = this.props;
         return <div ref="devBar" className="dev-bar" style={{ maxHeight: '0px' }}>
             {!!this.devElement &&
@@ -59,7 +87,9 @@ document.addEventListener('keydown', e => {
         DevFriendlyPort.developerFriendlyEnabled =
             !DevFriendlyPort.developerFriendlyEnabled;
         const componentRefs =
-            Array.from(document.querySelectorAll('developer-friendly')).map(ele => ele['componentRef'] as React.Component<any>);
+            Array.from(document.querySelectorAll('developer-friendly'))
+                .map(ele => ele['componentRef'] as React.Component<any>)
+                .filter(ele => !!ele);
         componentRefs.forEach(item => item.forceUpdate());
     }
 }

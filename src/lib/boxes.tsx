@@ -1,20 +1,18 @@
-/// <reference path="../../platform.d.ts" />
+/// <reference path="../organicUI.d.ts" />
 
-import * as React from "react";
-import { Component } from 'react';
-import { templates, icon, i18n, showIconText, Utils, showIconAndText } from '../../organicUI'
-const { Panel } = OrganicUI.Components;
+ import { BaseComponent} from './base-component';
+import { templates, icon, i18n } from './shared-vars';
+import { Utils } from './utils';
 
-const { View } = OrganicUI;
+import { View } from './view';
 
-import { listViews } from '../../platform';
+import { listViews } from './shared-vars';
 import { ReactElement } from 'react';
-import { IDataListProps } from '../ui-kit/data-list';
+import { IDataListProps } from './data-list';
 
-import { navigate } from '../utils';
-const { Spinner } = OrganicUI;
-const { AdvButton, Placeholder } = OrganicUI.UiKit;
-const { OverflowSet, SearchBox, DefaultButton, css } = OrganicUI.FabricUI;
+import { Spinner } from './spinner';
+import { AdvButton, Placeholder } from './ui-kit';
+const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
@@ -31,7 +29,7 @@ function storeToggleButtons(v) {
 }
 
 
-export class OverflowSetCustomExample extends OrganicUI.BaseComponent<any, any> {
+export class OverflowSetCustomExample extends  BaseComponent<any, any> {
 
     public render() {
         return (
@@ -109,7 +107,7 @@ export class OverflowSetCustomExample extends OrganicUI.BaseComponent<any, any> 
 
 interface SingleViewBoxProps { actions: IActionsForCRUD<any>, id, children?};
 interface SingleViewBoxState { formData }
-export class SingleViewBox extends OrganicUI.BaseComponent<SingleViewBoxProps, SingleViewBoxState> {
+export class SingleViewBox extends  BaseComponent<SingleViewBoxProps, SingleViewBoxState> {
     handleSave() {
         const p = this.props, s = this.state;
         let updateResult: Promise<any>;
@@ -131,10 +129,10 @@ export class SingleViewBox extends OrganicUI.BaseComponent<SingleViewBoxProps, S
         if (s.formData instanceof Promise) return <Spinner />;
         Object.assign(window, { box: this });
         return <section className="single-view" >
-            <OrganicUI.UiKit.DataForm onFieldRead={accessor => s.formData[accessor]} 
-            onFieldWrite={(accessor, value) => s.formData[accessor] = value} >
+            <OrganicUI.DataForm onFieldRead={accessor => s.formData[accessor]}
+                onFieldWrite={(accessor, value) => s.formData[accessor] = value} >
                 {this.props.children}
-            </OrganicUI.UiKit.DataForm>
+            </OrganicUI.DataForm>
             <footer className="buttons is-centered">
                 <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('save')}</AdvButton>
                 <AdvButton onClick={() => {
@@ -150,7 +148,7 @@ export class SingleViewBox extends OrganicUI.BaseComponent<SingleViewBoxProps, S
     }
 }
 interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
-export class ListViewBox extends OrganicUI.BaseComponent<ListViewBoxProps, any>{
+export class ListViewBox extends  BaseComponent<ListViewBoxProps, any>{
     static prepareState(s) {
 
     }
@@ -163,7 +161,7 @@ export class ListViewBox extends OrganicUI.BaseComponent<ListViewBoxProps, any>{
         }
         const id = crudView.getId(currentRow);
         const url = crudView.getUrlForSingleView(id || 'new');
-        return OrganicUI.renderViewToComplete(url).then(() => navigate(url));
+        return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
     }
     render() {
         const { repatch } = this;
@@ -175,7 +173,7 @@ export class ListViewBox extends OrganicUI.BaseComponent<ListViewBoxProps, any>{
 
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
-        let dataList = crudView.renderListView();
+        let dataList = this.props.children;
         const onRowClick = (rowIdx, currentRow) => {
 
             //     currentRow && TemplateForCRUD.Instance && TemplateForCRUD.Instance.repatch({ currentRow })
@@ -231,10 +229,10 @@ export class ListViewBox extends OrganicUI.BaseComponent<ListViewBoxProps, any>{
                         const { actions } = this.props;
                         return Utils.navigate(actions.getUrlForSingleView('new'));
                     }}>
-                        {showIconAndText('add')}
+                        {Utils.showIconAndText('add')}
                     </AdvButton>
-                    <AdvButton onClick={() => this.handleEdit()}>{showIconAndText('edit')}</AdvButton>
-                    <AdvButton onClick={() => this.handleEdit()}>{showIconAndText('delete')}</AdvButton>
+                    <AdvButton onClick={() => this.handleEdit()}>{Utils.showIconAndText('edit')}</AdvButton>
+                    <AdvButton onClick={() => this.handleEdit()}>{Utils.showIconAndText('delete')}</AdvButton>
                 </div>
                 <div className="column is-3 ">
                     <AdvButton type="link" onClick={() => this.handleEdit()}>{icon('more')}</AdvButton>

@@ -1,8 +1,8 @@
 import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
 import * as React from "react";
 import { ReactNode } from "react";
-import { classNames } from "./utils";
-import { DataForm } from "./ui-kit";
+import { DataForm } from "./data-form";
+ 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -28,7 +28,7 @@ export interface IFieldProps {
     children: any;
     className?: string;
 }
-export class Field extends OrganicUI.BaseComponent<IFieldProps, IFieldProps>{
+export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     static Dictionary = registryFactory();
     refs: {
         root: HTMLElement;
@@ -106,7 +106,7 @@ export class Field extends OrganicUI.BaseComponent<IFieldProps, IFieldProps>{
         const label = Field.getLabel(p.accessor, p.label);
         return <div ref="root" className={Utils.classNames("field field-accessor is-horizontal  ", p.className)}>
             <label className="label">{label}</label>
-            <div className={classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
+            <div className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
                 {inputElement}
 
                 {!!p.icon && <span className="icon is-small is-left">

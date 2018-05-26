@@ -1,13 +1,15 @@
-import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../organicUI";
-import { classNames } from "../utils";
+/// <reference path="../organicUI.d.ts" />
 
-import * as ReactDataGrid from 'react-data-grid';
-import * as React from "react";
-import { Panel } from ".";
-import * as FabricUI from 'office-ui-fabric-react';
+
+import { icon, i18n, funcAsComponentClass, FuncComponent, BaseComponent,FabricUI } from "../organicUI";
+import { Utils } from './utils';
+
+ 
+import { Panel } from "./ui-kit";
+ 
 import { PanelType } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
-import { IFieldProps, Field,IFieldReaderWriter } from "../data";
+import { IFieldProps, Field, IFieldReaderWriter } from "./data";
 
 interface IDataFormProps extends IFieldReaderWriter {
 
@@ -61,7 +63,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
 
     }
     componentDidMount() {
-        alert('sdfsdf');
+    
         this.processFields()
     }
     componentDidUpdate() {
@@ -77,7 +79,7 @@ interface IDataPanelState {
     readonly?: boolean;
 
 }
-interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataPanelProps {
+interface DataListPanelProps extends Partial< FabricUI.IDetailsListProps>, IDataPanelProps {
     formMode?: 'modal' | 'callout' | 'panel' | 'section';
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
     accessor?: string;
@@ -202,10 +204,11 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
             {icon('lock')}</span>];
 
 
-        return <div className={classNames("data-panel ", p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
+        return <div className={Utils.classNames("data-panel ", p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
 
             {React.createElement(Panel, Object.assign({}, p, { header }))}
         </div>;
     }
 
 }
+ 
