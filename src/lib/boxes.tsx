@@ -1,6 +1,6 @@
 /// <reference path="../organicUI.d.ts" />
 
-import { BaseComponent } from './base-component';
+ import { BaseComponent} from './base-component';
 import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
@@ -12,7 +12,6 @@ import { IDataListProps } from './data-list';
 
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from '../organicUI';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -30,7 +29,7 @@ function storeToggleButtons(v) {
 }
 
 
-export class OverflowSetCustomExample extends BaseComponent<any, any> {
+export class OverflowSetCustomExample extends  BaseComponent<any, any> {
 
     public render() {
         return (
@@ -108,7 +107,7 @@ export class OverflowSetCustomExample extends BaseComponent<any, any> {
 
 interface SingleViewBoxProps { actions: IActionsForCRUD<any>, id, children?};
 interface SingleViewBoxState { formData }
-export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewBoxState> {
+export class SingleViewBox extends  BaseComponent<SingleViewBoxProps, SingleViewBoxState> {
     handleSave() {
         const p = this.props, s = this.state;
         let updateResult: Promise<any>;
@@ -128,24 +127,19 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
         const s = this.state;
         s.formData = s.formData || {};// p.actions.handleRead(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         if (s.formData instanceof Promise) return <Spinner />;
-
-        return <section className="single-view" ref="root">
-            <DevFriendlyPort target={this} targetText="SingleView" >
-                <OrganicUI.DataForm onFieldRead={accessor => s.formData[accessor]}
-                    onFieldWrite={(accessor, value) => s.formData[accessor] = value}
-
-                    data={s.formData}>
-
-                    {this.props.children}
-                </OrganicUI.DataForm>
-                <footer className="buttons is-centered">
-                    <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('save')}</AdvButton>
-                    <AdvButton onClick={() => {
-                        const crudViews = (this as any) as IViewsForCRUD<any>;
-                        return Utils.navigate(crudViews.getUrlForListView());
-                    }}   > {i18n('cancel')}</AdvButton>
-                </footer>
-            </DevFriendlyPort>
+        Object.assign(window, { box: this });
+        return <section className="single-view" >
+            <OrganicUI.DataForm onFieldRead={accessor => s.formData[accessor]}
+                onFieldWrite={(accessor, value) => s.formData[accessor] = value} >
+                {this.props.children}
+            </OrganicUI.DataForm>
+            <footer className="buttons is-centered">
+                <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('save')}</AdvButton>
+                <AdvButton onClick={() => {
+                    const crudViews = (this as any) as IViewsForCRUD<any>;
+                    return Utils.navigate(crudViews.getUrlForListView());
+                }}   > {i18n('cancel')}</AdvButton>
+            </footer>
         </section>
 
     }
@@ -154,7 +148,7 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
     }
 }
 interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
-export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
+export class ListViewBox extends  BaseComponent<ListViewBoxProps, any>{
     static prepareState(s) {
 
     }

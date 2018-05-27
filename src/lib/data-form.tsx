@@ -12,7 +12,7 @@ import { Modal } from 'office-ui-fabric-react/lib/Modal';
 import { IFieldProps, Field, IFieldReaderWriter } from "./data";
 
 interface IDataFormProps extends IFieldReaderWriter {
-
+    noDevBar?: boolean;
     data?: any;
 }
 interface IDataListState {
@@ -37,11 +37,11 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     render() {
         const p = this.props;
         return (
-            <div className="data-form" ref="root">
-                <DevFriendlyPort target={this} targetText={'DataForm'} >
+            <div   className="data-form" ref="root">
+            <DevFriendlyPort noDevBar={!!p.noDevBar} target={this} targetText={'data-form'} >
 
-                    {this.props.children}
-                </DevFriendlyPort>
+                {this.props.children}
+            </DevFriendlyPort>
             </div>
         );
     }
@@ -56,18 +56,18 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
             }
             parent = parent.parentElement;
         }
-
+        Object.assign(fld, { dataFormRef: this });
 
     }
     processFields() {
         const { root } = this.refs;
         const fields = Array.from(root.querySelectorAll('.field-accessor')) as HTMLElement[];
 
-        fields.map(fld => fld['componentRef'] as Field).forEach(fld => fld && fld.processDOM());
+        fields.forEach(fld => this.processField(fld));
 
     }
     componentDidMount() {
-        super.componentDidMount();
+
         this.processFields()
     }
     componentDidUpdate() {
@@ -89,8 +89,7 @@ interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataP
     accessor?: string;
 }
 
-export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>
-{
+export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>{
     targetItem: any;
     lastMod: number;
     refs: {
@@ -164,11 +163,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
 
                     </div>
                     <div ref="dataForm">
-                        {React.createElement(DataForm,
-                            {
-                                onFieldRead: fieldName => this.targetItem[fieldName],
-                                onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value
-                            }, p.children)}
+                        {React.createElement(DataForm, { onGet: fieldName => this.targetItem[fieldName], onSet: (fieldName, value) => this.targetItem[fieldName] = value }, p.children)}
                     </div>
                     <footer>
                         {!s.selectedItem

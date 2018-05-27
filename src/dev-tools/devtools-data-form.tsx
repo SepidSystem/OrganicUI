@@ -1,6 +1,5 @@
-const { devTools, JsonInspector } = OrganicUI;
-
-devTools.set('DataForm|Data Inspection', (target, devPort) => {
-    devPort.devElement = <JsonInspector data={target.props.data} />;
-    setTimeout(() => devPort.setState({}), 100);
+const { devTools,JsonInspector}=OrganicUI;
+devTools.set('data-form|data inspection',(target,devPort)=>{
+    devPort.devElement = <JsonInspector data={target.props.data} >
+        </JsonInspector>
 });

@@ -35,6 +35,20 @@ const singleView = (p) =>
             </Field>
 
         </DataPanel>
+        <DataListPanel header="personal-list" accessor="personals" formMode="modal" selectionMode={SelectionMode.single} >
+            <Field accessor="role" readonly >
+                <TextField type="text" />
+            </Field>
+            <Field accessor="fullName"   >
+                <TextField type="text" />
+            </Field>
+            <Field accessor="phone"   >
+                <TextField type="text" />
+            </Field>
+            <Field accessor="comment"  >
+                <TextField type="text" />
+            </Field>
+        </DataListPanel>
         <DataListPanel formMode="callout" header="license-list" accessor="licenses" selectionMode={SelectionMode.single}
         >
             <Field accessor="computerId"  >
@@ -50,21 +64,6 @@ const singleView = (p) =>
                 <TextField type="text" />
             </Field>
         </DataListPanel>
-        <DataListPanel header="personal-list" accessor="personals" formMode="modal" selectionMode={SelectionMode.single} >
-            <Field accessor="role"   >
-                <TextField type="text" />
-            </Field>
-            <Field accessor="fullName"   >
-                <TextField type="text" />
-            </Field>
-            <Field accessor="phone"   >
-                <TextField type="text" />
-            </Field>
-            <Field accessor="comment"  >
-                <TextField type="text" />
-            </Field>
-        </DataListPanel>
-       
         <DataPanel header="payment-information">
             <Field accessor="paymentDate"    >
                 <TextField type="text" />

@@ -4,7 +4,7 @@
 const { Fabric } = OrganicUI.FabricUI;
 const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
 
-const { View, DeveloperBar } = OrganicUI;
+const { View } = OrganicUI;
 
 
 function GeneralHeader() {
@@ -24,7 +24,7 @@ const root = document.querySelector('#root');
 class BaseView extends Component {
 
     render() {
-
+       
         //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
         const heightForContent = window.innerHeight - 100;
         return ((<Fabric className="master-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -38,7 +38,6 @@ class BaseView extends Component {
                     </div>
                 </div>
             </header>
-
             <section className="view container main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
 
 
@@ -46,8 +45,7 @@ class BaseView extends Component {
                 </div>
 
                 <section style={{ padding: '5px', maxHeight: heightForContent + 'px', minHeight: heightForContent + 'px', overflow: 'hidden' }}>
-                    <DeveloperBar />
-                    {this.props.children}
+                {this.props.children}
                 </section>
                 <div className="container" style={{ visibility: 'hidden', maxHeight: '2px' }}>
                     <div className=" " style={{ display: "flex", justifyContent: "space-around", alignItems: 'center' }}>
