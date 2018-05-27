@@ -27,7 +27,7 @@ export { default as SimpleTable } from './lib/simple-table';
 export { DataList, GridColumn } from './lib/data-list';
 export { DataForm, DataPanel, DataListPanel } from   './lib/data-form';
 export { SingleViewBox,ListViewBox } from './lib/boxes';
-export { DevFriendlyPort,devTools,JsonInspector} from './lib/developer-friendly';
+export { DevFriendlyPort,devTools,JsonInspector,DeveloperBar} from './lib/developer-friendly';
 export let currentView: any
 
  

@@ -2,7 +2,7 @@ import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, regist
 import * as React from "react";
 import { ReactNode } from "react";
 import { DataForm } from "./data-form";
- 
+
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -40,14 +40,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
 
     }
     static getLabel = (accessor, label?) => OrganicUI.i18n(label || OrganicUI.changeCase.paramCase(accessor))
+    extractedValue: any;
     handleGetData() {
-        if (this.props.onGet instanceof Function) return this.props.onGet();
-        const { root } = this.refs as any;
+        const p = this.props;
+        if (p.onGet instanceof Function) return p.onGet();
+        const { root } = this.refs;
         if (!root) return;
-        // const { dataFormRef } = root as { dataFormRef: DataForm };
 
-        //        return dataFormRef && dataFormRef.props.onFieldRead(this.props.accessor);
-        let parent = root as HTMLElement;
+        let parent = root;
         let getters: (string | Function)[] = [];
         while (parent) {
             const { vdom } = parent as any;
@@ -58,28 +58,39 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             }
             parent = parent.parentElement;
         }
+
         const idxForNearestReadFieldFunc = Array.from(getters.entries()).reduceRight((foundIdx, [idx, item]) => {
             if (foundIdx != -1) return foundIdx;
             return (item instanceof Function) ? idx : foundIdx;
         }, -1);
         if (idxForNearestReadFieldFunc < 0) return;
-        const accessorPath = getters.slice(idxForNearestReadFieldFunc).reverse();
+        const accessorPath: string[] = getters.slice(0, idxForNearestReadFieldFunc).reverse() as any;
         const nearestReadFieldFunc = getters[idxForNearestReadFieldFunc] as Function;
-        let value: any = undefined;
-        for (const accessor of accessorPath) {
-            if (!accessor) continue;
+        let value: any = nearestReadFieldFunc(accessorPath.shift());
 
+        while (accessorPath.length) {
+            value = value[accessorPath.shift()];
+            if (!(value instanceof Object)) break;
         }
+        return value;
     }
     handleSetData(e: React.ChangeEvent<HTMLInputElement>) {
-
-        const root = this.refs.root as any;
+        const value: any = [e.target && e.target.value, (e as any).value, e].filter(x => x !== undefined)[0];
+        const p = this.props;
+        if (p.onSet instanceof Function) return p.onSet(value);
+        const { root } = this.refs;
         if (!root) return;
-        const { dataFormRef } = root as { dataFormRef: DataForm };
-        if (!dataFormRef) return;
-        let value: any = e;
-        value = e.target ? e.target.value : e;
-        dataFormRef.props.onFieldWrite(this.props.accessor, value);
+
+        let parent = root;
+        let getters: (string | Function)[] = [];
+        while (parent) {
+            const { componentRef } = parent as any;
+            const props = componentRef && componentRef.props as IFieldReaderWriter;
+            if (props && props.onFieldWrite)
+                return props.onFieldWrite(p.accessor, value);
+            parent = parent.parentElement;
+        }
+
 
     }
     render() {
@@ -97,7 +108,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             {
                 onChange: this.handleSetData,
                 onChanged: this.handleSetData,
-                value: this.handleGetData(),
+                value: this.extractedValue,
                 className: Utils.classNames(inputElement.props && inputElement.props.className, st)
             }
         );
@@ -121,6 +132,12 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         </div>
     }
     processDOM() {
+        const value = this.handleGetData();
+        if (value != this.extractedValue) {
+            this.extractedValue = value;
+            setTimeout(() => this.forceUpdate(), 10);
+        }
+
         const { readonly } = this.props;
 
         if (readonly) {
@@ -130,6 +147,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         else Utils.makeWritable(this.refs.root);
     }
     componentDidMount() {
+        super.componentDidMount();
         this.processDOM();
     }
     componentDidUpdate() {
