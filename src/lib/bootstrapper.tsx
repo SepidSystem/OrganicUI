@@ -1,5 +1,6 @@
 import { route } from "./router";
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+import { View } from "./view";
 export function mountViewToRoot(selector?, url?) {
 
     const root = document.querySelector(selector || '#root');
@@ -8,11 +9,12 @@ export function mountViewToRoot(selector?, url?) {
     const viewType: typeof React.Component = route(url || location.pathname, params) || OrganicUI.NotFoundView as any;
     let templ: typeof React.Component & { Template: string } = viewType as any;
     let vdom: any;
+     
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
 
     templ = OrganicUI.templates(templ.Template || 'default') as any;
-    console.log({viewType});
+  
     const children = React.createElement(viewType, params, )
     vdom = React.createElement(templ, {}, children);
 
