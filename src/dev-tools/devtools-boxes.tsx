@@ -1,3 +1,4 @@
+  /// <reference path="../organicUI.d.ts" />
   
 OrganicUI.devTools.set('SingleView|Actions', (target, devPort) => {
     devPort.devElement = (<section className="dev-sheet">
