@@ -62,8 +62,13 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     processFields() {
         const { root } = this.refs;
         const fields = Array.from(root.querySelectorAll('.field-accessor')) as HTMLElement[];
-
         fields.map(fld => fld['componentRef'] as Field).forEach(fld => fld && fld.processDOM());
+
+        Array.from(root.querySelectorAll('.bindable'))
+            .map(fld => fld['componentRef'] as IBindableElement)
+            .forEach(item => item.tryToBinding())
+             
+        
 
     }
     componentDidMount() {
@@ -90,8 +95,9 @@ interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataP
 }
 
 export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>
-{
+    implements IBindableElement {
     targetItem: any;
+    items: any[];
     lastMod: number;
     refs: {
         root: HTMLElement;
@@ -103,26 +109,50 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         callout: FabricUI.Callout,
         section: 'section'
     }
-    componentDidMount() {
-
+    tryToBinding() {
+        this.items = this.getItems();
+        if (this.items)
+            this.repatch({});
+    }
+    getItems() {
+        if (this.items) return this.items;
         const { root } = this.refs;
-        const { dataFormRef } = (root as any) as { dataFormRef: DataForm };
-        if (!dataFormRef) return;
-        const { accessor } = this.props;
-        let items = dataFormRef.props.onFieldRead(accessor);
-        if (!items) {
-            dataFormRef.props.onFieldWrite(accessor, []);
-            items = dataFormRef.props.onFieldRead(accessor);
+        if (!root) return;
+        let parent = root.parentElement;
+        let getters: (string | Function)[] = [];
+        while (parent) {
+            const { componentRef } = parent as any;
+            const onFieldRead = componentRef && componentRef.props && (componentRef.props as IFieldReaderWriter).onFieldRead;
+            const onFieldWrite = componentRef && componentRef.props && (componentRef.props as IFieldReaderWriter).onFieldWrite;
+
+            if (onFieldRead instanceof Function && onFieldWrite instanceof Function) {
+
+                let items = onFieldRead(this.props.accessor);
+                if (!items) {
+                    onFieldWrite(this.props.accessor, []);
+                    items = onFieldRead(this.props.accessor);
+                }
+
+                return items;
+
+            }
+            parent = parent.parentElement;
         }
-        this.repatch({ items });
     }
     render(p = this.props, s = this.state) {
         this.targetItem = this.targetItem || {};
-        this.lastMod = this.lastMod || 0;
+        this.lastMod = this.lastMod || +new Date();
+        const items = this.getItems();
         const extraPropsOfDetailList: Partial<FabricUI.IDetailsListProps> = {
-            items: s.items || [],
-            onActiveItemChanged: (selectedItem, selectedItemIndex) => this.repatch({ selectedItem, selectedItemIndex })
+            items,
+            onActiveItemChanged: (selectedItem, selectedItemIndex) => {
+                this.targetItem = JSON.parse(JSON.stringify(selectedItem));
+                this.repatch({ selectedItem, selectedItemIndex })
+            }
         };
+        if (!items) {
+            setTimeout(() => this.tryToBinding(), 20);
+        }
         const detailListProps: FabricUI.IDetailsListProps = Object.assign({}, { key: 'datalist' + this.lastMod }, extraPropsOfDetailList, { layoutMode: FabricUI.DetailsListLayoutMode.justified }, p, {});
         detailListProps.columns = detailListProps.columns && detailListProps.columns.map(col => Object.assign({}, col, { name: i18n.get(col.name) }));
         detailListProps.columns = detailListProps.columns ||
@@ -130,12 +160,20 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                 .filter(x => !!x).map(key => ({ key, fieldName: key, name: Field.getLabel(key) })) as FabricUI.IColumn[];
 
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
+
         const detailList = React.createElement(FabricUI.DetailsList, detailListProps);
         if (s.targetSelector && s.targetSelector.includes('delete'))
             setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataForm']), 100);
 
 
-        const targetClick = targetSelector => () => this.repatch(s.targetSelector == targetSelector ? { isOpen: false, targetSelector: null } : { isOpen: true, targetSelector });
+        const targetClick = (targetSelector: string) => () => {
+
+            if(targetSelector  && targetSelector.includes('add')){
+                this.targetItem={};
+                this.repatch({selectedItem:null});
+            }
+            this.repatch(s.targetSelector == targetSelector ? { isOpen: false, targetSelector: null } : { isOpen: true, targetSelector });
+        }
         const children = [!p.avoidAdd &&
             <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.avoidEdit &&
@@ -174,10 +212,26 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                         {!s.selectedItem
 
                             && <FabricUI.DefaultButton primary={!s.selectedItem}
-                                onClick={() => (this.props.items.push(this.targetItem), this.lastMod = +new Date(), this.repatch({ isOpen: false, targetSelector: null }))}
-                                disabled={!!s.selectedItem} text='add' iconProps={{ iconName: 'Add' }} />}
+                                onClick={() => {
+                                    this.getItems().push(this.targetItem), this.lastMod = +new Date();
+                                    this.targetItem = {};
+                                    this.repatch({ isOpen: false, targetSelector: null });
+                                }}
+                                disabled={!!s.selectedItem} text={i18n('add') as any} iconProps={{ iconName: 'Add' }} />}
                         {!!s.selectedItem && s.targetSelector && <FabricUI.DefaultButton
                             className={s.targetSelector.replace('.', '')}
+                            onClick={() => {
+                                if (s.targetSelector && s.targetSelector.includes('edit') &&
+                                    typeof s.selectedItemIndex == 'number') {
+                                    this.items[s.selectedItemIndex] = JSON.parse(JSON.stringify(this.targetItem));
+                                }
+                                if (s.targetSelector && s.targetSelector.includes('delete') &&
+                                    typeof s.selectedItemIndex == 'number') {
+                                    this.items.splice(s.selectedItemIndex, 1);
+                                }
+                                this.repatch({ isOpen: false, targetSelector: null });
+
+                            }}
                             primary={!!s.selectedItem}
                             disabled={!s.selectedItem} text={i18n(s.targetSelector.replace('.', '').replace('-button', '')) as any} />}
 
@@ -185,7 +239,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
 
                 </div>))
             , detailList].filter(x => !!x);
-        return <div className="field-accessor" ref="root">{p.header ? React.createElement(DataPanel, p, ...children) : children}</div>;
+        return <div className=" bindable" ref="root">{p.header ? React.createElement(DataPanel, p, ...children) : children}</div>;
     }
 }
 export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{

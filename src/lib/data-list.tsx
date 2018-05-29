@@ -5,6 +5,7 @@ import { registryFactory } from './registry-factory';
 import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
+import { DeveloperBar, DevFriendlyPort } from '../organicUI';
  
 export interface IDataListLoadReq {
     startFrom: number;
@@ -48,7 +49,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
 export const Pagination = funcAsComponentClass<IPaginationProps, IPaginationProps>(pagination);
 //----------------------------------------------------------------------------------------
 export interface IDataListProps {
-    loader: (req: IDataListLoadReq) => Promise<IListData>;
+    loader?: (req: IDataListLoadReq) => Promise<IListData>;
     onCurrentRowChanged?: (row: any) => any;
     rowCount?: number;
     paginationMode?: 'paged' | 'scrolled';
@@ -100,6 +101,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     cache:any;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
+        if(!this.props.loader) return null;
         const s = this.state, p = this.props;
 
         if (!forcedMode) {
@@ -152,7 +154,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
 
         const reactGridProps = Object.assign({}, {
             columns,
-            rowGetter: this.rowGetter,
+            //rowGetter: this.rowGetter,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : rowCount)
                 : (!!listData && rowCount)),
@@ -160,8 +162,9 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as AdazzleReactDataGrid.GridProps;
         return (
-            !!p.height && <div className="" ref={root => this.root = root as any} >
-                {React.createElement(ReactDataGrid, reactGridProps)}
+            <DevFriendlyPort target={this} targetText="DataList">
+            {!!p.height && <div className="" ref={root => this.root = root as any} >
+                {React.createElement(FabricUI.DetailsList, reactGridProps)}
                 {p.paginationMode != 'scrolled' && !!listData
                     && <Pagination
                         totalPages={Math.ceil(listData.totalRows / (rowCount || 10))}
@@ -177,7 +180,8 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                         } />
                 }
 
-            </div>
+            </div>}
+            </DevFriendlyPort>
         );
     }
 

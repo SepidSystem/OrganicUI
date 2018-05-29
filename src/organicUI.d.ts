@@ -10,8 +10,8 @@ import * as  ReactMod from 'react';
 import * as  ReactDomMod from 'react-dom';
 import * as LRU_mod from 'lru-cache';
 declare global {
-  
- 
+
+
   export type FuncView<S, AC> = (props: any, state: S, repatch: (delta, target?) => void, actions: AC) => React.ReactNode;
   export type FuncComponent<P, S> = (p: P, s: S, repatch: (delta, target?) => void) => React.ReactNode;
 
@@ -28,6 +28,9 @@ declare global {
     totalRows: number;
     rows: TRow[];
 
+  }
+  interface IBindableElement {
+    tryToBinding();
   }
   export type PureView<TState, TAPI> =
     (state: TState, api?: TAPI, discover?, repatch?: (delta, target?) => void) => React.ReactNode;
@@ -46,19 +49,19 @@ declare global {
 
   }
 
-   export const FabricUI: typeof FabricUiMod;
+  export const FabricUI: typeof FabricUiMod;
   export const React: typeof ReactMod;
   export const ReactDOM: typeof ReactDomMod;
 
-  export const OrganicUI: typeof OrganicUIMod  ;
-   
+  export const OrganicUI: typeof OrganicUIMod;
+
 }
 declare module Array {
   export var joinNotEmpty: Function;
 }
 declare global {
- export const ReactDataGrid:any;
- export const LRU:any;
+  export const ReactDataGrid: any;
+  export const LRU: any;
 
   export interface IViewsForCRUD<TDTO> extends ICRUDActionsForSingleView<TDTO> {
     renderSingleView(formData: TDTO): React.ReactElement<any>;
@@ -81,6 +84,6 @@ declare global {
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
   }
+
 }
- 
-   
+

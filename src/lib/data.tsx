@@ -50,8 +50,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         let parent = root;
         let getters: (string | Function)[] = [];
         while (parent) {
-            const { vdom } = parent as any;
-            const props = vdom && vdom.props as IFieldReaderWriter;
+            const { componentRef } = parent as any;
+            const props = componentRef && componentRef.props as IFieldReaderWriter;
             if (props) {
                 const value = props.onFieldRead || props.accessor;
                 value && getters.push(value);
