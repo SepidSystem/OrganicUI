@@ -12,7 +12,8 @@ import { Modal } from 'office-ui-fabric-react/lib/Modal';
 import { IFieldProps, Field, IFieldReaderWriter } from "./data";
 
 interface IDataFormProps extends IFieldReaderWriter {
-
+    validate?: boolean;
+    customValidation?: CustomValidationResult;
     data?: any;
 }
 interface IDataListState {
@@ -21,9 +22,11 @@ interface IDataListState {
     isOpen?: boolean;
     targetSelector?: string;
     items: any[];
+    validated?: boolean;
 }
 export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     static DataFormCount = 0;
+    invalidItems: any[];
     appliedFieldName: string;
     refs: {
         root: HTMLElement;
@@ -34,12 +37,20 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
 
         DataForm.DataFormCount++;
     }
+    getErrors() {
+        const { root } = this.refs;
+        console.assert(!!root, 'root is null@getErrors');
+        return this.querySelectorAll<Field>('*')
+            .filter(componentRef => !!componentRef && componentRef.props && componentRef.props.accessor && componentRef.getErrorMessage instanceof Function)
+            .map(componentRef => ({ accessor: componentRef.props.accessor, error: componentRef.getErrorMessage() }))
+            .filter(item => !!item.error);
+
+    }
     render() {
         const p = this.props;
         return (
             <div className="data-form" ref="root">
                 <DevFriendlyPort target={this} targetText={'DataForm'} >
-
                     {this.props.children}
                 </DevFriendlyPort>
             </div>
@@ -59,16 +70,34 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
 
 
     }
-    processFields() {
-        const { root } = this.refs;
-        const fields = Array.from(root.querySelectorAll('.field-accessor')) as HTMLElement[];
-        fields.map(fld => fld['componentRef'] as Field).forEach(fld => fld && fld.processDOM());
+    revalidateAllFields() {
+        this.invalidItems = [];
+        return new Promise(resolve => {
+            const done = () => {
+                this.invalidItems = this.querySelectorAll<Field>('.field-accessor').map(fld => fld.revalidate()).filter(x => !!x)
+                    .concat(this.props.customValidation instanceof Function &&
+                        (this.props.customValidation(this.props.data) || []));
+                        resolve();
+                setTimeout(() => this.invalidItems = [], 1000);
+            }
 
-        Array.from(root.querySelectorAll('.bindable'))
-            .map(fld => fld['componentRef'] as IBindableElement)
-            .forEach(item => item.tryToBinding())
-             
-        
+            const customValidationResult = this.props.customValidation instanceof Function &&
+                (this.props.customValidation(this.props.data) || []);
+            if (customValidationResult instanceof Promise)
+                customValidationResult.then(done)
+            else done();
+        });
+
+    }
+    processFields() {
+
+        this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
+        this.invalidItems =
+            (this.props.validate) &&
+            this.querySelectorAll<Field>('.field-accessor').map(fld => fld.revalidate()).filter(x => !!x)
+                .concat(this.props.customValidation instanceof Function &&
+                    (this.props.customValidation(this.props.data) || []));
+        this.querySelectorAll<IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 
     }
     componentDidMount() {
@@ -92,6 +121,8 @@ interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataP
     formMode?: 'modal' | 'callout' | 'panel' | 'section';
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
     accessor?: string;
+    customValidation?: CustomValidationResult;
+
 }
 
 export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>
@@ -101,6 +132,8 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
     lastMod: number;
     refs: {
         root: HTMLElement;
+        dataForm: DataForm;
+        dataFormWrapper: HTMLElement;
     }
     static formModes = {
         dialog: FabricUI.Dialog,
@@ -163,14 +196,14 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
 
         const detailList = React.createElement(FabricUI.DetailsList, detailListProps);
         if (s.targetSelector && s.targetSelector.includes('delete'))
-            setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataForm']), 100);
+            setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataFormWrapper']), 100);
 
 
         const targetClick = (targetSelector: string) => () => {
 
-            if(targetSelector  && targetSelector.includes('add')){
-                this.targetItem={};
-                this.repatch({selectedItem:null});
+            if (targetSelector && targetSelector.includes('add')) {
+                this.targetItem = {};
+                this.repatch({ selectedItem: null });
             }
             this.repatch(s.targetSelector == targetSelector ? { isOpen: false, targetSelector: null } : { isOpen: true, targetSelector });
         }
@@ -201,11 +234,14 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                         </div>
 
                     </div>
-                    <div ref="dataForm">
+                    <div ref="dataFormWrapper">
                         {React.createElement(DataForm,
                             {
+                                ref: "dataForm",
                                 onFieldRead: fieldName => this.targetItem[fieldName],
-                                onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value
+                                onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value,
+                                customValidation: p.customValidation,
+                                validate: s.validated
                             }, p.children)}
                     </div>
                     <footer>
@@ -214,6 +250,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                             && <FabricUI.DefaultButton primary={!s.selectedItem}
                                 onClick={() => {
                                     this.getItems().push(this.targetItem), this.lastMod = +new Date();
+
                                     this.targetItem = {};
                                     this.repatch({ isOpen: false, targetSelector: null });
                                 }}

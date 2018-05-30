@@ -5,18 +5,18 @@
 @import './material-icons';
 @import './custom-components';
 @import './elements';
-@import './crud'; 
-@import './flexboxgrid'; 
+@import './crud';
+@import './flexboxgrid';
 @import './json-inspector';
 @import "node_modules/react-table/react-table";
 .actionable {
     position: relative;
     min-height: auto;
-    width: 100%; 
+    width: 100%;
     overflow: visible;
     .dropdown {
         position: absolute;
-        top: 3px; 
+        top: 3px;
         left: 3px;
     }
 }
@@ -67,7 +67,7 @@
 .m5 {
     margin: 5px 0;
 }
- 
+
 .panel-blocks.has-scroll {
     max-height: 200px;
     overflow: hiddden;
@@ -175,10 +175,19 @@
         }
     }
 }
-.tabs:not(:last-child){
+
+.tabs:not(:last-child) {
     margin-bottom: 10px !important;
 }
-.dev-sheet{
+
+.dev-sheet {
     direction: ltr;
     text-align: left;
 }
+
+.field-targeted {
+   label{
+       font-weight: bold;
+   }
+    color:orangered !important;
+}  

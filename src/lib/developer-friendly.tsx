@@ -1,6 +1,7 @@
 import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
 import { HTMLAttributes, ReactElement } from "react";
 import * as JsonInspector from 'react-json-inspector';
+import { IContextualMenuItem } from "office-ui-fabric-react";
 export { JsonInspector };
 function isDevMode() {
 
@@ -32,10 +33,21 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
             key: 'reset',
             name: `Reset DevTools `,
             onClick: () => (this.devElement = null, this.forceUpdate())
-        }].filter(item => !!item);
+        }, {
+            key: 'assign-window',
+            name: 'Set As Global Var',
+            onClick: () => {
+                const key = prompt('global varaible name , you can use this variable in    console', 'that');
+                if (!key) return;
+                let pairs = {};
+                pairs[key] = this.props.target;
+                Object.assign(window, pairs);
+            }
+        }
+        ].filter(item => !!item);
 
-        return <FabricUI.DefaultButton onMouseEnter={() =>    this.refs.root.classList.add('dev-target')  }
-        onMouseLeave={()=>this.refs.root.classList.remove('dev-target')}
+        return <FabricUI.DefaultButton onMouseEnter={() => this.refs.root.classList.add('dev-target')}
+            onMouseLeave={() => this.refs.root.classList.remove('dev-target')}
             id={`DevTools${targetText}`}
             text={`DevTools for ${targetText}`}
             menuProps={{
@@ -68,6 +80,8 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
 }
 
 export class DeveloperBar extends BaseComponent<any, any> {
+    static topElement: any;
+    static devMenuItems: IContextualMenuItem[];
     timerId: any;
     renderedSigure: number;
     devPorts: DevFriendlyPort[];
@@ -95,8 +109,22 @@ export class DeveloperBar extends BaseComponent<any, any> {
         clearInterval(this.timerId);
     }
     render() {
-
+        if (DevFriendlyPort.developerFriendlyEnabled) {
+            DeveloperBar.devMenuItems = DeveloperBar.devMenuItems ||
+                Object.keys(devTools.data).filter(s => !s.includes('|'))
+                    .map(key => ({
+                        key, name: key, onClick: () => devTools.data[key](this)
+                    } as IContextualMenuItem));
+        }
         return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px' }} className="developer-bar">
+            {DeveloperBar.topElement}
+            {!!DevFriendlyPort.developerFriendlyEnabled && <FabricUI.DefaultButton
+                menuProps={{
+                    shouldFocusOnMount: true,
+                    items: DeveloperBar.devMenuItems
+                }} iconProps={{ iconName: 'Code' }}
+            />}
+
             {!!DevFriendlyPort.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
         </div>

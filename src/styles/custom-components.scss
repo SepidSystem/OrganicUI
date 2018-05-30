@@ -130,3 +130,18 @@ a.close{
     outline: none !important;
 }
  
+.borderless-input *{
+    border:none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.field {
+    .custom-help{
+    background:lightyellow;
+    margin: 0px !important;
+    text-align:right;
+}
+.fa-exclamation-triangle{
+    color:orangered;
+}
+}

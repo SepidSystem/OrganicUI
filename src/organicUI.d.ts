@@ -11,12 +11,16 @@ import * as  ReactDomMod from 'react-dom';
 import * as LRU_mod from 'lru-cache';
 declare global {
 
-
+  export type CustomValidationResult = (data: any) => IDataFormAccessorMsg[];
   export type FuncView<S, AC> = (props: any, state: S, repatch: (delta, target?) => void, actions: AC) => React.ReactNode;
   export type FuncComponent<P, S> = (p: P, s: S, repatch: (delta, target?) => void) => React.ReactNode;
 
   export interface ResultSet<T> {
     results: T[];
+  }
+  export interface IDataFormAccessorMsg {
+    accessor: string;
+    message: any;
   }
   export interface PromisedResultSet<T> extends Promise<IListData<T>> {
 
@@ -31,6 +35,9 @@ declare global {
   }
   interface IBindableElement {
     tryToBinding();
+  }
+  interface IComponentRefer<T=any> {
+    componentRef: T;
   }
   export type PureView<TState, TAPI> =
     (state: TState, api?: TAPI, discover?, repatch?: (delta, target?) => void) => React.ReactNode;

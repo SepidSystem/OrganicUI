@@ -1,4 +1,4 @@
-import { IStateListener,StateListener } from "./state-listener";
+import { IStateListener, StateListener } from "./state-listener";
 
 export class BaseComponent<P, S> extends React.Component<P, S>{
     base: any;
@@ -31,5 +31,11 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
         }
         this.forceUpdate();
     }
-
+    querySelectorAll<T=any>(cssSelector: string) {
+        const { root } = this.refs;
+        console.assert(!!root, `root is null@queryAllComponentRefs with ${cssSelector}`);
+        return (Array.from((root as HTMLElement).querySelectorAll(cssSelector)))
+            .filter((item: any) => (item as IComponentRefer<T>).componentRef)
+            .map((item: any) => (item as IComponentRefer<T>).componentRef)
+    }
 }

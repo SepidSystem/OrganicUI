@@ -12,8 +12,7 @@ export function mountViewToRoot(selector?, url?) {
     secondaryValue && Object.assign(params, secondaryValue);
 
     templ = OrganicUI.templates(templ.Template || 'default') as any;
-    console.log({viewType});
-    const children = React.createElement(viewType, params, )
+     const children = React.createElement(viewType, params, )
     vdom = React.createElement(templ, {}, children);
 
 

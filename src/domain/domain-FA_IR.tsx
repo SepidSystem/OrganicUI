@@ -58,6 +58,7 @@ module LocalizeFA_IR {
     i18n.set('full-name', 'نام فرد');
     i18n.set('comment', 'توضیح');
     i18n.set('phone', 'تلفن');
+    i18n.set('address', 'آدرس');
     i18n.set('computer-id', 'کد کامپیوتر');
     i18n.set('license-code', 'کد فعال ساز');
     i18n.set('license-date', 'تاریخ دریافت');

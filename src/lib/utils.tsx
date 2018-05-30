@@ -90,7 +90,16 @@ export const Utils = {
 			<span className="text">{i18n(textId)}</span>
 
 		</span>);
-	}
+	}, scrollTo(element, to, duration) {
+		if (duration < 0) return;
+		var difference = to - element.scrollTop;
+		var perTick = difference / duration * 2;
+	  
+		  setTimeout(function() {
+			  element.scrollTop = element.scrollTop + perTick;
+			  Utils.scrollTo(element, to, duration - 2);
+		  }, 10);
+	  }
 }
 import * as changeCaseObject from 'change-case-object'
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

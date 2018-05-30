@@ -6,7 +6,7 @@ import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
 import { DeveloperBar, DevFriendlyPort } from '../organicUI';
- 
+
 export interface IDataListLoadReq {
     startFrom: number;
     rowCount: number;
@@ -96,16 +96,15 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         (this as any).state = {};
         Object.assign(this.state, { loadingPageIndex: 0 });
     }
-   
-    root: HTMLElement;
-    cache:any;
+
+    cache: any;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
-        if(!this.props.loader) return null;
+        if (!this.props.loader) return null;
         const s = this.state, p = this.props;
 
         if (!forcedMode) {
-            const { root } = this;
+            const { root } = this.refs;
             if (root) {
                 //    const spinner = root.querySelector('.spinner');
                 //  if (!spinner) return;
@@ -150,37 +149,38 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         const { listData } = this.state;
         const p = this.props, s: IDataListState = this.state;
         s.listData = s.listData || this.loadDataIfNeeded(0) as any;
-        const rowCount = p.rowCount || 10;
-
-        const reactGridProps = Object.assign({}, {
+        const length = p.rowCount || 10;
+        const items = Array.from({ length }, (_, idx) => this.cache.get(idx));
+        const dataListProps = Object.assign({}, {
             columns,
-            //rowGetter: this.rowGetter,
+            items,
             rowsCount: (p.paginationMode == 'scrolled'
-                ? (!!listData ? listData.totalRows : rowCount)
-                : (!!listData && rowCount)),
+                ? (!!listData ? listData.totalRows : length)
+                : (!!listData && length)),
             minHeight: p.height,
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
-        }, p) as AdazzleReactDataGrid.GridProps;
+        }, p);
         return (
             <DevFriendlyPort target={this} targetText="DataList">
-            {!!p.height && <div className="" ref={root => this.root = root as any} >
-                {React.createElement(FabricUI.DetailsList, reactGridProps)}
-                {p.paginationMode != 'scrolled' && !!listData
-                    && <Pagination
-                        totalPages={Math.ceil(listData.totalRows / (rowCount || 10))}
-                        loadingPageIndex={s.loadingPageIndex}
-                        currentPageIndex={s.currentPageIndex} onPageIndexChange={pageIndex => {
+                {!!p.height && <div className="data-list" ref="root" >
+                    <div className="data-list-content">
+                        {React.createElement(FabricUI.DetailsList, dataListProps)}
+                        {p.paginationMode != 'scrolled' && !!listData
+                            && <Pagination
+                                totalPages={Math.ceil(listData.totalRows / (length || 10))}
+                                loadingPageIndex={s.loadingPageIndex}
+                                currentPageIndex={s.currentPageIndex} onPageIndexChange={pageIndex => {
+                                    this.repatch({ loadingPageIndex: pageIndex });
+                                    this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
 
-                            this.repatch({ loadingPageIndex: pageIndex });
-                            this.loadDataIfNeeded(pageIndex * rowCount, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
-                            ;
 
+                                }
+
+                                } />
                         }
+                    </div>
 
-                        } />
-                }
-
-            </div>}
+                </div>}
             </DevFriendlyPort>
         );
     }

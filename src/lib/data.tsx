@@ -2,7 +2,7 @@ import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, regist
 import * as React from "react";
 import { ReactNode } from "react";
 import { DataForm } from "./data-form";
-
+import { i18n } from './shared-vars';
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -14,7 +14,7 @@ export interface IFieldReaderWriter {
     onFieldWrite?, onFieldRead?: Function;
     accessor?: string;
 }
-export type ErrorCodeForFieldValidation = string | number;
+export type ErrorCodeForFieldValidation = string;
 export interface IFieldProps {
     accessor?: string;
     onGet?, onSet?: Function;
@@ -30,6 +30,7 @@ export interface IFieldProps {
 }
 export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     static Dictionary = registryFactory();
+    dataForm: DataForm;
     refs: {
         root: HTMLElement;
     }
@@ -41,6 +42,18 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     }
     static getLabel = (accessor, label?) => OrganicUI.i18n(label || OrganicUI.changeCase.paramCase(accessor))
     extractedValue: any;
+    getDataForm(avoidAssertion?) {
+        const { root } = this.refs;
+        !avoidAssertion && console.assert(!!root, 'root is null @ getDataForm');
+        let parent = root as HTMLElement;
+        while (!this.dataForm && parent) {
+            this.dataForm = (parent.classList.contains('data-form')
+                && (((parent as any) as IComponentRefer<DataForm>).componentRef))
+            parent = parent.parentElement;
+        }
+        return this.dataForm;
+
+    }
     handleGetData() {
         const p = this.props;
         if (p.onGet instanceof Function) return p.onGet();
@@ -86,8 +99,12 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         while (parent) {
             const { componentRef } = parent as any;
             const props = componentRef && componentRef.props as IFieldReaderWriter;
-            if (props && props.onFieldWrite)
-                return props.onFieldWrite(p.accessor, value);
+            if (props && props.onFieldWrite) {
+                props.onFieldWrite(p.accessor, value);
+                const dataForm = this.getDataForm();
+                dataForm.props.validate && this.revalidate();
+                break;
+            }
             parent = parent.parentElement;
         }
 
@@ -96,10 +113,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     render() {
         const p = this.props, s = this.state;
         s.messages = s.messages || p.messages || [];
-        s.messages = s.messages.filter(msg => msg.by != 'info');
-        const infoMessage = p.getInfoMessage && p.getInfoMessage();
-        infoMessage && s.messages.push({ message: infoMessage, by: 'info', type: 'info' });
-        const iconForStatus = null;// 'fa-exclamation-triangle';
+        const dataForm = this.getDataForm(true);
+        const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
+        const iconForStatus = hasError && 'fa-exclamation-triangle';
         let inputElement = p.children as React.ReactElement<any>;
         if (!inputElement) inputElement = Field.Dictionary(p.accessor) as any;
         if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
@@ -109,26 +125,40 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
                 onChange: this.handleSetData,
                 onChanged: this.handleSetData,
                 value: this.extractedValue,
-                className: Utils.classNames(inputElement.props && inputElement.props.className, st)
+                className: Utils.classNames(inputElement.props && inputElement.props.className, st, hasError && 'input is-danger borderless-input')
             }
         );
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         const label = Field.getLabel(p.accessor, p.label);
-        return <div ref="root" className={Utils.classNames("field field-accessor is-horizontal  ", p.className)}>
-            <label className="label">{label}</label>
-            <div className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
-                {inputElement}
 
-                {!!p.icon && <span className="icon is-small is-left">
-                    {icon(p.icon)}
-                </span>}
-                {!!iconForStatus && <span className="icon is-small is-right">
-                    <i className={iconForStatus.split('-')[0] + ' ' + iconForStatus}></i>
-                </span>}
+        return <div ref="root" className="field-accessor" >
+            <div className={Utils.classNames("field  is-horizontal  ", p.className)}>
+                <label className="label">{label}</label>
+                <div className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
+                    {inputElement}
+
+                    {!!p.icon && <span className="icon is-small is-left">
+                        {icon(p.icon)}
+                    </span>}
+                    {!!iconForStatus && <span className="icon is-small is-right">
+                        <i className={iconForStatus.split('-')[0] + ' ' + iconForStatus}></i>
+                    </span>}
+
+                </div>
+
 
             </div>
-            {s.messages && s.messages[0] && <p className="help is-success">{s.messages[0]}</p>}
+            <div className="field  is-horizontal no-padding " style={{ maxHeight: '10px' }}>
+                <label className="label" style={{ visibility: 'hidden' }}>{label}</label>
+                {s.messages && s.messages[0] && <div className="control" style={{ padding: '0px' }}>
+                    <p className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>
+
+                </div>}
+
+
+            </div>
+
         </div>
     }
     processDOM() {
@@ -139,11 +169,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         }
 
         const { readonly } = this.props;
-
-        if (readonly) {
-
+        if (readonly)
             Utils.makeReadonly(this.refs.root);
-        }
         else Utils.makeWritable(this.refs.root);
     }
     componentDidMount() {
@@ -153,14 +180,27 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     componentDidUpdate() {
         this.processDOM();
     }
+    getErrorMessage() {
+        const val = this.handleGetData(), p = this.props;
+        const dataForm = this.getDataForm(true);
+        return ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
+            || (dataForm && dataForm.invalidItems && dataForm.invalidItems.
+                filter(invalidItem => invalidItem.accessor == p.accessor)
+                .map(invalidItem => invalidItem.message)[0])
+            || (p.required && !val && 'error-required')
+            || (p.customValidation instanceof Function) && p.customValidation(val);
+
+    }
+    revalidate() {
+        const s = this.state, p = this.props;
+
+        const message = this.getErrorMessage();
+        s.messages = (p.messages || []).concat(!message ? [] : [{ message, type: 'danger' }])
+        this.forceUpdate();
+        return !!message && { accessor: p.accessor, message };
+    }
 }
-function getErrorCodeFromField(fld: Field) {
-    const val = fld.handleGetData();
-    const fldProps = fld.props;
-    if (fldProps.required && !val) return 'error-required';
-    if (fldProps.customValidation) return fldProps.customValidation(val);
-    return 0;
-}
+
 
 //--------------------------------------------------------------------------------
 interface ObjectFieldState {

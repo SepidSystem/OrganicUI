@@ -111,7 +111,7 @@ export class AdvButton extends BaseComponent<IButtonProps & IAdvButtonProps, IAd
                     result && result.then && result.then(r => {
                         const lastMod = +new Date();
                         setTimeout(() => this.repatch({ isLoading: false, callout: r, lastMod }), 500);
-                        r && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 4000);
+                        r && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
                     });
                     !result && repatch({ isLoading: false, callout: null });
 
