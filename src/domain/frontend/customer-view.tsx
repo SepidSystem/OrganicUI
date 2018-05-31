@@ -21,13 +21,13 @@ namespace LicApp.Frontend.Customer {
         handleDelete: id => api.deleteCustomerById(id)
     };
     const singleView = (dataProps) =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} >
+        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="customer" >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
                     <TextField type="text" />
                 </Field>
-                <Field accessor="customerName" required>
+                <Field accessor="customerName" required >
                     <TextField type="text" />
                 </Field>
                 <Field accessor="phone" required>
@@ -37,9 +37,9 @@ namespace LicApp.Frontend.Customer {
                     <TextField type="text" />
                 </Field>
             </DataPanel>
-            <DataListPanel formMode="callout" header="license-list" accessor="licenses" selectionMode={SelectionMode.single}
+            <DataListPanel formMode="callout" singularName="license" pluralName="licenses" accessor="licenses" selectionMode={SelectionMode.single}
             >
-                <Field accessor="computerId"  required >
+                <Field accessor="computerId" required >
                     <TextField type="text" />
                 </Field>
                 <Field accessor="licenseDate"  >
@@ -52,7 +52,7 @@ namespace LicApp.Frontend.Customer {
                     <TextField type="text" />
                 </Field>
             </DataListPanel>
-            <DataListPanel header="personal-list" accessor="personals" formMode="callout" selectionMode={SelectionMode.single} >
+            <DataListPanel  singularName="contact" pluralName="contacts" accessor="contacts" formMode="callout" selectionMode={SelectionMode.single} >
                 <Field accessor="role"   >
                     <TextField type="text" />
                 </Field>
@@ -81,6 +81,8 @@ namespace LicApp.Frontend.Customer {
     const listView = () => (
         <ListViewBox actions={actions}>
             <DataList>
+                <GridColumn accessor="customerCode" />
+                <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )

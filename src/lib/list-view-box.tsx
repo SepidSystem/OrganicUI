@@ -13,6 +13,7 @@ import { IDataListProps, DataList } from './data-list';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import { DevFriendlyPort } from '../organicUI';
+import { IDetailsListProps } from 'office-ui-fabric-react';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -39,12 +40,12 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
                 items={[
                     {
                         key: 'newItem',
-                        name: 'New',
+                        name: 'Add',
                         icon: 'Add',
                         ariaLabel: 'New. Use left and right arrow keys to navigate',
                         onClick: () => {
-                            const crudViews = (this.props.crud as any) as IViewsForCRUD<any>;
-                            return Utils.navigate(crudViews.getUrlForSingleView('new'));
+                            const listViewBox = (this.props.crud as any) as ListViewBox;
+                            return Utils.navigate(listViewBox.getUrlForSingleView('new'));
                         }
                     },
                     {
@@ -52,8 +53,8 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
                         name: 'Edit',
                         icon: 'Edit',
                         onClick: () => {
-                            const crudViews = (this.props.crud as any);
-                            return crudViews.handleEdit();
+                            const listViewBox = (this.props.crud as any) as ListViewBox;
+                            return listViewBox.handleEdit();
                         },
                     },
                     {
@@ -85,12 +86,13 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
                 item.onRender(item)
             );
         }
+
         return (
             <AdvButton
                 iconProps={{ iconName: item.icon }}
                 menuProps={item.subMenuProps}
                 onClick={item.onClick}
-                text={item.text}
+                text={i18n(OrganicUI.changeCase.paramCase(item.name)) as any}
             >{null}</AdvButton>
         );
     }
@@ -107,8 +109,13 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
 
 interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
 export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
-    static prepareState(s) {
+    constructor(p) {
+        super(p);
+        this.handleActiveItemChanged = this.handleActiveItemChanged.bind(this);
+    }
+    getUrlForSingleView(id) {
 
+        return location.pathname.split('/').concat([id]).join('/');
     }
     handleEdit() {
         const crudView = this as any as IViewsForCRUD<any>;
@@ -117,9 +124,12 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
             console.warn('currentRow is null');
             return;
         }
-        const id = crudView.getId(currentRow);
-        const url = crudView.getUrlForSingleView(id || 'new');
+        const id = (currentRow.id);
+        const url = this.getUrlForSingleView(id  );
         return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
+    }
+    handleActiveItemChanged(currentRow) {
+        this.repatch({ currentRow });
     }
     render() {
         const { repatch } = this;
@@ -138,10 +148,12 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
             if (child.type == DataList && !child.props.loader) {
                 return React.cloneElement(child, Object.assign(
                     {}, child.props, {
-                        onRowClick, onRowSelect,
-                        height: 200,
+                        // onRowClick, onRowSelect,
+                        onActiveItemChanged: this.handleActiveItemChanged,
+                        height: 600,
+                        loader: this.props.actions.handleLoadData,
                         paginationMode: child.props.paginationMode || 'scrolled'
-                    }))
+                    } as Partial<IDetailsListProps>))
 
             }
             return child;
@@ -188,10 +200,7 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
                 </div>
                 <footer style={{ display: 'none' }} className="buttons static-height columns  ">
                     <div className="column is-9">
-                        <AdvButton onClick={() => {
-                            const { actions } = this.props;
-                            return Utils.navigate(actions.getUrlForSingleView('new'));
-                        }}>
+                        <AdvButton onClick={() => Utils.navigate(this.getUrlForSingleView('new'))}>
                             {Utils.showIconAndText('add')}
                         </AdvButton>
                         <AdvButton onClick={() => this.handleEdit()}>{Utils.showIconAndText('edit')}</AdvButton>

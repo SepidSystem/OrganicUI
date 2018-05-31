@@ -26,7 +26,7 @@ class BaseView extends Component {
     render() {
 
         //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
-        const heightForContent = window.innerHeight - 100;
+        const heightForContent = window.innerHeight ;
         return ((<Fabric className="master-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
             <header className="hero is-light cover-section" style={{ height: '40px' }}>
@@ -39,13 +39,13 @@ class BaseView extends Component {
                 </div>
             </header>
 
-            <section className="view container main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
+            <main className="view container main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
 
 
                 <div className="extra-section">
                 </div>
 
-                <section style={{ padding: '5px', maxHeight: heightForContent + 'px', minHeight: heightForContent + 'px', overflow: 'hidden' }}>
+                <section style={{ padding: '5px'  }}>
                     <DeveloperBar />
                     {this.props.children}
                 </section>
@@ -59,8 +59,8 @@ class BaseView extends Component {
                             </a>))}
                     </div>
                 </div>
-            </section>
-            <footer className="hero is-white footer-section" style={{ height: '60px', maxHeight: '60px', minHeight: '60px' }}>
+            </main>
+          {/*    <footer className="hero is-white footer-section" style={{ height: '60px', maxHeight: '60px', minHeight: '60px' }}>
                 <div className="container">
                     <div className=" " style={{ display: "flex", justifyContent: "space-around" }}>
                         {Object.keys(OrganicUI.menuBar.data).map(key => (
@@ -71,9 +71,10 @@ class BaseView extends Component {
                             </a>))}
                     </div>
                 </div>
+                        
 
+            </footer>*/}
 
-            </footer>
 
         </Fabric>))
     }

@@ -1,5 +1,7 @@
 .single-view {
     footer.buttons {
+        justify-content: center;
+        
         button{
             clear:both !important;
             font-size:12px;
@@ -26,5 +28,5 @@
             min-width:24px;
             float:left;
         }
-    } 
+    }  
 }

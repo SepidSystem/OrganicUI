@@ -1,6 +1,6 @@
 import { mountViewToRoot } from "./bootstrapper";
 import { icon, i18n } from "./shared-vars";
-
+import format = require('string-template');
 
 export const Utils = {
 	showModal(title, body) {
@@ -94,12 +94,20 @@ export const Utils = {
 		if (duration < 0) return;
 		var difference = to - element.scrollTop;
 		var perTick = difference / duration * 2;
-	  
-		  setTimeout(function() {
-			  element.scrollTop = element.scrollTop + perTick;
-			  Utils.scrollTo(element, to, duration - 2);
-		  }, 10);
-	  }
+
+		setTimeout(function () {
+			element.scrollTop = element.scrollTop + perTick;
+			Utils.scrollTo(element, to, duration - 2);
+		}, 10);
+	},
+	i18nFormat(i18nCode, args) {
+		if (typeof args == 'string') {
+			args = { s: i18n.get(args) };
+			 console.log({args});	
+		}
+		const text = i18n.get(i18nCode) as any;
+		return format(text, args);
+	}
 }
 import * as changeCaseObject from 'change-case-object'
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

@@ -79,7 +79,7 @@ export function SearchInput(p: { className?: string }) {
 
 
 interface IAdvButtonProps {
-    children: any;
+    children?: any;
     isLoading?: boolean;
     callout?: any;
 
@@ -90,6 +90,7 @@ interface IAdvButtonProps {
     className?: string;
     calloutWidth?: number;
     lastMod?: number;
+    buttonComponent?:any;
 }
 
 export class AdvButton extends BaseComponent<IButtonProps & IAdvButtonProps, IAdvButtonProps>{
@@ -97,29 +98,28 @@ export class AdvButton extends BaseComponent<IButtonProps & IAdvButtonProps, IAd
         root: Element
     }
     render(p = this.props, s = this.state, repatch = this.repatch) {
-        return <span ref="root"> {React.createElement(FabricUI.DefaultButton,
-
+        const advButton = React.createElement(p.buttonComponent ||  FabricUI.DefaultButton,
             Object.assign({}, p, {
-
                 className: Utils.classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
                 iconProps: !s.isLoading && p.iconProps,
                 onClick: e => {
                     e.preventDefault();
                     if (s.callout) return repatch({ callout: null });
-                    const result = p.onClick();
-                    repatch({ isLoading: true, callout: null });
-                    result && result.then && result.then(r => {
+                    const asyncClick = async () => {
+                        repatch({ isLoading: true, callout: null });
+                        const result = await p.onClick();
                         const lastMod = +new Date();
-                        setTimeout(() => this.repatch({ isLoading: false, callout: r, lastMod }), 500);
-                        r && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                    });
-                    !result && repatch({ isLoading: false, callout: null });
-
+                        setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
+                        result && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
+                        !result && repatch({ isLoading: false, callout: null });
+                    };
+                    asyncClick();
                 }
             }),
             !s.isLoading && !s.callout && p.children,
             !s.isLoading && s.callout && i18n('hide-result'),
-            s.isLoading && <FabricUI.Spinner />)}
+            s.isLoading && <FabricUI.Spinner />);
+        return <span ref="root" className={Utils.classNames("adv-button")}> {advButton}
             {React.isValidElement(s.callout) &&
                 <Callout directionalHint={FabricUI.DirectionalHint.topCenter} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
                     {s.callout}

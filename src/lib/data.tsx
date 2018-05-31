@@ -1,8 +1,13 @@
-import { FuncComponent, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
+import { registryFactory } from "./registry-factory";
+import { FuncComponent, funcAsComponentClass } from "./functional-component";
+import { i18n,icon } from "./shared-vars";
+import {BaseComponent} from './base-component';
+import { changeCase, Utils } from './utils';
+
 import * as React from "react";
 import { ReactNode } from "react";
 import { DataForm } from "./data-form";
-import { i18n } from './shared-vars';
+
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -40,7 +45,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         this.handleGetData = this.handleGetData.bind(this);
 
     }
-    static getLabel = (accessor, label?) => OrganicUI.i18n(label || OrganicUI.changeCase.paramCase(accessor))
+    static getLabel = (accessor, label?) => i18n(label ||  changeCase.paramCase(accessor))
     extractedValue: any;
     getDataForm(avoidAssertion?) {
         const { root } = this.refs;
@@ -96,18 +101,20 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
 
         let parent = root;
         let getters: (string | Function)[] = [];
+        const dataForm = this.getDataForm();
+
         while (parent) {
             const { componentRef } = parent as any;
             const props = componentRef && componentRef.props as IFieldReaderWriter;
             if (props && props.onFieldWrite) {
                 props.onFieldWrite(p.accessor, value);
-                const dataForm = this.getDataForm();
-                dataForm.props.validate && this.revalidate();
+
                 break;
             }
             parent = parent.parentElement;
         }
 
+        dataForm && dataForm.props.validate && this.revalidate();
 
     }
     render() {
@@ -115,7 +122,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         s.messages = s.messages || p.messages || [];
         const dataForm = this.getDataForm(true);
         const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
-        const iconForStatus = hasError && 'fa-exclamation-triangle';
+        const iconForStatus: string = hasError && '';// 'fa-exclamation-triangle';
         let inputElement = p.children as React.ReactElement<any>;
         if (!inputElement) inputElement = Field.Dictionary(p.accessor) as any;
         if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
@@ -151,7 +158,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             </div>
             <div className="field  is-horizontal no-padding " style={{ maxHeight: '10px' }}>
                 <label className="label" style={{ visibility: 'hidden' }}>{label}</label>
-                {s.messages && s.messages[0] && <div className="control" style={{ padding: '0px' }}>
+                {s.messages && s.messages[0] && <div className="control invalid-control" >
                     <p className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>
 
                 </div>}
@@ -183,12 +190,13 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     getErrorMessage() {
         const val = this.handleGetData(), p = this.props;
         const dataForm = this.getDataForm(true);
-        return ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
+        const message = ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
             || (dataForm && dataForm.invalidItems && dataForm.invalidItems.
                 filter(invalidItem => invalidItem.accessor == p.accessor)
                 .map(invalidItem => invalidItem.message)[0])
             || (p.required && !val && 'error-required')
             || (p.customValidation instanceof Function) && p.customValidation(val);
+        return message && Utils.i18nFormat(message, changeCase.paramCase(p.accessor));
 
     }
     revalidate() {

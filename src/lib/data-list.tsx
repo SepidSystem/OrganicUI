@@ -6,6 +6,7 @@ import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
 import { DeveloperBar, DevFriendlyPort } from '../organicUI';
+import { IColumn, IDetailsList, IDetailsListProps } from 'office-ui-fabric-react';
 
 export interface IDataListLoadReq {
     startFrom: number;
@@ -89,12 +90,16 @@ const rowRenderer = p => (
     </div >);
     */
 export class DataList extends BaseComponent<IDataListProps, IDataListState>{
+    refs: {
+        root: HTMLElement;
+    }
     static Templates = registryFactory<Function>()
     constructor(p) {
         super(p);
         this.cache = LRU(4 * 1000);
         (this as any).state = {};
         Object.assign(this.state, { loadingPageIndex: 0 });
+        this.handleScroll = this.handleScroll.bind(this);
     }
 
     cache: any;
@@ -137,48 +142,68 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         this.loadDataIfNeeded(idx);
         return { __isLoading: true };
     }
-
+    handleScroll() {
+        this.repatch({});
+    }
     render() {
         const columnArray: React.ReactElement<ColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
-        const columns: any[] =
-            columnArray.filter(col => col && (col.type == GridColumn)).map(col => Object.assign({}, col.props || {}, { key: col.props.accessor }) as any)
-                .concat([{
-                    name: "", accessor: "", key: "__isLoading", locked: true, cellClass: 'full-cell'
-                    , width: 40
-                }]);
+        const columns: IColumn[] =
+            columnArray.filter(col => col && (col.type == GridColumn))
+                .map(col => Object.assign({}, col.props || {}, {
+                    key: col.props.accessor, name: i18n(col.props.name || OrganicUI.changeCase.paramCase(col.props.accessor))
+                    , onRender: (item?: any, index?: number, column?: IColumn) => {
+
+                        return item[column.key];
+                    }
+                } as Partial<IColumn>) as IColumn)
+
         const { listData } = this.state;
         const p = this.props, s: IDataListState = this.state;
         s.listData = s.listData || this.loadDataIfNeeded(0) as any;
         const length = p.rowCount || 10;
         const items = Array.from({ length }, (_, idx) => this.cache.get(idx));
-        const dataListProps = Object.assign({}, {
+
+        console.log({ columns, items });
+
+        const dataListProps: IDetailsListProps = Object.assign({}, {
             columns,
             items,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : length)
                 : (!!listData && length)),
-            minHeight: p.height,
+            minHeight: p.height
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
-        }, p);
+        }, p) as any;
+        const itemHeight = 30;
+        console.log({ dataListProps });
+
         return (
             <DevFriendlyPort target={this} targetText="DataList">
-                {!!p.height && <div className="data-list" ref="root" >
-                    <div className="data-list-content">
+
+
+                {!!p.height && <div onScroll={this.handleScroll} className="data-list" ref="root" style={{ maxHeight: (p.height + 'px') }} >
+                    <div className="data-list-content" style={{ minHeight: parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' }}>
+                    </div>
+                    {this.refs.root && items && <div className="data-list-c1" style={{
+                        height: p.height + 'px',
+                        position: 'absolute', top:
+                            ((this.refs.root && Math.floor(this.refs.root.scrollTop)) || 0) + 'px'
+                    }} >
                         {React.createElement(FabricUI.DetailsList, dataListProps)}
+
                         {p.paginationMode != 'scrolled' && !!listData
                             && <Pagination
                                 totalPages={Math.ceil(listData.totalRows / (length || 10))}
                                 loadingPageIndex={s.loadingPageIndex}
-                                currentPageIndex={s.currentPageIndex} onPageIndexChange={pageIndex => {
+                                currentPageIndex={s.currentPageIndex}
+                                onPageIndexChange={pageIndex => {
                                     this.repatch({ loadingPageIndex: pageIndex });
                                     this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
 
 
-                                }
-
-                                } />
+                                }} />
                         }
-                    </div>
+                    </div>}
 
                 </div>}
             </DevFriendlyPort>

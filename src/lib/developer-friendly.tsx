@@ -46,7 +46,7 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
         }
         ].filter(item => !!item);
 
-        return <FabricUI.DefaultButton onMouseEnter={() => this.refs.root.classList.add('dev-target')}
+        return <FabricUI.ActionButton onMouseEnter={() => this.refs.root.classList.add('dev-target')}
             onMouseLeave={() => this.refs.root.classList.remove('dev-target')}
             id={`DevTools${targetText}`}
             text={`DevTools for ${targetText}`}
@@ -118,7 +118,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
         }
         return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px' }} className="developer-bar">
             {DeveloperBar.topElement}
-            {!!DevFriendlyPort.developerFriendlyEnabled && <FabricUI.DefaultButton
+            {!!DevFriendlyPort.developerFriendlyEnabled && <FabricUI.ActionButton
                 menuProps={{
                     shouldFocusOnMount: true,
                     items: DeveloperBar.devMenuItems

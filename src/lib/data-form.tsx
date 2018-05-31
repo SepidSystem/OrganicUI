@@ -17,6 +17,7 @@ interface IDataFormProps extends IFieldReaderWriter {
     data?: any;
 }
 interface IDataListState {
+    message?: { type, text };
     selectedItem: any;
     selectedItemIndex: number;
     isOpen?: boolean;
@@ -25,6 +26,39 @@ interface IDataListState {
     validated?: boolean;
 }
 export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
+    setFocusByAcccesor(accessor) {
+
+        this.querySelectorAll<Field>('.field-accessor').filter(fld => fld.props.accessor == accessor).forEach(fld => {
+            fld.refs.root.classList.add('field-targeted');
+            Utils.scrollTo(document.body, fld.refs.root.clientTop, 100);
+            fld.refs.root.querySelector('input').focus();
+            setTimeout(() => fld.refs.root.classList.remove('field-targeted'), 1500);
+        })
+    }
+    getErrorCard(): React.ReactNode {
+        return this.invalidItems && !!this.invalidItems.length && (<div className="error-card"   >
+            <div className="title is-5 animated fadeIn">
+                <FabricUI.Icon iconName="StatusErrorFull" />{'  '}
+                {i18n('error')}</div>
+            <div className="animated fadeInDown">
+                {i18n('description-rejected-validation')}
+                <ul className="invalid-items">
+                    {this.invalidItems
+                        .filter(invalidItem => !!invalidItem)
+                        .map(invalidItem => (<li className="invalid-item">
+                            <a href="#" onClick={e => {
+                                e.preventDefault();
+                                this.setFocusByAcccesor(invalidItem.accessor);
+                            }}>
+                                 
+                               {i18n(invalidItem.message)} 
+                            </a>
+                        </li>
+                        ))}
+                </ul>
+            </div>
+        </div>);
+    }
     static DataFormCount = 0;
     invalidItems: any[];
     appliedFieldName: string;
@@ -74,11 +108,14 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
         this.invalidItems = [];
         return new Promise(resolve => {
             const done = () => {
-                this.invalidItems = this.querySelectorAll<Field>('.field-accessor').map(fld => fld.revalidate()).filter(x => !!x)
-                    .concat(this.props.customValidation instanceof Function &&
-                        (this.props.customValidation(this.props.data) || []));
-                        resolve();
-                setTimeout(() => this.invalidItems = [], 1000);
+                this.invalidItems = this.querySelectorAll<Field>('.field-accessor')
+                    .map(fld => fld.revalidate())
+                    .filter(x => !!x)
+                    .concat(this.props.customValidation instanceof Function ?
+                        (this.props.customValidation(this.props.data) || []) : []).filter(x => !!x);
+
+                resolve(this.invalidItems);
+                setTimeout(() => this.invalidItems = [], 300);
             }
 
             const customValidationResult = this.props.customValidation instanceof Function &&
@@ -89,14 +126,11 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
         });
 
     }
+
     processFields() {
 
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
-        this.invalidItems =
-            (this.props.validate) &&
-            this.querySelectorAll<Field>('.field-accessor').map(fld => fld.revalidate()).filter(x => !!x)
-                .concat(this.props.customValidation instanceof Function &&
-                    (this.props.customValidation(this.props.data) || []));
+
         this.querySelectorAll<IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 
     }
@@ -117,12 +151,13 @@ interface IDataPanelState {
     readonly?: boolean;
 
 }
-interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, IDataPanelProps {
+interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, Partial<IDataPanelProps> {
+
     formMode?: 'modal' | 'callout' | 'panel' | 'section';
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
     accessor?: string;
     customValidation?: CustomValidationResult;
-
+    singularName?, pluralName?: string;
 }
 
 export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>
@@ -173,6 +208,8 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         }
     }
     render(p = this.props, s = this.state) {
+        const header =
+            p.header === undefined ? (p.pluralName && Utils.i18nFormat('header-for-data-list-panel', p.pluralName)) : p.header;
         this.targetItem = this.targetItem || {};
         this.lastMod = this.lastMod || +new Date();
         const items = this.getItems();
@@ -205,8 +242,9 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                 this.targetItem = {};
                 this.repatch({ selectedItem: null });
             }
-            this.repatch(s.targetSelector == targetSelector ? { isOpen: false, targetSelector: null } : { isOpen: true, targetSelector });
+            this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null } : { validated: false, isOpen: true, targetSelector });
         }
+        console.log('state>>>', this.state);
         const children = [!p.avoidAdd &&
             <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.avoidEdit &&
@@ -225,7 +263,9 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         } as any, (
                 <div style={{ padding: '10px 20px' }}>
                     <div className="columns">
-                        <div className="column title is-4">{i18n(s.targetSelector.replace('.', '').replace('-button', ''))}</div>
+                        <div className="column   is-11 ms-font-xl" style={{ display: 'flex', alignItems: 'center' }}>
+                            {Utils.i18nFormat(s.targetSelector.concat('-header-fmt').replace('.', '').replace('-button', ''), p.singularName)}
+                        </div>
                         <div className="column" style={{ 'flex': 1, fontSize: '15pt' }} dir="ltr" >
                             <a href="#" className="close" onClick={e => {
                                 e.preventDefault();
@@ -247,36 +287,66 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                     <footer>
                         {!s.selectedItem
 
-                            && <FabricUI.DefaultButton primary={!s.selectedItem}
-                                onClick={() => {
+                            && <OrganicUI.AdvButton primary
+                                onClick={async () => {
+
+                                    const { dataForm } = this.refs;
+                                    console.assert(!!dataForm, 'dataForm is null');
+                                    await dataForm.revalidateAllFields();
+                                    this.repatch({ validated: true });
+                                    if (dataForm.invalidItems && dataForm.invalidItems.length) {
+                                        this.repatch(
+                                            { message: { text: i18n(dataForm.invalidItems[0].message), type: FabricUI.MessageBarType.error } });
+                                        setTimeout(() => this.repatch({ message: null }), 3000);
+                                        return;
+                                    }
                                     this.getItems().push(this.targetItem), this.lastMod = +new Date();
+                                    this.repatch(
+                                        { isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
+
 
                                     this.targetItem = {};
-                                    this.repatch({ isOpen: false, targetSelector: null });
+
                                 }}
-                                disabled={!!s.selectedItem} text={i18n('add') as any} iconProps={{ iconName: 'Add' }} />}
-                        {!!s.selectedItem && s.targetSelector && <FabricUI.DefaultButton
+                                disabled={!!s.selectedItem} iconProps={{ iconName: 'Add' }} >
+                                {i18n('add')}</OrganicUI.AdvButton>}
+                        {!!s.selectedItem && s.targetSelector && <OrganicUI.AdvButton
                             className={s.targetSelector.replace('.', '')}
-                            onClick={() => {
+                            onClick={async () => {
+                                const { dataForm } = this.refs;
+                                console.assert(!!dataForm, 'dataForm is null');
                                 if (s.targetSelector && s.targetSelector.includes('edit') &&
                                     typeof s.selectedItemIndex == 'number') {
+                                    this.repatch({ validated: true });
+                                    await dataForm.revalidateAllFields();
+                                    if (dataForm.invalidItems && dataForm.invalidItems.length) {
+                                        this.repatch(
+                                            { message: { text: i18n(dataForm.invalidItems[0].message), type: FabricUI.MessageBarType.error } });
+                                        setTimeout(() => this.repatch({ message: null }), 3000);
+                                        return;
+                                    }
                                     this.items[s.selectedItemIndex] = JSON.parse(JSON.stringify(this.targetItem));
+                                    this.repatch(
+                                        { message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
+
                                 }
                                 if (s.targetSelector && s.targetSelector.includes('delete') &&
                                     typeof s.selectedItemIndex == 'number') {
                                     this.items.splice(s.selectedItemIndex, 1);
                                 }
-                                this.repatch({ isOpen: false, targetSelector: null });
+                                this.repatch({ validated: true, isOpen: false, targetSelector: null });
 
                             }}
                             primary={!!s.selectedItem}
-                            disabled={!s.selectedItem} text={i18n(s.targetSelector.replace('.', '').replace('-button', '')) as any} />}
+                            disabled={!s.selectedItem} >{i18n(s.targetSelector.replace('.', '').replace('-button', '')) as any}
+                        </OrganicUI.AdvButton>}
 
                     </footer>
-
+                    {!!this.state.message && <div> <FabricUI.MessageBar messageBarType={this.state.message.type} >{this.state.message.text} </FabricUI.MessageBar>
+                    </div>}
                 </div>))
             , detailList].filter(x => !!x);
-        return <div className=" bindable" ref="root">{p.header ? React.createElement(DataPanel, p, ...children) : children}</div>;
+        return <div className=" bindable" ref="root">{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
     }
 }
 export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
