@@ -49,7 +49,7 @@ export function renderViewToComplete(url) {
 export function startApp(appModel: IAppModel) {
     initializeIcons('/assets/fonts/');
     Object.assign(appData,{appModel});
-    console.log({appData});
+ 
     mountViewToRoot();
     window.onpopstate = () => mountViewToRoot();
     setInterval(

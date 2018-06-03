@@ -10,12 +10,12 @@ namespace LicApp.Frontend.Customer {
     const { i18n } = OrganicUI;
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-    const api = OrganicUI.remoteApi as CustomerAPI;
-    const actions: IActionsForCRUD<CustomerDTO> = {
-        handleCreate: dto =>   api.createCustomer(dto),         
-        handleRead: id => api.findCustomerById(id), handleLoadData: params => api.readCustomerList(params),
-        handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
-        handleDelete: id => api.deleteCustomerById(id)
+    const api = OrganicUI.remoteApi as DepartmentAPI;
+    const actions: IActionsForCRUD<DepartmentDTO> = {
+        handleCreate: dto =>   api.createDepartment(dto),         
+        handleRead: id => api.findEmployeeById(id), handleLoadData: params => api.readDepartmentList(params),
+        handleUpdate: (id, dto) => api.updateDepartmentById(id, dto),
+        handleDelete: id => api.deleteDepartmentById(id)
     };
     const singleView = (dataProps) =>
         (<SingleViewBox dataProps={dataProps} actions={actions} singularName="customer" >

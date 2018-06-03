@@ -57,8 +57,8 @@ namespace LicApp.Frontend.Device {
     const listView = () => (
         <ListViewBox actions={actions}>
             <DataList>
+                <GridColumn accessor="deviceCode" />
                 <GridColumn accessor="deviceName" />
-                <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )

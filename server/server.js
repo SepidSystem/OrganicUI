@@ -1,21 +1,22 @@
 
-const shelljs =require(  'shelljs');
+const shelljs = require('shelljs');
 const child = shelljs.exec('npm run build:watch', { async: true });
-child.stdout.on('data',console.log);
+child.stdout.on('data', console.log);
 const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
-child2.stdout.on('data',console.log);
+child2.stdout.on('data', console.log);
 const jsonServer = require('json-server');
 const path = require('path');
 const express = require('express');
  
+const router = jsonServer.router('db.json');
 //const reload = require('require-reload')(require);
 const server = express();
 var expressWs = require('express-ws')(server);
 
 const bodyParser = require('body-parser');
 require('./sql');
-
-server.use('/api', bodyParser.json(), require('./api'));
+server.use('/api', bodyParser.json(), router)
+//server.use('/api', bodyParser.json(), require('./api'));
 server.use('/view', (req, res) => res.sendFile(path.join(__dirname, '../assets/single-page-app.html')));
 const assetsPath = path.join(__dirname, '../assets');
 server.use('/assets/domain', express.static(path.join(__dirname, '..', 'assets', 'domain')));

@@ -1,10 +1,11 @@
 /// <reference path="../organicUI.d.ts" />
-
+ 
 import AppModel from './frontend/app-model';
 const { tags, reports } = OrganicUI;
-import './default-layout';
+import  './frontend/boot';
+import './frontend/default-layout';
 import './frontend/dashboard-view';
-import './frontend/usergroup-view';
+import './frontend/user-group-view';
 import './frontend/department-view';
 import './frontend/user-view';
 import './frontend/role-view';

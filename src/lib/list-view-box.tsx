@@ -104,7 +104,7 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
 }
 
 interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
-interface ListViewBoxState<T> {  currentRow:T;deleteDialogIsOpen?:boolean; };
+interface ListViewBoxState<T> { currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxState<T>>{
     constructor(p) {
@@ -122,7 +122,7 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
             console.warn('currentRow is null');
             return;
         }
-        const {id} = currentRow as any;
+        const { id } = currentRow as any;
         const url = this.getUrlForSingleView(id);
         return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
     }
@@ -162,9 +162,13 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
 
                 {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
-                <header className=" static-height">
-                    <OverflowSetForListView listView={this} />
+                <header className=" static-height list-view-header"  >
+                    <div className="main-content filter-panel" style={{ flex: '1', margin: '5px' }}>adv</div>
+                    <FabricUI.PrimaryButton className="insert-btn" size={44} iconProps={{iconName:'Add'}} />
+                    <div className="buttons">
+                        <FabricUI.PrimaryButton className="print-btn" text={i18n('print') as any}  iconProps={{iconName:'Print'}} />
 
+                    </div>
                 </header>
                 <div className=" ">
                     {s.toggleButtons.showCats && <div className="column is-4">
@@ -190,9 +194,9 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
                         </div>
 
                     </div>}
-                    <br/>
+                    <br />
                     <div className="  main-content column no-padding"   >
-                        {children}<br/><br/><br/><br/><br/>
+                        {children}<br /><br /><br /><br /><br />
                     </div>
                 </div>
                 <footer style={{ display: 'none' }} className="buttons static-height columns  ">
@@ -209,7 +213,7 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
                     </div>
                 </footer>
                 <br />
-                {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={()=>this.repatch({deleteDialogIsOpen:false})}>
+                {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={() => this.repatch({ deleteDialogIsOpen: false })}>
                     <FabricUI.DialogFooter>
                         sdf
                     </FabricUI.DialogFooter>

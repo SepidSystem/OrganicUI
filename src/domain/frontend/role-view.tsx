@@ -10,12 +10,12 @@ namespace LicApp.Frontend.Role {
     const { i18n } = OrganicUI;
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-    const api = OrganicUI.remoteApi as DeviceAPI;
-    const actions: IActionsForCRUD<DeviceDTO> = {
-        handleCreate: dto => api.createDevice(dto),
-        handleRead: id => api.findDeviceById(id), handleLoadData: params => api.readDeviceList(params),
-        handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
-        handleDelete: id => api.deleteDeviceById(id)
+    const api = OrganicUI.remoteApi as RoleAPI;
+    const actions: IActionsForCRUD<RoleDTO> = {
+        handleCreate: dto => api.createRole(dto),
+        handleRead: id => api.findRoleById(id), handleLoadData: params => api.readRoleList(params),
+        handleUpdate: (id, dto) => api.updateRoleById(id, dto),
+        handleDelete: id => api.deleteRoleById(id)
     };
     const singleView = dataProps =>
         (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >

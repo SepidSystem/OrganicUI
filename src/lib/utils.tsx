@@ -103,7 +103,7 @@ export const Utils = {
 	i18nFormat(i18nCode, args) {
 		if (typeof args == 'string') {
 			args = { s: i18n.get(args) };
-			 console.log({args});	
+	 
 		}
 		const text = i18n.get(i18nCode) as any;
 		return format(text, args);

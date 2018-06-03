@@ -10,12 +10,12 @@ namespace LicApp.Frontend.UserGroup {
     const { i18n } = OrganicUI;
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-    const api = OrganicUI.remoteApi as DeviceAPI;
-    const actions: IActionsForCRUD<DeviceDTO> = {
-        handleCreate: dto => api.createDevice(dto),
-        handleRead: id => api.findDeviceById(id), handleLoadData: params => api.readDeviceList(params),
-        handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
-        handleDelete: id => api.deleteDeviceById(id)
+    const api = OrganicUI.remoteApi as UserGroupAPI;
+    const actions: IActionsForCRUD<UserGroupDTO> = {
+        handleCreate: dto => api.createUserGroup(dto),
+        handleRead: id => api.findUserGroupById(id), handleLoadData: params => api.readUserGroupList(params),
+        handleUpdate: (id, dto) => api.updateUserGroupById(id, dto),
+        handleDelete: id => api.deleteUserGroupById(id)
     };
     const singleView = dataProps =>
         (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >

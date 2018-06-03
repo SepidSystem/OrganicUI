@@ -9,6 +9,6 @@ export class Menu {
         public parentId: number) { }
 } 
 export interface IAppModel{
-    getMenus():{menu:Menu}[];
+    getMenuItems():{menu:Menu}[];
 
 }

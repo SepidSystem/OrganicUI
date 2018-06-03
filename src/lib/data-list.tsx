@@ -134,6 +134,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         return this.props.loader(
             { startFrom, rowCount: fetchableRowCount, }
         ).then(listData => {
+  
             if (listData.rows) {
                 if (p.paginationMode == 'scrolled')
                     listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
@@ -203,11 +204,12 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as any;
         const { itemHeight } = this.props;
+ 
         return (
             <DevFriendlyPort target={this} targetText="DataList">
 
-
-                {!!p.height && <div onScroll={this.handleScroll} className="data-list" ref="root" style={{ maxHeight: (p.height + 'px') }} >
+ 
+                {!!p.height && <div onScroll={this.handleScroll} className="data-list" ref="root" style={{ minHeight: (p.height + 'px') }} >
                     <div className="data-list-content" ref="content" style={{ minHeight: parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' }}>
                     </div>
                     {this.refs.root && items && <div className="data-list-c1" style={{

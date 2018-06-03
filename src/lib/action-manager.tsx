@@ -7,10 +7,14 @@ function delayedValue<T>(v: T, timeout): Promise<T> {
 export class ActionManager {
     static cache = LRU(200);
     static fetchDelay = 0;
+    static bodyMapper: Function;
     public verifyBySchema(data, schema): true | Error {
         return null;
     }
     public refetch(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, body?) {
+        if (ActionManager.bodyMapper)
+            body = ActionManager.bodyMapper({ method, url, body });
+
         if (method == 'GET' && body && Object.keys(body).length) {
             url = url + (url.includes('?') ? '&' : '?') + Object.keys(body).map(key => `${key}=${encodeURIComponent(body[key])}`).join('&');
         }
@@ -35,9 +39,11 @@ export class ActionManager {
             }
             const { headers } = resp;
             var result = resp.json().then(json => changeCase.camelCase(json));
-            if ('X-Total-Count' in headers) {
-                const rowCount = +headers['X-Total-Count'];
-                result = result.then(rows => ({ rowCount, rows }));
+            const headerPairs = Array.from((headers as any).entries()).reduce((a, [key, value]) => (a[key] = value, a), {});
+
+            if ('x-total-count' in headerPairs) {
+                const totalRows = +headers['x-total-count'];
+                result = result.then(rows => ({ totalRows, rows }));
             }
             result.then(json => {
                 let rows: Array<any>[] = json.rows;
@@ -87,13 +93,13 @@ export function remoteApiProxy(specifiedApi?) {
                 const func = specifiedApi(target)[prop];
                 if (func instanceof Function) return func();
             }
-      
+
             for (const apiTarget in patterns) {
                 const regExpr = new RegExp(patterns[apiTarget]);
                 const regularResult = regExpr.exec(prop);
                 if (!regularResult) continue;
-            
-                const targetOfEntity = changeCase.paramCase(  regularResult[1]);
+
+                const targetOfEntity = changeCase.paramCase(regularResult[1]);
                 if (apiTarget == 'create')
                     return data => target.refetch('POST', `/api/${targetOfEntity}`, data);
                 if (apiTarget == 'findById')
@@ -107,10 +113,10 @@ export function remoteApiProxy(specifiedApi?) {
                 if (apiTarget == 'patchById')
                     return id => target.refetch('PATCH', `/api/${targetOfEntity}/${id}`);
 
-               
+
             }
             // CUSTOM ACTION
-            return params => Promise.reject(`invalid method:${prop}` );
+            return params => Promise.reject(`invalid method:${prop}`);
 
         }
     })

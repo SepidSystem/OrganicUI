@@ -1,34 +1,70 @@
-
-
 .single-view {
     footer.buttons {
         justify-content: center;
-        
-        button{
-            clear:both !important;
-            font-size:12px;
-            padding-top:7px;
-            padding-bottom:7px;
-            max-width:200px;
-            min-width:200px;
+        button {
+            clear: both !important;
+            font-size: 12px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            max-width: 200px;
+            min-width: 200px;
         }
     }
 }
-.list-view{
-    
-    footer.buttons{
-        margin-top:5px;
-         button{
-            max-width:150px;
-            min-width:150px;
-             
+
+.list-view {
+    footer.buttons {
+        margin-top: 5px;
+        button {
+            max-width: 150px;
+            min-width: 150px;
         }
-        .is-link{
+        .is-link {
             background: none;
-            color:#000;
-            max-width:24px;
-            min-width:24px;
-            float:left;
+            color: #000;
+            max-width: 24px;
+            min-width: 24px;
+            float: left;
         }
-    }  
+    }
+}
+
+.list-view-header {
+    position: relative;
+    min-height:250px;
+    .insert-btn {
+        left: 10px;
+        width: 120px;
+        position: absolute;
+        height: 120px;
+        top: 10px;
+        i {
+            font-size: 50px !important;
+        }
+    }
+    .buttons{
+        bottom:0;
+        left:10px;
+        right:0;
+        position: absolute;
+        justify-content: flex-end;
+        button{
+            box-shadow: 1px 1px rgba(0,0,0,.3);
+            min-height: 48px;
+            background: #fff;
+            border:rgb(72,74,105) 2px solid;
+            color:rgb(72,74,105);
+            i {
+                font-size: 30px !important;
+            }
+        }
+    }
+    .filter-panel {
+        padding:5px;
+        left: 140px;
+        position: absolute;
+        right: 0px;
+        bottom: 60px;
+        top: 10px;
+    }
 }

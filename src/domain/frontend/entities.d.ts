@@ -18,3 +18,18 @@ declare interface DeviceDTO {
     deviceType:number;
     active:boolean;
 }
+declare interface EmployeeDTO {
+       
+}
+declare interface DepartmentDTO{
+
+}
+declare interface UserDTO{
+
+}
+declare interface UserGroupDTO{
+
+}
+declare interface RoleDTO{
+    
+}

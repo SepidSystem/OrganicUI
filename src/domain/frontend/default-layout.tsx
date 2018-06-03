@@ -1,5 +1,5 @@
 
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../../organicUI.d.ts" />
 
 const { Fabric } = OrganicUI.FabricUI;
 const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
@@ -32,8 +32,7 @@ class BaseView extends Component {
 
         const menuItems = OrganicUI.appData.appModel.getMenuItems().map(({ menu }) => menu);
         const selectedMenuItem = menuItems.filter(mi => location.pathname.startsWith(mi.routerLink))[0];
-        console.log({ selectedMenuItem });
-        return ((<Fabric className="master-page">
+         return ((<Fabric className="master-page">
 
             {/*<header className="hero is-light cover-section" style={{ height: '40px' }}>
                 <div className="hero-head">
