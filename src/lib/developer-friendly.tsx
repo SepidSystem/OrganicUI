@@ -3,10 +3,11 @@ import { HTMLAttributes, ReactElement } from "react";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
 export { JsonInspector };
-function isDevMode() {
+export function isDevMode() {
 
     return !!DevFriendlyPort.developerFriendlyEnabled;
 }
+export const isDevelopmentEnv = () => !!DevFriendlyPort.isDevelopmentEnv;
 export type DevFriendlyCommand = (target, devPort: DevFriendlyPort) => void;
 export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
@@ -14,6 +15,7 @@ export interface IDevFriendlyPortProps {
 
 }
 export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevFriendlyPortProps, never>{
+    static isDevelopmentEnv: any;
     static devPortCounter: number = 1;
     static lastBlinkElement: any;
     static developerFriendlyEnabled: boolean;

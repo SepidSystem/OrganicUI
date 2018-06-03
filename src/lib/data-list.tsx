@@ -8,6 +8,7 @@ import { Utils } from './utils';
 import { DeveloperBar, DevFriendlyPort } from '../organicUI';
 import { IColumn, IDetailsList, IDetailsListProps } from 'office-ui-fabric-react';
 
+import { Cache } from 'lru-cache';
 export interface IDataListLoadReq {
     startFrom: number;
     rowCount: number;
@@ -50,6 +51,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
 export const Pagination = funcAsComponentClass<IPaginationProps, IPaginationProps>(pagination);
 //----------------------------------------------------------------------------------------
 export interface IDataListProps {
+    itemHeight?: number;
     loader?: (req: IDataListLoadReq) => Promise<IListData>;
     onCurrentRowChanged?: (row: any) => any;
     rowCount?: number;
@@ -76,6 +78,7 @@ export interface IDataListState {
     sortedFieldDir: boolean;
     loadingPageIndex?: number;
     popupActionForRowIndex?: number;
+    ratio?: number;
 }
 let randomStrings = {};
 
@@ -90,45 +93,53 @@ const rowRenderer = p => (
     </div >);
     */
 export class DataList extends BaseComponent<IDataListProps, IDataListState>{
+    rowCount: number;
+    static defaultProps = {
+        itemHeight: 42
+    }
     refs: {
-        root: HTMLElement;
+        root, content: HTMLElement;
     }
     static Templates = registryFactory<Function>()
-    constructor(p) {
+    constructor(p: IDataListProps) {
         super(p);
+
+        const defaultState: Partial<IDataListState> = { startFrom: 0, ratio: 0 };
+        this.state = this.state || defaultState as any;
+        Object.assign(this.state, defaultState);
+
         this.cache = LRU(4 * 1000);
-        (this as any).state = {};
         Object.assign(this.state, { loadingPageIndex: 0 });
         this.handleScroll = this.handleScroll.bind(this);
+        this.adjustScroll = this.adjustScroll.bind(this);
+        this.calcRowCount();
     }
-
-    cache: any;
+    calcRowCount() {
+        this.rowCount = Math.floor(this.props.height / this.props.itemHeight) - 1;
+    }
+    cache: Cache<number, any>;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
+
         if (!this.props.loader) return null;
         const s = this.state, p = this.props;
+        let fetchableRowCount = (this.rowCount || 10) * 4;
 
-        if (!forcedMode) {
-            const { root } = this.refs;
-            if (root) {
-                //    const spinner = root.querySelector('.spinner');
-                //  if (!spinner) return;
-            }
-            startFrom -= 20;
-            if (startFrom < 0) startFrom = 0;
-        }
+
         if (s.isLoading) return;
         resetCache && this.cache.reset();
         Object.assign(this.state, { isLoading: true, startFrom });
         this.lastDataLoading = new Date();
-
+        if (fetchableRowCount < 0) fetchableRowCount = 0;
         return this.props.loader(
-            { startFrom, rowCount: (p.rowCount || 10) * 4, }
+            { startFrom, rowCount: fetchableRowCount, }
         ).then(listData => {
-            if (p.paginationMode == 'scrolled')
-                listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
-            else
-                listData.rows.forEach((row, idx) => this.cache.set(idx, row));
+            if (listData.rows) {
+                if (p.paginationMode == 'scrolled')
+                    listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
+                else
+                    listData.rows.forEach((row, idx) => this.cache.set(idx, row));
+            }
             this.repatch({
                 loadingPageIndex
                 , listData, isLoading: false, currentPageIndex
@@ -136,16 +147,36 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             return listData;
         });
     }
-    rowGetter = idx => {
-        const result = this.cache.get(idx);
-        if (result) return result;
-        this.loadDataIfNeeded(idx);
-        return { __isLoading: true };
+    scrollTimer: any;
+
+    adjustScroll() {
+        this.scrollTimer && clearTimeout(this.scrollTimer);
+        this.scrollTimer = null;
+        const { content, root } = this.refs;
+        const { listData } = this.state;
+        const ratio = listData ? (root.scrollTop / content.clientHeight) : 0;
+        const diffRatio = (ratio - this.state.ratio) * 100;
+        let { startFrom } = this.state;
+        if (root.scrollTop == 0) startFrom = 0;
+        const { itemHeight, height } = this.props;
+        let times = Math.abs(Math.floor(diffRatio / 0.001));
+        if (times < 1) times = 1
+        if (times > 2)
+            startFrom += this.rowCount * times * (Math.sign(diffRatio));
+        else
+            startFrom = ratio * listData.totalRows;
+        if (startFrom < 0) startFrom = 0;
+        this.repatch({ startFrom, listData: null, ratio });
+
     }
     handleScroll() {
+        this.scrollTimer && clearTimeout(this.scrollTimer);
+        this.scrollTimer = setTimeout(this.adjustScroll, 50);
         this.repatch({});
+
     }
     render() {
+        this.calcRowCount();
         const columnArray: React.ReactElement<ColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == GridColumn))
@@ -157,14 +188,11 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                     }
                 } as Partial<IColumn>) as IColumn)
 
-        const { listData } = this.state;
+        const { listData, startFrom } = this.state;
         const p = this.props, s: IDataListState = this.state;
-        s.listData = s.listData || this.loadDataIfNeeded(0) as any;
-        const length = p.rowCount || 10;
-        const items = Array.from({ length }, (_, idx) => this.cache.get(idx));
-
-        console.log({ columns, items });
-
+        s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
+        const length = this.rowCount || 10;
+        const items = Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx));
         const dataListProps: IDetailsListProps = Object.assign({}, {
             columns,
             items,
@@ -174,15 +202,13 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             minHeight: p.height
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as any;
-        const itemHeight = 30;
-        console.log({ dataListProps });
-
+        const { itemHeight } = this.props;
         return (
             <DevFriendlyPort target={this} targetText="DataList">
 
 
                 {!!p.height && <div onScroll={this.handleScroll} className="data-list" ref="root" style={{ maxHeight: (p.height + 'px') }} >
-                    <div className="data-list-content" style={{ minHeight: parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' }}>
+                    <div className="data-list-content" ref="content" style={{ minHeight: parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' }}>
                     </div>
                     {this.refs.root && items && <div className="data-list-c1" style={{
                         height: p.height + 'px',

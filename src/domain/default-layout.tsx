@@ -3,6 +3,7 @@
 
 const { Fabric } = OrganicUI.FabricUI;
 const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
+import Collapsible from 'react-collapsible';
 
 const { View, DeveloperBar } = OrganicUI;
 
@@ -21,15 +22,20 @@ function GeneralHeader() {
     </div>;
 }
 const root = document.querySelector('#root');
+const showIcon = (icon: string) => !!icon && <i className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
 class BaseView extends Component {
 
     render() {
 
         //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
-        const heightForContent = window.innerHeight ;
-        return ((<Fabric className="master-page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        const heightForContent = window.innerHeight;
 
-            <header className="hero is-light cover-section" style={{ height: '40px' }}>
+        const menuItems = OrganicUI.appData.appModel.getMenuItems().map(({ menu }) => menu);
+        const selectedMenuItem = menuItems.filter(mi => location.pathname.startsWith(mi.routerLink))[0];
+        console.log({ selectedMenuItem });
+        return ((<Fabric className="master-page">
+
+            {/*<header className="hero is-light cover-section" style={{ height: '40px' }}>
                 <div className="hero-head">
                     <div className="container " style={{ display: "flex" }}>
 
@@ -37,15 +43,42 @@ class BaseView extends Component {
 
                     </div>
                 </div>
-            </header>
+    </header>*/}
+            <aside>
+                {menuItems.filter(m => !m.parentId).map(m => (
+                    m.routerLink ?
+                        <div className={Utils.classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                            {showIcon(m.icon)}{' '}
+                            <a href={m.routerLink}>{m.title}
 
-            <main className="view container main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
+                            </a>
+                            <span className="triangle"></span>
+                        </div> :
+
+                        <Collapsible overflowWhenOpen="visible" open={!!selectedMenuItem &&
+                            ((selectedMenuItem.parentId == m.id))} trigger={[ showIcon(m.icon), m.title]} >
+
+
+                            <ul>
+                                {menuItems.filter(childMenu => childMenu.parentId === m.id).map(m =>
+                                    <li className={Utils.classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                                        {showIcon(m.icon)}{' '}
+                                        <a href={m.routerLink}>
+                                            {m.title}
+
+                                        </a> <span className="triangle"></span></li>
+                                )}
+
+                            </ul>
+                        </Collapsible>))}
+            </aside>
+            <main className="view   main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
 
 
                 <div className="extra-section">
                 </div>
 
-                <section style={{ padding: '5px'  }}>
+                <section style={{ padding: '5px' }}>
                     <DeveloperBar />
                     {this.props.children}
                 </section>
@@ -60,7 +93,7 @@ class BaseView extends Component {
                     </div>
                 </div>
             </main>
-          {/*    <footer className="hero is-white footer-section" style={{ height: '60px', maxHeight: '60px', minHeight: '60px' }}>
+            {/*    <footer className="hero is-white footer-section" style={{ height: '60px', maxHeight: '60px', minHeight: '60px' }}>
                 <div className="container">
                     <div className=" " style={{ display: "flex", justifyContent: "space-around" }}>
                         {Object.keys(OrganicUI.menuBar.data).map(key => (

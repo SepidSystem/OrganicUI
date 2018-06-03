@@ -15,6 +15,7 @@ interface IDataFormProps extends IFieldReaderWriter {
     validate?: boolean;
     customValidation?: CustomValidationResult;
     data?: any;
+    className?:string;
 }
 interface IDataListState {
     message?: { type, text };
@@ -24,6 +25,7 @@ interface IDataListState {
     targetSelector?: string;
     items: any[];
     validated?: boolean;
+  
 }
 export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     setFocusByAcccesor(accessor) {
@@ -50,8 +52,8 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
                                 e.preventDefault();
                                 this.setFocusByAcccesor(invalidItem.accessor);
                             }}>
-                                 
-                               {i18n(invalidItem.message)} 
+
+                                {i18n(invalidItem.message)}
                             </a>
                         </li>
                         ))}
@@ -83,7 +85,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     render() {
         const p = this.props;
         return (
-            <div className="data-form" ref="root">
+            <div className={Utils.classNames(  "data-form",p.className)} ref="root">
                 <DevFriendlyPort target={this} targetText={'DataForm'} >
                     {this.props.children}
                 </DevFriendlyPort>
@@ -244,8 +246,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
             }
             this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null } : { validated: false, isOpen: true, targetSelector });
         }
-        console.log('state>>>', this.state);
-        const children = [!p.avoidAdd &&
+         const children = [!p.avoidAdd &&
             <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.avoidEdit &&
         <FabricUI.DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,

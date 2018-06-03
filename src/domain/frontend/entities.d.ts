@@ -9,3 +9,12 @@ declare interface CustomerDTO {
     personals:any[];
     licenses:any[];
 }
+
+
+declare interface DeviceDTO {
+    deviceCode:string;
+    deviceSerial:string;
+    deviceName:string;
+    deviceType:number;
+    active:boolean;
+}

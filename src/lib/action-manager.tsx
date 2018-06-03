@@ -1,5 +1,5 @@
-import { changeCase } from "../organicUI";
- 
+import { changeCase } from "./utils";
+
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));
@@ -70,6 +70,16 @@ const settings = {
     defaultMajorRouters: ['Customer', 'SampleEntity'],
     unixStyle: false
 }
+const patterns = {
+    create: 'create(.+)',
+    findById: 'find(.+)ById',
+    readList: 'read(.+)List',
+    updateById: 'update(.+)ById',
+    deleteById: 'delete(.+)ById',
+    patchById: 'patch(.+)ById',
+    readById: 'read(.+)ById'
+
+}
 export function remoteApiProxy(specifiedApi?) {
     return new Proxy(new ActionManager(), {
         get: function (target, prop: string, receiver) {
@@ -77,43 +87,33 @@ export function remoteApiProxy(specifiedApi?) {
                 const func = specifiedApi(target)[prop];
                 if (func instanceof Function) return func();
             }
+      
+            for (const apiTarget in patterns) {
+                const regExpr = new RegExp(patterns[apiTarget]);
+                const regularResult = regExpr.exec(prop);
+                if (!regularResult) continue;
+            
+                const targetOfEntity = changeCase.paramCase(  regularResult[1]);
+                if (apiTarget == 'create')
+                    return data => target.refetch('POST', `/api/${targetOfEntity}`, data);
+                if (apiTarget == 'findById')
+                    return id => target.refetch('GET', `/api/${targetOfEntity}/${id}`);
+                if (apiTarget == 'readList')
+                    return queryParams => target.refetch('GET', `/api/${targetOfEntity}`, queryParams);
+                if (apiTarget == 'updateById')
+                    return (id, data) => target.refetch('PUT', `/api/${targetOfEntity}/${id}`, data);
+                if (apiTarget == 'deleteById')
+                    return id => target.refetch('DELETE', `/api/${targetOfEntity}/${id}`);
+                if (apiTarget == 'patchById')
+                    return id => target.refetch('PATCH', `/api/${targetOfEntity}/${id}`);
 
-            const parts = prop.toString().split('-');
-            const targetOfEntity = settings.defaultMajorRouters.filter(m => prop.indexOf(m) >= 4)
-                .reduce((a, b) => (a.length > b.length ? a : b), "");
-            if (!targetOfEntity)
-                throw (`invalid majorRouter,${prop} is unmountable, ${settings.defaultMajorRouters.join(',')} `);
-
-            let apiTarget = prop.replace(targetOfEntity, '');
-            // CRUD(create,read,update,delete)
-            if (apiTarget == 'create')
-                return data => target.refetch('POST', `/api/${targetOfEntity}`, data);
-            if (apiTarget == 'findById')
-                return id => target.refetch('GET', `/api/${targetOfEntity}/${id}`);
-            if (apiTarget == 'readList')
-                return queryParams => target.refetch('GET', `/api/${targetOfEntity}`, queryParams);
-            if (apiTarget == 'updateById')
-                return (id, data) => target.refetch('PUT', `/api/${targetOfEntity}/${id}`, data);
-            if (apiTarget == 'deleteById')
-                return id => target.refetch('DELETE', `/api/${targetOfEntity}/${id}`);
-            if (apiTarget == 'patchById')
-                return id => target.refetch('PATCH', `/api/${targetOfEntity}/${id}`);
-
-            // read-detial  by item
-            if (apiTarget.startsWith('read') && apiTarget.endsWith('ById')) {
-                apiTarget = apiTarget.replace('read', '').replace('ById', '');
-                return id => target.refetch('GET', `/api/${targetOfEntity}/${id}/${apiTarget}`);
-            }
-            // CUSTOM ACTION By Id
-            if (apiTarget.endsWith('ById')) {
-                apiTarget = apiTarget.replace('ById', '');
-                return (id, params) => target.refetch('POST', `/api/${targetOfEntity}/${id}/${apiTarget}`, params);
+               
             }
             // CUSTOM ACTION
-            return params => target.refetch('POST', `/api/${targetOfEntity}/${apiTarget}`, params);
+            return params => Promise.reject(`invalid method:${prop}` );
 
         }
     })
 }
 Object.assign(remoteApiProxy, { settings });
-export const remoteApi :any= remoteApiProxy();
+export const remoteApi: any = remoteApiProxy();

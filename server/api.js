@@ -8,7 +8,7 @@ const assetsPath = path.join(__dirname, '../assets');
 const customers = {};
 const sampleCustomer = { id: 0, customerCode: 2, customerName: 'N', phone: '021', address: '', manager: {}, payment: {} };
 const generateCustomer = id => Object.assign({}, sampleCustomer,
-    { customerName: `Title${id}`, id });
+    { customerCode:id,customerName: `Title${id}`, id });
 
 router.get('/customer', (req, res) => res.json({
     totalRows: 1000000, rows:

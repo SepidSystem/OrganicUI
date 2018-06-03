@@ -1,10 +1,16 @@
 import { route } from "./router";
+import { IAppModel } from './models';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+let afterLoadCallback: Function = null;
+export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
+export const appData: {
+    appModel?: IAppModel
+} = {};
 export function mountViewToRoot(selector?, url?) {
 
     const root = document.querySelector(selector || '#root');
     const params = {};
- 
+
     const viewType: typeof React.Component = route(url || location.pathname, params) || OrganicUI.NotFoundView as any;
     let templ: typeof React.Component & { Template: string } = viewType as any;
     let vdom: any;
@@ -12,14 +18,14 @@ export function mountViewToRoot(selector?, url?) {
     secondaryValue && Object.assign(params, secondaryValue);
 
     templ = OrganicUI.templates(templ.Template || 'default') as any;
-     const children = React.createElement(viewType, params, )
+    const children = React.createElement(viewType, params, )
     vdom = React.createElement(templ, {}, children);
 
 
     root.innerHTML = '';
     ReactDOM.render(vdom, root);
 
-   
+
 }
 
 
@@ -40,9 +46,10 @@ export function renderViewToComplete(url) {
         check();
     })
 }
-export function startApp() {
+export function startApp(appModel: IAppModel) {
     initializeIcons('/assets/fonts/');
-
+    Object.assign(appData,{appModel});
+    console.log({appData});
     mountViewToRoot();
     window.onpopstate = () => mountViewToRoot();
     setInterval(
@@ -59,6 +66,6 @@ export function startApp() {
                             history.pushState(null, null, (anchor as HTMLAnchorElement).href);
                             mountViewToRoot()
                         });
-                }), 100)
-
+                }), 1000)
+    afterLoadCallback instanceof Function && afterLoadCallback();
 }

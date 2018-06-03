@@ -1,6 +1,7 @@
 import * as React from "react";
-import { icon, i18n, funcAsComponentClass, showIconText, showIconAndText, FuncComponent, BaseComponent } from "../../organicUI";
-import { classNames } from "../utils";
+import { icon, i18n, funcAsComponentClass, FuncComponent, BaseComponent } from "../organicUI";
+import { Utils } from "./utils";
+const { classNames } = Utils;
 declare const h: any;
 
 interface IActions {
@@ -60,6 +61,7 @@ function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
 
         <div className="panel">
             {!!p.header && <p className={"panel-heading " + ((p.actions && 'actionable') || '')}>
+                <span className="temp"></span>
                 <div className={" title is-6 is-vcentered "}>
                     {typeof p.header == 'string' ? i18n(p.header) : p.header}
                     {p.actions && <DropDownButton onActionExecute={p.onActionExecute} actions={p.actions} />}
@@ -115,14 +117,14 @@ const tabs = (p: ITabsProps, s: ITabsProps, repatch: Function) =>
 
         <ul className="is-hidden-touch">
             {p.tabs && p.tabs.map(t => (<li className={s.selectedTab == t ? "is-active" : ''}>
-                <a className="" onClick={e => (e.preventDefault(), p.onSelectedTabChange && p.onSelectedTabChange(t), repatch({ selectedTab: t }))}>{showIconText(t)}</a>
+                <a className="" onClick={e => (e.preventDefault(), p.onSelectedTabChange && p.onSelectedTabChange(t), repatch({ selectedTab: t }))}>{Utils.showIconText(t)}</a>
             </li>))}
         </ul>
         <ul className="is-hidden-desktop">
             {p.tabs && p.tabs.map((t, idx) => (<li className={s.selectedTab == t ? "is-active" : ''}>
                 <a className="" onClick={e => (e.preventDefault(), p.onSelectedTabChange && p.onSelectedTabChange(t), repatch({ selectedTab: t }))}>
                     <span className="tab-num">{idx + 1}</span>
-                    {s.selectedTab == t ? showIconText(t) : ''}  </a>
+                    {s.selectedTab == t ? Utils.showIconText(t) : ''}  </a>
             </li>))}
         </ul>
         {p.actions && <DropDownButton actions={p.actions} />}

@@ -32,7 +32,7 @@ OrganicUI.devTools.set('Reset All Dev Tools', () => {
             dv.forceUpdate();
         });
 });
-
+OrganicUI.DevFriendlyPort.isDevelopmentEnv = true;
 document.addEventListener('keydown', e => {
     if (e.key == 'F1') {
         e.preventDefault();

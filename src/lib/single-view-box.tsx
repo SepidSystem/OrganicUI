@@ -13,15 +13,20 @@ import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import { DevFriendlyPort } from '../organicUI';
+import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
-interface SingleViewBoxProps {
-    actions: IActionsForCRUD<any>;
+interface SingleViewBoxProps<T> {
+    actions: IActionsForCRUD<T>;
     customValidation?: (data: any) => IDataFormAccessorMsg[];
     singularName?, pluralName?: string;
     dataProps, children?
 };
 interface SingleViewBoxState { formData: any; validated: boolean; }
-export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewBoxState> {
+export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleViewBoxState> {
+    navigateToBack(): any {
+
+        history.back();
+    }
     refs: {
         dataForm: DataForm;
 
@@ -83,7 +88,7 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
                             <FabricUI.DefaultButton   >{i18n('keep')}</FabricUI.DefaultButton>
                         </div>
                         <div className="column desc ">
-                            
+
                         </div>
                     </div>
                     <div className="columns">
@@ -91,7 +96,7 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
                             <FabricUI.DefaultButton   >{i18n('add')}</FabricUI.DefaultButton>
                         </div>
                         <div className="column desc ">
-                            
+
                         </div>
                     </div>
 
@@ -120,21 +125,27 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
                     <div className="column is-11">
                         {Utils.i18nFormat(p.dataProps.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(p.singularName) })}
                     </div>
-                    <div className="column" style={{ maxWidth: '40px' }}>
-                        <FabricUI.ActionButton size={44} iconProps={{ iconName: "NavigateBack", style: { fontSize: '30px' } }} />
+                    <div className="column" style={{ maxWidth: '100px', direction: 'rtl' }}>
+                        <FabricUI.ActionButton onClick={this.navigateToBack}   >
+                            {' '}
+                            {i18n('back')}
+                            {' '}
+                            <FabricUI.Icon iconName="Back" />
+
+                        </FabricUI.ActionButton>
                     </div>
                 </h1>
+                <div className="main-content">
+                    <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
+                        onFieldWrite={(accessor, value) => s.formData[accessor] = value}
+                        validate={s.validated}
+                        customValidation={p.customValidation}
+                        data={s.formData}>
 
-                <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
-                    onFieldWrite={(accessor, value) => s.formData[accessor] = value}
-                    validate={s.validated}
-                    customValidation={p.customValidation}
-                    data={s.formData}>
-
-                    {this.props.children}
-                </DataForm>
-                <footer className="buttons  single-view-buttons">
-                    {/*<AdvButton buttonComponent={FabricUI.ActionButton}   onClick={() => {
+                        {this.props.children}
+                    </DataForm>
+                    <footer className="buttons  single-view-buttons">
+                        {/*<AdvButton buttonComponent={FabricUI.ActionButton}   onClick={() => {
                         const crudViews = (this as any) as IViewsForCRUD<any>;
                         return Utils.navigate(crudViews.getUrlForListView());
                     }}   > {i18n('return-to-listView')}</AdvButton>
@@ -142,9 +153,10 @@ export class SingleViewBox extends BaseComponent<SingleViewBoxProps, SingleViewB
                     <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('save-and-return')}</AdvButton>
                     */}
 
-                    <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('singleview-apply')}</AdvButton>
+                        <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('singleview-apply')}</AdvButton>
 
-                </footer>
+                    </footer>
+                </div>
             </DevFriendlyPort>
         </section>
 

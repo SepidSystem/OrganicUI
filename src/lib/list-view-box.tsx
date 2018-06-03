@@ -14,6 +14,7 @@ import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import { DevFriendlyPort } from '../organicUI';
 import { IDetailsListProps } from 'office-ui-fabric-react';
+import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -31,7 +32,7 @@ function storeToggleButtons(v) {
 }
 
 
-export class OverflowSetForListView extends BaseComponent<any, any> {
+export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBox<any> }, any> {
 
     public render() {
         return (
@@ -43,25 +44,20 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
                         name: 'Add',
                         icon: 'Add',
                         ariaLabel: 'New. Use left and right arrow keys to navigate',
-                        onClick: () => {
-                            const listViewBox = (this.props.crud as any) as ListViewBox;
-                            return Utils.navigate(listViewBox.getUrlForSingleView('new'));
-                        }
+                        onClick: () => Utils.navigate(this.props.listView.getUrlForSingleView('new'))
+
                     },
                     {
                         key: 'edit',
                         name: 'Edit',
                         icon: 'Edit',
-                        onClick: () => {
-                            const listViewBox = (this.props.crud as any) as ListViewBox;
-                            return listViewBox.handleEdit();
-                        },
+                        onClick: () => this.props.listView.handleEdit(),
                     },
                     {
                         key: 'delete',
                         name: 'Delete',
                         icon: 'Delete',
-                        onClick: () => { return; }
+                        onClick: () => this.props.listView.repatch({ deleteDialogIsOpen: true })
                     }
                 ]}
                 overflowItems={
@@ -108,7 +104,9 @@ export class OverflowSetForListView extends BaseComponent<any, any> {
 }
 
 interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
-export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
+interface ListViewBoxState<T> {  currentRow:T;deleteDialogIsOpen?:boolean; };
+
+export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxState<T>>{
     constructor(p) {
         super(p);
         this.handleActiveItemChanged = this.handleActiveItemChanged.bind(this);
@@ -124,8 +122,8 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
             console.warn('currentRow is null');
             return;
         }
-        const id = (currentRow.id);
-        const url = this.getUrlForSingleView(id  );
+        const {id} = currentRow as any;
+        const url = this.getUrlForSingleView(id);
         return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
     }
     handleActiveItemChanged(currentRow) {
@@ -153,8 +151,7 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
                         height: 600,
                         loader: this.props.actions.handleLoadData,
                         paginationMode: child.props.paginationMode || 'scrolled'
-                    } as Partial<IDetailsListProps>))
-
+                    } as Partial<IDetailsListProps>));
             }
             return child;
         });
@@ -166,7 +163,7 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
                 {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
                 <header className=" static-height">
-                    <OverflowSetForListView crud={this} />
+                    <OverflowSetForListView listView={this} />
 
                 </header>
                 <div className=" ">
@@ -193,9 +190,9 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
                         </div>
 
                     </div>}
-
-                    <div className="  column no-padding"   >
-                        {children}
+                    <br/>
+                    <div className="  main-content column no-padding"   >
+                        {children}<br/><br/><br/><br/><br/>
                     </div>
                 </div>
                 <footer style={{ display: 'none' }} className="buttons static-height columns  ">
@@ -212,8 +209,11 @@ export class ListViewBox extends BaseComponent<ListViewBoxProps, any>{
                     </div>
                 </footer>
                 <br />
-
-
+                {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={()=>this.repatch({deleteDialogIsOpen:false})}>
+                    <FabricUI.DialogFooter>
+                        sdf
+                    </FabricUI.DialogFooter>
+                </FabricUI.Dialog>}
             </DevFriendlyPort>
         </section>;
     }

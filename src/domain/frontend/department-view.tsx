@@ -73,7 +73,7 @@ namespace LicApp.Frontend.Customer {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set('/view/customer/:id', singleView);
+    routeTable.set('/view/admin/department/:id', singleView);
 
     const listView = () => (
         <ListViewBox actions={actions}>
@@ -83,6 +83,6 @@ namespace LicApp.Frontend.Customer {
             </DataList>
         </ListViewBox>
     )
-    routeTable.set('/view/customer', listView);
+    routeTable.set('/view/admin/departments', listView);
 
 }

@@ -8,6 +8,7 @@ module LocalizeFA_IR {
     i18n('save-and-return','ذخیره و برگشت');
     i18n('error', 'خطا');
     i18n('error-required',  '{s} '+'الزامی است');
+    i18n('back','برگشت');
     i18n('next-page', 'صفحه بعد');
     i18n('previous-page', 'صفحه قبل');
     i18n('description-rejected-validation', 'اطلاعات ذخیره نشد - لطفا خطاهای زیر را رفع نمایید تا امکان ذخیره فرم وجود داشته باشد')

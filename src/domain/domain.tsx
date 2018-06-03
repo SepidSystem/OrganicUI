@@ -1,14 +1,19 @@
 /// <reference path="../organicUI.d.ts" />
- 
 
-const { tags, reports } =OrganicUI;
+import AppModel from './frontend/app-model';
+const { tags, reports } = OrganicUI;
 import './default-layout';
+import './frontend/dashboard-view';
+import './frontend/usergroup-view';
+import './frontend/department-view';
+import './frontend/user-view';
+import './frontend/role-view';
+import './frontend/dataitemgroup-view';
 import './frontend/customer-view';
-
-reports.set('report1', null);
-reports.set('report2', null);
-reports.set('report3', null);
-reports.set('report4', null); 
-
-
-window.addEventListener('DOMContentLoaded', () => OrganicUI.startApp());
+import './frontend/device-view';
+import './frontend/employee-view';
+import './frontend/attendancelive-report';
+import './frontend/attendance-report';
+import './frontend/eventlogs-report';
+import './frontend/employeetemplates-report';
+window.addEventListener('DOMContentLoaded', () => OrganicUI.startApp(new AppModel()));

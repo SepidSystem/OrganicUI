@@ -162,6 +162,7 @@ function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
 
         <div className="panel">
             {!!p.header && <p className={"panel-heading " + ((p.actions && 'actionable') || '')}>
+            <span className="temp"></span>
                 <div className={" title is-6 is-vcentered "}>
                     {i18n(p.header)}
                     {p.actions && <DropDownButton onActionExecute={p.onActionExecute} actions={p.actions} />}

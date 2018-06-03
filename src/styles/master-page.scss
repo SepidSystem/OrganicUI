@@ -1,0 +1,104 @@
+body,html{
+    background: rgb(222, 233, 238);
+}
+main{
+    text-align: right;
+     
+    position: absolute;
+    right: 310px;
+    left: 10px;
+}
+.main-content {
+    background-color: white;
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+    footer {
+        padding: 10px 2px;
+    }
+    .panel {
+        margin: 10px 2px;
+        .panel-heading {
+            background: #fff;
+            border: none !important;
+            position: relative;
+            min-height: 40px;
+            .temp {
+                position: absolute;
+                width: 100%;
+                left: 0;
+                right: 0;
+                background: rgb(151, 151, 151);
+                height: 1px;
+                bottom: 4px;
+            }
+            .title {
+                position: absolute;
+                background: #fff;
+                bottom: 4px;
+                right: 0;
+                padding: 1px 7px;
+                .icon {
+                    display: none;
+                }
+            }
+        }
+        .panel-content {
+            border: none !important;
+        }
+    }
+}
+
+.ms-Button--action {
+    background: #fff !important;
+    border-radius: 7px !important;
+}
+
+.master-page {
+    display: flex;
+    min-height: 100%;
+    font-family: Vazir !important;
+    .router {
+        min-height: 48px;
+        display: flex;
+        a,i {
+            padding: 15px 15px;
+        }
+        a{
+            display: block;
+            width:100%
+        }
+    }
+    aside {
+        min-width: 280px;
+        background: rgb(72, 74, 105);
+        .triangle {
+            display: none;
+        }
+        * {
+            color: #fff !important;
+        }
+        .icon{
+            font-size:20px; 
+        }
+        .router {
+            position: relative;
+            font-family: 'Vazir' !important;
+        }
+        .router.active:active,
+        .router.active:hover {
+            background: rgb(4, 160, 220) !important;
+        }
+        .router.active {
+            background: rgb(4, 160, 220) !important;
+            .triangle {
+                display: inline-block;
+                position: absolute;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 24px 24px 24px 0;
+                border-color: transparent rgb(4, 160, 220) transparent transparent;
+                left: -24px;
+            }
+        }
+    }
+}

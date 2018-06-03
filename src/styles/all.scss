@@ -1,11 +1,15 @@
+ 
 @import 'node_modules/bulma/bulma';
 @import 'node_modules/font-awesome/scss/font-awesome';
 @import 'node_modules/office-ui-fabric-react/dist/sass/Fabric';
+@import './text-font';
 @import './animate';
 @import './material-icons';
+@import './collapsible';
 @import './custom-components';
 @import './elements';
-@import './crud';
+@import './crud'; 
+@import './master-page';
 @import './flexboxgrid';
 @import './json-inspector';
 @import "node_modules/react-table/react-table";
@@ -13,7 +17,7 @@
     position: relative;
     min-height: auto;
     width: 100%;
-    overflow: visible;
+    overflow: visible; 
     .dropdown {
         position: absolute;
         top: 3px;
