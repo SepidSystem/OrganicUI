@@ -24,7 +24,7 @@ export interface TemplateForCRUDProps extends React.Props<any> {
 let debounceTimer: any;
 const debounce = cb => {
     debounceTimer && clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => (cb(), debounceTimer = 0), 100);
+    debounceTimer = setTimeout(() => (debounceTimer = null, cb()), 100);
 }
 
 function storeToggleButtons(v) {
@@ -103,10 +103,15 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
     }
 }
 
-interface ListViewBoxProps { actions: IActionsForCRUD<any>, children };
+interface ListViewBoxProps {
+    options?: ICRUDOptions;
+    actions: IActionsForCRUD<any>, children;
+
+};
 interface ListViewBoxState<T> { currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxState<T>>{
+
     constructor(p) {
         super(p);
         this.handleActiveItemChanged = this.handleActiveItemChanged.bind(this);
@@ -148,15 +153,16 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
                     {}, child.props, {
                         // onRowClick, onRowSelect,
                         onActiveItemChanged: this.handleActiveItemChanged,
-                        height: 600,
+                        height: 500,
+
                         loader: this.props.actions.handleLoadData,
-                        paginationMode: child.props.paginationMode || 'scrolled'
+                        paginationMode: child.props.paginationMode || 'paged'
                     } as Partial<IDetailsListProps>));
             }
             return child;
         });
 
-
+        const {options} = this.props;
         return <section className="list-view"   >
             <DevFriendlyPort target={this} targetText="ListView" >
 
@@ -164,9 +170,17 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
             </Card>*/}
                 <header className=" static-height list-view-header"  >
                     <div className="main-content filter-panel" style={{ flex: '1', margin: '5px' }}>adv</div>
-                    <FabricUI.PrimaryButton className="insert-btn" size={44} iconProps={{iconName:'Add'}} />
+                    <AdvButton primary onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
+                        <i className="fa fa-plus flag" />
+                        <div className="content">
+                            {[!!options.iconCode && <i className={Utils.classNames(options.iconCode.split('-')[0], options.iconCode)} />,
+                            <div className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>].filter(x => !!x)}
+
+
+                        </div>
+                    </AdvButton>
                     <div className="buttons">
-                        <FabricUI.PrimaryButton className="print-btn" text={i18n('print') as any}  iconProps={{iconName:'Print'}} />
+                        <FabricUI.PrimaryButton className="print-btn" text={i18n('print') as any} iconProps={{ iconName: 'Print' }} />
 
                     </div>
                 </header>
@@ -195,8 +209,8 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
 
                     </div>}
                     <br />
-                    <div className="  main-content column no-padding"   >
-                        {children}<br /><br /><br /><br /><br />
+                    <div className="  main-content column  "   >
+                        {children}
                     </div>
                 </div>
                 <footer style={{ display: 'none' }} className="buttons static-height columns  ">

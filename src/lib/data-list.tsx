@@ -26,7 +26,7 @@ const defaultNormalPageCount = 3;
 const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
     const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
-    return <nav className="pagination   is-centered" role="navigation" aria-label="pagination">
+    return (p.totalPages>1) &&  <nav className="pagination   is-centered" role="navigation" aria-label="pagination">
         <button className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</button>
         <button className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</button>
 
@@ -95,7 +95,8 @@ const rowRenderer = p => (
 export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     rowCount: number;
     static defaultProps = {
-        itemHeight: 42
+        itemHeight: 42,
+        paginationMode: 'paged'
     }
     refs: {
         root, content: HTMLElement;
@@ -125,16 +126,15 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         const s = this.state, p = this.props;
         let fetchableRowCount = (this.rowCount || 10) * 4;
 
-
         if (s.isLoading) return;
         resetCache && this.cache.reset();
-        Object.assign(this.state, { isLoading: true, startFrom });
+        Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
         this.lastDataLoading = new Date();
         if (fetchableRowCount < 0) fetchableRowCount = 0;
         return this.props.loader(
             { startFrom, rowCount: fetchableRowCount, }
         ).then(listData => {
-  
+
             if (listData.rows) {
                 if (p.paginationMode == 'scrolled')
                     listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
@@ -204,19 +204,18 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as any;
         const { itemHeight } = this.props;
- 
+
         return (
             <DevFriendlyPort target={this} targetText="DataList">
 
- 
-                {!!p.height && <div onScroll={this.handleScroll} className="data-list" ref="root" style={{ minHeight: (p.height + 'px') }} >
-                    <div className="data-list-content" ref="content" style={{ minHeight: parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' }}>
+                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null} className={Utils.classNames("data-list", p.paginationMode)} ref="root" style={{ minHeight: (p.height + 'px') }} >
+                    <div className="data-list-content" ref="content" style={{ minHeight: p.paginationMode == 'scrolled' ? parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' : 'auto' }}>
                     </div>
-                    {this.refs.root && items && <div className="data-list-c1" style={{
+                    {this.refs.root && items && <div className="data-list-c1" style={p.paginationMode == 'scrolled' ? {
                         height: p.height + 'px',
                         position: 'absolute', top:
                             ((this.refs.root && Math.floor(this.refs.root.scrollTop)) || 0) + 'px'
-                    }} >
+                    } : null} >
                         {React.createElement(FabricUI.DetailsList, dataListProps)}
 
                         {p.paginationMode != 'scrolled' && !!listData

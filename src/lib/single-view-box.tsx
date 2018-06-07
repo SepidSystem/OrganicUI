@@ -18,7 +18,7 @@ const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 interface SingleViewBoxProps<T> {
     actions: IActionsForCRUD<T>;
     customValidation?: (data: any) => IDataFormAccessorMsg[];
-    singularName?, pluralName?: string;
+    options: ICRUDOptions;
     dataProps, children?
 };
 interface SingleViewBoxState { formData: any; validated: boolean; }
@@ -108,13 +108,15 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
 
     }
     getSuccess() {
-        const title = Utils.i18nFormat('success-title-save-fmt', { s: i18n.get(this.props.singularName) });
-        const desc = Utils.i18nFormat('success-desc-save-fmt', { s: i18n.get(this.props.singularName), p: i18n.get(this.props.pluralName) });
+        const {options} = this.props;
+        const args = { s: i18n.get(options.singularName), p: i18n.get(options.pluralName) };
+        const title = Utils.i18nFormat('success-title-save-fmt', args);
+        const desc = Utils.i18nFormat('success-desc-save-fmt', args);
         return { title, desc };
     }
     render(p = this.props) {
 
-        const crudView = (this as any) as IViewsForCRUD<any>;
+         const {options} = this.props;
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
 
@@ -123,7 +125,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
             <DevFriendlyPort target={this} targetText="SingleView" >
                 <h1 className="title is-5 columns" style={{ margin: '0' }}>
                     <div className="column is-11">
-                        {Utils.i18nFormat(p.dataProps.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(p.singularName) })}
+                        {Utils.i18nFormat(p.dataProps.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                     </div>
                     <div className="column" style={{ maxWidth: '100px', direction: 'rtl' }}>
                         <FabricUI.ActionButton onClick={this.navigateToBack}   >
@@ -145,13 +147,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
                         {this.props.children}
                     </DataForm>
                     <footer className="buttons  single-view-buttons">
-                        {/*<AdvButton buttonComponent={FabricUI.ActionButton}   onClick={() => {
-                        const crudViews = (this as any) as IViewsForCRUD<any>;
-                        return Utils.navigate(crudViews.getUrlForListView());
-                    }}   > {i18n('return-to-listView')}</AdvButton>
                     
-                    <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('save-and-return')}</AdvButton>
-                    */}
 
                         <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('singleview-apply')}</AdvButton>
 

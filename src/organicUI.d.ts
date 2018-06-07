@@ -91,6 +91,13 @@ declare global {
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
   }
-
+  interface ICRUDOptions {
+    insertButtonContent?: any;
+    singularName: string;
+    routeForSingleView: string;
+    routeForListView: string;
+    pluralName: string;
+    iconCode: string;
+  }
 }
 

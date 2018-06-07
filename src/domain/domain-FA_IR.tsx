@@ -53,11 +53,11 @@ module LocalizeFA_IR {
     i18n('payment-status', 'وضیعت');
     i18n('customer', 'مشتری');
     i18n('customer-code', 'کد');
-    i18n('license','کدفعال سازی')
-    i18n('licenses','کدهای فعال سازی')
-    i18n('contact','اطلاعات تماس')
-    i18n('contacts','اطلاعات تماس')
-    
+    i18n('license', 'کدفعال سازی')
+    i18n('licenses', 'کدهای فعال سازی')
+    i18n('contact', 'اطلاعات تماس')
+    i18n('contacts', 'اطلاعات تماس')
+
     i18n('customer-name', 'نام');
     i18n('role', 'سمت');
     i18n('full-name', 'نام فرد');
@@ -67,5 +67,11 @@ module LocalizeFA_IR {
     i18n('computer-id', 'کد کامپیوتر');
     i18n('license-code', 'کد فعال ساز');
     i18n('license-date', 'تاریخ دریافت');
+    i18n('device', 'دستگاه');
+    i18n('employee', 'پرسنل');
+    i18n('user-group', 'گروه کاربری');
+    i18n('user', 'کاربر');
+    i18n('department', 'دپارتمان ');
 
 }
+

@@ -65,7 +65,7 @@ export default class AppModel {
             {
                 // OrRoleIDs: [],
                 // AndRoleIDs: [BasePermissionsStructure.DATAITEMGROUP_DEFINE_READ],
-                menu: new Menu(70, 'گروه اقلام داده', '/view/admin/dataitemgroups', null, 'fa-stack-overflow', null, false, 40)
+                menu: new Menu(70, 'گروه اقلام داده', '/view/admin/data-item-groups', null, 'fa-stack-overflow', null, false, 40)
             },
             {
                 // OrRoleIDs: [BasePermissionsStructure.MONITORING_ATTENDANCE],

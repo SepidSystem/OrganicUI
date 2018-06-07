@@ -12,13 +12,19 @@ namespace LicApp.Frontend.Customer {
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
     const api = OrganicUI.remoteApi as DepartmentAPI;
     const actions: IActionsForCRUD<DepartmentDTO> = {
-        handleCreate: dto =>   api.createDepartment(dto),         
+        handleCreate: dto => api.createDepartment(dto),
         handleRead: id => api.findEmployeeById(id), handleLoadData: params => api.readDepartmentList(params),
         handleUpdate: (id, dto) => api.updateDepartmentById(id, dto),
         handleDelete: id => api.deleteDepartmentById(id)
     };
+    const crudOptions: ICRUDOptions = {
+        routeForSingleView: '/view/admin/department/:id',
+        routeForListView: '/view/admin/departments',
+        
+        pluralName: 'departments', singularName: "department", iconCode: 'fa-sitemap'
+    }; 
     const singleView = (dataProps) =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="customer" >
+        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -49,7 +55,7 @@ namespace LicApp.Frontend.Customer {
                     <TextField type="text" />
                 </Field>
             </DataListPanel>
-            <DataListPanel  singularName="contact" pluralName="contacts" accessor="contacts" formMode="callout" selectionMode={SelectionMode.single} >
+            <DataListPanel singularName="contact" pluralName="contacts" accessor="contacts" formMode="callout" selectionMode={SelectionMode.single} >
                 <Field accessor="role"   >
                     <TextField type="text" />
                 </Field>
@@ -73,16 +79,16 @@ namespace LicApp.Frontend.Customer {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set('/view/admin/department/:id', singleView);
+    routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView = () => (
-        <ListViewBox actions={actions}>
+        <ListViewBox actions={actions} options={crudOptions}>
             <DataList>
                 <GridColumn accessor="customerCode" />
                 <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set('/view/admin/departments', listView);
+    routeTable.set( crudOptions.routeForListView, listView);
 
 }

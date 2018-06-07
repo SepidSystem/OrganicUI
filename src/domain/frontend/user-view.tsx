@@ -17,14 +17,20 @@ namespace LicApp.Frontend.User {
         handleUpdate: (id, dto) => api.updateUserById(id, dto),
         handleDelete: id => api.deleteUserById(id)
     };
+    const crudOptions: ICRUDOptions = {
+        routeForSingleView: '/view/admin/user/:id',
+        routeForListView: '/view/admin/users',
+        pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',
+    };
+
     const singleView = dataProps =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >
+        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions} >
 
             <DataPanel header={i18n("primary-fields")} primary >
-                <Field accessor="customerCode" required>
+                <Field accessor="userName" required>
                     <TextField type="text" />
                 </Field>
-                <Field accessor="customerName" required >
+                <Field accessor="displayName" required >
                     <TextField type="text" />
                 </Field>
                 <Field accessor="phone" required>
@@ -34,34 +40,18 @@ namespace LicApp.Frontend.User {
                     <TextField type="text" />
                 </Field>
             </DataPanel>
-            <DataPanel header="payment-information">
-                <Field accessor="paymentDate"    >
-                    <TextField type="text" />
-                </Field>
-                <Field accessor="paymentStatus"    >
-                    <TextField type="text" />
-                </Field>
-            </DataPanel>
 
-            <DataPanel header="payment-information">
-                <Field accessor="paymentDate"    >
-                    <TextField type="text" />
-                </Field>
-                <Field accessor="paymentStatus"    >
-                    <TextField type="text" />
-                </Field>
-            </DataPanel>
         </SingleViewBox>);
-    routeTable.set('/view/admin/user/:id', singleView);
+    routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView = () => (
-        <ListViewBox actions={actions}>
+        <ListViewBox actions={actions} options={crudOptions}>
             <DataList>
-                <GridColumn accessor="deviceName" />
-                <GridColumn accessor="customerName" />
+                <GridColumn accessor="userName" />
+                <GridColumn accessor="displayName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set('/view/admin/users', listView);
+    routeTable.set(crudOptions.routeForListView, listView);
 
 }

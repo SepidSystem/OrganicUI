@@ -12,8 +12,8 @@ import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from '../organicUI';
-import { isDevelopmentEnv } from './developer-friendly';
+ 
+import { isDevelopmentEnv,DevFriendlyPort } from './developer-friendly';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 interface SingleViewBoxState { formData: any; validated: boolean; }

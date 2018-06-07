@@ -13,6 +13,7 @@ module LocalizeFA_IR {
     i18n('previous-page', 'صفحه قبل');
     i18n('description-rejected-validation', 'اطلاعات ذخیره نشد - لطفا خطاهای زیر را رفع نمایید تا امکان ذخیره فرم وجود داشته باشد')
     i18n('add-entity-fmt', 'ثبت اطلاعات {s} جدید ');
+    i18n('new-entity-fmt', 'ثبت {s} جدید ');
     i18n('add-header-fmt','{s} جدید');
     i18n('edit-header-fmt','اصلاح {s}');
     i18n('delete-header-fmt','حذف {s}');
@@ -20,5 +21,6 @@ module LocalizeFA_IR {
     i18n('success-desc-save-fmt', 'این صفحه تا چند لحظه دیگر به صفحه {p} خواهد رفت');
 
     i18n('edit-entity-fmt', 'اصلاح اطلاعات {s}');
+ 
     i18n('header-for-data-list-panel','لیست {s}')
 }   

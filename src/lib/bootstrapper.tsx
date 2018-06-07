@@ -66,6 +66,6 @@ export function startApp(appModel: IAppModel) {
                             history.pushState(null, null, (anchor as HTMLAnchorElement).href);
                             mountViewToRoot()
                         });
-                }), 1000)
+                }), 300)
     afterLoadCallback instanceof Function && afterLoadCallback();
 }

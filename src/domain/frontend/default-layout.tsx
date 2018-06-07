@@ -6,7 +6,7 @@ const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
 import Collapsible from 'react-collapsible';
 
 const { View, DeveloperBar } = OrganicUI;
-
+const { showIcon, classNames } = Utils;
 
 function GeneralHeader() {
     return <div className="columns" style={{ width: '100%' }}>
@@ -22,9 +22,25 @@ function GeneralHeader() {
     </div>;
 }
 const root = document.querySelector('#root');
-const showIcon = (icon: string) => !!icon && <i className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
 class BaseView extends Component {
-
+    adjustedHeight: any;
+    adjustSide() {
+        const { mainContainer } = this.refs;
+        if (!mainContainer) return;
+        if (this.adjustedHeight == mainContainer.clientHeight) return;
+        this.adjustedHeight = mainContainer.clientHeight;
+        this.forceUpdate();
+    }
+    refs: {
+        mainContainer: HTMLElement;
+    }
+    timerId: any;
+    componentWillMount() {
+        this.timerId = setInterval(this.adjustSide.bind(this), 300);
+    }
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
     render() {
 
         //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
@@ -32,7 +48,7 @@ class BaseView extends Component {
 
         const menuItems = OrganicUI.appData.appModel.getMenuItems().map(({ menu }) => menu);
         const selectedMenuItem = menuItems.filter(mi => location.pathname.startsWith(mi.routerLink))[0];
-         return ((<Fabric className="master-page">
+        return ((<Fabric className="master-page">
 
             {/*<header className="hero is-light cover-section" style={{ height: '40px' }}>
                 <div className="hero-head">
@@ -43,26 +59,26 @@ class BaseView extends Component {
                     </div>
                 </div>
     </header>*/}
-            <aside>
+            <aside style={{ minHeight: this.adjustedHeight ? `${this.adjustedHeight}px` : 'auto',transform:'all' }}>
                 {menuItems.filter(m => !m.parentId).map(m => (
                     m.routerLink ?
-                        <div className={Utils.classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                        <div className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
                             {showIcon(m.icon)}{' '}
-                            <a href={m.routerLink}>{m.title}
+                            <a className="nav" href={m.routerLink}>{m.title}
 
                             </a>
                             <span className="triangle"></span>
                         </div> :
 
                         <Collapsible overflowWhenOpen="visible" open={!!selectedMenuItem &&
-                            ((selectedMenuItem.parentId == m.id))} trigger={[ showIcon(m.icon), m.title]} >
+                            ((selectedMenuItem.parentId == m.id))} trigger={[showIcon(m.icon), m.title]} >
 
 
                             <ul>
                                 {menuItems.filter(childMenu => childMenu.parentId === m.id).map(m =>
-                                    <li className={Utils.classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                                    <li className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
                                         {showIcon(m.icon)}{' '}
-                                        <a href={m.routerLink}>
+                                        <a className="nav" href={m.routerLink}>
                                             {m.title}
 
                                         </a> <span className="triangle"></span></li>
@@ -71,7 +87,7 @@ class BaseView extends Component {
                             </ul>
                         </Collapsible>))}
             </aside>
-            <main className="view   main-container" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
+            <main className="view   main-container" ref="mainContainer" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
 
 
                 <div className="extra-section">

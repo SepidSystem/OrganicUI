@@ -17,8 +17,13 @@ namespace LicApp.Frontend.Employee {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
+    const crudOptions: ICRUDOptions = {
+        routeForSingleView: '/view/admin/employee/:id',
+        routeForListView: '/view/admin/employee/:id',
+        pluralName: "users", singularName: "user", iconCode: 'fa-user'
+    };
     const singleView = dataProps =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >
+        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -55,7 +60,7 @@ namespace LicApp.Frontend.Employee {
     routeTable.set('/view/admin/employee/:id', singleView);
 
     const listView = () => (
-        <ListViewBox actions={actions}>
+        <ListViewBox actions={actions} options={crudOptions}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />

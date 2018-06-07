@@ -2,6 +2,9 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
+import OrganicBox from "../../lib/organic-box";
+
+
 namespace LicApp.Frontend.Device {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
     const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
@@ -17,8 +20,15 @@ namespace LicApp.Frontend.Device {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
+    const crudOptions: ICRUDOptions =
+        {
+            routeForSingleView: '/view/admin/device/:id',
+            routeForListView: '/view/admin/devices',
+            pluralName: 'devices', singularName: "device", iconCode: 'fa-calculator'
+        };
+
     const singleView = dataProps =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >
+        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions}  >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -52,16 +62,16 @@ namespace LicApp.Frontend.Device {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set('/view/admin/device/:id', singleView);
+    routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView = () => (
-        <ListViewBox actions={actions}>
+        <ListViewBox actions={actions} options={crudOptions}>
             <DataList>
                 <GridColumn accessor="deviceCode" />
                 <GridColumn accessor="deviceName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set('/view/admin/devices', listView);
+    routeTable.set(crudOptions.routeForListView, listView);
 
 }

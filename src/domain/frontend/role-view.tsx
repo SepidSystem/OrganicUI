@@ -17,8 +17,14 @@ namespace LicApp.Frontend.Role {
         handleUpdate: (id, dto) => api.updateRoleById(id, dto),
         handleDelete: id => api.deleteRoleById(id)
     };
+    const crudOptions: ICRUDOptions = {
+        routeForSingleView: '/view/admin/role/:id',
+        routeForListView: '/view/admin/roles',
+        pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
+    };
+
     const singleView = dataProps =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} singularName="device" >
+        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions}>
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -55,7 +61,7 @@ namespace LicApp.Frontend.Role {
     routeTable.set('/view/admin/role/:id', singleView);
 
     const listView = () => (
-        <ListViewBox actions={actions}>
+        <ListViewBox actions={actions} options={crudOptions}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />

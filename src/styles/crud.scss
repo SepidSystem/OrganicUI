@@ -31,37 +31,55 @@
 
 .list-view-header {
     position: relative;
-    min-height:250px;
+    min-height: 250px;
     .insert-btn {
         left: 10px;
-        width: 120px;
+        width: 140px;
         position: absolute;
-        height: 120px;
+        height: 140px;
         top: 10px;
-        i {
-            font-size: 50px !important;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+   
+        .flag {
+            position: absolute;
+            right:  35px ;
+            top: 15px;
+            font-size: 27px;
+            color: black;
+            font-weight: bolder;
+
+        }
+        .content {
+            i {
+                font-size: 60px;
+                color: white !important;
+
+            }
+        }
+        .add-text{
+            margin:5px 2px;
         }
     }
-    .buttons{
-        bottom:0;
-        left:10px;
-        right:0;
+    .buttons {
+        bottom: 0;
+        left: 10px;
+        right: 0;
         position: absolute;
         justify-content: flex-end;
-        button{
-            box-shadow: 1px 1px rgba(0,0,0,.3);
+        button {
+            box-shadow: 1px 1px rgba(0, 0, 0, .3);
             min-height: 48px;
             background: #fff;
-            border:rgb(72,74,105) 2px solid;
-            color:rgb(72,74,105);
+            border: rgb(72, 74, 105) 2px solid;
+            color: rgb(72, 74, 105);
             i {
                 font-size: 30px !important;
             }
         }
     }
     .filter-panel {
-        padding:5px;
-        left: 140px;
+        padding:0px 5px;
+        left: 160px;
         position: absolute;
         right: 0px;
         bottom: 60px;

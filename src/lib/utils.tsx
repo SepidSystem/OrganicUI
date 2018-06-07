@@ -103,11 +103,15 @@ export const Utils = {
 	i18nFormat(i18nCode, args) {
 		if (typeof args == 'string') {
 			args = { s: i18n.get(args) };
-	 
+
 		}
 		const text = i18n.get(i18nCode) as any;
 		return format(text, args);
+	},
+	showIcon(icon: string) {
+		return !!icon && <i className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
 	}
+
 }
 import * as changeCaseObject from 'change-case-object'
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

@@ -42,8 +42,10 @@ export class ActionManager {
             const headerPairs = Array.from((headers as any).entries()).reduce((a, [key, value]) => (a[key] = value, a), {});
 
             if ('x-total-count' in headerPairs) {
-                const totalRows = +headers['x-total-count'];
+                const totalRows = +headerPairs['x-total-count'];
+                 
                 result = result.then(rows => ({ totalRows, rows }));
+                console.log({totalRows});
             }
             result.then(json => {
                 let rows: Array<any>[] = json.rows;
