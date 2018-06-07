@@ -31,6 +31,6 @@ export { DashboardBox } from './lib/dashboard-box';
 export { ReportViewBox } from './lib/report-view-box';
 export { ListViewBox } from './lib/list-view-box';
 export { DevFriendlyPort, devTools, JsonInspector, DeveloperBar } from './lib/developer-friendly';
- 
+export {DataLookup} from './lib/data-lookup'; 
 export let currentView: any
 

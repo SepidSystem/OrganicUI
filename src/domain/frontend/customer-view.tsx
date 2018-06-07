@@ -12,7 +12,7 @@ namespace LicApp.Frontend.Customer {
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
     const api = OrganicUI.remoteApi as CustomerAPI;
     const actions: IActionsForCRUD<CustomerDTO> = {
-        handleCreate: dto =>   api.createCustomer(dto),         
+        handleCreate: dto => api.createCustomer(dto),
         handleRead: id => api.findCustomerById(id), handleLoadData: params => api.readCustomerList(params),
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
@@ -49,7 +49,7 @@ namespace LicApp.Frontend.Customer {
                     <TextField type="text" />
                 </Field>
             </DataListPanel>
-            <DataListPanel  singularName="contact" pluralName="contacts" accessor="contacts" formMode="callout" selectionMode={SelectionMode.single} >
+            <DataListPanel singularName="contact" pluralName="contacts" accessor="contacts" formMode="callout" selectionMode={SelectionMode.single} >
                 <Field accessor="role"   >
                     <TextField type="text" />
                 </Field>
@@ -75,7 +75,7 @@ namespace LicApp.Frontend.Customer {
         </SingleViewBox>);
     routeTable.set('/view/customer/:id', singleView);
 
-    const listView = () => (
+    const listView: StatelessListView = p => (
         <ListViewBox actions={actions}>
             <DataList>
                 <GridColumn accessor="customerCode" />

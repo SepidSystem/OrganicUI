@@ -82,7 +82,7 @@ declare global {
     actionName: string;
     onExecute: Function;
   }
-  interface IActionsForCRUD<TDto> {
+ export interface IActionsForCRUD<TDto> {
     handleCreate: (dto: TDto) => Promise<any>;
     handleUpdate: (id: any, dto: TDto) => Promise<any>;
     handleDelete: (id: any) => Promise<any>;
@@ -91,7 +91,7 @@ declare global {
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
   }
-  interface ICRUDOptions {
+  export interface ICRUDOptions {
     insertButtonContent?: any;
     singularName: string;
     routeForSingleView: string;
@@ -99,5 +99,9 @@ declare global {
     pluralName: string;
     iconCode: string;
   }
+  interface IListViewSFCProps {
+    isPopup?: boolean;
+  }
+  type ListViewSFC  = React.SFC<IListViewSFCProps>;
 }
 
