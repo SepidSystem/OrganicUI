@@ -60,7 +60,7 @@ namespace LicApp.Frontend.Employee {
     routeTable.set('/view/admin/employee/:id', singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions}>
+        <ListViewBox actions={actions} options={crudOptions} params={p}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />

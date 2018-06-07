@@ -82,7 +82,7 @@ namespace LicApp.Frontend.Customer {
     routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions}>
+        <ListViewBox actions={actions} options={crudOptions} params={p}>
             <DataList>
                 <GridColumn accessor="customerCode" />
                 <GridColumn accessor="customerName" />

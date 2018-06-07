@@ -65,7 +65,7 @@ namespace LicApp.Frontend.Device {
     routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions}>
+        <ListViewBox actions={actions} options={crudOptions} params={p}>
             <DataList>
                 <GridColumn accessor="deviceCode" />
                 <GridColumn accessor="deviceName" />

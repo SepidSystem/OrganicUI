@@ -102,6 +102,6 @@ declare global {
   interface IListViewSFCProps {
     isPopup?: boolean;
   }
-  type ListViewSFC  = React.SFC<IListViewSFCProps>;
+  type StatelessListView  = React.SFC<IListViewSFCProps>;
 }
 

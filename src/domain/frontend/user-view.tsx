@@ -1,7 +1,7 @@
 /// <reference path="../../organicUI.d.ts" />
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
-import {roleListView} from './role-view'
+import { roleListView } from './role-view'
 namespace LicApp.Frontend.User {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
     const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
@@ -45,8 +45,8 @@ namespace LicApp.Frontend.User {
     routeTable.set(crudOptions.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions}>
-        <OrganicUI.DataLookup source={roleListView} />
+        <ListViewBox actions={actions} options={crudOptions} params={p}>
+            <OrganicUI.DataLookup source={roleListView} />
             <DataList>
                 <GridColumn accessor="userName" />
                 <GridColumn accessor="displayName" />

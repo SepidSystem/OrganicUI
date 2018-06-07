@@ -16,7 +16,7 @@ export { Utils, changeCase } from './lib/utils';
 export { route, routeTable } from './lib/router';
 export { remoteApiProxy, remoteApi, ActionManager } from './lib/action-manager';
 export { IStateListener, StateListener } from './lib/state-listener';
-export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback,appData } from './lib/bootstrapper';
+export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData } from './lib/bootstrapper';
 export { View } from './lib/view';
 export { Template, ViewLogic, Action } from './lib/decorators';
 export { Field, ErrorCodeForFieldValidation, IFieldProps, IFieldReaderWriter, ObjectField, UserFields } from './lib/data';
@@ -31,6 +31,6 @@ export { DashboardBox } from './lib/dashboard-box';
 export { ReportViewBox } from './lib/report-view-box';
 export { ListViewBox } from './lib/list-view-box';
 export { DevFriendlyPort, devTools, JsonInspector, DeveloperBar } from './lib/developer-friendly';
-export {DataLookup} from './lib/data-lookup'; 
+export { DataLookup } from './lib/data-lookup';
 export let currentView: any
 

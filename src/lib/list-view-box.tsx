@@ -105,6 +105,7 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
 
 interface ListViewBoxProps {
     options?: ICRUDOptions;
+    params: IListViewSFCProps;
     actions: IActionsForCRUD<any>, children;
 
 };
@@ -144,6 +145,7 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
             //     currentRow && TemplateForCRUD.Instance && TemplateForCRUD.Instance.repatch({ currentRow })
         }
         const onRowSelect = ([currentRow]) => onRowClick(null, currentRow);
+        const { options, params } = this.props;
 
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
@@ -161,8 +163,7 @@ export class ListViewBox<T> extends OrganicBox<ListViewBoxProps, ListViewBoxStat
             }
             return child;
         });
-
-        const {options} = this.props;
+        if (params.isPopup) return <section className="list-view"   >{children}</section>;
         return <section className="list-view"   >
             <DevFriendlyPort target={this} targetText="ListView" >
 

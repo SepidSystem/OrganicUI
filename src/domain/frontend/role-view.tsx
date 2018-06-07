@@ -60,8 +60,8 @@ const singleView = dataProps =>
     </SingleViewBox>);
 routeTable.set('/view/admin/role/:id', singleView);
 
-export const roleListView = () => (
-    <ListViewBox actions={actions} options={crudOptions}>
+export const roleListView: StatelessListView = p => (
+    <ListViewBox actions={actions} options={crudOptions} params={p}>
         <DataList>
             <GridColumn accessor="deviceName" />
             <GridColumn accessor="customerName" />
