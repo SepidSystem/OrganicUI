@@ -23,7 +23,12 @@ function loadScript(src) {
     document.body.appendChild(script);
     return script;
 }
-export default class OrganicBox<P, S> extends BaseComponent<P, S> {
+interface OrganicBoxProps<TActions, TOptions, TParams> {
+    actions: TActions;
+    options: TOptions;
+    params: TParams;
+}
+export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
     serverChanged(): any {
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
         boards.forEach(board => {
@@ -48,7 +53,7 @@ export default class OrganicBox<P, S> extends BaseComponent<P, S> {
     constructor(p) {
         super(p);
         if (isDevelopmentEnv()) {
-            try { 
+            try {
                 this.webSocket = new WebSocket(`ws://${location.host}/watch`);
                 this.webSocket.onmessage = ({ data }) => (
                     (data == 'reloadAllTargetedItems' && this.reloadAllTargetedItems()) ||

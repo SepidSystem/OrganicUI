@@ -18,7 +18,7 @@ namespace LicApp.Frontend.Customer {
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
     };
-    const dashboardView = (dataProps) =>
+    const dashboardView = (params) =>
         (<DashboardBox   >
 
              

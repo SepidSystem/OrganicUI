@@ -19,7 +19,7 @@ interface ReportViewBoxProps {
 
 };
 interface ReportViewBoxState { formData: any; validated: boolean; }
-export class ReportViewBox extends OrganicBox<ReportViewBoxProps, ReportViewBoxState> {
+export class ReportViewBox extends OrganicBox<any,any,any, ReportViewBoxState> {
     navigateToBack(): any {
 
         history.back();

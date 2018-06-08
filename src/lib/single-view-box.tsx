@@ -17,12 +17,13 @@ import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 interface SingleViewBoxProps<T> {
     actions: IActionsForCRUD<T>;
-    customValidation?: (data: any) => IDataFormAccessorMsg[];
     options: ICRUDOptions;
-    dataProps, children?
+    params, children?
 };
 interface SingleViewBoxState { formData: any; validated: boolean; }
-export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleViewBoxState> {
+interface SingleViewParams { id }
+export class SingleViewBox<T> extends OrganicBox<
+    IActionsForCRUD<T>, ICRUDOptions, SingleViewParams, SingleViewBoxState> {
     navigateToBack(): any {
 
         history.back();
@@ -32,9 +33,9 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
 
     }
     componentWillMount() {
-        const { actions, dataProps } = this.props;
-        this.state.formData = dataProps.id > 0
-            ? actions.handleRead(dataProps.id).then(formData => this.repatch({ formData }))
+        const { actions, params } = this.props;
+        this.state.formData = params.id > 0
+            ? actions.handleRead(params.id).then(formData => this.repatch({ formData }))
             : {};
     }
 
@@ -53,7 +54,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
         let updateResult: Promise<any>;
 
         if (p.actions.handleCreate instanceof Function)
-            updateResult = !p.dataProps.id ? p.actions.handleCreate(s.formData) : p.actions.handleUpdate(p.dataProps.id, s.formData);
+            updateResult = !p.params.id ? p.actions.handleCreate(s.formData) : p.actions.handleUpdate(p.params.id, s.formData);
         else {
             return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-5 animated fadeIn">{i18n('error')}</div>
                 <div className="animated fadeInDown">
@@ -108,7 +109,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
 
     }
     getSuccess() {
-        const {options} = this.props;
+        const { options } = this.props;
         const args = { s: i18n.get(options.singularName), p: i18n.get(options.pluralName) };
         const title = Utils.i18nFormat('success-title-save-fmt', args);
         const desc = Utils.i18nFormat('success-desc-save-fmt', args);
@@ -116,7 +117,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
     }
     render(p = this.props) {
 
-         const {options} = this.props;
+        const { options } = this.props;
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
 
@@ -125,7 +126,7 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
             <DevFriendlyPort target={this} targetText="SingleView" >
                 <h1 className="title is-5 columns" style={{ margin: '0' }}>
                     <div className="column is-11">
-                        {Utils.i18nFormat(p.dataProps.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
+                        {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                     </div>
                     <div className="column" style={{ maxWidth: '100px', direction: 'rtl' }}>
                         <FabricUI.ActionButton onClick={this.navigateToBack}   >
@@ -141,13 +142,13 @@ export class SingleViewBox<T> extends OrganicBox<SingleViewBoxProps<T>, SingleVi
                     <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
                         onFieldWrite={(accessor, value) => s.formData[accessor] = value}
                         validate={s.validated}
-                        customValidation={p.customValidation}
+                        customValidation={p.actions.customValidation}
                         data={s.formData}>
 
                         {this.props.children}
                     </DataForm>
                     <footer className="buttons  single-view-buttons">
-                    
+
 
                         <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('singleview-apply')}</AdvButton>
 

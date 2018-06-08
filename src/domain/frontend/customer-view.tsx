@@ -22,8 +22,8 @@ namespace LicApp.Frontend.Customer {
         routeForListView: '/view/customers',
         pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',
     };
-    const singleView = (dataProps) =>
-        (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions} >
+    const singleView = (params) =>
+        (<SingleViewBox params={params} actions={actions} options={crudOptions} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>

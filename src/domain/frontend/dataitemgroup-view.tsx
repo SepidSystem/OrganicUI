@@ -23,8 +23,8 @@ namespace LicApp.Frontend.DataItemGroup {
         pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
     };
 
-    const singleView = dataProps =>
-        (<SingleViewBox dataProps={dataProps} options={crudOptions} actions={actions}  >
+    const singleView = params =>
+        (<SingleViewBox params={params} options={crudOptions} actions={actions}  >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>

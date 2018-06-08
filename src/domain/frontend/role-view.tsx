@@ -23,8 +23,8 @@ const crudOptions: ICRUDOptions = {
     pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
 };
 
-const singleView = dataProps =>
-    (<SingleViewBox dataProps={dataProps} actions={actions} options={crudOptions}>
+const singleView = params =>
+    (<SingleViewBox params={params} actions={actions} options={crudOptions}>
 
         <DataPanel header={i18n("primary-fields")} primary >
             <Field accessor="customerCode" required>

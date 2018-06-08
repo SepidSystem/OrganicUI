@@ -19,7 +19,7 @@ interface DashboardBoxProps {
    
 };
 interface DashboardBoxState { formData: any; validated: boolean; }
-export class DashboardBox extends OrganicBox<DashboardBoxProps, DashboardBoxState> {
+export class DashboardBox extends OrganicBox<any,any,any, DashboardBoxState> {
     navigateToBack(): any {
 
         history.back();

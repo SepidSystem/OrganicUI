@@ -90,6 +90,8 @@ declare global {
     handleLoadData: (params) => PromisedResultSet<TDto>;
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
+    customValidation?: (data: any) => IDataFormAccessorMsg[];
+    
   }
   export interface ICRUDOptions {
     insertButtonContent?: any;

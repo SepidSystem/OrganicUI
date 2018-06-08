@@ -17,8 +17,8 @@ namespace LicApp.Frontend.EventLogs {
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
     };
-    const reportView = (dataProps) =>
-        (<ReportViewBox   >
+    const reportView = (params) =>
+        (<ReportViewBox  actions={null} options={null} params={params} >
 
             
         </ReportViewBox>); 

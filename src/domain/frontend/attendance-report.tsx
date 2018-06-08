@@ -17,7 +17,7 @@ namespace LicApp.Frontend.Customer {
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
     };
-    const reportView = (dataProps) =>
+    const reportView = (params) =>
         (<ReportViewBox   >
 
             
