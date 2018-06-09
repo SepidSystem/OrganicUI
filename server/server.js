@@ -1,10 +1,12 @@
 const recursiveWatch = require('recursive-watch');
 const shelljs = require('shelljs');
+const fse=require('fs-extra');
 const child = shelljs.exec('npm run build:watch', { async: true });
 child.stdout.on('data', data => {
     notifyToAllUserForFileChanging('reloadAllTargetedItems');
     console.log(data);
 });
+shelljs.exec('npm run build:sass', { async: true });
 const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
 child2.stdout.on('data', console.log);
 const jsonServer = require('json-server');
