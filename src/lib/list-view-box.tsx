@@ -164,7 +164,7 @@ export class ListViewBox<T> extends
             }
             return child;
         });
-        if (params.isPopup) return <section className="list-view-datalookup"   >{children}</section>;
+        if (params.forDataLookup) return <section className="list-view-datalookup"   >{children}</section>;
         return <section className="list-view"   >
             <DevFriendlyPort target={this} targetText="ListView" >
 

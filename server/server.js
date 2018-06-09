@@ -11,7 +11,7 @@ const jsonServer = require('json-server');
 const path = require('path');
 const express = require('express');
 
-const router = jsonServer.router('db.json');
+const router = jsonServer.router('database.json');
 //const reload = require('require-reload')(require);
 const server = express();
 var expressWs = require('express-ws')(server);

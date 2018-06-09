@@ -62,3 +62,4 @@ typings/
 .next
 package-lock.json
 assets/*.js
+database.json

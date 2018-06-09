@@ -102,7 +102,7 @@ declare global {
     iconCode: string;
   }
   interface IListViewParams {
-    isPopup?: boolean;
+    forDataLookup?: boolean;
   }
   interface ISingleViewParams { id }
   type StatelessListView = React.SFC<IListViewParams>;
