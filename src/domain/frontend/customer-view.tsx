@@ -17,7 +17,7 @@ namespace LicApp.Frontend.Customer {
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
     };
-    const options: Ioptions = {
+    const options: IOptionsForCRUD = {
         routeForSingleView: '/view/customer/:id',
         routeForListView: '/view/customers',
         pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',

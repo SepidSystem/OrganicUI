@@ -17,7 +17,7 @@ const actions: IActionsForCRUD<RoleDTO> = {
     handleUpdate: (id, dto) => api.updateRoleById(id, dto),
     handleDelete: id => api.deleteRoleById(id)
 };
-const options: Ioptions = {
+const options: IOptionsForCRUD = {
     routeForSingleView: '/view/admin/role/:id',
     routeForListView: '/view/admin/roles',
     pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'

@@ -93,7 +93,7 @@ declare global {
     customValidation?: (data: any) => IDataFormAccessorMsg[];
 
   }
-  export interface Ioptions {
+  export interface IOptionsForCRUD {
     insertButtonContent?: any;
     singularName: string;
     routeForSingleView: string;

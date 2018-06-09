@@ -20,7 +20,7 @@ const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 interface SingleViewBoxState { formData: any; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
-    IActionsForCRUD<T>, Ioptions, ISingleViewParams, SingleViewBoxState> {
+    IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState> {
     navigateToBack(): any {
 
         history.back();
@@ -155,7 +155,5 @@ export class SingleViewBox<T> extends OrganicBox<
         </section>
 
     }
-    static prepareState(state: { formData, id }) {
-
-    }
+   
 } 

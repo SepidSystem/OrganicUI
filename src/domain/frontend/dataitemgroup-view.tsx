@@ -17,7 +17,7 @@ namespace LicApp.Frontend.DataItemGroup {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const options: Ioptions = {
+    const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/data-item-group/:id',
         routeForListView: '/view/admin/data-item-groups',
         pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'

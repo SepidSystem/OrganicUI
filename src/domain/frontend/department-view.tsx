@@ -17,7 +17,7 @@ namespace LicApp.Frontend.Customer {
         handleUpdate: (id, dto) => api.updateDepartmentById(id, dto),
         handleDelete: id => api.deleteDepartmentById(id)
     };
-    const options: Ioptions = {
+    const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/department/:id',
         routeForListView: '/view/admin/departments',
 

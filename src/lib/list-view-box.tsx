@@ -104,7 +104,7 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
 }
 
 interface ListViewBoxProps {
-    options?: Ioptions;
+    options?: IOptionsForCRUD;
     params: IListViewParams;
     actions: IActionsForCRUD<any>, children;
 
@@ -112,7 +112,7 @@ interface ListViewBoxProps {
 interface ListViewBoxState<T> { currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends
-    OrganicBox<IActionsForCRUD<T>, Ioptions, IListViewParams, ListViewBoxState<T>>{
+    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>{
 
     constructor(p) {
         super(p);

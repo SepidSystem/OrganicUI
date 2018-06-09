@@ -16,7 +16,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         const p = this.props;
         return <div ref="root">
             <TextField label="Standard" />
-            {React.createElement(p.source, { isPopup: true } as IListViewSFCProps)}
+            {React.createElement(p.source, { isPopup: true } as Partial<IListViewParams>)}
         </div>
     }
 }

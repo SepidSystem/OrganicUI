@@ -20,7 +20,7 @@ namespace LicApp.Frontend.Device {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const options: Ioptions =
+    const options: IOptionsForCRUD =
         {
             routeForSingleView: '/view/admin/device/:id',
             routeForListView: '/view/admin/devices',

@@ -19,7 +19,7 @@ namespace LicApp.Frontend.Employee {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const options: Ioptions = {
+    const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/employee/:id',
         routeForListView: '/view/admin/employee/:id',
         pluralName: "users", singularName: "user", iconCode: 'fa-user'

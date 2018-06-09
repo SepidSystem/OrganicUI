@@ -17,7 +17,7 @@ namespace LicApp.Frontend.UserGroup {
         handleUpdate: (id, dto) => api.updateUserGroupById(id, dto),
         handleDelete: id => api.deleteUserGroupById(id)
     };
-    const options: Ioptions = {
+    const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/usergroup/:id',
         routeForListView: '/view/admin/usergroup/:id',
         pluralName: 'user-groups', singularName: 'user-group', iconCode: 'fa-users'
