@@ -18,9 +18,9 @@ namespace LicApp.Frontend.Customer {
         handleDelete: id => api.deleteCustomerById(id)
     };
     const reportView = (params) =>
-        (<ReportViewBox   >
+        (<ReportViewBox actions={null} options={null}  params={null} >
 
             
         </ReportViewBox>); 
     routeTable.set('/view/admin/reports/attendance', reportView);
-}
+} 

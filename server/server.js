@@ -32,12 +32,12 @@ const notifyToAllUserForFileChanging = msg => {
     }
     );
 }
+let allWebSocketsChangeCounter = 0;
 server.ws('/watch', function (ws, req) {
-    ws.on('message', function (msg) {
-        console.log(msg);
-    });
-    console.log('socket', req.testing);
-    allWebSockets = allWebSockets.filter(ws => ws.readyState == 1);
+    if (allWebSocketsChangeCounter++ > 1000) {
+        allWebSocketsChangeCounter = 0;
+        allWebSockets = allWebSockets.filter(ws => ws.readyState == 1);
+    }
     allWebSockets.push(ws);
 });
 server.listen(3000);

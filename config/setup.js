@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 const root = join(__dirname, '..');
-
+const DashboardPlugin = require('webpack-dashboard/plugin');
 module.exports = production => {
 	// base plugins array
 	const plugins = [
@@ -25,7 +25,8 @@ module.exports = production => {
 		// dev only
 		plugins.push(
 			//		new webpack.HotModuleReplacementPlugin(),
-			new webpack.NamedModulesPlugin()
+			new webpack.NamedModulesPlugin(),
+			new DashboardPlugin()
 		);
 	}
 

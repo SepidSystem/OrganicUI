@@ -82,6 +82,7 @@ namespace LicApp.Frontend.Customer {
 
     const listView: StatelessListView = p => (
         <ListViewBox actions={actions} options={options} params={p}>
+  
             <DataList>
                 <GridColumn accessor="customerCode" />
                 <GridColumn accessor="customerName" />

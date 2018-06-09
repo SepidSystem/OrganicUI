@@ -3,7 +3,7 @@ import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
 
-import { isDevelopmentEnv } from './developer-friendly';
+import { isDevelopmentMode } from './developer-friendly';
 import { TextField } from 'office-ui-fabric-react';
 interface DataLookupProps {
     source: StatelessListView;

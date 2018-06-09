@@ -90,6 +90,7 @@
     "ts-loader": "^3.1.1",
     "typescript": "^2.8.3",
     "webpack": "^3.7.0",
+    "webpack-dashboard": "^2.0.0",
     "webpack-dev-server": "^2.9.0"
   }
 }

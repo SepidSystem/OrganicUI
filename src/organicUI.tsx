@@ -18,7 +18,7 @@ export { remoteApiProxy, remoteApi, ActionManager } from './lib/action-manager';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData } from './lib/bootstrapper';
 export { View } from './lib/view';
-export { Template, ViewLogic, Action } from './lib/decorators';
+export { Template,Action } from './lib/decorators';
 export { Field, ErrorCodeForFieldValidation, IFieldProps, IFieldReaderWriter, ObjectField, UserFields } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';

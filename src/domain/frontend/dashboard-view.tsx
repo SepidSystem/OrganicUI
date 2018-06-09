@@ -17,11 +17,11 @@ namespace LicApp.Frontend.Customer {
         handleRead: id => api.findCustomerById(id), handleLoadData: params => api.readCustomerList(params),
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
-    };
+    }; 
     const dashboardView = (params) =>
-        (<DashboardBox   >
-
+        (<DashboardBox  actions={null} options={null} params={params} >
+ 
              
         </DashboardBox>);
     routeTable.set('/view/dashboard', dashboardView);
-}
+} 

@@ -1,0 +1,19 @@
+#dev-server-board{
+    background: #555;
+    color:#fff;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    display: none;
+    padding:2px;
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:35px;
+    z-index: 200; 
+}
+#dev-server-board.active{
+    display: flex;
+}

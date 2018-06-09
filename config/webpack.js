@@ -66,7 +66,7 @@ module.exports = env => {
 			}*/]
 		},
 		plugins: setup(isProd),
-		devtool: !isProd && 'eval',
+		//devtool: !isProd && 'eval',
 		devServer: {
 			contentBase: dist,
 			port: process.env.PORT || 3000,

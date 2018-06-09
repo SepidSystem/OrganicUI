@@ -7,7 +7,7 @@ export function isDevMode() {
 
     return !!DevFriendlyPort.developerFriendlyEnabled;
 }
-export const isDevelopmentEnv = () => !!DevFriendlyPort.isDevelopmentEnv;
+export const isDevelopmentMode = () => !!DevFriendlyPort.isDevelopmentEnv;
 export type DevFriendlyCommand = (target, devPort: DevFriendlyPort) => void;
 export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
@@ -39,10 +39,11 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
             key: 'assign-window',
             name: 'Set As Global Var',
             onClick: () => {
-                const key = prompt('global varaible name , you can use this variable in    console', 'that');
+                const key = prompt('global varaible name , you can use this variable in    console', OrganicUI.changeCase.camelCase(this.props.targetText));
                 if (!key) return;
                 let pairs = {};
                 pairs[key] = this.props.target;
+                console.log(pairs);
                 Object.assign(window, pairs);
             }
         }
@@ -51,7 +52,8 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
         return <FabricUI.ActionButton onMouseEnter={() => this.refs.root.classList.add('dev-target')}
             onMouseLeave={() => this.refs.root.classList.remove('dev-target')}
             id={`DevTools${targetText}`}
-            text={`DevTools for ${targetText}`}
+            iconProps={{iconName:'Code'}}
+            text={targetText}
             menuProps={{
                 shouldFocusOnMount: true,
                 items:

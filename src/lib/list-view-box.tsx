@@ -12,7 +12,7 @@ import { IDataListProps, DataList } from './data-list';
 
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from '../organicUI';
+import { DevFriendlyPort } from './developer-friendly';
 import { IDetailsListProps } from 'office-ui-fabric-react';
 import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;

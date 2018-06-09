@@ -13,15 +13,20 @@ import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 
-import { isDevelopmentEnv, DevFriendlyPort } from './developer-friendly';
+import { isDevelopmentMode, DevFriendlyPort } from './developer-friendly';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 interface SingleViewBoxState { formData: any; validated: boolean; }
-function loadScript(src) {
-    const script = document.createElement('script');
-    script.src = src;
-    document.body.appendChild(script);
-    return script;
+function loadScript(url) {
+    //url is URL of external file, implementationCode is the code
+    //to be called from the file, location is the location to 
+    //insert the <script> element
+
+    var scriptTag = document.createElement('script');
+    scriptTag.src = url;
+
+    scriptTag.onload = () => 0;
+    document.head.appendChild(scriptTag);
 }
 interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
@@ -34,32 +39,43 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
         boards.forEach(board => {
             board.classList.add('active');
-            board.innerHTML = 'server files is changed, building started...';
+            board.innerHTML = 'server files is changed, building bundle started...';
         });
     }
     webSocket: WebSocket;
-    static stableState: any;
+
     private reloadAllTargetedItems() {
-        OrganicBox.stableState = this.state;
-        Array.from(document.querySelectorAll('script'))
-            .filter(scriptElement => scriptElement.getAttribute('data-target') == 'development')
-            .forEach(({ src }) => loadScript(src));
-        OrganicUI.setAfterLoadCallback(() => {
-            this.setState(OrganicBox.stableState)
-            const board = document.querySelector('#dev-server-board');
-            board && board.classList.remove('active');
-        });
+
+        const boards = Array.from(document.querySelectorAll('#dev-server-board'));
+        boards.forEach(board => board.classList.remove('active'));
+        setTimeout(() => location.reload(), 200);
+        localStorage.setItem('stableState', JSON.stringify(this.state));
+        /*   Array.from(document.querySelectorAll('script'))
+               .filter(scriptElement => scriptElement.getAttribute('data-target') == 'development')
+               .forEach(({ src }) => loadScript(src));
+   */
+
     }
 
     constructor(p) {
         super(p);
-        if (isDevelopmentEnv()) {
+        const stableState = localStorage.getItem('stableState')
+        if (stableState) {
+            localStorage.removeItem('stableState');
+            const state = JSON.parse(stableState)
+
+            setTimeout(() => this.setState(state), 100);
+            console.log({ state });
+        }
+        if (isDevelopmentMode()) {
             try {
                 this.webSocket = new WebSocket(`ws://${location.host}/watch`);
-                this.webSocket.onmessage = ({ data }) => (
+                this.webSocket.onmessage = ({ data }) => {
+                    data = JSON.parse(data);
+
                     (data == 'reloadAllTargetedItems' && this.reloadAllTargetedItems()) ||
-                    (data == 'serverChanged' && this.serverChanged())
-                );
+                        (data == 'serverChanged' && this.serverChanged())
+                };
             } catch (exc) { }
         }
     }
