@@ -17,14 +17,14 @@ namespace LicApp.Frontend.DataItemGroup {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const crudOptions: ICRUDOptions = {
+    const options: Ioptions = {
         routeForSingleView: '/view/admin/data-item-group/:id',
         routeForListView: '/view/admin/data-item-groups',
         pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
     };
 
-    const singleView = params =>
-        (<SingleViewBox params={params} options={crudOptions} actions={actions}  >
+    const singleView : StatelessSingleView = params =>
+        (<SingleViewBox params={params} options={options} actions={actions}  >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -58,16 +58,16 @@ namespace LicApp.Frontend.DataItemGroup {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set(crudOptions.routeForSingleView, singleView);
+    routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set(crudOptions.routeForListView, listView);
+    routeTable.set(options.routeForListView, listView);
 
 }

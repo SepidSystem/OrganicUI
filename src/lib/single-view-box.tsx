@@ -15,15 +15,12 @@ import { AdvButton, Placeholder } from './ui-kit';
 import { DevFriendlyPort } from '../organicUI';
 import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
-interface SingleViewBoxProps<T> {
-    actions: IActionsForCRUD<T>;
-    options: ICRUDOptions;
-    params, children?
-};
+
+
 interface SingleViewBoxState { formData: any; validated: boolean; }
-interface SingleViewParams { id }
+
 export class SingleViewBox<T> extends OrganicBox<
-    IActionsForCRUD<T>, ICRUDOptions, SingleViewParams, SingleViewBoxState> {
+    IActionsForCRUD<T>, Ioptions, ISingleViewParams, SingleViewBoxState> {
     navigateToBack(): any {
 
         history.back();

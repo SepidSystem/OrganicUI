@@ -17,13 +17,13 @@ namespace LicApp.Frontend.Customer {
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
         handleDelete: id => api.deleteCustomerById(id)
     };
-    const crudOptions: ICRUDOptions = {
+    const options: Ioptions = {
         routeForSingleView: '/view/customer/:id',
         routeForListView: '/view/customers',
         pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',
     };
-    const singleView = (params) =>
-        (<SingleViewBox params={params} actions={actions} options={crudOptions} >
+    const singleView: StatelessSingleView = params =>
+        (<SingleViewBox params={params} actions={actions} options={options} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -78,16 +78,16 @@ namespace LicApp.Frontend.Customer {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set(crudOptions.routeForSingleView, singleView);
+    routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
                 <GridColumn accessor="customerCode" />
                 <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set(crudOptions.routeForListView , listView);
+    routeTable.set(options.routeForListView, listView);
 
 }

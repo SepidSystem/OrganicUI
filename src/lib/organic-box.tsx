@@ -27,6 +27,7 @@ interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
     options: TOptions;
     params: TParams;
+    children?: React.ReactNode;
 }
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
     serverChanged(): any {

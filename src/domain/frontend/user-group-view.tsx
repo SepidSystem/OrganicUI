@@ -17,13 +17,13 @@ namespace LicApp.Frontend.UserGroup {
         handleUpdate: (id, dto) => api.updateUserGroupById(id, dto),
         handleDelete: id => api.deleteUserGroupById(id)
     };
-    const crudOptions: ICRUDOptions = {
+    const options: Ioptions = {
         routeForSingleView: '/view/admin/usergroup/:id',
         routeForListView: '/view/admin/usergroup/:id',
         pluralName: 'user-groups', singularName: 'user-group', iconCode: 'fa-users'
     };
-    const singleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={crudOptions} >
+    const singleView: StatelessSingleView = params =>
+        (<SingleViewBox params={params} actions={actions} options={options} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -60,7 +60,7 @@ namespace LicApp.Frontend.UserGroup {
     routeTable.set('/view/admin/usergroup/:id', singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />

@@ -20,15 +20,15 @@ namespace LicApp.Frontend.Device {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const crudOptions: ICRUDOptions =
+    const options: Ioptions =
         {
             routeForSingleView: '/view/admin/device/:id',
             routeForListView: '/view/admin/devices',
             pluralName: 'devices', singularName: "device", iconCode: 'fa-calculator'
         };
 
-    const singleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={crudOptions}  >
+    const singleView :StatelessSingleView= params =>
+        (<SingleViewBox params={params} actions={actions} options={options}  >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -62,16 +62,16 @@ namespace LicApp.Frontend.Device {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set(crudOptions.routeForSingleView, singleView);
+    routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
                 <GridColumn accessor="deviceCode" />
                 <GridColumn accessor="deviceName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set(crudOptions.routeForListView, listView);
+    routeTable.set(options.routeForListView, listView);
 
 }

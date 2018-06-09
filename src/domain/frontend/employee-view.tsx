@@ -2,6 +2,8 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
+import { SingleViewBox } from "../../organicUI";
+
 namespace LicApp.Frontend.Employee {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
     const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
@@ -17,13 +19,13 @@ namespace LicApp.Frontend.Employee {
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
         handleDelete: id => api.deleteDeviceById(id)
     };
-    const crudOptions: ICRUDOptions = {
+    const options: Ioptions = {
         routeForSingleView: '/view/admin/employee/:id',
         routeForListView: '/view/admin/employee/:id',
         pluralName: "users", singularName: "user", iconCode: 'fa-user'
     };
-    const singleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={crudOptions} >
+    const singleView: StatelessSingleView = params =>
+        (<SingleViewBox params={params} actions={actions} options={options} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="customerCode" required>
@@ -60,7 +62,7 @@ namespace LicApp.Frontend.Employee {
     routeTable.set('/view/admin/employee/:id', singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
                 <GridColumn accessor="deviceName" />
                 <GridColumn accessor="customerName" />

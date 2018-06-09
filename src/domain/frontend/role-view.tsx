@@ -17,14 +17,14 @@ const actions: IActionsForCRUD<RoleDTO> = {
     handleUpdate: (id, dto) => api.updateRoleById(id, dto),
     handleDelete: id => api.deleteRoleById(id)
 };
-const crudOptions: ICRUDOptions = {
+const options: Ioptions = {
     routeForSingleView: '/view/admin/role/:id',
     routeForListView: '/view/admin/roles',
     pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
 };
 
-const singleView = params =>
-    (<SingleViewBox params={params} actions={actions} options={crudOptions}>
+const singleView: StatelessSingleView = params =>
+    (<SingleViewBox params={params} actions={actions} options={options}>
 
         <DataPanel header={i18n("primary-fields")} primary >
             <Field accessor="customerCode" required>
@@ -61,7 +61,7 @@ const singleView = params =>
 routeTable.set('/view/admin/role/:id', singleView);
 
 export const roleListView: StatelessListView = p => (
-    <ListViewBox actions={actions} options={crudOptions} params={p}>
+    <ListViewBox actions={actions} options={options} params={p}>
         <DataList>
             <GridColumn accessor="deviceName" />
             <GridColumn accessor="customerName" />

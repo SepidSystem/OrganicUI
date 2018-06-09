@@ -17,14 +17,14 @@ namespace LicApp.Frontend.User {
         handleUpdate: (id, dto) => api.updateUserById(id, dto),
         handleDelete: id => api.deleteUserById(id)
     };
-    const crudOptions: ICRUDOptions = {
+    const options: Ioptions = {
         routeForSingleView: '/view/admin/user/:id',
         routeForListView: '/view/admin/users',
         pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',
     };
 
-    const singleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={crudOptions} >
+    const singleView: StatelessSingleView = params =>
+        (<SingleViewBox params={params} actions={actions} options={options} >
 
             <DataPanel header={i18n("primary-fields")} primary >
                 <Field accessor="userName" required>
@@ -42,10 +42,10 @@ namespace LicApp.Frontend.User {
             </DataPanel>
 
         </SingleViewBox>);
-    routeTable.set(crudOptions.routeForSingleView, singleView);
+    routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={crudOptions} params={p}>
+        <ListViewBox actions={actions} options={options} params={p}>
             <OrganicUI.DataLookup source={roleListView} />
             <DataList>
                 <GridColumn accessor="userName" />
@@ -53,6 +53,6 @@ namespace LicApp.Frontend.User {
             </DataList>
         </ListViewBox>
     )
-    routeTable.set(crudOptions.routeForListView, listView);
+    routeTable.set(options.routeForListView, listView);
 
 }
