@@ -37,7 +37,7 @@ module.exports = env => {
 
 		},
 		module: {
-			rules: [{
+			rules: [/*{
 				test: /\.(scss|sass)$/,
 				use: [
 					'css-loader',
@@ -45,7 +45,7 @@ module.exports = env => {
 						loader: 'fast-sass-loader'
 					}
 				]
-			}, {
+			}, */{
 				test: /\.jsx?$/,
 				exclude,
 				loader: {

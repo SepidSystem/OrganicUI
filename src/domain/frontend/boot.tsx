@@ -3,7 +3,7 @@ const customMapProps = {
     rowCount: '_limit'
 
 }
-OrganicUI.ActionManager.bodyMapper = ({ url, method, body }) => {
+OrganicUI.refetch['bodyMapper'] = ({ url, method, body }) => {
     if (method != 'GET' || !body) return body;
     for (var key in customMapProps) {
         if (body[key] === undefined) continue;

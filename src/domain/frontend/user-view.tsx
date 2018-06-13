@@ -2,6 +2,7 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 import { roleListView } from './role-view'
+const { DataLookup } = OrganicUI;
 namespace LicApp.Frontend.User {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
     const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
@@ -24,21 +25,33 @@ namespace LicApp.Frontend.User {
     };
 
     const singleView: StatelessSingleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={options} >
+        (<SingleViewBox params={params} actions={actions} options={options}  >
 
-            <DataPanel header={i18n("primary-fields")} primary >
-                <Field accessor="userName" required>
-                    <TextField type="text" />
+            <DataPanel header={i18n("primary-fields")} primary className="half-column-fields"  >
+                <Field accessor="active"    >
+                    <MaterialUI.Checkbox />
                 </Field>
-                <Field accessor="displayName" required >
-                    <TextField type="text" />
+                <Field accessor="roleIds"     >
+                    <DataLookup multiple source={roleListView} />
                 </Field>
-                <Field accessor="phone" required>
-                    <TextField type="text" />
+
+
+                <Field accessor="userName" required  >
+                    <MaterialUI.TextField />
                 </Field>
-                <Field accessor="address" required>
-                    <TextField type="text" />
+                <Field accessor="userTitle" required  >
+                    <MaterialUI.TextField />
                 </Field>
+
+
+                <Field accessor="password"   >
+                    <MaterialUI.TextField type="password" />
+                </Field>
+                <Field accessor="confrimPassword"   >
+                    <MaterialUI.TextField />
+                </Field>
+
+
             </DataPanel>
 
         </SingleViewBox>);
@@ -46,10 +59,10 @@ namespace LicApp.Frontend.User {
 
     const listView: StatelessListView = p => (
         <ListViewBox actions={actions} options={options} params={p}>
-            <OrganicUI.DataLookup source={roleListView} />
+
             <DataList>
                 <GridColumn accessor="userName" />
-                <GridColumn accessor="displayName" />
+                <GridColumn accessor="userTitle" />
             </DataList>
         </ListViewBox>
     )

@@ -2,13 +2,16 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
-import OrganicBox from "../../lib/organic-box";
+ 
+const { DataLookup, FilterPanel } = OrganicUI;
+import { departmentListView } from "./department-view";
+
 
 
 
 const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
 const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
-const { DetailsList, SelectionMode, TextField } = FabricUI;
+const { TextField } = MaterialUI;
 
 const { i18n } = OrganicUI;
 
@@ -30,46 +33,65 @@ const options: IOptionsForCRUD =
 const singleView: StatelessSingleView = params =>
     (<SingleViewBox params={params} actions={actions} options={options}  >
 
-        <DataPanel header={i18n("primary-fields")} primary >
-            <Field accessor="customerCode" required>
+        <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
+            <Field accessor="deviceCode" required>
                 <TextField type="text" />
             </Field>
-            <Field accessor="customerName" required >
+            <Field accessor="deviceName" required >
                 <TextField type="text" />
             </Field>
-            <Field accessor="phone" required>
+            <Field accessor="deviceSerial" required>
                 <TextField type="text" />
             </Field>
-            <Field accessor="address" required>
-                <TextField type="text" />
+            <Field accessor="deviceType" required>
+                <MaterialUI.Select />
+            </Field>
+            <Field accessor="active"  >
+                <MaterialUI.Checkbox />
             </Field>
         </DataPanel>
-        <DataPanel header="payment-information">
-            <Field accessor="paymentDate"    >
+        <DataPanel header="settings" className="medium-fields"  >
+            <Field accessor="port" required  >
                 <TextField type="text" />
             </Field>
-            <Field accessor="paymentStatus"    >
-                <TextField type="text" />
+            <Field accessor="contectionType" required  >
+                <MaterialUI.Select />
+            </Field>
+            <Field accessor="IP" required   >
+                <MaterialUI.TextField />
+            </Field>
+            <Field accessor="Subnet" required  >
+                <MaterialUI.TextField />
+            </Field>
+            <Field accessor="Gateway" required   >
+                <MaterialUI.TextField />
             </Field>
         </DataPanel>
 
-        <DataPanel header="payment-information">
+        <DataPanel header="other-settings" className="medium-fields">
             <Field accessor="paymentDate"    >
-                <TextField type="text" />
+                <MaterialUI.Select />
             </Field>
-            <Field accessor="paymentStatus"    >
-                <TextField type="text" />
+            <Field accessor="departmentId"    >
+                <DataLookup source={departmentListView} />
+            </Field>
+            <Field accessor="adjust-date-time"  >
+                <MaterialUI.Checkbox />
             </Field>
         </DataPanel>
     </SingleViewBox>);
 routeTable.set(options.routeForSingleView, singleView);
-
+ 
 const listView: StatelessListView = p => (
     <ListViewBox actions={actions} options={options} params={p}>
+     
         <DataList> 
+            <GridColumn accessor="deviceName" />
             <GridColumn accessor="deviceCode" />
-            <GridColumn accessor="deviceName" /> 
+            <GridColumn accessor="deviceSerial" />
+            <GridColumn accessor="deviceType" />
+
         </DataList>
-    </ListViewBox> 
+    </ListViewBox>
 )
 routeTable.set(options.routeForListView, listView);

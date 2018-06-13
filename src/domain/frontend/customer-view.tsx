@@ -78,17 +78,16 @@ namespace LicApp.Frontend.Customer {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set(options.routeForSingleView, singleView);
+    //routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
         <ListViewBox actions={actions} options={options} params={p}>
-  
             <DataList>
                 <GridColumn accessor="customerCode" />
                 <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set(options.routeForListView, listView);
+    //routeTable.set(options.routeForListView, listView);
 
 }

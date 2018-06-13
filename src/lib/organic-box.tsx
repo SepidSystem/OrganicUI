@@ -4,16 +4,14 @@ import { BaseComponent } from './base-component';
 import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
-import { View } from './view';
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
 import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
-import { AdvButton, Placeholder } from './ui-kit';
 
-import { isDevelopmentMode, DevFriendlyPort } from './developer-friendly';
+import { isDevelopmentMode, DevFriendlyPort } from './developer-features';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 interface SingleViewBoxState { formData: any; validated: boolean; }
@@ -33,41 +31,69 @@ interface OrganicBoxProps<TActions, TOptions, TParams> {
     options: TOptions;
     params: TParams;
     children?: React.ReactNode;
+
 }
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
-    serverChanged(): any {
+    showDevBoard(msg): any {
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
         boards.forEach(board => {
             board.classList.add('active');
-            board.innerHTML = 'server files is changed, building bundle started...';
+            board.innerHTML = msg;
         });
+    }
+    serverChanged() {
+        this.showDevBoard('server files is changed, building bundle started...');
+
     }
     webSocket: WebSocket;
 
     private reloadAllTargetedItems() {
 
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
-        boards.forEach(board => board.classList.remove('active'));
-        setTimeout(() => location.reload(), 200);
+        boards.forEach(board => {
+            board.classList.add('active');
+            board.innerHTML = 'reloading...';
+        });
+        localStorage.setItem('will-reload', (((+new Date()) + 2000) + ''));
+
+        setTimeout(() => {
+            location.reload()
+        }, 100);
         localStorage.setItem('stableState', JSON.stringify(this.state));
+
         /*   Array.from(document.querySelectorAll('script'))
                .filter(scriptElement => scriptElement.getAttribute('data-target') == 'development')
                .forEach(({ src }) => loadScript(src));
    */
 
     }
+    static instanceCounter = 0;
 
     constructor(p) {
         super(p);
+
         const stableState = localStorage.getItem('stableState')
-        if (stableState) {
-            localStorage.removeItem('stableState');
+        const counter = OrganicBox.instanceCounter++;
+
+        if (stableState && counter == 0) {
+            // localStorage.removeItem('stableState');
             const state = JSON.parse(stableState)
 
             setTimeout(() => this.setState(state), 100);
-            console.log({ state });
+
+
+            const willReload = +localStorage.getItem('will-reload');
+            if (!!willReload) {
+                localStorage.removeItem('will-reload');
+                localStorage.setItem('stableState', JSON.stringify(this.state));
+
+                this.showDevBoard('forced reloading... ');
+
+                location.reload();
+
+            }
         }
-        if (isDevelopmentMode()) {
+        if (isDevelopmentMode() && counter == 0) {
             try {
                 this.webSocket = new WebSocket(`ws://${location.host}/watch`);
                 this.webSocket.onmessage = ({ data }) => {

@@ -3,6 +3,7 @@ import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 
 export const Utils = {
+ 	
 	showModal(title, body) {
 
 	},
@@ -109,9 +110,15 @@ export const Utils = {
 		return format(text, args);
 	},
 	showIcon(icon: string) {
-		return !!icon && <i className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
+		return !!icon && <i key={icon} className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
+	},
+	defaultGetId: ({ id }) => id,
+	setNoWarn(v){
+		OrganicUI.Utils['noWarn']=v;
+	},
+	warn(...args) {
+		!OrganicUI.Utils['noWarn']&&  console.warn(...args);
 	}
-
 }
 import * as changeCaseObject from 'change-case-object'
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

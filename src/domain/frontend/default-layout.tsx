@@ -1,11 +1,19 @@
 
 /// <reference path="../../organicUI.d.ts" />
+const { JssProvider, createGenerateClassName, MenuIcon, Collapsible, i18n } = OrganicUI;
 
+
+
+
+const { AppBar, IconButton, Toolbar } = OrganicUI;
+const generateClassName = createGenerateClassName({
+    dangerouslyUseGlobalCSS: true,
+    productionPrefix: '',
+});
 const { Fabric } = OrganicUI.FabricUI;
 const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
-import Collapsible from 'react-collapsible';
 
-const { View, DeveloperBar } = OrganicUI;
+const { DeveloperBar } = OrganicUI;
 const { showIcon, classNames } = Utils;
 
 function GeneralHeader() {
@@ -59,34 +67,53 @@ class BaseView extends Component {
                     </div>
                 </div>
     </header>*/}
-            <aside style={{ minHeight: this.adjustedHeight ? `${this.adjustedHeight}px` : 'auto',transform:'all' }}>
-                {menuItems.filter(m => !m.parentId).map(m => (
-                    m.routerLink ?
-                        <div className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
-                            {showIcon(m.icon)}{' '}
-                            <a className="nav" href={m.routerLink}>{m.title}
+            <JssProvider generateClassName={generateClassName}>
+                <aside key="aside" style={{ minHeight: this.adjustedHeight ? `${this.adjustedHeight}px` : 'auto', transform: 'all' }}>
+                    <header>
+                        <a className="logo" >
+                            <span className="start">سپید </span><span className="ng">استار</span>
+                        </a>
+                        <div className="columns">
+                            <div className="column user-info">
+                                {i18n('user-title')}
+                                {Utils.showIcon('fa-user-circle')}
+                            </div>
+                            <div className="column" style={{ maxWidth: '110px',marginLeft:'10px' }}>
+                                <MaterialUI.Button >
+                                    {Utils.showIcon('fa-sign-out')}
+                                    {i18n('sign-out')}
+                                </MaterialUI.Button>
+                            </div>
+                        </div>
+                    </header>
+                    {menuItems.filter((m, idx) => !m.parentId).map((m, idx) => (
+                        m.routerLink ?
+                            <div key={"router" + idx} className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                                {showIcon(m.icon)}{' '}
+                                <a className="nav" href={m.routerLink}>{m.title}
 
-                            </a>
-                            <span className="triangle"></span>
-                        </div> :
+                                </a>
+                                <span className="triangle"></span>
+                            </div> :
 
-                        <Collapsible overflowWhenOpen="visible" open={!!selectedMenuItem &&
-                            ((selectedMenuItem.parentId == m.id))} trigger={[showIcon(m.icon), m.title]} >
+                            <Collapsible key={"router" + idx} overflowWhenOpen="visible" open={!!selectedMenuItem &&
+                                ((selectedMenuItem.parentId == m.id))} trigger={[showIcon(m.icon), m.title] as any}  >
 
 
-                            <ul>
-                                {menuItems.filter(childMenu => childMenu.parentId === m.id).map(m =>
-                                    <li className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
-                                        {showIcon(m.icon)}{' '}
-                                        <a className="nav" href={m.routerLink}>
-                                            {m.title}
+                                <ul>
+                                    {menuItems.filter(childMenu => childMenu.parentId === m.id).map(m =>
+                                        <li key={m.routerLink} className={classNames("router", !!selectedMenuItem && selectedMenuItem.id == m.id && 'active')}>
+                                            {showIcon(m.icon)}{' '}
+                                            <a className="nav" href={m.routerLink}>
+                                                {m.title}
 
-                                        </a> <span className="triangle"></span></li>
-                                )}
+                                            </a> <span className="triangle"></span></li>
+                                    )}
 
-                            </ul>
-                        </Collapsible>))}
-            </aside>
+                                </ul>
+                            </Collapsible>))}
+                </aside>
+            </JssProvider>
             <main className="view   main-container" ref="mainContainer" dir='rtl' style={{ textAlign: 'right', flex: '1' }} >
 
 
@@ -95,7 +122,9 @@ class BaseView extends Component {
 
                 <section style={{ padding: '5px' }}>
                     <DeveloperBar />
-                    {this.props.children}
+                    <JssProvider generateClassName={generateClassName}>
+                        {this.props.children}
+                    </JssProvider>
                 </section>
                 <div className="container" style={{ visibility: 'hidden', maxHeight: '2px' }}>
                     <div className=" " style={{ display: "flex", justifyContent: "space-around", alignItems: 'center' }}>

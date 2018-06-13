@@ -1,6 +1,7 @@
 import { IStateListener, StateListener } from "./state-listener";
 
 export class BaseComponent<P, S> extends React.Component<P, S>{
+
     base: any;
     linkState: any;
     state: S;
@@ -22,20 +23,60 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
 
     }
     repatch(delta: Partial<S>, target?) {
+        if(window['repatchDebug']) debugger;
         target = target || this.state;
         Object.assign(target, delta);
         const keys = Object.keys(delta);
-        for (var key in keys) {
-            const matchedStateListeners = this.stateListener.filter(sl => sl.target == key);
-            matchedStateListeners.forEach(sl => sl.onChange(delta[sl.target]));
+        if (this.stateListener && this.stateListener.length) {
+            for (var key in keys) {
+                const matchedStateListeners = this.stateListener.filter(sl => sl.target == key);
+                matchedStateListeners.forEach(sl => sl.onChange(delta[sl.target]));
+            }
         }
         this.forceUpdate();
     }
-    querySelectorAll<T=any>(cssSelector: string) {
+    querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement) {
         const { root } = this.refs;
         console.assert(!!root, `root is null@queryAllComponentRefs with ${cssSelector}`);
-        return (Array.from((root as HTMLElement).querySelectorAll(cssSelector)))
+        return (Array.from(((target || root) as HTMLElement).querySelectorAll(cssSelector)))
             .filter((item: any) => (item as IComponentRefer<T>).componentRef)
             .map((item: any) => (item as IComponentRefer<T>).componentRef)
     }
+    isRootRender() {
+        const { root } = this.refs as { root: HTMLElement };
+        let parent = root;
+        while (parent) {
+            if (parent.id == 'root') break;
+            parent = parent.parentElement;
+
+        }
+        return !!parent;
+    }
+    setPageTitle(title) {
+        let counter = 0;
+        function applyPageTitle() {
+            const { root } = this.refs as { root: HTMLElement };
+     
+            if (!root && counter++ < 10) {
+                setTimeout(applyPageTitle.bind(this), 20);
+                return;
+            }
+            let parent = root;
+            while (parent) {
+                if (parent.id == 'root') break;
+                parent = parent.parentElement;
+            }
+            root.setAttribute('data-page-title', title);
+            root.classList.add('page-title-value');
+            this.pageTitle = title;
+            if (!!parent)
+                document.title = title;
+        }
+        applyPageTitle.apply(this);
+
+    }
+}
+export function CriticalContent(p: { permissionKey: string, children? }) {
+
+    return <div className={"critical-content"} data-key={p.permissionKey}>{p.children}</div>
 }

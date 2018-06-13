@@ -1,0 +1,80 @@
+.tree-list {
+    overflow-y: scroll;
+    width:100%;
+    li {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .fa {
+        cursor: ponter;
+    }
+    .choice-flag {
+        display: none;
+    }
+    .node:hover .choice-flag {
+        display: inline-block;
+    }
+    .node>span{
+        max-height: 25px !important;
+    }
+    .choices {
+        padding: 2px 20px;
+    }
+    .expandIcon{
+        min-width:32px;
+    }
+    li.leaf .expandIcon {
+        visibility: hidden;
+    }
+    .subitems {
+        padding: 0 20px;
+        width:100%;
+    }
+    .expandIcon>i {
+        display: none;
+    }
+    li.expanded {
+        ul.subitems {
+            display: block;
+        }
+        >.expandIcon>.fa-chevron-left {
+            display: inline-block;
+        }
+    }
+    li.collapsed {
+        ul.subitems {
+            display: none;
+        }
+        >.expandIcon>.fa-chevron-down {
+            display: inline-block;
+        }
+    }
+    .type .type-flag {
+        display: none;
+    }
+    .fa-square {
+        color: #777;
+    }
+    .fa-check-square {
+        color: rgb(59, 131, 59);
+    }
+    .fa-times-rectangle {
+        color: rgb(199, 81, 81);
+    }
+    .fa-dot-circle-o {
+        color: rgb(40, 150, 150);
+    }
+    .type0>.type-flag0 {
+        display: inline-block !important;
+    }
+    .type1>.type-flag1 {
+        display: inline-block !important;
+    }
+    .type2>.type-flag2 {
+        display: inline-block !important;
+    }
+    .type3>.type-flag3 {
+        display: inline-block !important;
+    }
+}

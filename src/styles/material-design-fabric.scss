@@ -1,0 +1,194 @@
+.field:not(.no-material) {
+    position: relative;
+    min-height: 50px;
+    margin: 10px 5px;
+    .label {
+        position: absolute;
+        top: 0.75rem;
+        line-height: 1.5rem;
+        pointer-events: none;
+        padding-left: 0.125rem;
+        z-index: 1;
+        font-size: 1rem;
+        font-weight: normal;
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: ellipsis;
+        height:0;
+        margin: 0 !important;
+         min-width: auto !important;
+        max-width: auto !important;
+        color: #a6a6a6;
+        transform: translateY(-50%);
+        transform-origin: left center;
+        transition: transform 0.5s ease, color 0.6s linear, opacity 0.7s linear;
+        will-change: transform, color, opacity;
+        span{
+            padding: 0.2rem 0 !important;
+    
+        }
+    }
+    .control{
+        >*{
+            width:100%;
+        }
+    }
+    .ms-TextField-fieldGroup {
+        position: relative !important;
+        border: none !important;
+        display: block !important;
+    }
+    .ms-TextField-fieldGroup-hint {
+        font-weight: 400;
+        font-size: 0.6875rem;
+        color: #a6a6a6;
+        display: block;
+    }
+    .ms-TextField-suffix {
+        position: relative !important;
+        height: 1px !important;
+        background: #999 !important;
+        display: block !important;
+    }
+    .ms-TextField-suffix::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #337ab7;
+        height: 2px;
+        display: block;
+        transform: rotateY(90deg);
+        transition: transform 0.7s ease;
+        will-change: transform;
+    }
+    .ms-TextField-fieldGroup-label {
+        position: absolute;
+        top: 0.75rem;
+        line-height: 1.5rem;
+        pointer-events: none;
+        padding-left: 0.125rem;
+        z-index: 1;
+        font-size: 1rem;
+        font-weight: normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+        color: #a6a6a6;
+        transform: translateY(-50%);
+        transform-origin: left center;
+        transition: transform 0.28s ease, color 0.28s linear, opacity 0.28s linear;
+        will-change: transform, color, opacity;
+    }
+    .ms-TextField-field {
+        outline: none;
+        height: 1.5rem;
+        display: block;
+        background: none;
+        padding: 0.125rem 0.125rem 0.0625rem;
+        font-size: 1rem;
+        border: 0 solid transparent;
+        line-height: 1.5;
+        width: 100%;
+        color: #333;
+        box-shadow: none;
+        opacity: 0.001;
+        transition: opacity 0.28s ease;
+        will-change: opacity;
+    }
+    .ms-TextField-field:-ms-input-placeholder {
+        color: #a6a6a6;
+        transform: scale(0.9);
+        transform-origin: left top;
+    }
+    .ms-TextField-field::placeholder {
+        color: #a6a6a6;
+        transform: scale(0.9);
+        transform-origin: left top;
+    }
+    .ms-TextField-field:focus~.ms-TextField-suffix {
+        background: yellow
+    }
+    .ms-TextField-field:focus~.ms-TextField-suffix::after {
+        transform: rotateY(0deg);
+    }
+    .ms-TextField-field:focus~.ms-TextField-fieldGroup-label {
+        color: #337ab7;
+    } //.ms-TextField-field.-hasvalue,
+    .ms-TextField-field.-hasvalue~.ms-TextField-fieldGroup-label,
+    .ms-TextField-field:focus~.ms-TextField-fieldGroup-label {
+        transform: translateY(-100%) translateY(-0.5em) translateY(-2px) scale(0.9);
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    .form-has-error .ms-TextField-fieldGroup-label.ms-TextField-fieldGroup-label,
+    .form-has-error .ms-TextField-fieldGroup-hint {
+        color: #d9534f;
+    }
+    .form-has-error .ms-TextField-suffix,
+    .form-has-error .ms-TextField-suffix::after {
+        background: #d9534f;
+    }
+    .form-is-success .ms-TextField-fieldGroup-label.ms-TextField-fieldGroup-label,
+    .form-is-success .ms-TextField-fieldGroup-hint {
+        color: #259337;
+    }
+    .form-is-success .ms-TextField-suffix::after {
+        background: #259337;
+    }
+    input.ms-TextField-field:not(:placeholder-shown),
+    textarea.ms-TextField-field:not(:placeholder-shown) {
+        opacity: 1;
+    }
+    input.ms-TextField-field:not(:placeholder-shown)~.ms-TextField-fieldGroup-label,
+    textarea.ms-TextField-field:not(:placeholder-shown)~.ms-TextField-fieldGroup-label {
+        transform: translateY(-100%) translateY(-0.5em) translateY(-2px) scale(0.9);
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    textarea.ms-TextField-field {
+        height: auto;
+        min-height: 3rem;
+    }
+}
+
+.field.focused:not(.no-material) .label,
+.field.has-value:not(.no-material) .label {
+    color: #337ab7 !important;
+    top: -0.5rem;
+    line-height: 1rem;
+    font-size: 0.8rem;
+}
+
+.mui-right-label {
+    left: 2px !important;
+    right: 2px !important;
+    text-align: right;
+    transform-origin: top right !important;
+    max-width: auto !important;
+}
+
+.field.gray-color label {
+    color: rgba(0, 0, 0, 0.54) !important;
+    font-weight: normal !important;
+}
+.panel-content{
+    padding:10px 5px;
+}
+.check-field{
+    display: flex;
+    flex-direction: row;
+    .control{
+        width:40px;
+        max-width:40px;
+    }
+    .label{
+
+    }
+}
+.MuiSelect-select~svg{
+        right:auto;
+        left:0;
+}

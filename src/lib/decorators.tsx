@@ -1,4 +1,4 @@
-import { remoteApiProxy } from "./action-manager";
+ 
 import * as React from "react";
 import { Spinner } from "./spinner";
 const noThisMessage = 'cannot use this(target) in Templated Function , see MVT section in document '

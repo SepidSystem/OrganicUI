@@ -1,4 +1,4 @@
-
+ 
 export function registryFactory<T>(mapper?: (result: T, key: string) => T) {
     let data = {}, notFounded = {}, secondaryValues = {};
     function getter(key, setValue?: T): T {
@@ -7,7 +7,7 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T) {
         if (key instanceof Object) return key;
 
         if (key && result === undefined && !notFounded[key]) {
-            console.warn('registry not found', key);
+            OrganicUI.Utils.warn('registry not found', key);
             notFounded[key] = 1;
         }
         mapper && (result = mapper.apply(getter, [result, key]));

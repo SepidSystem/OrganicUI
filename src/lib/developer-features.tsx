@@ -43,8 +43,7 @@ export class DevFriendlyPort extends BaseComponent<HTMLAttributes<never> & IDevF
                 if (!key) return;
                 let pairs = {};
                 pairs[key] = this.props.target;
-                console.log(pairs);
-                Object.assign(window, pairs);
+                 Object.assign(window, pairs);
             }
         }
         ].filter(item => !!item);

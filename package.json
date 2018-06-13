@@ -8,6 +8,7 @@
     "url": "https://taheri24.ir"
   },
   "scripts": {
+    "start": "node server/server",
     "build": "webpack --env.production --config config/webpack",
     "build:watch": "webpack --env.development --config config/webpack &&  webpack  --config config/webpack",
     "build:sass": "gulp sass",
@@ -15,6 +16,8 @@
     "gzip": "gulp gzip"
   },
   "dependencies": {
+    "@material-ui/core": "^1.2.1",
+    "@material-ui/icons": "^1.1.0",
     "@types/react-data-grid": "^2.0.10",
     "@types/react-table": "^6.7.9",
     "animate.scss": "0.0.6",
@@ -37,12 +40,12 @@
     "office-ui-fabric-react": "^5.111.2",
     "progress": "^2.0.0",
     "prop-types": "^15.6.1",
-    "react": "^15.4.0",
+    "react": "^16.4.0",
     "react-accessible-accordion": "^2.4.1",
     "react-collapsible": "^2.2.0",
     "react-data-grid": "^3.0.11",
     "react-data-grid-addons": "^3.0.11",
-    "react-dom": "^15.4.0",
+    "react-dom": "^16.4.0",
     "react-json-inspector": "^7.1.1",
     "react-table": "^6.8.2",
     "recursive-watch": "^1.1.4",

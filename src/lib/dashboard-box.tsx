@@ -4,7 +4,8 @@ import { BaseComponent } from './base-component';
 import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
-import { View } from './view';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
@@ -16,10 +17,10 @@ import { DevFriendlyPort } from '../organicUI';
 import OrganicBox from './organic-box';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 interface DashboardBoxProps {
-   
+
 };
 interface DashboardBoxState { formData: any; validated: boolean; }
-export class DashboardBox extends OrganicBox<any,any,any, DashboardBoxState> {
+export class DashboardBox extends OrganicBox<any, any, any, DashboardBoxState> {
     navigateToBack(): any {
 
         history.back();
@@ -31,9 +32,35 @@ export class DashboardBox extends OrganicBox<any,any,any, DashboardBoxState> {
 
     render(p = this.props) {
         return <section>
-            <h1 className="title is-1">{i18n('dashboard')}</h1>
-            <div className="main-content">
-            <br/><br/></div>
+            <div className="title is-5">{i18n('dashboard')}</div>
+            <MaterialUI.ExpansionPanel>
+                <MaterialUI.ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <MaterialUI.Typography  >Expansion Panel 1</MaterialUI.Typography>
+                </MaterialUI.ExpansionPanelSummary>
+                <MaterialUI.ExpansionPanelDetails>
+                    <MaterialUI.Typography>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                        sit amet blandit leo lobortis eget.
+          </MaterialUI.Typography>
+                </MaterialUI.ExpansionPanelDetails>
+            </MaterialUI.ExpansionPanel>
+            <MaterialUI.ExpansionPanel>
+                <MaterialUI.ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <MaterialUI.Typography  >Expansion Panel 2</MaterialUI.Typography>
+                </MaterialUI.ExpansionPanelSummary>
+                <MaterialUI.ExpansionPanelDetails>
+                    <MaterialUI.Typography>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                        sit amet blandit leo lobortis eget.
+          </MaterialUI.Typography>
+                </MaterialUI.ExpansionPanelDetails>
+            </MaterialUI.ExpansionPanel>
+            <MaterialUI.ExpansionPanel disabled>
+                <MaterialUI.ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <MaterialUI.Typography  >Disabled Expansion Panel</MaterialUI.Typography>
+                </MaterialUI.ExpansionPanelSummary>
+            </MaterialUI.ExpansionPanel>
+            <br /><br />
         </section>
 
     }

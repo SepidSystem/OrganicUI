@@ -21,7 +21,7 @@ declare interface EmployeeAPI {
 }
 declare interface DepartmentAPI {
     createDepartment(department: DepartmentDTO): ActionResult;
-    readDepartmentList(params): PromisedResultSet<DepartmentDTO>, findEmployeeById(id): Promise<DepartmentDTO>;
+    readDepartmentList(params): PromisedResultSet<DepartmentDTO>, findDepartmentById(id): Promise<DepartmentDTO>;
     updateDepartmentById(id, department: DepartmentDTO): ActionResult;
     deleteDepartmentById(id): ActionResult;
 }

@@ -3,8 +3,6 @@
 import { BaseComponent } from './base-component';
 import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
-
-import { View } from './view';
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
@@ -12,8 +10,9 @@ import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from './developer-friendly';
+import { DevFriendlyPort } from './developer-features';
 import OrganicBox from './organic-box';
+import { route } from './router';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 
@@ -21,19 +20,30 @@ interface SingleViewBoxState { formData: any; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
     IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState> {
+    constructor(p) {
+        super(p);
+        this.navigateToBack = this.navigateToBack.bind(this);
+        this.navigateToNewItem = this.navigateToNewItem.bind(this);
+    }
     navigateToBack(): any {
 
-        history.back();
+        Utils.navigate(this.props.options.routeForListView)
     }
     refs: {
         dataForm: DataForm;
-
+        primaryButton: AdvButton;
+    }
+    mapFormData(formData) {
+        if (this.props.params && this.props.params.id == ':id') {
+            console.log('formData>>>>', formData);
+        }
+        return this.props.actions.mapFormData ? this.props.actions.mapFormData(formData) : formData;
     }
     componentWillMount() {
         const { actions, params } = this.props;
         this.state.formData = params.id > 0
-            ? actions.handleRead(params.id).then(formData => this.repatch({ formData }))
-            : {};
+            ? actions.handleRead(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) }))
+            : this.mapFormData({});
     }
 
     async handleSave() {
@@ -49,13 +59,19 @@ export class SingleViewBox<T> extends OrganicBox<
         }
         const p = this.props, s = this.state;
         let updateResult: Promise<any>;
+        let { id } = p.params;
+        if (id == 'new') id = 0;
+        let formData = JSON.parse(JSON.stringify(s.formData));
+        console.assert(!!p.actions.beforeSave || p.actions.beforeSave instanceof Function, 'p.actions.beforeSave is not function', p.actions.beforeSave);
 
-        if (p.actions.handleCreate instanceof Function)
-            updateResult = !p.params.id ? p.actions.handleCreate(s.formData) : p.actions.handleUpdate(p.params.id, s.formData);
+        if (p.actions.beforeSave instanceof Function)
+            formData = p.actions.beforeSave(formData);
+        if (p.actions.handleCreate instanceof Function && p.actions.handleUpdate instanceof Function)
+            updateResult = id > 0 ? p.actions.handleUpdate(id, formData) : p.actions.handleCreate(formData);
         else {
             return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-5 animated fadeIn">{i18n('error')}</div>
                 <div className="animated fadeInDown">
-                    {i18n('not impl')}
+                    {i18n('not impl handleUpdate & handleCreate')}
                 </div>
             </div>);
         }
@@ -74,7 +90,7 @@ export class SingleViewBox<T> extends OrganicBox<
 
                     <div className="columns">
                         <div className="column btn">
-                            <FabricUI.DefaultButton   >{i18n('return')}</FabricUI.DefaultButton>
+                            <MaterialUI.Button variant="contained" color="primary" onClick={this.navigateToBack}  >{i18n('return')}</MaterialUI.Button >
                         </div>
                         <div className="column desc  ">
                             {desc}
@@ -83,7 +99,7 @@ export class SingleViewBox<T> extends OrganicBox<
 
                     <div className="columns">
                         <div className="column btn">
-                            <FabricUI.DefaultButton   >{i18n('keep')}</FabricUI.DefaultButton>
+                            <MaterialUI.Button variant="contained" onClick={() => this.refs.primaryButton.closeCallOut()}  >{i18n('keep')}</MaterialUI.Button >
                         </div>
                         <div className="column desc ">
 
@@ -91,7 +107,7 @@ export class SingleViewBox<T> extends OrganicBox<
                     </div>
                     <div className="columns">
                         <div className="column btn">
-                            <FabricUI.DefaultButton   >{i18n('add')}</FabricUI.DefaultButton>
+                            <MaterialUI.Button variant="contained" onClick={this.navigateToNewItem} >{i18n('add')}</MaterialUI.Button >
                         </div>
                         <div className="column desc ">
 
@@ -104,6 +120,10 @@ export class SingleViewBox<T> extends OrganicBox<
 
 
 
+    }
+    navigateToNewItem() {
+
+        Utils.navigate(this.props.options.routeForListView.replace(':id', 'new'))
     }
     getSuccess() {
         const { options } = this.props;
@@ -125,17 +145,16 @@ export class SingleViewBox<T> extends OrganicBox<
                     <div className="column is-11">
                         {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                     </div>
-                    <div className="column" style={{ maxWidth: '100px', direction: 'rtl' }}>
-                        <FabricUI.ActionButton onClick={this.navigateToBack}   >
+                    <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
+                        <MaterialUI.Button variant="outlined" onClick={this.navigateToBack}   >
                             {' '}
                             {i18n('back')}
                             {' '}
                             <FabricUI.Icon iconName="Back" />
-
-                        </FabricUI.ActionButton>
+                        </MaterialUI.Button >
                     </div>
                 </h1>
-                <div className="main-content">
+                <MaterialUI.Paper className="main-content">
                     <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
                         onFieldWrite={(accessor, value) => s.formData[accessor] = value}
                         validate={s.validated}
@@ -146,14 +165,17 @@ export class SingleViewBox<T> extends OrganicBox<
                     </DataForm>
                     <footer className="buttons  single-view-buttons">
 
-
-                        <AdvButton onClick={this.handleSave.bind(this)} primary  > {i18n('singleview-apply')}</AdvButton>
+                        {/*    
+<AdvButton onClick={this.handleSave.bind(this)} primary ref="primaryButton" > {i18n('singleview-apply')}</AdvButton>
+    */}
+                        <AdvButton onClick={this.handleSave.bind(this)} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
+                        <AdvButton onClick={this.handleSave.bind(this)} variant="raised" color="secondary"  > {i18n('save-and-exit')}</AdvButton>
+                        <AdvButton onClick={this.navigateToBack}    > {i18n('cancel')}</AdvButton>
 
                     </footer>
-                </div>
+                </MaterialUI.Paper>
             </DevFriendlyPort>
         </section>
-
     }
-   
+
 } 

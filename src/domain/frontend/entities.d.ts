@@ -1,3 +1,4 @@
+/// <reference path="../../organicUI.d.ts" />
 
 
 declare interface CustomerDTO {
@@ -31,5 +32,7 @@ declare interface UserGroupDTO{
 
 }
 declare interface RoleDTO{
-    
+    id:string;
+    name:string;
+    permissions:ITreeListNode[];
 }

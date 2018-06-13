@@ -1,7 +1,6 @@
 
 import { routeTable } from "../organicUI";
 
-import { View } from "../lib/view";
 import * as React from "react";
 
 export class NotFoundView extends React.Component<any, any> {
@@ -27,8 +26,8 @@ export class NotFoundView extends React.Component<any, any> {
                     </small>
                     <hr />
                     <ul className="items">
-                        {Object.keys(routeTable.data).map(r => <li className="item">{r}</li>)}
-                    </ul>
+                        {Object.keys(routeTable.data).map(r => <li key={r} className="item">{r}</li>)}
+                    </ul>1
                 </div>
             </div>
 

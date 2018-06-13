@@ -1,7 +1,9 @@
 .single-view {
     footer.buttons {
-        justify-content: center;
+        justify-content: flex-start;
+        flex-direction: row-reverse;
         button {
+            margin: 2px 5px;
             clear: both !important;
             font-size: 12px;
             padding-top: 7px;
@@ -15,9 +17,11 @@
 .list-view {
     footer.buttons {
         margin-top: 5px;
+        justify-content: flex-end;
         button {
             max-width: 150px;
             min-width: 150px;
+            margin: 2px 5px;
         }
         .is-link {
             background: none;
@@ -30,41 +34,35 @@
 }
 
 .list-view-header {
-    position: relative;
-    min-height: 250px;
+    display: flex;
+    flex-wrap: wrap;
     .insert-btn {
-        left: 10px;
-        width: 140px;
-        position: absolute;
+        max-width: 140px;
         height: 140px;
-        top: 10px;
+        margin-right:20px;
+            
         box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-   
         .flag {
             position: absolute;
-            right:  35px ;
+            right: 35px;
             top: 15px;
             font-size: 27px;
             color: black;
             font-weight: bolder;
-
         }
         .content {
             i {
                 font-size: 60px;
                 color: white !important;
-
             }
         }
-        .add-text{
-            margin:5px 2px;
+        .add-text {
+            margin: 5px 2px;
         }
     }
     .buttons {
-        bottom: 0;
-        left: 10px;
-        right: 0;
-        position: absolute;
+         width: 100%;
+         margin-top:5px;
         justify-content: flex-end;
         button {
             box-shadow: 1px 1px rgba(0, 0, 0, .3);
@@ -78,11 +76,7 @@
         }
     }
     .filter-panel {
-        padding:0px 5px;
-        left: 160px;
-        position: absolute;
-        right: 0px;
-        bottom: 60px;
-        top: 10px;
+        flex:1;
+
     }
 }

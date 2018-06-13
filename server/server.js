@@ -1,9 +1,10 @@
 const recursiveWatch = require('recursive-watch');
 const shelljs = require('shelljs');
-const fse=require('fs-extra');
+const fse = require('fs-extra');
 const child = shelljs.exec('npm run build:watch', { async: true });
 child.stdout.on('data', data => {
-    notifyToAllUserForFileChanging('reloadAllTargetedItems');
+    if ((data || '').includes('Size'))
+        setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
     console.log(data);
 });
 shelljs.exec('npm run build:sass', { async: true });
@@ -29,6 +30,7 @@ server.use('/assets', express.static(assetsPath));
 server.get('/', (req, res) => res.redirect('/view/dashboard'));
 let allWebSockets = [];
 const notifyToAllUserForFileChanging = msg => {
+
     allWebSockets.forEach(ws => {
         ws.readyState == 1 && ws.send(JSON.stringify(msg));
     }

@@ -1,0 +1,66 @@
+.data-lookup {
+    .editor {
+        display: flex;
+        flex-direction: row;
+        >* {
+            width: 100%;
+        }
+    }
+    &.deactive .editor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-content: center;
+        align-items: center;
+    }
+    .spinner-container {
+        width: 30px;
+        height: 35px;
+        position: absolute;
+        left: 5px;
+        z-index: 10000;
+        top: 0px;
+        .loading-element {
+            max-height: 30px;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+    }
+    min-height: 30px;
+    margin:2px;
+    position: relative;
+    .list-view-container {
+        background-color: white;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+        visibility: visible;
+        position: absolute;
+        height: 300px;
+        z-index: 100000000;
+        top: 34px;
+        left: 15px;
+        right: 0;
+        padding: 4px;
+        .list-view-data-lookup {
+            margin: 3px;
+            overflow: hidden;
+            max-height: 280px;
+        }
+    }
+    .caretDownWrapper {
+        left: 2px;
+        position: absolute;
+        top: 2px;
+        bottom: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        svg{
+            position: static;
+        }
+    }
+}

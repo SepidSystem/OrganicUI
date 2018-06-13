@@ -12,22 +12,22 @@ namespace LicApp.Frontend.Employee {
     const { i18n } = OrganicUI;
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-    const api = OrganicUI.remoteApi as DeviceAPI;
-    const actions: IActionsForCRUD<DeviceDTO> = {
-        handleCreate: dto => api.createDevice(dto),
-        handleRead: id => api.findDeviceById(id), handleLoadData: params => api.readDeviceList(params),
-        handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
-        handleDelete: id => api.deleteDeviceById(id)
-    };
+    const api = OrganicUI.remoteApi as EmployeeAPI;
+    const actions: IActionsForCRUD<EmployeeDTO> = {
+        handleCreate: dto => api.createEmployee(dto),
+        handleRead: id => api.findEmployeeById(id), handleLoadData: params => api.readEmployeeList(params),
+        handleUpdate: (id, dto) => api.updateEmployeeById(id, dto),
+        handleDelete: id => api.deleteEmployeeById(id)
+    };  
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/employee/:id',
-        routeForListView: '/view/admin/employee/:id',
-        pluralName: "users", singularName: "user", iconCode: 'fa-user'
+        routeForListView: '/view/admin/employees',
+        pluralName: "employees", singularName: "employee", iconCode: 'fa-user'
     };
     const singleView: StatelessSingleView = params =>
         (<SingleViewBox params={params} actions={actions} options={options} >
 
-            <DataPanel header={i18n("primary-fields")} primary >
+            <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
                 <Field accessor="customerCode" required>
                     <TextField type="text" />
                 </Field>
@@ -41,7 +41,7 @@ namespace LicApp.Frontend.Employee {
                     <TextField type="text" />
                 </Field>
             </DataPanel>
-            <DataPanel header="payment-information">
+            <DataPanel header="payment-information" className="medium-fields">
                 <Field accessor="paymentDate"    >
                     <TextField type="text" />
                 </Field>
@@ -50,7 +50,7 @@ namespace LicApp.Frontend.Employee {
                 </Field>
             </DataPanel>
 
-            <DataPanel header="payment-information">
+            <DataPanel header="payment-information" className="medium-fields">
                 <Field accessor="paymentDate"    >
                     <TextField type="text" />
                 </Field>
@@ -59,16 +59,16 @@ namespace LicApp.Frontend.Employee {
                 </Field>
             </DataPanel>
         </SingleViewBox>);
-    routeTable.set('/view/admin/employee/:id', singleView);
+    routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
         <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
-                <GridColumn accessor="deviceName" />
+                <GridColumn accessor="id" />
                 <GridColumn accessor="customerName" />
             </DataList>
         </ListViewBox>
     )
-    routeTable.set('/view/admin/employees', listView);
+    routeTable.set(options.routeForListView, listView);
 
 }

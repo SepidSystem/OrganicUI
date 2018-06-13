@@ -1,6 +1,6 @@
 import './dev-tools/devtools-data-form';
 import './dev-tools/devtools-boxes';
-import { DevFriendlyCommand, DevFriendlyPort } from './lib/developer-friendly';
+import { DevFriendlyCommand, DevFriendlyPort } from './lib/developer-features';
 /// <reference path="organicUI.d.ts" />
 OrganicUI.devTools.set('Translate', (dev) => {
     OrganicUI.DeveloperBar.topElement = <FabricUI.Dialog onDismiss={() => {

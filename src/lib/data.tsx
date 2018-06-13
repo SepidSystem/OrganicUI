@@ -1,9 +1,8 @@
 import { registryFactory } from "./registry-factory";
 import { FuncComponent, funcAsComponentClass } from "./functional-component";
-import { i18n,icon } from "./shared-vars";
-import {BaseComponent} from './base-component';
+import { i18n, icon } from "./shared-vars";
+import { BaseComponent } from './base-component';
 import { changeCase, Utils } from './utils';
-
 import * as React from "react";
 import { ReactNode } from "react";
 import { DataForm } from "./data-form";
@@ -34,10 +33,13 @@ export interface IFieldProps {
     className?: string;
 }
 export class Field extends BaseComponent<IFieldProps, IFieldProps>{
+    clientWidthNoErrorMode: number;
+    inputElement: React.ReactElement<any>;
     static Dictionary = registryFactory();
     dataForm: DataForm;
     refs: {
         root: HTMLElement;
+        container: HTMLElement;
     }
     constructor(p) {
         super(p);
@@ -45,7 +47,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         this.handleGetData = this.handleGetData.bind(this);
 
     }
-    static getLabel = (accessor, label?) => i18n(label ||  changeCase.paramCase(accessor))
+    static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(accessor))
     extractedValue: any;
     getDataForm(avoidAssertion?) {
         const { root } = this.refs;
@@ -108,6 +110,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             const props = componentRef && componentRef.props as IFieldReaderWriter;
             if (props && props.onFieldWrite) {
                 props.onFieldWrite(p.accessor, value);
+                this.extractedValue = value;
+                this.repatch({});
 
                 break;
             }
@@ -127,52 +131,91 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         if (!inputElement) inputElement = Field.Dictionary(p.accessor) as any;
         if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
         const st = '';
+        const classNameFromInputType = inputElement.type && inputElement.type['field-className'];
+        const filterFromInputType: Function = inputElement.type && inputElement.type['field-filter'];
+
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
                 onChange: this.handleSetData,
-                onChanged: this.handleSetData,
+                //   onChanged: this.handleSetData,
+                onFocus: (e: React.KeyboardEvent<any>) => {
+                    this.refs.container.classList.add('focused');
+
+                },
+
+                onBlur: (e: React.KeyboardEvent<any>) => {
+                    const { target } = e;
+                    setTimeout(() => {
+                        if (document.activeElement == target) return;
+                        this.refs.container.classList.remove('focused');
+
+                    }, 100);
+                    this.repatch({});
+                },
                 value: this.extractedValue,
-                className: Utils.classNames(inputElement.props && inputElement.props.className, st, hasError && 'input is-danger borderless-input')
+                className: Utils.classNames(inputElement.props && inputElement.props.className, st)
             }
         );
-
-        inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
+        console.assert(filterFromInputType === undefined || filterFromInputType instanceof Function, 'filterFromInputType is not function', filterFromInputType);
         const label = Field.getLabel(p.accessor, p.label);
+        //if (!this.inputElement) {
+        filterFromInputType && filterFromInputType(propsOfInputElement, this, label);
+        const { root } = this.refs;
+        if (!root && s.messages && s.messages[0]) {
+            setTimeout(() => this.repatch({}), 100);
 
-        return <div ref="root" className="field-accessor" >
-            <div className={Utils.classNames("field  is-horizontal  ", p.className)}>
-                <label className="label">{label}</label>
-                <div className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
-                    {inputElement}
+        }
+        if (root && (!s.messages || !s.messages[0])) {
+            this.clientWidthNoErrorMode = root.clientWidth;
+        }
+        this.inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
+        //}
+        return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
+            { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
+        } >
+            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, !!this.extractedValue && 'has-value', p.className)}>
+                <label key="label" className="label">{label}</label>
+                <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
+                    {this.inputElement}
 
-                    {!!p.icon && <span className="icon is-small is-left">
+                    {!!p.icon && <span key="icon" className="icon is-small is-left">
                         {icon(p.icon)}
                     </span>}
-                    {!!iconForStatus && <span className="icon is-small is-right">
+                    {!!iconForStatus && <span key="icon2" className="icon is-small is-right">
                         <i className={iconForStatus.split('-')[0] + ' ' + iconForStatus}></i>
                     </span>}
 
                 </div>
 
 
-            </div>
-            <div className="field  is-horizontal no-padding " style={{ maxHeight: '10px' }}>
-                <label className="label" style={{ visibility: 'hidden' }}>{label}</label>
-                {s.messages && s.messages[0] && <div className="control invalid-control" >
-                    <p className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>
 
-                </div>}
+                <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
+                    {this.clientWidthNoErrorMode && root && s.messages && s.messages[0] &&
+                        <p style={{ width: `${this.clientWidthNoErrorMode}px`, maxWidth: `${this.clientWidthNoErrorMode}px` }} className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
+                </div>
 
             </div>
 
-        </div>
+
+
+
+        </div >
     }
     processDOM() {
-        const value = this.handleGetData();
+        let value = this.handleGetData();
+        if (value instanceof Promise) {
+            value = value.then(v => {
+                this.handleSetData(v);
+                setTimeout(() => this.repatch({}), 10);
+                return v
+            });
+            return;
+        }
         if (value != this.extractedValue) {
             this.extractedValue = value;
-            setTimeout(() => this.forceUpdate(), 10);
+            setTimeout(() => this.repatch({}), 10);
+
         }
 
         const { readonly } = this.props;

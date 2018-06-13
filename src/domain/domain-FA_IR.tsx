@@ -5,10 +5,12 @@ module LocalizeFA_IR {
     const { icon, i18n } = OrganicUI;
     const { setIconAndText } = OrganicUI.Utils;
     setIconAndText('search', 'mi-search', 'جستجو');
-    setIconAndText('save', 'mi-save', 'ذخیره');
+    i18n('save',    'ذخیره');
+    i18n('sign-out',    'خروج');
+    i18n('save-and-exit',   'ذخیره و خروج');
     i18n('cancel', 'لغو');
     setIconAndText('add', 'mi-add', 'افزودن');
-    setIconAndText('delete', 'fa-trash', 'حذف');
+    i18n('delete-items' , 'حذف موارد انتخابی');
     setIconAndText('edit', 'fa-edit', 'اصلاح');
     setIconAndText('done-edit', 'fa-eye', 'حالت مشاهده');
     setIconAndText('settings', 'fa-cog', 'تنظیمات');
@@ -45,7 +47,7 @@ module LocalizeFA_IR {
     setIconAndText('activity', 'mi-add-alert', 'فعالیت ها');
     setIconAndText('my-profile', 'fa-user', 'پروفایل من');
     icon.set('lock', 'fa-lock');
-    i18n('primary-fields', 'اطلاعات اصلی');
+    i18n('primary-fields', 'اطلاعات پایه');
     i18n('personal-list', 'لیست افراد');
     i18n('license-list', 'لیست کدفعال سازی اعطا شده')
     i18n('payment-information', 'پرداخت')
@@ -59,7 +61,7 @@ module LocalizeFA_IR {
     i18n('contacts', 'اطلاعات تماس')
 
     i18n('customer-name', 'نام');
-    i18n('role', 'سمت');
+    i18n('role', 'نقش');
     i18n('full-name', 'نام فرد');
     i18n('comment', 'توضیح');
     i18n('phone', 'تلفن');
@@ -73,5 +75,8 @@ module LocalizeFA_IR {
     i18n('user', 'کاربر');
     i18n('department', 'دپارتمان ');
 
+    i18n('device-serial','سریال دستگاه') ;
+    i18n('device-name',' نام دستگاه') ;
+    
 }
 

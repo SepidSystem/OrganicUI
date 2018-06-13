@@ -6,7 +6,7 @@ import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
 import { DeveloperBar, DevFriendlyPort } from '../organicUI';
-import { IColumn, IDetailsList, IDetailsListProps } from 'office-ui-fabric-react';
+import { IColumn, IDetailsList, IDetailsListProps, DetailsList } from 'office-ui-fabric-react';
 
 import { Cache } from 'lru-cache';
 export interface IDataListLoadReq {
@@ -26,11 +26,11 @@ const defaultNormalPageCount = 3;
 const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
     const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
-    return (p.totalPages>1) &&  <nav className="pagination   is-centered" role="navigation" aria-label="pagination">
+    return (p.totalPages > 1) && <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
         <button className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</button>
         <button className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</button>
 
-        <ul className="pagination-list">
+        <ul key="pagination-list" className="pagination-list">
 
             {Array.from({ length: p.totalPages }, (_, idx) => idx)
                 .filter(idx => (idx == 0) || (idx == p.totalPages - 1) || (idx > (targetPageIndex - defaultNormalPageCount) && idx < (targetPageIndex + defaultNormalPageCount)) || (idx == p.totalPages - 1))
@@ -38,7 +38,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                     [
                         n == p.totalPages - 1 && ((p.totalPages - targetPageIndex) >= (defaultNormalPageCount * 2) - 1)
                         && ellipsis,
-                        <li className="">
+                        <li key={n} className="">
                             <a onClick={e => (e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n))} className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}  >{n + 1}</a>
                         </li>,
                         n == 0 && (targetPageIndex >= (defaultNormalPageCount * 2) - 1) && ellipsis
@@ -63,6 +63,8 @@ export interface IDataListProps {
     onRowClick?: (rowIdx: number, row: any) => void;
     rowSelection?: any;
     templatedApplied?: boolean;
+    corner?: any;
+    children?:any | any[];
 }
 export interface IDataListState {
     currentRow: any;
@@ -93,6 +95,7 @@ const rowRenderer = p => (
     </div >);
     */
 export class DataList extends BaseComponent<IDataListProps, IDataListState>{
+    items: any[];
     rowCount: number;
     static defaultProps = {
         itemHeight: 42,
@@ -100,6 +103,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     }
     refs: {
         root, content: HTMLElement;
+        detailList: DetailsList;
     }
     static Templates = registryFactory<Function>()
     constructor(p: IDataListProps) {
@@ -131,9 +135,11 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
         this.lastDataLoading = new Date();
         if (fetchableRowCount < 0) fetchableRowCount = 0;
-        return this.props.loader(
+        const promise=this.props.loader(
             { startFrom, rowCount: fetchableRowCount, }
-        ).then(listData => {
+        );
+       
+        return  promise instanceof Promise && promise.then(listData => {
 
             if (listData.rows) {
                 if (p.paginationMode == 'scrolled')
@@ -141,7 +147,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                 else
                     listData.rows.forEach((row, idx) => this.cache.set(idx, row));
             }
-            this.repatch({
+            this.refs.root && this.repatch({
                 loadingPageIndex
                 , listData, isLoading: false, currentPageIndex
             });
@@ -178,7 +184,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     }
     render() {
         this.calcRowCount();
-        const columnArray: React.ReactElement<ColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+        const columnArray: React.ReactElement<IGridColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == GridColumn))
                 .map(col => Object.assign({}, col.props || {}, {
@@ -193,8 +199,8 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         const p = this.props, s: IDataListState = this.state;
         s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
         const length = this.rowCount || 10;
-        const items = Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx));
-        const dataListProps: IDetailsListProps = Object.assign({}, {
+        const items = this.items = Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx));
+        const dataListProps: IDetailsListProps = Object.assign({ ref: "detailList" }, {
             columns,
             items,
             rowsCount: (p.paginationMode == 'scrolled'
@@ -204,7 +210,17 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         }, p) as any;
         const { itemHeight } = this.props;
+        const pagination = p.paginationMode != 'scrolled' && !!listData
+            && <Pagination
+                totalPages={Math.ceil(listData.totalRows / (length || 10))}
+                loadingPageIndex={s.loadingPageIndex}
+                currentPageIndex={s.currentPageIndex}
+                onPageIndexChange={pageIndex => {
+                    this.repatch({ loadingPageIndex: pageIndex });
+                    this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
 
+
+                }} />;
         return (
             <DevFriendlyPort target={this} targetText="DataList">
 
@@ -217,19 +233,11 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                             ((this.refs.root && Math.floor(this.refs.root.scrollTop)) || 0) + 'px'
                     } : null} >
                         {React.createElement(FabricUI.DetailsList, dataListProps)}
-
-                        {p.paginationMode != 'scrolled' && !!listData
-                            && <Pagination
-                                totalPages={Math.ceil(listData.totalRows / (length || 10))}
-                                loadingPageIndex={s.loadingPageIndex}
-                                currentPageIndex={s.currentPageIndex}
-                                onPageIndexChange={pageIndex => {
-                                    this.repatch({ loadingPageIndex: pageIndex });
-                                    this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
-
-
-                                }} />
-                        }
+                        <div className="columns">
+                            {p.corner && <div className="column corner">{p.corner}</div>}
+                            {pagination && <div className="column pagination">{pagination}</div>}
+  
+                        </div>
                     </div>}
 
                 </div>}
@@ -238,10 +246,10 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
     }
 
 }
-interface ColumnProps extends Partial<AdazzleReactDataGrid.Column> {
+export interface IGridColumnProps   {
     accessor: string;
-    key?: string;
+    name?: string;
 }
-export function GridColumn(params: ColumnProps) {
+export function GridColumn(params: IGridColumnProps) {
     return <span />;
 }

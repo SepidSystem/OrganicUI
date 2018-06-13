@@ -25,7 +25,7 @@ namespace LicApp.Frontend.UserGroup {
     const singleView: StatelessSingleView = params =>
         (<SingleViewBox params={params} actions={actions} options={options} >
 
-            <DataPanel header={i18n("primary-fields")} primary >
+            <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
                 <Field accessor="customerCode" required>
                     <TextField type="text" />
                 </Field>
@@ -39,7 +39,7 @@ namespace LicApp.Frontend.UserGroup {
                     <TextField type="text" />
                 </Field>
             </DataPanel>
-            <DataPanel header="payment-information">
+            <DataPanel header="payment-information" className="medium-fields"> 
                 <Field accessor="paymentDate"    >
                     <TextField type="text" />
                 </Field>

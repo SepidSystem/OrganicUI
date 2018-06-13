@@ -20,7 +20,7 @@ namespace LicApp.Frontend.DataItemGroup {
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/data-item-group/:id',
         routeForListView: '/view/admin/data-item-groups',
-        pluralName: 'roles', singularName: 'role', iconCode: 'fa-key'
+        pluralName: 'data-item-groups', singularName: 'data-item-group', iconCode: 'fa-key'
     };
 
     const singleView : StatelessSingleView = params =>

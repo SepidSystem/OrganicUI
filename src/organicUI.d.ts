@@ -1,11 +1,10 @@
 import * as OrganicUIMod from './organicUI';
 import * as Components from "bloomer";
-import { View, funcAsViewClass, ViewWithFluentAPI } from "./lib/view";
-import { ActionManager } from "./lib/action-manager";
-
 
 import * as UiKit from './lib/ui-kit';
 import * as  FabricUiMod from 'office-ui-fabric-react';
+import * as  MaterialUiMod from '@material-ui/core';
+
 import * as  ReactMod from 'react';
 import * as  ReactDomMod from 'react-dom';
 import * as LRU_mod from 'lru-cache';
@@ -57,6 +56,7 @@ declare global {
   }
 
   export const FabricUI: typeof FabricUiMod;
+  export const MaterialUI: typeof MaterialUiMod;
   export const React: typeof ReactMod;
   export const ReactDOM: typeof ReactDomMod;
 
@@ -83,7 +83,10 @@ declare global {
     onExecute: Function;
   }
   export interface IActionsForCRUD<TDto> {
+    mapFormData?: (dto: TDto) => TDto;
+    beforeSave?: (dto: TDto) => TDto;
     handleCreate: (dto: TDto) => Promise<any>;
+
     handleUpdate: (id: any, dto: TDto) => Promise<any>;
     handleDelete: (id: any) => Promise<any>;
     handleRead: (id: any) => Promise<TDto>;
@@ -91,7 +94,9 @@ declare global {
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
     customValidation?: (data: any) => IDataFormAccessorMsg[];
-
+    getText?: (dto: TDto) => string;
+    getId?: (dto: TDto) => any;
+    getPageTitle?: (dto: TDto) => string;
   }
   export interface IOptionsForCRUD {
     insertButtonContent?: any;
@@ -103,9 +108,24 @@ declare global {
   }
   interface IListViewParams {
     forDataLookup?: boolean;
+    multipleDataLookup?: boolean;
+    height?: number;
+
+    corner?: any;
+    onSelectionChanged?: Function;
   }
   interface ISingleViewParams { id }
   type StatelessListView = React.SFC<IListViewParams>;
   type StatelessSingleView = React.SFC<ISingleViewParams>;
-}
 
+  export interface IAppModule {
+    getIcon?: () => React.ReactNode;
+    getText?: () => React.ReactNode;
+    link?:Function | string;
+  }
+  export interface ITreeListNode {
+    text, key, parentKey, isLeaf?, type;
+    expaneded?: boolean
+  }
+
+}

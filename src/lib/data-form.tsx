@@ -15,7 +15,7 @@ interface IDataFormProps extends IFieldReaderWriter {
     validate?: boolean;
     customValidation?: CustomValidationResult;
     data?: any;
-    className?:string;
+    className?: string;
 }
 interface IDataListState {
     message?: { type, text };
@@ -25,7 +25,7 @@ interface IDataListState {
     targetSelector?: string;
     items: any[];
     validated?: boolean;
-  
+
 }
 export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     setFocusByAcccesor(accessor) {
@@ -85,7 +85,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     render() {
         const p = this.props;
         return (
-            <div className={Utils.classNames(  "data-form",p.className)} ref="root">
+            <div className={Utils.classNames("data-form", p.className)} ref="root">
                 <DevFriendlyPort target={this} targetText={'DataForm'} >
                     {this.props.children}
                 </DevFriendlyPort>
@@ -148,6 +148,7 @@ interface IDataPanelProps {
     header: any;
     primary?: boolean;
     editable?: boolean;
+    className?:string;
 }
 interface IDataPanelState {
     readonly?: boolean;
@@ -217,10 +218,12 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         const items = this.getItems();
         const extraPropsOfDetailList: Partial<FabricUI.IDetailsListProps> = {
             items,
+
             onActiveItemChanged: (selectedItem, selectedItemIndex) => {
                 this.targetItem = JSON.parse(JSON.stringify(selectedItem));
                 this.repatch({ selectedItem, selectedItemIndex })
             }
+
         };
         if (!items) {
             setTimeout(() => this.tryToBinding(), 20);
@@ -246,7 +249,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
             }
             this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null } : { validated: false, isOpen: true, targetSelector });
         }
-         const children = [!p.avoidAdd &&
+        const children = [!p.avoidAdd &&
             <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.avoidEdit &&
         <FabricUI.DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
@@ -309,7 +312,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                                     this.targetItem = {};
 
                                 }}
-                                disabled={!!s.selectedItem} iconProps={{ iconName: 'Add' }} >
+                                disabled={!!s.selectedItem}  >
                                 {i18n('add')}</OrganicUI.AdvButton>}
                         {!!s.selectedItem && s.targetSelector && <OrganicUI.AdvButton
                             className={s.targetSelector.replace('.', '')}
@@ -375,10 +378,15 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
             {icon('lock')}</span>];
 
 
-        return <div className={Utils.classNames("data-panel ", p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
+        return <div className={Utils.classNames("data-panel ",p.className, p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
 
             {React.createElement(Panel, Object.assign({}, p, { header }))}
         </div>;
     }
+
+}
+
+
+export class TupleFields {
 
 }
