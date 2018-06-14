@@ -17,7 +17,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
     }
     render() {
         const s = this.state;
-        return <MaterialUI.Paper className="filter-panel"  >
+        return <MaterialUI.Paper className="filter-panel"  > 
             {undefined && <MaterialUI.Tabs indicatorColor="primary"
                 textColor="primary" value={s.selectedTab || 0} onChange={(event, selectedTab) => this.repatch({ selectedTab })} >
                 <MaterialUI.Tab
@@ -39,7 +39,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
             } >
                 {this.props.children}
             </DataForm>
-            <footer>
+            <footer> 
                 <MaterialUI.Button variant="raised" color="primary">{i18n('apply')}</MaterialUI.Button>
                 <MaterialUI.Button>{i18n('clear')}</MaterialUI.Button>
 

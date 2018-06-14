@@ -32,7 +32,6 @@ export function refetch(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DEL
             console.log('statusText>>>>>', resp.statusText);
 
 
-
             console.groupEnd();
 
             resp.text().then(console.log);

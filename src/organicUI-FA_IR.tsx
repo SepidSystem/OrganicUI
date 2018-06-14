@@ -8,13 +8,16 @@ module LocalizeFA_IR {
     i18n('save-and-return', 'ذخیره و برگشت');
     i18n('export', 'دریافت خروجی');
     i18n('error', 'خطا');
+    i18n('apply', 'اعمال');
+    i18n('clear', 'پاک کردن');
+
     i18n('permissions', 'مجوزها');
     i18n('error-required', '{s} ' + 'الزامی است');
     i18n('create-permission', 'ایجاد');
     i18n('view-permission', 'مشاهده');
     i18n('edit-permission', 'اصلاح');
-    
- 
+
+
     i18n('delete-permission', 'حذف');
     i18n('copy-permission', 'کپی');
     i18n('archive-permission', 'اصلاح');
@@ -26,7 +29,7 @@ module LocalizeFA_IR {
     i18n('next-page', 'صفحه بعد');
     i18n('previous-page', 'صفحه قبل');
     i18n('description-rejected-validation', 'اطلاعات ذخیره نشد - لطفا خطاهای زیر را رفع نمایید تا امکان ذخیره فرم وجود داشته باشد')
-    i18n('list-view-title-fmt',' لیست ' + '{s}');
+    i18n('list-view-title-fmt', ' لیست ' + '{s}');
     i18n('add-entity-fmt', 'تعریف {s} ');
     i18n('new-entity-fmt', 'ثبت {s} جدید ');
     i18n('add-header-fmt', '{s} جدید');

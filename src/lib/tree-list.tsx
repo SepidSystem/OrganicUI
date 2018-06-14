@@ -71,7 +71,7 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
     }
     render() {
         const p = this.props;
-        return <div className="tree-list" style={{ maxHeight: `${p.height}px`, overflow: 'scroll', overflowX: 'hidden' }}>
+        return <div className="tree-list" style={{ maxHeight: `${p.height}px`,height: `${p.height}px`, overflow: 'scroll', overflowX: 'hidden' }}>
             {this.renderNodes(0)}
         </div>
     }

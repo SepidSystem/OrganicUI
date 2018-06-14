@@ -44,6 +44,7 @@
 
 .data-panel {
     margin-bottom: 5px;
+ 
     * {
         outline: none;
     }
@@ -250,5 +251,5 @@ a.close {
 .filter-panel {
     flex-direction: column;
     display: flex;
-
+    padding:5px;
 }

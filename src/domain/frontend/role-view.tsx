@@ -33,7 +33,7 @@ const options: IOptionsForCRUD = {
 const singleView: StatelessSingleView = params =>
     (<SingleViewBox params={params} actions={actions} options={options}>
 
-        <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
+        <DataPanel header={i18n("primary-fields")} primary className="half-column-fields" >
             <Field accessor="id" readonly>
                 <TextField type="text" />
             </Field>
@@ -44,7 +44,7 @@ const singleView: StatelessSingleView = params =>
         </DataPanel>
         <DataPanel header="permissions"  >
             <Field accessor="permissions">
-                <OrganicUI.TreeList height={200} />
+                <OrganicUI.TreeList height={400} />
             </Field>
         </DataPanel>
 
