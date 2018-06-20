@@ -44,7 +44,7 @@ export function route(path: string, args: Object): typeof React.Component {
     matchedRoutes.forEach(routeURL => Object.assign(routeTable(routeURL) || {}, { routeURL }));
     const lastSecondaryValue = matchedRoutes.map(key => routeTable.secondaryValues[key])[0]
     Object.assign(route, { lastSecondaryValue });
-    if (matchedRoutes.length == 1) return matchedRoutes.map(routeTable)[0];
+    if (matchedRoutes.length == 1) return matchedRoutes.map(routeTable)[0] as any;
     OrganicUI.Utils.warn({ matchedRoutes });
 }
 Object.assign(route, { lastSecondaryValue: null });

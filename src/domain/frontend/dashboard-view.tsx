@@ -5,7 +5,7 @@
  
 namespace LicApp.Frontend.Customer {
     const { Field, ObjectField,   DashboardBox} = OrganicUI;
-    const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
+    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
     const { DetailsList, SelectionMode, TextField } = FabricUI;
 
     const { i18n } = OrganicUI;

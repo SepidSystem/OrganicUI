@@ -26,15 +26,16 @@ export function refetch(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DEL
     }
     const result = fetch(url, requestOpts).then(resp => {
         if (!resp.ok) {
-            console.groupCollapsed(`${resp.statusText} | ${method} ${url.split('?')[0]}`);
-            console.log('method>>>>>', method);
-            console.log('url>>>>>', url);
-            console.log('statusText>>>>>', resp.statusText);
 
+            resp.text().then(responseText => {
+                console.groupCollapsed(`${resp.statusText} | ${method} ${url.split('?')[0]}`);
+                console.log('method>>>>>', method);
+                console.log('url>>>>>', url);
+                console.log('statusText>>>>>', resp.statusText);
+                console.log('responseText>>>>', responseText);
+                console.groupEnd();
 
-            console.groupEnd();
-
-            resp.text().then(console.log);
+            });
             return Promise.reject(resp.statusText);
         }
         const { headers } = resp;

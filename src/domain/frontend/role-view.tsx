@@ -4,7 +4,7 @@
 
 
 const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
+const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
 const { TextField } = MaterialUI;
 
 const { i18n } = OrganicUI;
@@ -17,7 +17,7 @@ const permissions: ITreeListNode[] = [
 const actions: IActionsForCRUD<RoleDTO> = {
     handleCreate: dto => api.createRole(dto),
     handleRead: id => api.findRoleById(id),
-    mapFormData: dto => Object.assign(dto, {  permissions: OrganicUI.scanAllPermission(routeTable) }),
+    mapFormData: dto => Object.assign(dto, { permissions: OrganicUI.scanAllPermission(routeTable) }),
     handleLoadData: params => api.readRoleList(params),
     handleUpdate: (id, dto) => api.updateRoleById(id, dto),
     handleDelete: id => api.deleteRoleById(id),
@@ -40,7 +40,7 @@ const singleView: StatelessSingleView = params =>
             <Field accessor="name" required >
                 <TextField type="text" />
             </Field>
-             
+
         </DataPanel>
         <DataPanel header="permissions"  >
             <Field accessor="permissions">
@@ -55,8 +55,8 @@ routeTable.set('/view/admin/role/:id', singleView);
 export const roleListView: StatelessListView = p => (
     <ListViewBox actions={actions} options={options} params={p}>
         <DataList>
-            <GridColumn accessor="id" />
-            <GridColumn accessor="name" />
+            <Field accessor="id" />
+            <Field accessor="name" />
 
         </DataList>
     </ListViewBox>

@@ -152,7 +152,7 @@ class BaseView extends Component {
 
             </footer>*/}
 
-
+            <OrganicUI.AppUtils />
         </Fabric>))
     }
 }

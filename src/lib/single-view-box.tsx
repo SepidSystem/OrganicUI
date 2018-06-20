@@ -1,6 +1,6 @@
 /// <reference path="../organicUI.d.ts" />
 
-import { BaseComponent } from './base-component';
+
 import { templates, icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { Field } from './data';
@@ -10,7 +10,6 @@ import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from './developer-features';
 import OrganicBox from './organic-box';
 import { route } from './router';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
@@ -24,6 +23,7 @@ export class SingleViewBox<T> extends OrganicBox<
         super(p);
         this.navigateToBack = this.navigateToBack.bind(this);
         this.navigateToNewItem = this.navigateToNewItem.bind(this);
+        this.handleSave = this.handleSave.bind(this);
     }
     navigateToBack(): any {
 
@@ -32,6 +32,7 @@ export class SingleViewBox<T> extends OrganicBox<
     refs: {
         dataForm: DataForm;
         primaryButton: AdvButton;
+        secondaryButton: AdvButton;
     }
     mapFormData(formData) {
         if (this.props.params && this.props.params.id == ':id') {
@@ -46,7 +47,7 @@ export class SingleViewBox<T> extends OrganicBox<
             : this.mapFormData({});
     }
 
-    async handleSave() {
+    async handleSave(navigateToListView?) {
         this.repatch({ validated: true });
 
         const { dataForm } = this.refs;
@@ -78,6 +79,9 @@ export class SingleViewBox<T> extends OrganicBox<
         return updateResult.then(
             () => {
                 const { title, desc } = this.getSuccess();
+
+                navigateToListView && setTimeout(() => this.navigateToBack(), 3000);
+                setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
                 return <div className="single-view-callout" style={{ padding: '10px' }}>
                     <header className="columns">
                         <div className="column" style={{ maxWidth: "70px" }}>
@@ -88,31 +92,6 @@ export class SingleViewBox<T> extends OrganicBox<
                         </div>
                     </header>
 
-                    <div className="columns">
-                        <div className="column btn">
-                            <MaterialUI.Button variant="contained" color="primary" onClick={this.navigateToBack}  >{i18n('return')}</MaterialUI.Button >
-                        </div>
-                        <div className="column desc  ">
-                            {desc}
-                        </div>
-                    </div>
-
-                    <div className="columns">
-                        <div className="column btn">
-                            <MaterialUI.Button variant="contained" onClick={() => this.refs.primaryButton.closeCallOut()}  >{i18n('keep')}</MaterialUI.Button >
-                        </div>
-                        <div className="column desc ">
-
-                        </div>
-                    </div>
-                    <div className="columns">
-                        <div className="column btn">
-                            <MaterialUI.Button variant="contained" onClick={this.navigateToNewItem} >{i18n('add')}</MaterialUI.Button >
-                        </div>
-                        <div className="column desc ">
-
-                        </div>
-                    </div>
 
                 </div>;
             });
@@ -132,49 +111,54 @@ export class SingleViewBox<T> extends OrganicBox<
         const desc = Utils.i18nFormat('success-desc-save-fmt', args);
         return { title, desc };
     }
-    render(p = this.props) {
+    getDevButton() {
+        return Utils.renderDevButton("SingleView", this);
+    }
+    renderContent(p = this.props) {
 
         const { options } = this.props;
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
 
         s.formData = s.formData || {};// p.actions.handleRead(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
-        return <section className="single-view" ref="root">
-            <DevFriendlyPort target={this} targetText="SingleView" >
-                <h1 className="title is-5 columns" style={{ margin: '0' }}>
-                    <div className="column is-11">
-                        {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
-                    </div>
-                    <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
-                        <MaterialUI.Button variant="outlined" onClick={this.navigateToBack}   >
-                            {' '}
-                            {i18n('back')}
-                            {' '}
-                            <FabricUI.Icon iconName="Back" />
-                        </MaterialUI.Button >
-                    </div>
-                </h1>
-                <MaterialUI.Paper className="main-content">
-                    <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
-                        onFieldWrite={(accessor, value) => s.formData[accessor] = value}
-                        validate={s.validated}
-                        customValidation={p.actions.customValidation}
-                        data={s.formData}>
+        return <section className="single-view developer-features" ref="root">
+            <h1 className="title is-5 columns" style={{ margin: '0' }}>
+                <div className="column is-11">
+                    {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
+                </div>
+                <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
+                    <MaterialUI.Button variant="outlined" onClick={this.navigateToBack}   >
+                        {' '}
+                        {i18n('back')}
+                        {' '}
+                        <FabricUI.Icon iconName="Back" />
+                    </MaterialUI.Button >
+                </div>
+            </h1>
+            <MaterialUI.Paper className="main-content">
+                <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
+                    onFieldWrite={(accessor, value) =>{
+                        debugger;
+                        s.formData[accessor] = value
+                    }}
+                    validate={s.validated}
+                    customValidation={p.actions.customValidation}
+                    data={s.formData}>
 
-                        {this.props.children}
-                    </DataForm>
-                    <footer className="buttons  single-view-buttons">
+                    {this.props.children}
+                </DataForm>
+                <footer className="buttons  single-view-buttons">
 
-                        {/*    
+                    {/*    
 <AdvButton onClick={this.handleSave.bind(this)} primary ref="primaryButton" > {i18n('singleview-apply')}</AdvButton>
     */}
-                        <AdvButton onClick={this.handleSave.bind(this)} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
-                        <AdvButton onClick={this.handleSave.bind(this)} variant="raised" color="secondary"  > {i18n('save-and-exit')}</AdvButton>
-                        <AdvButton onClick={this.navigateToBack}    > {i18n('cancel')}</AdvButton>
+                    <AdvButton onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
+                    <AdvButton onClick={() => this.handleSave(true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
+                    <AdvButton onClick={this.navigateToBack}    > {i18n('cancel')}</AdvButton>
 
-                    </footer>
-                </MaterialUI.Paper>
-            </DevFriendlyPort>
+                </footer>
+            </MaterialUI.Paper>
+
         </section>
     }
 

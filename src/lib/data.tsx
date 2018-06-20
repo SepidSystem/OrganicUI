@@ -1,6 +1,6 @@
 import { registryFactory } from "./registry-factory";
 import { FuncComponent, funcAsComponentClass } from "./functional-component";
-import { i18n, icon } from "./shared-vars";
+import { i18n, icon, editorByAccessor } from "./shared-vars";
 import { BaseComponent } from './base-component';
 import { changeCase, Utils } from './utils';
 import * as React from "react";
@@ -13,11 +13,7 @@ interface IFieldMessage {
     message: string;
     by?: string;
 }
-export interface IFieldReaderWriter {
 
-    onFieldWrite?, onFieldRead?: Function;
-    accessor?: string;
-}
 export type ErrorCodeForFieldValidation = string;
 export interface IFieldProps {
     accessor?: string;
@@ -29,13 +25,12 @@ export interface IFieldProps {
     readonly?: boolean;
     messages?: IFieldMessage[];
     getInfoMessage?: () => string;
-    children: any;
+    children?: any;
     className?: string;
 }
 export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     clientWidthNoErrorMode: number;
     inputElement: React.ReactElement<any>;
-    static Dictionary = registryFactory();
     dataForm: DataForm;
     refs: {
         root: HTMLElement;
@@ -95,7 +90,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         return value;
     }
     handleSetData(e: React.ChangeEvent<HTMLInputElement>) {
-        const value: any = [e.target && e.target.value, (e as any).value, e].filter(x => x !== undefined)[0];
+        debugger;
+        const value: any = [e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
         const p = this.props;
         if (p.onSet instanceof Function) return p.onSet(value);
         const { root } = this.refs;
@@ -128,16 +124,18 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
         const iconForStatus: string = hasError && '';// 'fa-exclamation-triangle';
         let inputElement = p.children as React.ReactElement<any>;
-        if (!inputElement) inputElement = Field.Dictionary(p.accessor) as any;
+        if (!inputElement)
+            inputElement = editorByAccessor(changeCase.camelCase(p.accessor));
+
         if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
         const st = '';
-        const classNameFromInputType = inputElement.type && inputElement.type['field-className'];
-        const filterFromInputType: Function = inputElement.type && inputElement.type['field-filter'];
+        const classNameFromInputType = inputElement && inputElement.type && inputElement.type['field-className'];
+        const filterFromInputType: Function = inputElement && inputElement.type && inputElement.type['field-filter'];
 
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
                 onChange: this.handleSetData,
-                //   onChanged: this.handleSetData,
+                   onChanged: this.handleSetData,
                 onFocus: (e: React.KeyboardEvent<any>) => {
                     this.refs.container.classList.add('focused');
 
@@ -158,7 +156,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         );
         console.assert(filterFromInputType === undefined || filterFromInputType instanceof Function, 'filterFromInputType is not function', filterFromInputType);
         const label = Field.getLabel(p.accessor, p.label);
-        //if (!this.inputElement) {
+
         filterFromInputType && filterFromInputType(propsOfInputElement, this, label);
         const { root } = this.refs;
         if (!root && s.messages && s.messages[0]) {
@@ -168,7 +166,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         if (root && (!s.messages || !s.messages[0])) {
             this.clientWidthNoErrorMode = root.clientWidth;
         }
-        this.inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
+
+        if(p.accessor=="DepartmentName") debugger;
+        inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         //}
         return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
@@ -176,7 +176,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, !!this.extractedValue && 'has-value', p.className)}>
                 <label key="label" className="label">{label}</label>
                 <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
-                    {this.inputElement}
+                    {inputElement}
 
                     {!!p.icon && <span key="icon" className="icon is-small is-left">
                         {icon(p.icon)}

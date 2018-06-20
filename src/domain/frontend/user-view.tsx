@@ -5,7 +5,7 @@ import { roleListView } from './role-view'
 const { DataLookup } = OrganicUI;
 namespace LicApp.Frontend.User {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-    const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
+    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
     const { DetailsList, SelectionMode, TextField } = FabricUI;
 
     const { i18n } = OrganicUI;
@@ -61,8 +61,8 @@ namespace LicApp.Frontend.User {
         <ListViewBox actions={actions} options={options} params={p}>
 
             <DataList>
-                <GridColumn accessor="userName" />
-                <GridColumn accessor="userTitle" />
+                <Field accessor="userName" />
+                <Field accessor="userTitle" />
             </DataList>
         </ListViewBox>
     )

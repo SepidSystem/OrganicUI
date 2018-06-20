@@ -1,6 +1,10 @@
 import { IStateListener, StateListener } from "./state-listener";
-
-export class BaseComponent<P, S> extends React.Component<P, S>{
+import { Component } from 'react';
+export class BaseComponent<P, S> extends Component<P, S>{
+    devElement: any;
+    renderContent(): any {
+        throw new Error("Method not implemented.");
+    }
 
     base: any;
     linkState: any;
@@ -23,7 +27,7 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
 
     }
     repatch(delta: Partial<S>, target?) {
-        if(window['repatchDebug']) debugger;
+        if (window['repatchDebug']) debugger;
         target = target || this.state;
         Object.assign(target, delta);
         const keys = Object.keys(delta);
@@ -56,7 +60,7 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
         let counter = 0;
         function applyPageTitle() {
             const { root } = this.refs as { root: HTMLElement };
-     
+
             if (!root && counter++ < 10) {
                 setTimeout(applyPageTitle.bind(this), 20);
                 return;
@@ -75,8 +79,16 @@ export class BaseComponent<P, S> extends React.Component<P, S>{
         applyPageTitle.apply(this);
 
     }
+    render() {
+        if (this.devElement) {
+            return <div ref="root" className="developer-features">
+                {this.devElement}
+            </div>
+        }
+        return this.renderContent();
+    }
 }
-export function CriticalContent(p: { permissionKey: string, children? }) {
+export function CriticalContent(p: { permissionKey: string, children?}) {
 
     return <div className={"critical-content"} data-key={p.permissionKey}>{p.children}</div>
 }

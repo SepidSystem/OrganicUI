@@ -4,9 +4,8 @@
  
 namespace LicApp.Frontend.Customer {
     const { Field, ObjectField, SingleViewBox, ListViewBox ,ReportViewBox} = OrganicUI;
-    const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
-    const { DetailsList, SelectionMode, TextField } = FabricUI;
-
+    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
+ 
     const { i18n } = OrganicUI;
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });

@@ -4,7 +4,7 @@
 
 namespace LicApp.Frontend.Customer {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-    const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
+    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
     const { DetailsList, SelectionMode, TextField } = FabricUI;
 
     const { i18n } = OrganicUI;
@@ -83,8 +83,8 @@ namespace LicApp.Frontend.Customer {
     const listView: StatelessListView = p => (
         <ListViewBox actions={actions} options={options} params={p}>
             <DataList>
-                <GridColumn accessor="customerCode" />
-                <GridColumn accessor="customerName" />
+                <Field accessor="customerCode" />
+                <Field accessor="customerName" />
             </DataList>
         </ListViewBox>
     )

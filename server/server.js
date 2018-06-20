@@ -3,7 +3,7 @@ const shelljs = require('shelljs');
 const fse = require('fs-extra');
 const child = shelljs.exec('npm run build:watch', { async: true });
 child.stdout.on('data', data => {
-    if ((data || '').includes('Size'))
+    if ((data || '').includes('size'))
         setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
     console.log(data);
 });

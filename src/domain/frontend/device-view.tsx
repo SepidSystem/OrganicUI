@@ -10,7 +10,7 @@ import { departmentListView } from "./department-view";
 
 
 const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-const { routeTable, DataList, GridColumn, DataForm, DataPanel, DataListPanel } = OrganicUI;
+const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
 const { TextField } = MaterialUI;
 
 const { i18n } = OrganicUI;
@@ -86,10 +86,10 @@ const listView: StatelessListView = p => (
     <ListViewBox actions={actions} options={options} params={p}>
      
         <DataList> 
-            <GridColumn accessor="deviceName" />
-            <GridColumn accessor="deviceCode" />
-            <GridColumn accessor="deviceSerial" />
-            <GridColumn accessor="deviceType" />
+            <Field accessor="deviceName" />
+            <Field accessor="deviceCode" />
+            <Field accessor="deviceSerial" />
+            <Field accessor="deviceType" />
 
         </DataList>
     </ListViewBox>

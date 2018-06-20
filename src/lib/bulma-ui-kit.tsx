@@ -238,6 +238,6 @@ export class DialogPanel extends BaseComponent<IDialogPanelProps, IDialogPanelSt
         return (null)
     }
 }
-export { DataList, GridColumn } from './data-list';
+export { DataList } from './data-list';
 export { DataForm, DataPanel } from './data-form';
 

@@ -5,10 +5,11 @@ import { registryFactory } from './registry-factory';
 import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
-import { DeveloperBar, DevFriendlyPort } from '../organicUI';
+import { DeveloperBar } from '../organicUI';
 import { IColumn, IDetailsList, IDetailsListProps, DetailsList } from 'office-ui-fabric-react';
 
 import { Cache } from 'lru-cache';
+import { IFieldProps, Field } from './data';
 export interface IDataListLoadReq {
     startFrom: number;
     rowCount: number;
@@ -64,7 +65,7 @@ export interface IDataListProps {
     rowSelection?: any;
     templatedApplied?: boolean;
     corner?: any;
-    children?:any | any[];
+    children?: any | any[];
 }
 export interface IDataListState {
     currentRow: any;
@@ -94,7 +95,7 @@ const rowRenderer = p => (
         <Spinner />
     </div >);
     */
-export class DataList extends BaseComponent<IDataListProps, IDataListState>{
+export class DataList extends BaseComponent<IDataListProps, IDataListState> implements IDeveloperFeatures {
     items: any[];
     rowCount: number;
     static defaultProps = {
@@ -106,8 +107,10 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         detailList: DetailsList;
     }
     static Templates = registryFactory<Function>()
+    devPortId: number;
     constructor(p: IDataListProps) {
         super(p);
+        this.devPortId = Utils.accquireDevPortId();
 
         const defaultState: Partial<IDataListState> = { startFrom: 0, ratio: 0 };
         this.state = this.state || defaultState as any;
@@ -135,11 +138,11 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
         this.lastDataLoading = new Date();
         if (fetchableRowCount < 0) fetchableRowCount = 0;
-        const promise=this.props.loader(
+        const promise = this.props.loader(
             { startFrom, rowCount: fetchableRowCount, }
         );
-       
-        return  promise instanceof Promise && promise.then(listData => {
+
+        return promise instanceof Promise && promise.then(listData => {
 
             if (listData.rows) {
                 if (p.paginationMode == 'scrolled')
@@ -155,7 +158,9 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         });
     }
     scrollTimer: any;
-
+    getDevButton() {
+        return Utils.renderDevButton('DataList', this);
+    }
     adjustScroll() {
         this.scrollTimer && clearTimeout(this.scrollTimer);
         this.scrollTimer = null;
@@ -182,14 +187,15 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
         this.repatch({});
 
     }
-    render() {
+
+    renderContent() {
         this.calcRowCount();
-        const columnArray: React.ReactElement<IGridColumnProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+        const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const columns: IColumn[] =
-            columnArray.filter(col => col && (col.type == GridColumn))
+            columnArray.filter(col => col && (col.type == Field))
                 .map(col => Object.assign({}, col.props || {}, {
-                    key: col.props.accessor, name: i18n(col.props.name || OrganicUI.changeCase.paramCase(col.props.accessor))
-                    , onRender: (item?: any, index?: number, column?: IColumn) => {
+                    key: col.props.accessor, name: i18n(col.props.label || OrganicUI.changeCase.paramCase(col.props.accessor))
+                    , maxWidth: 300, onRender: (item?: any, index?: number, column?: IColumn) => {
 
                         return item[column.key];
                     }
@@ -208,7 +214,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                 : (!!listData && length)),
             minHeight: p.height
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
-        }, p) as any;
+        } as Partial<IDetailsListProps>, p) as any;
         const { itemHeight } = this.props;
         const pagination = p.paginationMode != 'scrolled' && !!listData
             && <Pagination
@@ -222,9 +228,9 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
 
                 }} />;
         return (
-            <DevFriendlyPort target={this} targetText="DataList">
+            <div ref="root">
 
-                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null} className={Utils.classNames("data-list", p.paginationMode)} ref="root" style={{ minHeight: (p.height + 'px') }} >
+                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null} className={Utils.classNames("developer-features", "data-list", p.paginationMode)} style={{ minHeight: (p.height + 'px') }} >
                     <div className="data-list-content" ref="content" style={{ minHeight: p.paginationMode == 'scrolled' ? parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' : 'auto' }}>
                     </div>
                     {this.refs.root && items && <div className="data-list-c1" style={p.paginationMode == 'scrolled' ? {
@@ -236,20 +242,14 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState>{
                         <div className="columns">
                             {p.corner && <div className="column corner">{p.corner}</div>}
                             {pagination && <div className="column pagination">{pagination}</div>}
-  
+
                         </div>
                     </div>}
 
                 </div>}
-            </DevFriendlyPort>
+            </div>
         );
     }
 
 }
-export interface IGridColumnProps   {
-    accessor: string;
-    name?: string;
-}
-export function GridColumn(params: IGridColumnProps) {
-    return <span />;
-}
+ 

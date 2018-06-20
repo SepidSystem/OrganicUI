@@ -23,7 +23,7 @@ declare interface EmployeeDTO {
        
 }
 declare interface DepartmentDTO{
-
+    departmentName:string;
 }
 declare interface UserDTO{
 

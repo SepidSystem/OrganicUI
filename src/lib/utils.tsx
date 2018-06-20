@@ -1,15 +1,11 @@
 import { mountViewToRoot } from "./bootstrapper";
 import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
-
+let devPortIdCounter = 0;
 export const Utils = {
- 	
-	showModal(title, body) {
 
-	},
-	indicatedValues<T>(values: T[]): Array<T> {
-		return null;
-	},
+	
+	 
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
 	},
@@ -113,12 +109,70 @@ export const Utils = {
 		return !!icon && <i key={icon} className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
 	},
 	defaultGetId: ({ id }) => id,
-	setNoWarn(v){
-		OrganicUI.Utils['noWarn']=v;
+	setNoWarn(v) {
+		OrganicUI.Utils['noWarn'] = v;
 	},
 	warn(...args) {
-		!OrganicUI.Utils['noWarn']&&  console.warn(...args);
+		!OrganicUI.Utils['noWarn'] && console.warn(...args);
+	},
+	renderDevButton(targetText, target: IDeveloperFeatures) {
+		const topItems = [{
+			key: 'reset',
+			name: `Reset DevTools `,
+			onClick: () => (target.devElement = null, target.forceUpdate())
+		}, {
+			key: 'assign-window',
+			name: 'Set As Global Var',
+			onClick: () => {
+				const key = prompt('global varaible name , you can use this variable in    console', OrganicUI.changeCase.camelCase(targetText));
+				if (!key) return;
+				let pairs = {};
+				pairs[key] = target;
+				Object.assign(window, pairs);
+			}
+		}
+		].filter(item => !!item);
+		const { root } = (target as any).refs;
+		return <FabricUI.ActionButton onMouseEnter={() => (root && root.classList.add('dev-target'))}
+			onMouseLeave={() => root && root.classList.remove('dev-target')}
+			iconProps={{ iconName: 'Code' }}
+			text={targetText}
+			menuProps={{
+				shouldFocusOnMount: true,
+				items:
+					topItems.concat(
+						Object.keys(devTools.data)
+							.filter(key =>
+								key.startsWith(targetText + '|'))
+							.map(key => [key, devTools.data[key]])
+							.map(([key, onExecute]) => ({
+								key: key.split('|')[1],
+								name: key.split('|')[1],
+								onClick: () => {
+									debugger; onExecute(target, target)
+								}
+							})))
+			}} />;
+
+
+	},
+	accquireDevPortId() {
+		return ++devPortIdCounter;
+	},
+	renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function }) {
+		if (methods instanceof Array)
+			methods = methods.reduce((accumulator, method) => (accumulator[method.name] = method, accumulator), {} as TMethods);
+		opts = opts || {};
+		const callback = opts.callback || function () { };
+		return Object.keys(methods).map(
+			key => React.createElement(opts.componentClass || MaterialUI.Button,
+				{ onClick: () => callback(methods[key]()) } as any,
+				i18n(changeCase.paramCase(key)))
+		);
 	}
+
 }
 import * as changeCaseObject from 'change-case-object'
+import { devTools } from "./developer-features";
+
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

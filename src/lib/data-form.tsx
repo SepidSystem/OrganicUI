@@ -1,22 +1,16 @@
 /// <reference path="../organicUI.d.ts" />
 
 
-import { icon, i18n, DevFriendlyPort, funcAsComponentClass, FuncComponent, BaseComponent, FabricUI } from "../organicUI";
-import { Utils } from './utils';
+import { icon, i18n, funcAsComponentClass, FuncComponent, BaseComponent, FabricUI } from "../organicUI";
+import { Utils, changeCase } from './utils';
 
 
 import { Panel } from "./ui-kit";
 
-import { PanelType } from "office-ui-fabric-react";
+import { PanelType, IColumn } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
-import { IFieldProps, Field, IFieldReaderWriter } from "./data";
-
-interface IDataFormProps extends IFieldReaderWriter {
-    validate?: boolean;
-    customValidation?: CustomValidationResult;
-    data?: any;
-    className?: string;
-}
+import { IFieldProps, Field } from "./data";
+ 
 interface IDataListState {
     message?: { type, text };
     selectedItem: any;
@@ -27,7 +21,11 @@ interface IDataListState {
     validated?: boolean;
 
 }
-export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
+export class DataForm extends BaseComponent<IDataFormProps, IDataListState> implements IDeveloperFeatures {
+    devPortId: number;
+    getDevButton() {
+        return Utils.renderDevButton('DataForm', this as any);
+    }
     setFocusByAcccesor(accessor) {
 
         this.querySelectorAll<Field>('.field-accessor').filter(fld => fld.props.accessor == accessor).forEach(fld => {
@@ -70,7 +68,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     constructor(p) {
         super(p);
         this.appliedFieldName = `data-form-applied${DataForm.DataFormCount}`;
-
+        this.devPortId = Utils.accquireDevPortId();
         DataForm.DataFormCount++;
     }
     getErrors() {
@@ -82,13 +80,12 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
             .filter(item => !!item.error);
 
     }
-    render() {
+
+    renderContent() {
         const p = this.props;
         return (
-            <div className={Utils.classNames("data-form", p.className)} ref="root">
-                <DevFriendlyPort target={this} targetText={'DataForm'} >
-                    {this.props.children}
-                </DevFriendlyPort>
+            <div className={Utils.classNames("data-form", "developer-features", p.className)} ref="root">
+                {this.props.children}
             </div>
         );
     }
@@ -130,7 +127,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState>{
     }
 
     processFields() {
-
+        if (this.devElement) return;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
 
         this.querySelectorAll<IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
@@ -148,7 +145,7 @@ interface IDataPanelProps {
     header: any;
     primary?: boolean;
     editable?: boolean;
-    className?:string;
+    className?: string;
 }
 interface IDataPanelState {
     readonly?: boolean;
@@ -158,6 +155,7 @@ interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, Partia
 
     formMode?: 'modal' | 'callout' | 'panel' | 'section';
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
+    customBar?: TMethods;
     accessor?: string;
     customValidation?: CustomValidationResult;
     singularName?, pluralName?: string;
@@ -210,6 +208,18 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
             parent = parent.parentElement;
         }
     }
+    getCustomBar(customBar = this.props.customBar) {
+        return Utils.renderButtons(customBar, {
+            callback: (promise: Promise<any>) => {
+                if (promise instanceof Promise)
+                    promise.then(value => {
+                        const items = this.getItems() || [];
+                        items.push(value);
+                        this.forceUpdate();
+                    });
+            }
+        })
+    }
     render(p = this.props, s = this.state) {
         const header =
             p.header === undefined ? (p.pluralName && Utils.i18nFormat('header-for-data-list-panel', p.pluralName)) : p.header;
@@ -229,10 +239,11 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
             setTimeout(() => this.tryToBinding(), 20);
         }
         const detailListProps: FabricUI.IDetailsListProps = Object.assign({}, { key: 'datalist' + this.lastMod }, extraPropsOfDetailList, { layoutMode: FabricUI.DetailsListLayoutMode.justified }, p, {});
-        detailListProps.columns = detailListProps.columns && detailListProps.columns.map(col => Object.assign({}, col, { name: i18n.get(col.name) }));
+        detailListProps.columns = detailListProps.columns &&
+            detailListProps.columns.map(col => Object.assign({}, col, { name: i18n.get(col.name) } as Partial<IColumn>));
         detailListProps.columns = detailListProps.columns ||
             React.Children.map(this.props.children || [], (child: JSX.Element) => child.props && (child.props as IFieldProps).accessor)
-                .filter(x => !!x).map(key => ({ key, fieldName: key, name: Field.getLabel(key) })) as FabricUI.IColumn[];
+                .filter(x => !!x).map(key => ({ minWidth: 100, key, fieldName: key, name: Field.getLabel(key) } as FabricUI.IColumn)) as FabricUI.IColumn[];
 
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
@@ -249,11 +260,12 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
             }
             this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null } : { validated: false, isOpen: true, targetSelector });
         }
-        const children = [!p.avoidAdd &&
+
+        const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
             <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
-        !p.avoidEdit &&
+        !p.customBar && !p.avoidEdit &&
         <FabricUI.DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
-        !p.avoidDelete &&
+        !p.customBar && !p.avoidDelete &&
         <FabricUI.DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
         !!p.children && s.isOpen &&
         React.createElement((DataListPanel.formModes[p.formMode] || FabricUI.Callout) as any, {
@@ -378,7 +390,7 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
             {icon('lock')}</span>];
 
 
-        return <div className={Utils.classNames("data-panel ",p.className, p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
+        return <div className={Utils.classNames("data-panel ", p.className, p.primary && 'primary-data-panel', s.readonly ? 'readonly' : 'editable')}>
 
             {React.createElement(Panel, Object.assign({}, p, { header }))}
         </div>;

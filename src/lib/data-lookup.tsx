@@ -23,9 +23,10 @@ interface DataLookupState {
     value?: any;
 }
 function closeAllPopup(activeDataLookup?) {
-    Array.from(document.querySelectorAll('.closable-element'))
+    const query = () => Array.from(document.querySelectorAll('.closable-element'))
         .map(element => element['componentRef'] as DataLookup)
         .forEach(dataLookup => activeDataLookup != dataLookup && dataLookup.closePopup());
+    setTimeout(query, 300);
 }
 export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     listViewElement: React.SFCElement<IListViewParams>;
@@ -44,9 +45,10 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     }
     getListViewBox(): ListViewBox<any> {
+        if (!this.state.isOpen) debugger;
         const { listViewContainer } = this.refs;
 
-        return this.listViewBox = this.listViewBox || this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0];;
+        return this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0];;
     }
     closePopup() {
         if (this.openRequestTime && ((+ new Date() - this.openRequestTime) < 200))
@@ -69,8 +71,8 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         closeAllPopup(this);
         this.repatch({ isOpen, isHidden: false, isActive: true })
     }
-
     handleSelectionChanged(indices: number[], index) {
+
         const listViewBox = this.getListViewBox();
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
         if (!items) return;
@@ -84,19 +86,22 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         }
         else {
 
+            if (ids.length) {
+                closeAllPopup();
 
-            closeAllPopup();
-            this.repatch({ isOpen: false, isActive: true, value: ids[0] });
+            }
 
         }
+
         this.props.onChange instanceof Function && this.props.onChange(
             this.props.multiple ? ids : ids[0]
         );
 
+
     }
     repatch(delta: Partial<DataLookupState>, target?) {
         if ('isOpen' in delta && !delta.isOpen && this.state.isOpen && this.openRequestTime) {
-
+            debugger;
             const { listViewContainer } = this.refs;
             if (listViewContainer) {
                 const rows = Array.from(listViewContainer.querySelectorAll(".ms-DetailsRow")).map(r => Array.from(r.classList));
@@ -158,8 +163,8 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
                 }));
 
         const promised = (valueArray.filter(v => this.cache[v] instanceof Promise).map(v => this.cache[v]));
-        const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText(this.cache[v])).join(',');
-        console.log({ value, valueArray, innerText });
+        const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v])).join(',');
+        console.log({ innerText, valueArray });
         return innerText;
     }
     render() {
@@ -184,7 +189,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
             </div>
             <span className="caretDownWrapper  ">
-                 <svg className="MuiSvgIcon-root MuiSelect-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="MuiSvgIcon-root MuiSelect-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 10l5 5 5-5z"></path>
                 </svg>
             </span>

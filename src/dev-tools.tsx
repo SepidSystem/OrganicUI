@@ -1,6 +1,6 @@
 import './dev-tools/devtools-data-form';
 import './dev-tools/devtools-boxes';
-import { DevFriendlyCommand, DevFriendlyPort } from './lib/developer-features';
+import { DevFriendlyCommand } from './lib/developer-features';
 /// <reference path="organicUI.d.ts" />
 OrganicUI.devTools.set('Translate', (dev) => {
     OrganicUI.DeveloperBar.topElement = <FabricUI.Dialog onDismiss={() => {
@@ -25,14 +25,15 @@ OrganicUI.devTools.set('Translate', (dev) => {
     dev.forceUpdate();
 });
 OrganicUI.devTools.set('Reset All Dev Tools', () => {
-    Array.from(document.querySelectorAll('.developer-port'))
-        .map((dv: any) => (dv as IComponentRefer<DevFriendlyPort>).componentRef)
-        .filter(dv => dv && dv.devElement && dv.forceUpdate).forEach(dv => {
+    Array.from(document.querySelectorAll('.developer-features'))
+        .map((dv: any) => (dv as IComponentRefer<IDeveloperFeatures>).componentRef)
+        .filter(dv => dv && dv.devElement).forEach(dv => {
             dv.devElement = null;
-            dv.forceUpdate();
+            const dev = dv as any;
+            dev.forceUpdate && dev.forceUpdate();
         });
 });
-OrganicUI.DevFriendlyPort.isDevelopmentEnv = true;
+OrganicUI.DeveloperBar.isDevelopmentEnv = true;
 document.addEventListener('keydown', e => {
     if (e.key == 'F1') {
         e.preventDefault();
@@ -40,10 +41,10 @@ document.addEventListener('keydown', e => {
             .forEach(element => element.classList.remove('dev-target'));
 
 
-        OrganicUI.DevFriendlyPort.developerFriendlyEnabled =
-            !OrganicUI.DevFriendlyPort.developerFriendlyEnabled;
+        OrganicUI.DeveloperBar.developerFriendlyEnabled =
+            !OrganicUI.DeveloperBar.developerFriendlyEnabled;
         const componentRefs =
-            Array.from(document.querySelectorAll('.developer-port,.developer-bar'))
+            Array.from(document.querySelectorAll('.developer-features,.developer-bar'))
                 .map((ele: any) => (ele as IComponentRefer<React.Component<any>>).componentRef)
                 .filter(ele => !!ele);
         componentRefs.forEach(item => item.forceUpdate());

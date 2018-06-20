@@ -11,7 +11,7 @@ import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 
-import { isDevelopmentMode, DevFriendlyPort } from './developer-features';
+import { isDevelopmentMode } from './developer-features';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 interface SingleViewBoxState { formData: any; validated: boolean; }
@@ -34,6 +34,7 @@ interface OrganicBoxProps<TActions, TOptions, TParams> {
 
 }
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
+    devPortId: number;
     showDevBoard(msg): any {
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
         boards.forEach(board => {
@@ -41,6 +42,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
             board.innerHTML = msg;
         });
     }
+     
     serverChanged() {
         this.showDevBoard('server files is changed, building bundle started...');
 
@@ -71,7 +73,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
 
     constructor(p) {
         super(p);
-
+        this.devPortId = Utils.accquireDevPortId();
         const stableState = localStorage.getItem('stableState')
         const counter = OrganicBox.instanceCounter++;
 

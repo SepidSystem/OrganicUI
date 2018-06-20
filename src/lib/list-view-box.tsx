@@ -6,14 +6,14 @@ import { Utils } from './utils';
 import { FilterPanel } from './filter-panel';
 import { listViews } from './shared-vars';
 import { ReactElement } from 'react';
-import { IDataListProps, DataList, IGridColumnProps, GridColumn } from './data-list';
+import { IDataListProps, DataList } from './data-list';
 
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
-import { DevFriendlyPort } from './developer-features';
+ 
 import { IDetailsListProps, Selection } from 'office-ui-fabric-react';
 import OrganicBox from './organic-box';
-import { Field } from './data';
+import { Field, IFieldProps } from './data';
 import PrintIcon from '@material-ui/icons/Print';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
@@ -114,10 +114,13 @@ interface ListViewBoxProps {
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends
-    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>{
+    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
+    implements IDeveloperFeatures {
 
-    columns: IGridColumnProps[];
+    columns: IFieldProps[];
+   
     getFilterPanel() {
+
         this.columns = this.columns || this.getColumns();
 
         return <FilterPanel dataForm={this.state.dataFormForFilterPanel}>
@@ -141,20 +144,22 @@ export class ListViewBox<T> extends
             selectionMode: p.params.multipleDataLookup ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
             onSelectionChanged: this.handleSelectionChanged
         });
-        this.state.dataFormForFilterPanel =  this.state.dataFormForFilterPanel || {};
+       this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
 
     }
-    getColumns(): IGridColumnProps[] {
+    getColumns(): IFieldProps[] {
         const dataList = React.Children.map(this.props.children, (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
         if (!dataList) return;
         const { children } = dataList.props as IDataListProps;
-        return React.Children.map(children, (child: any) => child && child.type == GridColumn && child).filter(x => !!x).map(c => c.props)
+        return React.Children.map(children, (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
 
-    }
+}
     getUrlForSingleView(id) {
         return this.props.options.routeForSingleView.replace(':id', id);
     }
-
+    getDevButton() {
+        return Utils.renderDevButton('ListView',this)
+    }
     handleEdit(row?) {
         row = row || this.state.currentRow;
         if (!row) {
@@ -172,7 +177,10 @@ export class ListViewBox<T> extends
             return this.props.actions.getId(row);
         return Utils.defaultGetId(row);
     }
+    denyHandleSelectionChanged: boolean;
     handleSelectionChanged() {
+        if (this.denyHandleSelectionChanged) return;
+
         const { onSelectionChanged } = this.props.params;
         const indices = this.selection.getSelectedIndices();
         if (!this.props.params.forDataLookup) {
@@ -183,7 +191,12 @@ export class ListViewBox<T> extends
 
         onSelectionChanged instanceof Function &&
             setTimeout(() => {
-                indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
+                this.denyHandleSelectionChanged = true;
+                try {
+                    indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
+                } finally {
+                    this.denyHandleSelectionChanged = false;
+                }
             }, 20);
 
     }
@@ -199,7 +212,8 @@ export class ListViewBox<T> extends
         super.componentDidMount();
         this.setPageTitle(i18n.get(this.props.options.pluralName));
     }
-    render() {
+
+    renderContent() {
         const { repatch } = this;
         const queryNames = [];
         const paperType = 'sdfs';
@@ -241,102 +255,101 @@ export class ListViewBox<T> extends
         });
 
         if (!root) setTimeout(() => this.repatch({}), 10);
-        if (params.forDataLookup) return <section className="list-view-data-lookup" ref="root"  > {children}</section>;
+        if (params.forDataLookup) return <section className="developer-features list-view-data-lookup" ref="root"  > {children}</section>;
 
-        return <section className="list-view " ref="root"   >
-            <DevFriendlyPort target={this} targetText="ListView" >
+        return <section className="list-view developer-features" ref="root"   >
 
-                {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
+            {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
-                <div className="title is-5">
-                    {Utils.i18nFormat('list-view-title-fmt', this.props.options.pluralName)}
+            <div className="title is-5">
+                {Utils.i18nFormat('list-view-title-fmt', this.props.options.pluralName)}
+            </div>
+            <header className="  static-height list-view-header"  >
+                {filterPanel}
+
+                <CriticalContent permissionKey="create-permission">
+                    <AdvButton color="primary" variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
+                        <i className="fa fa-plus flag" key="flag" />
+                        <div className="content" key="content">
+                            {[!!options.iconCode && <i key="iconCode" className={Utils.classNames(options.iconCode.split('-')[0], options.iconCode)} />,
+                            <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>].filter(x => !!x)}
+
+
+                        </div>
+                    </AdvButton>
+                </CriticalContent>
+                <CriticalContent permissionKey="view-permission" />
+
+                <CriticalContent permissionKey="edit-permission" />
+                <CriticalContent permissionKey="delete-permission" />
+                <CriticalContent permissionKey="copy-permission" />
+                <CriticalContent permissionKey="archive-permission" />
+                <CriticalContent permissionKey="trash-permission" />
+                <div className="buttons"  >
+                    <MaterialUI.Button   >
+                        <PrintIcon />
+                        {i18n('export')}
+                    </MaterialUI.Button>
+
                 </div>
-                <header className="  static-height list-view-header"  >
-                    {filterPanel}
+            </header>
+            <div className=" " key="cats">
+                {s.toggleButtons.showCats && <div className="column is-4">
+                    <div className="tags is-vcentered">
+                        <span className="tag ">
+                            {'  '}World{'  '}
+                            <button className="delete is-small"></button>
+                        </span>
+                    </div>
+                    <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
+                        <select className="" style={{ width: '100%' }}>
+                            {['area', 'earned', 'payment', ''].map(s => <option className="">{s}</option>)}
 
-                    <CriticalContent permissionKey="create-permission">
-                        <AdvButton color="primary" variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
-                            <i className="fa fa-plus flag" key="flag" />
-                            <div className="content" key="content">
-                                {[!!options.iconCode && <i key="iconCode" className={Utils.classNames(options.iconCode.split('-')[0], options.iconCode)} />,
-                                <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>].filter(x => !!x)}
+                        </select>
 
+                    </div>{' '}
+                    <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
+                        <select className="" style={{ width: '100%' }}>
+                            {['SUM', 'MAX', 'MIN', 'AVG'].map(s => <option className="">{s}</option>)}
 
-                            </div>
-                        </AdvButton>
-                    </CriticalContent>
-                    <CriticalContent permissionKey="view-permission" />
-
-                    <CriticalContent permissionKey="edit-permission" />
-                    <CriticalContent permissionKey="delete-permission" />
-                    <CriticalContent permissionKey="copy-permission" />
-                    <CriticalContent permissionKey="archive-permission" />
-                    <CriticalContent permissionKey="trash-permission" />
-                    <div className="buttons"  >
-                        <MaterialUI.Button   >
-                            <PrintIcon />
-                            {i18n('export')}
-                        </MaterialUI.Button>
+                        </select>
 
                     </div>
-                </header>
-                <div className=" " key="cats">
-                    {s.toggleButtons.showCats && <div className="column is-4">
-                        <div className="tags is-vcentered">
-                            <span className="tag ">
-                                {'  '}World{'  '}
-                                <button className="delete is-small"></button>
-                            </span>
-                        </div>
-                        <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
-                            <select className="" style={{ width: '100%' }}>
-                                {['area', 'earned', 'payment', ''].map(s => <option className="">{s}</option>)}
 
-                            </select>
-
-                        </div>{' '}
-                        <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
-                            <select className="" style={{ width: '100%' }}>
-                                {['SUM', 'MAX', 'MIN', 'AVG'].map(s => <option className="">{s}</option>)}
-
-                            </select>
-
-                        </div>
-
-                    </div>}
-                    <br />
-                    <MaterialUI.Paper className="  main-content column  "   >
-
-                        <header>
-                            <MaterialUI.Button  >
-                                <EditIcon />
-                                {i18n('edit')}
-                            </MaterialUI.Button>
-                            <MaterialUI.Button   >
-                                <DeleteIcon />
-                                {i18n('delete-items')}
-                            </MaterialUI.Button>
-                        </header>
-                        {!!this.refs.root && children}
-
-                    </MaterialUI.Paper>
-                </div>
-
+                </div>}
                 <br />
-                {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={() => this.repatch({ deleteDialogIsOpen: false })}>
-                    <FabricUI.DialogFooter>
-                        sdf
+                <MaterialUI.Paper className="  main-content column  "   >
+
+                    <header>
+                        <MaterialUI.Button  >
+                            <EditIcon />
+                            {i18n('edit')}
+                        </MaterialUI.Button>
+                        <MaterialUI.Button   >
+                            <DeleteIcon />
+                            {i18n('delete-items')}
+                        </MaterialUI.Button>
+                    </header>
+                    {!!this.refs.root && children}
+
+                </MaterialUI.Paper>
+            </div>
+
+            <br />
+            {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={() => this.repatch({ deleteDialogIsOpen: false })}>
+                <FabricUI.DialogFooter>
+                    sdf
                     </FabricUI.DialogFooter>
-                </FabricUI.Dialog>}
-                <footer style={{ display: 'none', position: 'fixed', bottom: '40px', right: '340px' }}>
-                    <MaterialUI.Button variant="fab" color="secondary" >
-                        <AddIcon />
-                    </MaterialUI.Button>{' '}
-                    <MaterialUI.Button variant="fab" color="secondary" >
-                        <SearchIcon />
-                    </MaterialUI.Button>
-                </footer>
-            </DevFriendlyPort>
+            </FabricUI.Dialog>}
+            <footer style={{ display: 'none', position: 'fixed', bottom: '40px', right: '340px' }}>
+                <MaterialUI.Button variant="fab" color="secondary" >
+                    <AddIcon />
+                </MaterialUI.Button>{' '}
+                <MaterialUI.Button variant="fab" color="secondary" >
+                    <SearchIcon />
+                </MaterialUI.Button>
+            </footer>
+
         </section >;
     }
 

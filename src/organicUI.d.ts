@@ -121,11 +121,40 @@ declare global {
   export interface IAppModule {
     getIcon?: () => React.ReactNode;
     getText?: () => React.ReactNode;
-    link?:Function | string;
+    link?: Function | string;
   }
   export interface ITreeListNode {
     text, key, parentKey, isLeaf?, type;
     expaneded?: boolean
   }
+  export interface IRegistry<T> {
+    data: any;
+    secondaryValues: any;
+    notFounded: any;
+    (key: string): T;
+    (key: string, value: T): void;
+    register(delta: { [key: string]: T }): void;
+    set(key: string, value: T, extraValue?);
+    get(key: string): T;
+    customTester(v: CustomTesterForRegistry, value: T);
+  }
+  export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
+  export interface IDeveloperFeatures {
+    devElement: any;
+    devPortId: any;
+    forceUpdate(): void;
+    getDevButton(): JSX.Element;
+  }
+  export interface IFieldReaderWriter {
 
+    onFieldWrite?, onFieldRead?: Function;
+    accessor?: string;
+  }
+  export interface IDataFormProps<T=any> extends IFieldReaderWriter {
+    validate?: boolean;
+    customValidation?: CustomValidationResult;
+    data?: T;
+    className?: string;
+  }
+  export type TMethods = Function[] | { [key: string]: Function }
 }

@@ -3,7 +3,7 @@ const ExtractText = require('extract-text-webpack-plugin');
 const babelOpts = require('./babel');
 const styles = require('./styles');
 const setup = require('./setup');
-const package=require('../package.json'); 
+const package = require('../package.json');
 const dist = join(__dirname, '..', 'assets', 'bundle');
 const exclude = /(node_modules|bower_components)/;
 module.exports = env => {
@@ -17,27 +17,40 @@ module.exports = env => {
 	}
 
 	return {
+		optimization: {
+			splitChunks: {
+				cacheGroups: {
+					commons: {
+						test: /[\\/]node_modules[\\/]/,
+						name: "vendors",
+						chunks: "all"
+					}
+				}
+
+			}
+		},
 		watch: !env,
 		entry: {
-			vendors: ['./src/imported-vendors',
-				'react', 'react-dom', 'react-data-grid', 'react-table','react-json-inspector'
-				, 'change-case-object',
-			],
+			vendors: './src/imported-vendors',
 			organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
-			devtools:['./src/dev-tools.tsx'],
-			domain: './src/domain/domain.tsx','domain-FA_IR': './src/domain/domain-FA_IR.tsx',
+			devtools: ['./src/dev-tools.tsx'],
+			domain: './src/domain/domain.tsx', 'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 		},
 		output: {
 			path: dist,
 			filename: '[name].js',
 			publicPath: '/'
+		}, stats: {
+			colors: true,
+			modules: true,
+			reasons: true,
+			errorDetails: true
 		},
 		resolve: {
 			extensions: ['.ts', '.js', '.json', '.tsx', '.jsx']
-
 		},
 		module: {
-			rules: [/*{
+			rules: [{
 				test: /\.(scss|sass)$/,
 				use: [
 					'css-loader',
@@ -45,7 +58,7 @@ module.exports = env => {
 						loader: 'fast-sass-loader'
 					}
 				]
-			}, */{
+			}, {
 				test: /\.jsx?$/,
 				exclude,
 				loader: {
