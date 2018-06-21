@@ -1,4 +1,5 @@
 import { IStateListener, StateListener } from "./state-listener";
+import ErrorIcon from '@material-ui/icons/Warning';
 import { Component } from 'react';
 export class BaseComponent<P, S> extends Component<P, S>{
     devElement: any;
@@ -86,6 +87,21 @@ export class BaseComponent<P, S> extends Component<P, S>{
             </div>
         }
         return this.renderContent();
+    }
+    renderErrorMode(title,subtitle){
+        return (<section className="error-mode hero is-danger is-centered" dir="ltr" ref="root">
+        <div className="hero-body"  dir="ltr">
+          <div className="container"  dir="ltr">
+            <p className="title"  dir="ltr">
+            {<ErrorIcon />}
+             {title}
+            </p>
+            <p className="subtitle"  dir="ltr">
+              {subtitle}               
+            </p>
+          </div>
+        </div>
+      </section>);
     }
 }
 export function CriticalContent(p: { permissionKey: string, children?}) {

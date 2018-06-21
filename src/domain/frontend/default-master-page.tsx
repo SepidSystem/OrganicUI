@@ -11,7 +11,7 @@ const generateClassName = createGenerateClassName({
     productionPrefix: '',
 });
 const { Fabric } = OrganicUI.FabricUI;
-const { menuBar, templates, Component, icon, route, Utils } = OrganicUI;
+const { menuBar,   Component, icon,   Utils } = OrganicUI;
 
 const { DeveloperBar } = OrganicUI;
 const { showIcon, classNames } = Utils;
@@ -30,7 +30,7 @@ function GeneralHeader() {
     </div>;
 }
 const root = document.querySelector('#root');
-class BaseView extends Component {
+export class DefaultMasterPage extends Component {
     adjustedHeight: any;
     adjustSide() {
         const { mainContainer } = this.refs;
@@ -156,4 +156,4 @@ class BaseView extends Component {
         </Fabric>))
     }
 }
-templates.set('default', BaseView as any);
+ 

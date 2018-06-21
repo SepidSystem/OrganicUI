@@ -22,6 +22,7 @@
     "@types/react-data-grid": "^2.0.10",
     "@types/react-table": "^6.7.9",
     "animate.scss": "0.0.6",
+    "axios": "^0.18.0",
     "bloomer": "^0.6.3",
     "body-parser": "^1.18.2",
     "bulma": "^0.6.1",

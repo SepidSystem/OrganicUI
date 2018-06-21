@@ -1,13 +1,16 @@
 import { route, routeTable } from "./router";
-import { IAppModel } from './models';
+
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { i18n } from "./shared-vars";
 
 import { Utils } from "./utils";
+import { OrganicBoxProps } from "./organic-box";
+import { IOptionsForViewBox } from "./view-box";
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {
     appModel?: IAppModel
+
 } = {};
 export function mountViewToRoot(selector?, url?) {
     selector = selector || '#root';
@@ -15,14 +18,13 @@ export function mountViewToRoot(selector?, url?) {
     const params = {};
 
     const viewType: typeof React.Component = route(url || location.pathname, params) || OrganicUI.NotFoundView as any;
-    let templ: typeof React.Component & { Template: string } = viewType as any;
-    let vdom: any;
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
-
-    templ = OrganicUI.templates(templ.Template || 'default') as any;
-    const children = React.createElement(viewType, params, )
-    vdom = React.createElement(templ, {}, children);
+    const view = React.createElement(viewType, params, );
+    
+    const masterPage = (viewType['masterPage']) ||appData.appModel.defaultMasterPage();
+    console.log({masterPage,viewType});
+    const vdom = React.createElement(masterPage, {}, view);
     if (root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
     ReactDOM.render(vdom, root);
@@ -46,6 +48,7 @@ export function renderViewToComplete(url, selector: any = '#root2') {
 }
 export function startApp(appModel: IAppModel) {
     initializeIcons('/assets/fonts/');
+    console.log({appModel});
     Object.assign(appData, { appModel });
 
     mountViewToRoot();

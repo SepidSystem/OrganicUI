@@ -90,7 +90,6 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         return value;
     }
     handleSetData(e: React.ChangeEvent<HTMLInputElement>) {
-        debugger;
         const value: any = [e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
         const p = this.props;
         if (p.onSet instanceof Function) return p.onSet(value);

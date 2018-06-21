@@ -108,6 +108,12 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
     }
     static Templates = registryFactory<Function>()
     devPortId: number;
+    reload() {
+        this.items = null;
+        const s = this.state;
+        const listData = this.loadDataIfNeeded(+s.startFrom) as any;
+        this.repatch({ listData });
+    }
     constructor(p: IDataListProps) {
         super(p);
         this.devPortId = Utils.accquireDevPortId();
@@ -252,4 +258,3 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
     }
 
 }
- 

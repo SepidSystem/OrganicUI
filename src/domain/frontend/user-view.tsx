@@ -5,7 +5,7 @@ import { roleListView } from './role-view'
 const { DataLookup } = OrganicUI;
 namespace LicApp.Frontend.User {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
+    const { routeTable, DataList, DataForm, DataPanel, DataListPanel } = OrganicUI;
     const { DetailsList, SelectionMode, TextField } = FabricUI;
 
     const { i18n } = OrganicUI;
@@ -16,12 +16,13 @@ namespace LicApp.Frontend.User {
         handleCreate: dto => api.createUser(dto),
         handleRead: id => api.findUserById(id), handleLoadData: params => api.readUserList(params),
         handleUpdate: (id, dto) => api.updateUserById(id, dto),
-        handleDelete: id => api.deleteUserById(id)
+        handleDelete: id => api.deleteUserById(id),
+        getText: dto => [dto.id,dto.userTitle].join(' `')
     };
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/user/:id',
         routeForListView: '/view/admin/users',
-        pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle',
+        pluralName: 'users', singularName: 'user', iconCode: 'fa-user-circle'
     };
 
     const singleView: StatelessSingleView = params =>

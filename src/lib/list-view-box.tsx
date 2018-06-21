@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 import { BaseComponent, CriticalContent } from './base-component';
-import { templates, icon, i18n } from './shared-vars';
+import {   icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { FilterPanel } from './filter-panel';
 import { listViews } from './shared-vars';
@@ -10,7 +10,7 @@ import { IDataListProps, DataList } from './data-list';
 
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
- 
+
 import { IDetailsListProps, Selection } from 'office-ui-fabric-react';
 import OrganicBox from './organic-box';
 import { Field, IFieldProps } from './data';
@@ -20,6 +20,7 @@ import AddIcon from '@material-ui/icons/Add';
 import SearchIcon from '@material-ui/icons/Search';
 
 import DeleteIcon from '@material-ui/icons/Delete';
+import { AppUtils } from './app-utils';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -118,7 +119,7 @@ export class ListViewBox<T> extends
     implements IDeveloperFeatures {
 
     columns: IFieldProps[];
-   
+
     getFilterPanel() {
 
         this.columns = this.columns || this.getColumns();
@@ -136,40 +137,58 @@ export class ListViewBox<T> extends
         dataList: DataList;
         root: HTMLElement;
     }
+    getMultiple() {
+        const { params } = this.props;
+        return params.multipleDataLookup || !params.forDataLookup;
+    }
     constructor(p) {
         super(p);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
         this.handleLoadData = this.handleLoadData.bind(this);
         this.selection = new FabricUI.Selection({
-            selectionMode: p.params.multipleDataLookup ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
+            selectionMode: this.getMultiple() ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
             onSelectionChanged: this.handleSelectionChanged
         });
-       this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
-
+        this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
+        this.handleEdit = this.handleEdit.bind(this);
+        this.handleRemove = this.handleRemove.bind(this);
     }
     getColumns(): IFieldProps[] {
-        const dataList = React.Children.map(this.props.children, (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
+        const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
         if (!dataList) return;
         const { children } = dataList.props as IDataListProps;
-        return React.Children.map(children, (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
+        return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
 
-}
+    }
     getUrlForSingleView(id) {
         return this.props.options.routeForSingleView.replace(':id', id);
     }
     getDevButton() {
-        return Utils.renderDevButton('ListView',this)
+        return Utils.renderDevButton('ListView', this)
     }
-    handleEdit(row?) {
-        row = row || this.state.currentRow;
-        if (!row) {
-            console.warn('currentRow is null');
-            return;
-        }
+    handleEdit() {
+        const indices = this.selection.getSelectedIndices();
+        const index = indices[0];
+        const row = (this.selection.getItems()[index]);
         const id = this.getId(row);
         const url = this.getUrlForSingleView(id);
-
         return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
+    }
+    async handleRemove() {
+        const indices = this.selection.getSelectedIndices();
+        const allItems = this.selection.getItems() as T[];
+        const items = indices.map(index => allItems[index]).filter(x => !!x) as T[];
+        const { actions } = this.props;
+
+        const confrimResult = await AppUtils.confrim(<div>
+            {actions.getText instanceof Function && <ul>
+                {items.map(item => <li>{actions.getText(item)}</li>)}
+            </ul>}
+        </div>, { title: "delete-items" });
+        if (!confrimResult) return;
+        items.map(dto => this.getId(dto)).forEach(id => actions.handleDelete(id));
+
+        this.refs.dataList.reload();
     }
     getId(row) {
         const s = this.state;
@@ -183,12 +202,7 @@ export class ListViewBox<T> extends
 
         const { onSelectionChanged } = this.props.params;
         const indices = this.selection.getSelectedIndices();
-        if (!this.props.params.forDataLookup) {
-            const index = indices[0];
-            this.handleEdit(this.selection.getItems()[index]);
-        }
         onSelectionChanged instanceof Function && onSelectionChanged(indices, this.selection);
-
         onSelectionChanged instanceof Function &&
             setTimeout(() => {
                 this.denyHandleSelectionChanged = true;
@@ -198,7 +212,7 @@ export class ListViewBox<T> extends
                     this.denyHandleSelectionChanged = false;
                 }
             }, 20);
-
+        //this.repatch({});
     }
     handleLoadData(params) {
         if (this.isRootRender()) {
@@ -212,8 +226,11 @@ export class ListViewBox<T> extends
         super.componentDidMount();
         this.setPageTitle(i18n.get(this.props.options.pluralName));
     }
-
+  
     renderContent() {
+        if( (React.Children.map(this.props.children || [],child=>child)  || [])
+            .filter((child:any)=>!!child && child.type==DataList && !child.props.loader)
+            .length==0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`,'add data-list as children');
         const { repatch } = this;
         const queryNames = [];
         const paperType = 'sdfs';
@@ -229,11 +246,13 @@ export class ListViewBox<T> extends
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
         const { root } = this.refs;
-        const filterPanel = (React.Children.map(this.props.children, (child: any) => child.type == FilterPanel && child).filter(x => !!x)[0]) || this.getFilterPanel();
-
-        const children = !!root && React.Children.map(this.props.children, (child: any) => {
+        const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => child.type == FilterPanel && child).filter(x => !!x)[0]) || this.getFilterPanel();
+        const multiple = this.getMultiple();
+        let hasDataList = false;
+        const children = !!root && React.Children.map(this.props.children || [], (child: any) => {
             if (child.type == FilterPanel) return null;
             if (child.type == DataList && !child.props.loader) {
+                hasDataList = true;
                 return React.cloneElement(child, Object.assign(
                     {}, child.props, {
                         ref: "dataList",
@@ -245,7 +264,7 @@ export class ListViewBox<T> extends
                     } as Partial<IDetailsListProps>,
 
                     { corner } as Partial<IDataListProps>,
-                    params.multipleDataLookup
+                    multiple
                         ? {
                             selectionMode: 2, checkboxVisibility: 1
                         } as Partial<IDetailsListProps>
@@ -253,7 +272,7 @@ export class ListViewBox<T> extends
             }
             return child;
         });
-
+        
         if (!root) setTimeout(() => this.repatch({}), 10);
         if (params.forDataLookup) return <section className="developer-features list-view-data-lookup" ref="root"  > {children}</section>;
 
@@ -321,13 +340,14 @@ export class ListViewBox<T> extends
                 <MaterialUI.Paper className="  main-content column  "   >
 
                     <header>
-                        <MaterialUI.Button  >
+                        <MaterialUI.Button onClick={this.handleEdit} >
                             <EditIcon />
                             {i18n('edit')}
                         </MaterialUI.Button>
-                        <MaterialUI.Button   >
+                        <MaterialUI.Button onClick={this.handleRemove}   >
                             <DeleteIcon />
                             {i18n('delete-items')}
+
                         </MaterialUI.Button>
                     </header>
                     {!!this.refs.root && children}

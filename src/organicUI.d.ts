@@ -8,6 +8,7 @@ import * as  MaterialUiMod from '@material-ui/core';
 import * as  ReactMod from 'react';
 import * as  ReactDomMod from 'react-dom';
 import * as LRU_mod from 'lru-cache';
+import { AxiosRequestConfig } from 'axios';
 declare global {
 
   export type CustomValidationResult = (data: any) => IDataFormAccessorMsg[];
@@ -157,4 +158,20 @@ declare global {
     className?: string;
   }
   export type TMethods = Function[] | { [key: string]: Function }
+  export interface IMenu {
+    id: number;
+    title: string;
+    routerLink: string;
+    href: string;
+    icon: string;
+    target: string;
+    hasSubMenu: boolean;
+    parentId: number;
+  }
+
+  export type refetchFactoryOptions = (() => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>
+  export interface IAppModel {
+    getMenuItems(): { menu: IMenu }[];
+    defaultMasterPage: () => any;
+  }
 }

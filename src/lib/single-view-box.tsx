@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 
-import { templates, icon, i18n } from './shared-vars';
+import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { Field } from './data';
 import { listViews } from './shared-vars';
@@ -11,9 +11,7 @@ import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
-import { route } from './router';
-const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
-
+ 
 
 interface SingleViewBoxState { formData: any; validated: boolean; }
 

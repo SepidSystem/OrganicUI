@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 import { BaseComponent } from './base-component';
-import { templates, icon, i18n } from './shared-vars';
+import {  icon, i18n } from './shared-vars';
 import { Utils } from './utils';
  import { Field } from './data';
 import { listViews } from './shared-vars';

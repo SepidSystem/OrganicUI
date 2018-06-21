@@ -1,9 +1,10 @@
 /// <reference path="../organicUI.d.ts" />
 
-
+import './frontend/sepid-rest-api';
 import './frontend/boot';
 import './frontend/editors';
-import './frontend/default-layout';
+ 
+import './frontend/login-view';
 import './frontend/dashboard-view';
 import './frontend/user-group-view';
 import './frontend/department-view';

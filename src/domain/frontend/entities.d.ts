@@ -26,7 +26,8 @@ declare interface DepartmentDTO{
     departmentName:string;
 }
 declare interface UserDTO{
-
+    id:number;
+    userTitle:string;
 }
 declare interface UserGroupDTO{
 

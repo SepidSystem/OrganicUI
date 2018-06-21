@@ -1,4 +1,4 @@
-export class Menu {
+export class Menu implements IMenu {
     constructor(public id: number,
         public title: string,
         public routerLink: string,
@@ -7,8 +7,4 @@ export class Menu {
         public target: string,
         public hasSubMenu: boolean,
         public parentId: number) { }
-} 
-export interface IAppModel{
-    getMenuItems():{menu:Menu}[];
-
 }

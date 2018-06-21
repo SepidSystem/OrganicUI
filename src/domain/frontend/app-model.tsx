@@ -1,5 +1,7 @@
+import { DefaultMasterPage } from "./default-master-page";
+
 const { Menu } = OrganicUI;
-export default class AppModel {
+export default class AppModel implements IAppModel {
     getMenuItems() {
         return [
             {
@@ -94,5 +96,8 @@ export default class AppModel {
             }
         ];
 
+    }
+    defaultMasterPage() {
+        return DefaultMasterPage;
     }
 }

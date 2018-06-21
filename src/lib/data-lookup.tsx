@@ -1,5 +1,5 @@
 import { BaseComponent } from './base-component';
-import { templates, icon, i18n } from './shared-vars';
+import {  icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 const { classNames } = Utils;
 

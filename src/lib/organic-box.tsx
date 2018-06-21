@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 import { BaseComponent } from './base-component';
-import { templates, icon, i18n } from './shared-vars';
+import {   icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
 import { Field } from './data';
@@ -26,7 +26,7 @@ function loadScript(url) {
     scriptTag.onload = () => 0;
     document.head.appendChild(scriptTag);
 }
-interface OrganicBoxProps<TActions, TOptions, TParams> {
+export interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
     options: TOptions;
     params: TParams;
@@ -42,7 +42,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
             board.innerHTML = msg;
         });
     }
-     
+
     serverChanged() {
         this.showDevBoard('server files is changed, building bundle started...');
 

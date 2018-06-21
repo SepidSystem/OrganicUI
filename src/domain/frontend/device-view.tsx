@@ -7,8 +7,6 @@ const { DataLookup, FilterPanel } = OrganicUI;
 import { departmentListView } from "./department-view";
 
 
-
-
 const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
 const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
 const { TextField } = MaterialUI;
@@ -21,7 +19,8 @@ const actions: IActionsForCRUD<DeviceDTO> = {
     handleCreate: dto => api.createDevice(dto),
     handleRead: id => api.findDeviceById(id), handleLoadData: params => api.readDeviceList(params),
     handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
-    handleDelete: id => api.deleteDeviceById(id)
+    handleDelete: id => api.deleteDeviceById(id),
+    getText:dto=>dto.deviceName
 };
 const options: IOptionsForCRUD =
     {

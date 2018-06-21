@@ -7,9 +7,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import { ReactElement, cloneElement } from "react";
+import { i18n } from "./shared-vars";
 
 interface IDialogProps {
-    title?, content: any;
+    title?, content?: any;
     actions?: { [key: string]: Function }
 }
 export class AppUtils extends BaseComponent<any, any>{
@@ -18,6 +19,21 @@ export class AppUtils extends BaseComponent<any, any>{
     static showDialog(content, opts?: IDialogProps) {
         AppUtils.dialogInstance = content && Object.assign({ content }, opts || {});
         AppUtils.Instance.forceUpdate();
+    }
+    static confrim(content, opts?: IDialogProps) {
+        opts = opts || {} as any;
+        return new Promise((resolve, reject) => {
+            opts.actions = {
+                yes() {
+                    resolve(true);
+                    AppUtils.showDialog(null);
+                }, no() {
+                    reject();
+                    AppUtils.showDialog(null);
+                }
+            }
+            AppUtils.showDialog(content, opts);
+        }); 1
     }
     static showDataDialog<T>(content: ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T> {
         return new Promise((resolve, reject) => {
@@ -46,7 +62,7 @@ export class AppUtils extends BaseComponent<any, any>{
         const { dialogInstance } = AppUtils;
         return <section className="app-utils" >
             {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
-                {dialogInstance.title && <DialogTitle> {dialogInstance.title}</DialogTitle>}
+                {dialogInstance.title && <DialogTitle> {i18n(dialogInstance.title)}</DialogTitle>}
                 <DialogContent>
                     {dialogInstance.content}
                 </DialogContent>

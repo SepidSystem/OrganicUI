@@ -16,7 +16,7 @@
         flex-wrap: wrap;
     }
     .field-accessor {
-        min-width: 50%;
+        min-width: 49%;
         float: right;
     }
 }
@@ -34,4 +34,7 @@
 .mid-fixed-width {
     max-width: 200px;
     min-width: 200px;
+}
+.error-mode *{
+    text-align:left;
 }
