@@ -1,7 +1,8 @@
-import { DefaultMasterPage } from "./default-master-page";
+import { DefaultMasterPage } from "./master-page";
 
-const { Menu } = OrganicUI;
+const { Menu, i18n } = OrganicUI;
 export default class AppModel implements IAppModel {
+    
     getMenuItems() {
         return [
             {

@@ -14,9 +14,9 @@ namespace LicApp.Frontend.Customer {
     const api = OrganicUI.remoteApi as CustomerAPI;
     const actions: IActionsForCRUD<CustomerDTO> = {
         handleCreate: dto =>   api.createCustomer(dto),         
-        handleRead: id => api.findCustomerById(id), handleLoadData: params => api.readCustomerList(params),
+        handleRead: id => api.findCustomerById(id), handleReadList: params => api.readCustomerList(params),
         handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
-        handleDelete: id => api.deleteCustomerById(id)
+        handleDeleteList: id => api.deleteCustomerById(id)
     }; 
     const dashboardView = (params) =>
         (<DashboardBox  actions={null} options={null} params={params} >

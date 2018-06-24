@@ -18,7 +18,7 @@ export type ErrorCodeForFieldValidation = string;
 export interface IFieldProps {
     accessor?: string;
     onGet?, onSet?: Function;
-    customValidation?: (v: any) => ErrorCodeForFieldValidation;
+    onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
     label?: any;
     icon?: any;
     required?: boolean;
@@ -134,7 +134,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
                 onChange: this.handleSetData,
-                   onChanged: this.handleSetData,
+                onChanged: this.handleSetData,
                 onFocus: (e: React.KeyboardEvent<any>) => {
                     this.refs.container.classList.add('focused');
 
@@ -166,7 +166,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             this.clientWidthNoErrorMode = root.clientWidth;
         }
 
-        if(p.accessor=="DepartmentName") debugger;
+        if (p.accessor == "DepartmentName") debugger;
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         //}
         return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
@@ -237,7 +237,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
                 filter(invalidItem => invalidItem.accessor == p.accessor)
                 .map(invalidItem => invalidItem.message)[0])
             || (p.required && !val && 'error-required')
-            || (p.customValidation instanceof Function) && p.customValidation(val);
+            || (p.onErrorCode instanceof Function) && p.onErrorCode(val);
         return message && Utils.i18nFormat(message, changeCase.paramCase(p.accessor));
 
     }
@@ -249,8 +249,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         this.forceUpdate();
         return !!message && { accessor: p.accessor, message };
     }
+    getTextReader() {
+        const { children } = this.props;
+        const type = children && children.type;
+        const textReader = (type && type.textReader) || defaultTextReader;
+        return val => textReader(this, children && children.props, val);
+    }
 }
-
+const defaultTextReader = (fld, props, s) => s;
 
 //--------------------------------------------------------------------------------
 interface ObjectFieldState {

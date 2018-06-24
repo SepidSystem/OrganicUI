@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 import { BaseComponent, CriticalContent } from './base-component';
-import {   icon, i18n } from './shared-vars';
+import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { FilterPanel } from './filter-panel';
 import { listViews } from './shared-vars';
@@ -144,7 +144,7 @@ export class ListViewBox<T> extends
     constructor(p) {
         super(p);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
-        this.handleLoadData = this.handleLoadData.bind(this);
+        this.handleReadList = this.handleReadList.bind(this);
         this.selection = new FabricUI.Selection({
             selectionMode: this.getMultiple() ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
             onSelectionChanged: this.handleSelectionChanged
@@ -186,7 +186,7 @@ export class ListViewBox<T> extends
             </ul>}
         </div>, { title: "delete-items" });
         if (!confrimResult) return;
-        items.map(dto => this.getId(dto)).forEach(id => actions.handleDelete(id));
+        items.map(dto => this.getId(dto)).forEach(id => actions.handleDeleteList(id));
 
         this.refs.dataList.reload();
     }
@@ -214,9 +214,9 @@ export class ListViewBox<T> extends
             }, 20);
         //this.repatch({});
     }
-    handleLoadData(params) {
+    handleReadList(params) {
         if (this.isRootRender()) {
-            return this.props.actions.handleLoadData(params)
+            return this.props.actions.handleReadList(params)
         }
         else {
             return Promise.resolve({ rows: [], totalRows: 0 });
@@ -226,15 +226,13 @@ export class ListViewBox<T> extends
         super.componentDidMount();
         this.setPageTitle(i18n.get(this.props.options.pluralName));
     }
-  
+
     renderContent() {
-        if( (React.Children.map(this.props.children || [],child=>child)  || [])
-            .filter((child:any)=>!!child && child.type==DataList && !child.props.loader)
-            .length==0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`,'add data-list as children');
+        if ((React.Children.map(this.props.children || [], child => child) || [])
+            .filter((child: any) => !!child && child.type == DataList && !child.props.loader)
+            .length == 0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
         const { repatch } = this;
         const queryNames = [];
-        const paperType = 'sdfs';
-        const crudView = (this as any) as IViewsForCRUD<any>;
         const onRowClick = (rowIdx, currentRow) => {
 
             //     currentRow && TemplateForCRUD.Instance && TemplateForCRUD.Instance.repatch({ currentRow })
@@ -258,7 +256,7 @@ export class ListViewBox<T> extends
                         ref: "dataList",
                         height: params.height || 500,
 
-                        loader: this.handleLoadData,
+                        loader: this.handleReadList,
                         paginationMode: child.props.paginationMode || 'paged',
                         selection: this.selection
                     } as Partial<IDetailsListProps>,
@@ -272,7 +270,7 @@ export class ListViewBox<T> extends
             }
             return child;
         });
-        
+
         if (!root) setTimeout(() => this.repatch({}), 10);
         if (params.forDataLookup) return <section className="developer-features list-view-data-lookup" ref="root"  > {children}</section>;
 

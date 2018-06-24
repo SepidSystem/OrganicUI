@@ -81,27 +81,30 @@ export class BaseComponent<P, S> extends Component<P, S>{
 
     }
     render() {
+        if(this.refs.root && !this.refs.root['componentRef'])
+
+        setTimeout(() => this.componentDidMount(), 100);
         if (this.devElement) {
-            return <div ref="root" className="developer-features">
+             return <div ref="root" className="developer-features">
                 {this.devElement}
             </div>
         }
         return this.renderContent();
     }
-    renderErrorMode(title,subtitle){
+    renderErrorMode(title, subtitle) {
         return (<section className="error-mode hero is-danger is-centered" dir="ltr" ref="root">
-        <div className="hero-body"  dir="ltr">
-          <div className="container"  dir="ltr">
-            <p className="title"  dir="ltr">
-            {<ErrorIcon />}
-             {title}
-            </p>
-            <p className="subtitle"  dir="ltr">
-              {subtitle}               
-            </p>
-          </div>
-        </div>
-      </section>);
+            <div className="hero-body" dir="ltr">
+                <div className="container" dir="ltr">
+                    <p className="title" dir="ltr">
+                        {<ErrorIcon />}
+                        {title}
+                    </p>
+                    <p className="subtitle" dir="ltr">
+                        {subtitle}
+                    </p>
+                </div>
+            </div>
+        </section>);
     }
 }
 export function CriticalContent(p: { permissionKey: string, children?}) {

@@ -136,11 +136,11 @@ export class SingleViewBox<T> extends OrganicBox<
             <MaterialUI.Paper className="main-content">
                 <DataForm ref="dataForm" onFieldRead={accessor => s.formData[accessor]}
                     onFieldWrite={(accessor, value) =>{
-                        debugger;
+           
                         s.formData[accessor] = value
                     }}
                     validate={s.validated}
-                    customValidation={p.actions.customValidation}
+                    onErrorCode={p.actions.onErrorCode}
                     data={s.formData}>
 
                     {this.props.children}

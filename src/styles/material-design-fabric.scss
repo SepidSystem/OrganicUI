@@ -184,11 +184,18 @@
         width:40px;
         max-width:40px;
     }
-    .label{
-
-    }
+    
 }
 .MuiSelect-select~svg{
         right:auto;
         left:0;
+}
+.MuiSelect-selectMenu{
+    text-align: right !important;
+    padding-right:0 !important;
+    padding-left:32px;
+}
+.MuiMenu-paper{
+    direction: rtl !important;
+    text-align: right !important;
 }

@@ -6,7 +6,7 @@ function delayedValue<T>(v: T, timeout): Promise<T> {
 }
  
 export function refetchFactory(options?:refetchFactoryOptions ) {
-    function refetch(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, body?) {
+    function refetch<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, body?): Promise<T> {
         if (refetch['bodyMapper'])
             body = refetch['bodyMapper']({ method, url, body });
 

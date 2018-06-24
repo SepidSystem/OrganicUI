@@ -4,7 +4,7 @@ import { Spinner } from "./spinner";
 const noThisMessage = 'cannot use this(target) in Templated Function , see MVT section in document '
 
 // @Template
-export function Template() {
+export function SubRender() {
     return function (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
         const method = descriptor.value;
 
@@ -19,7 +19,7 @@ export function Template() {
             if (args.some(arg => arg instanceof Promise)) return <Spinner /> ;
             if (args.some(arg => (arg === undefined) || (arg === null))) return null;
             return method.apply(this, arguments);
-        }.bind(neverThis);
+        }.bind(target);
         Object.assign(descriptor.value, { mode: 'template' });
     }
 }

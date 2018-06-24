@@ -15,9 +15,9 @@ namespace EmployeeView {
     const api = OrganicUI.remoteApi as EmployeeAPI;
     const actions: IActionsForCRUD<EmployeeDTO> = {
         handleCreate: dto => api.createEmployee(dto),
-        handleRead: id => api.findEmployeeById(id), handleLoadData: params => api.readEmployeeList(params),
+        handleRead: id => api.findEmployeeById(id), handleReadList: params => api.readEmployeeList(params),
         handleUpdate: (id, dto) => api.updateEmployeeById(id, dto),
-        handleDelete: id => api.deleteEmployeeById(id)
+        handleDeleteList: id => api.deleteEmployeeById(id)
     };
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/employee/:id',

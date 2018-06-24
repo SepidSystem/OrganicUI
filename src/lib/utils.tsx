@@ -149,7 +149,7 @@ export const Utils = {
 								key: key.split('|')[1],
 								name: key.split('|')[1],
 								onClick: () => {
-									debugger; onExecute(target, target)
+								  onExecute(target, target)
 								}
 							})))
 			}} />;

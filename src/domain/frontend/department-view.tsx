@@ -13,9 +13,9 @@ const { i18n } = OrganicUI;
 const api = OrganicUI.remoteApi as DepartmentAPI;
 const actions: IActionsForCRUD<DepartmentDTO> = {
     handleCreate: dto => api.createDepartment(dto),
-    handleRead: id => api.findDepartmentById(id), handleLoadData: params => api.readDepartmentList(params),
+    handleRead: id => api.findDepartmentById(id), handleReadList: params => api.readDepartmentList(params),
     handleUpdate: (id, dto) => api.updateDepartmentById(id, dto),
-    handleDelete: id => api.deleteDepartmentById(id),
+    handleDeleteList: id => api.deleteDepartmentById(id),
     getText: dto => dto.departmentName,
 };
 const options: IOptionsForCRUD = {

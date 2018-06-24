@@ -21,10 +21,9 @@ export function mountViewToRoot(selector?, url?) {
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
     const view = React.createElement(viewType, params, );
-    
-    const masterPage = (viewType['masterPage']) ||appData.appModel.defaultMasterPage();
-    console.log({masterPage,viewType});
-    const vdom = React.createElement(masterPage, {}, view);
+
+    const masterPage = (viewType['masterPage']) || appData.appModel.defaultMasterPage();
+     const vdom = React.createElement(masterPage, {}, view);
     if (root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
     ReactDOM.render(vdom, root);
@@ -48,7 +47,6 @@ export function renderViewToComplete(url, selector: any = '#root2') {
 }
 export function startApp(appModel: IAppModel) {
     initializeIcons('/assets/fonts/');
-    console.log({appModel});
     Object.assign(appData, { appModel });
 
     mountViewToRoot();

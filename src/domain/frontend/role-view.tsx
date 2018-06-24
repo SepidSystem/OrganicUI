@@ -18,9 +18,9 @@ const actions: IActionsForCRUD<RoleDTO> = {
     handleCreate: dto => api.createRole(dto),
     handleRead: id => api.findRoleById(id),
     mapFormData: dto => Object.assign(dto, { permissions: OrganicUI.scanAllPermission(routeTable) }),
-    handleLoadData: params => api.readRoleList(params),
+    handleReadList: params => api.readRoleList(params),
     handleUpdate: (id, dto) => api.updateRoleById(id, dto),
-    handleDelete: id => api.deleteRoleById(id),
+    handleDeleteList: id => api.deleteRoleById(id),
     getText: dto => dto.name
 
 };

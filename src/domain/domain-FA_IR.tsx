@@ -77,6 +77,6 @@ module LocalizeFA_IR {
 
     i18n('device-serial','سریال دستگاه') ;
     i18n('device-name',' نام دستگاه') ;
-    
+    i18n('login-fail-message',' نام کاربری یا رمز عبور غلط است');
 }
 

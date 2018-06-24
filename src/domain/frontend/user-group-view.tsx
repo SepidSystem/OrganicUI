@@ -13,9 +13,9 @@ namespace LicApp.Frontend.UserGroup {
     const api = OrganicUI.remoteApi as UserGroupAPI;
     const actions: IActionsForCRUD<UserGroupDTO> = {
         handleCreate: dto => api.createUserGroup(dto),
-        handleRead: id => api.findUserGroupById(id), handleLoadData: params => api.readUserGroupList(params),
+        handleRead: id => api.findUserGroupById(id), handleReadList: params => api.readUserGroupList(params),
         handleUpdate: (id, dto) => api.updateUserGroupById(id, dto),
-        handleDelete: id => api.deleteUserGroupById(id)
+        handleDeleteList: id => api.deleteUserGroupById(id)
     };
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/usergroup/:id',

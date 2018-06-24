@@ -28,6 +28,7 @@ OrganicUI.devTools.set('Reset All Dev Tools', () => {
     Array.from(document.querySelectorAll('.developer-features'))
         .map((dv: any) => (dv as IComponentRefer<IDeveloperFeatures>).componentRef)
         .filter(dv => dv && dv.devElement).forEach(dv => {
+            debugger;
             dv.devElement = null;
             const dev = dv as any;
             dev.forceUpdate && dev.forceUpdate();

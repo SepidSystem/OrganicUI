@@ -11,7 +11,7 @@ import * as LRU_mod from 'lru-cache';
 import { AxiosRequestConfig } from 'axios';
 declare global {
 
-  export type CustomValidationResult = (data: any) => IDataFormAccessorMsg[];
+  export type onErrorCodeResult = (data: any) => IDataFormAccessorMsg[];
   export type FuncView<S, AC> = (props: any, state: S, repatch: (delta, target?) => void, actions: AC) => React.ReactNode;
   export type FuncComponent<P, S> = (p: P, s: S, repatch: (delta, target?) => void) => React.ReactNode;
 
@@ -41,20 +41,6 @@ declare global {
   }
   export type PureView<TState, TAPI> =
     (state: TState, api?: TAPI, discover?, repatch?: (delta, target?) => void) => React.ReactNode;
-  export interface ICRUDActionsForSingleView<T> {
-    handleCreate(entity: T): ActionResult;
-    handleRead(id): Promise<T>;
-    handleUpdate(id, entity: T): ActionResult;
-    handleDelete(id): ActionResult;
-    getId?(entity: T): any;
-    customActions?:
-    {
-      queries?: { [key: string]: Function },
-      record?: { [key: string]: Function },
-      multipleRecords?: { [key: string]: Function }
-    }
-
-  }
 
   export const FabricUI: typeof FabricUiMod;
   export const MaterialUI: typeof MaterialUiMod;
@@ -71,14 +57,7 @@ declare global {
   export const ReactDataGrid: any;
   export const LRU: any;
 
-  export interface IViewsForCRUD<TDTO> extends ICRUDActionsForSingleView<TDTO> {
-    renderSingleView(formData: TDTO): React.ReactElement<any>;
-    renderListView(): React.ReactElement<any>;
-    //getDataListHeight? (): number;
-    getUrlForSingleView?(id?): string;
-    getUrlForListView?(): string;
-
-  }
+   
   export interface ICRUDAction {
     actionName: string;
     onExecute: Function;
@@ -89,12 +68,12 @@ declare global {
     handleCreate: (dto: TDto) => Promise<any>;
 
     handleUpdate: (id: any, dto: TDto) => Promise<any>;
-    handleDelete: (id: any) => Promise<any>;
+    handleDeleteList: (id: any[]) => Promise<any>;
     handleRead: (id: any) => Promise<TDto>;
-    handleLoadData: (params) => PromisedResultSet<TDto>;
+    handleReadList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
     getDefaultValues?: () => TDto;
     getUrlForSingleView?(id: string): string;
-    customValidation?: (data: any) => IDataFormAccessorMsg[];
+    onErrorCode?: (data: any) => IDataFormAccessorMsg[];
     getText?: (dto: TDto) => string;
     getId?: (dto: TDto) => any;
     getPageTitle?: (dto: TDto) => string;
@@ -136,7 +115,7 @@ declare global {
     (key: string, value: T): void;
     register(delta: { [key: string]: T }): void;
     set(key: string, value: T, extraValue?);
-    get(key: string): T;
+    get(key: string): string;
     customTester(v: CustomTesterForRegistry, value: T);
   }
   export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
@@ -153,7 +132,7 @@ declare global {
   }
   export interface IDataFormProps<T=any> extends IFieldReaderWriter {
     validate?: boolean;
-    customValidation?: CustomValidationResult;
+    onErrorCode?: onErrorCodeResult;
     data?: T;
     className?: string;
   }
@@ -168,7 +147,12 @@ declare global {
     hasSubMenu: boolean;
     parentId: number;
   }
-
+  interface IAdvancedQueryFilters {
+    FromRowIndex: number;
+    ToRowIndex: number;
+    FilterModel: any[];
+    SortModel: any[];
+  }
   export type refetchFactoryOptions = (() => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>
   export interface IAppModel {
     getMenuItems(): { menu: IMenu }[];

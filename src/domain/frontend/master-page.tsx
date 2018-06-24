@@ -1,9 +1,10 @@
 
 /// <reference path="../../organicUI.d.ts" />
-const { JssProvider, createGenerateClassName, MenuIcon, Collapsible, i18n } = OrganicUI;
+
+import { BasicController, IResponseForGetCurrentUser, AuthenticationController } from "./sepid-rest-api";
 
 
-
+const { BaseComponent, SubRender, JssProvider, createGenerateClassName, MenuIcon, Collapsible, i18n } = OrganicUI;
 
 const { AppBar, IconButton, Toolbar } = OrganicUI;
 const generateClassName = createGenerateClassName({
@@ -11,7 +12,7 @@ const generateClassName = createGenerateClassName({
     productionPrefix: '',
 });
 const { Fabric } = OrganicUI.FabricUI;
-const { menuBar,   Component, icon,   Utils } = OrganicUI;
+const { menuBar, Component, icon, Utils } = OrganicUI;
 
 const { DeveloperBar } = OrganicUI;
 const { showIcon, classNames } = Utils;
@@ -30,8 +31,18 @@ function GeneralHeader() {
     </div>;
 }
 const root = document.querySelector('#root');
-export class DefaultMasterPage extends Component {
+export interface IState {
+    versionInfo: string;
+    currentUser: IResponseForGetCurrentUser;
+}
+export class DefaultMasterPage extends BaseComponent<any, IState> {
+    static versionInfo: string;
+    static currentUser: IResponseForGetCurrentUser;
     adjustedHeight: any;
+    constructor(p) {
+        super(p);
+
+    }
     adjustSide() {
         const { mainContainer } = this.refs;
         if (!mainContainer) return;
@@ -45,15 +56,29 @@ export class DefaultMasterPage extends Component {
     timerId: any;
     componentWillMount() {
         this.timerId = setInterval(this.adjustSide.bind(this), 300);
+        this.state.versionInfo = DefaultMasterPage.versionInfo || BasicController.getVersion().then(versionInfo => this.repatch({ versionInfo })) as any;
+        this.state.currentUser = DefaultMasterPage.currentUser || AuthenticationController.getCurrentUserInformation().then(currentUser => this.repatch({ currentUser })) as any;
     }
     componentWillUnmount() {
         clearInterval(this.timerId);
+    }
+    @SubRender()
+    renderVersionInfo(version: string) {
+        return [
+            <label >{i18n('app-version')}</label>,
+            <span className="app-version">{version.split('_').join('.')}</span>]
+    }
+    @SubRender()
+    renderUserInfo(currentUser: IResponseForGetCurrentUser) {
+        console.log({ currentUser });
+        return currentUser.username;
     }
     render() {
 
         //    const dialogFunc = OrganicUI.dialogArray[OrganicUI.dialogArray.length - 1];
         const heightForContent = window.innerHeight;
-
+        DefaultMasterPage.versionInfo = this.state.versionInfo;
+        DefaultMasterPage.currentUser = this.state.currentUser;
         const menuItems = OrganicUI.appData.appModel.getMenuItems().map(({ menu }) => menu);
         const selectedMenuItem = menuItems.filter(mi => location.pathname.startsWith(mi.routerLink))[0];
         return ((<Fabric className="master-page">
@@ -75,15 +100,19 @@ export class DefaultMasterPage extends Component {
                         </a>
                         <div className="columns">
                             <div className="column user-info">
-                                {i18n('user-title')}
+                                {this.renderUserInfo(this.state.currentUser)}
                                 {Utils.showIcon('fa-user-circle')}
                             </div>
-                            <div className="column" style={{ maxWidth: '110px',marginLeft:'10px' }}>
+                            <div className="column" style={{ maxWidth: '110px', marginLeft: '10px' }}>
                                 <MaterialUI.Button >
                                     {Utils.showIcon('fa-sign-out')}
                                     {i18n('sign-out')}
                                 </MaterialUI.Button>
                             </div>
+
+                        </div>
+                        <div className="version-container" style={{ width: '100%' }}>
+                            {this.renderVersionInfo(this.state.versionInfo)}
                         </div>
                     </header>
                     {menuItems.filter((m, idx) => !m.parentId).map((m, idx) => (
@@ -156,4 +185,3 @@ export class DefaultMasterPage extends Component {
         </Fabric>))
     }
 }
- 

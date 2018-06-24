@@ -110,17 +110,17 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState> impl
                 this.invalidItems = this.querySelectorAll<Field>('.field-accessor')
                     .map(fld => fld.revalidate())
                     .filter(x => !!x)
-                    .concat(this.props.customValidation instanceof Function ?
-                        (this.props.customValidation(this.props.data) || []) : []).filter(x => !!x);
+                    .concat(this.props.onErrorCode instanceof Function ?
+                        (this.props.onErrorCode(this.props.data) || []) : []).filter(x => !!x);
 
                 resolve(this.invalidItems);
                 setTimeout(() => this.invalidItems = [], 300);
             }
 
-            const customValidationResult = this.props.customValidation instanceof Function &&
-                (this.props.customValidation(this.props.data) || []);
-            if (customValidationResult instanceof Promise)
-                customValidationResult.then(done)
+            const onErrorCodeResult = this.props.onErrorCode instanceof Function &&
+                (this.props.onErrorCode(this.props.data) || []);
+            if (onErrorCodeResult instanceof Promise)
+                onErrorCodeResult.then(done)
             else done();
         });
 
@@ -157,7 +157,7 @@ interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, Partia
     avoidAdd?, avoidDelete?, avoidEdit?: boolean;
     customBar?: TMethods;
     accessor?: string;
-    customValidation?: CustomValidationResult;
+    onErrorCode?: onErrorCodeResult;
     singularName?, pluralName?: string;
 }
 
@@ -296,7 +296,7 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
                                 ref: "dataForm",
                                 onFieldRead: fieldName => this.targetItem[fieldName],
                                 onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value,
-                                customValidation: p.customValidation,
+                                onErrorCode: p.onErrorCode,
                                 validate: s.validated
                             }, p.children)}
                     </div>

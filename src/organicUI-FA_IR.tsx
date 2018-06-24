@@ -2,6 +2,7 @@
 
 module LocalizeFA_IR {
     const { icon, i18n } = OrganicUI;
+    i18n('app-version','نسخه برنامه');
     i18n('hide-result', 'بستن پیام');
     i18n('return-to-listView', 'برگشت');
     i18n('singleview-apply', 'ذخیره');

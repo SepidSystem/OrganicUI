@@ -1,6 +1,7 @@
 @import './styles/all';
- 
-#root,.main-container ,.ms-Layer{
+#root,
+.main-container,
+.ms-Layer {
     direction: rtl;
 }
 
@@ -13,7 +14,7 @@
     flex-shrink: 0;
     padding: 1rem 1.5rem;
 }
- 
+
 .button {
     margin: 0 0.3rem;
     .icon {
@@ -26,6 +27,7 @@
         font-weight: bold;
     }
 }
+
 .buttons:not(:last-child) {
     margin-bottom: 0rem !important;
-} 
+}

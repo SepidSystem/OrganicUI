@@ -1,59 +1,69 @@
+/// <reference path="../../organicUI.d.ts" />
+/// <reference path="./entities.d.ts" />
 const { changeCase, refetchFactory } = OrganicUI;
 const webApiSettings: refetchFactoryOptions = () => {
+    const token = localStorage.getItem('token');
+
+    if (!location.href.endsWith('/login') && !token) location.href = '/view/auth/login';
     return {
         baseURL: `http://${location.hostname}:51368/`,
         headers: {
-            'Authorization': 'Bearer CDfMBq7W1UiatgALQvDDS6XxPViQ3jGa',
+            'Authorization': token ? `Bearer ${token}` : '',
             'Access-Control-Allow-Origin': '*'
+        },
+        validateStatus: status => {
+            if (status == 401) location.href = '/view/auth/login?message=session-expired';
+            if (status == 403) location.href = '/view/auth/login';
+            return status == 200;
         }
     };
 }
 const webApi = refetchFactory(webApiSettings);
-export const SepidRESTService = {
-    login: data => webApi("POST", '/SepidRESTService/Authentication/Login', data),
-    
-}
-/*
-const patterns = {
-    create: 'create(.+)',
-    findById: 'find(.+)ById',
-    readList: 'read(.+)List',
-    updateById: 'update(.+)ById',
-    deleteById: 'delete(.+)ById',
-    patchById: 'patch(.+)ById',
-    readById: 'read(.+)ById'
-}
-const patternActions = {
-    create: targetOfEntity => data => webApi('POST', `/api/${targetOfEntity}`, data),
-    findById: targetOfEntity => id => webApi('GET', `/api/${targetOfEntity}/${id}`),
-    readList: targetOfEntity => queryParams => webApi('GET', `/api/${targetOfEntity}`, queryParams),
-    updateById: targetOfEntity => (id, data) => webApi('PUT', `/api/${targetOfEntity}/${id}`, data),
-    deleteById: targetOfEntity => id => webApi('DELETE', `/api/${targetOfEntity}/${id}`),
-    patchById: targetOfEntity => id => webApi('PATCH', `/api/${targetOfEntity}/${id}`),
-    readById: targetOfEntity => id => webApi('GET', `/api/${targetOfEntity}/${id}`),
-}
 
-function webApiProxy() {
-    return new Proxy({}, {
-        get: function (target, prop: string, receiver) {
+export interface IRowListResultDto<T> {
+    rows: T[];
+    totalRows: number;
+}
+export interface IResponseForLogin {
+    success: boolean;
+    message: string;
+    token: string;
+}
+export interface IResponseForGetCurrentUser {
+    username: string;
+    accessibleModules: any[];
 
-            let result = webApiMethods[prop];
-            if (result) return result;
-            for (const apiTarget in patterns) {
-                const regExpr = new RegExp(patterns[apiTarget]);
-                const regularResult = regExpr.exec(prop);
-                if (!regularResult) continue;
-                const generator = patternActions[apiTarget];
-                console.assert(generator instanceof Function, `invalid generator for ${prop}@patternActions, but patterns is okey`);
-                const targetOfEntity = changeCase.paramCase(regularResult[1]);
-                result = generator(targetOfEntity);
-                break;
+
+}
+export const AuthenticationController = {
+    login: (data: { username, password }) =>
+        webApi<IResponseForLogin>("POST", '/SepidRESTService/Authentication/Login', data).then(
+            r => {
+                if (r.success) {
+                    localStorage.setItem('token', r.token);
+                    setTimeout(() => location.href = '/view/dashboard', 2000);
+                }
+                return r;
             }
-            return result || (params => Promise.reject(`invalid method:${prop}`));
-
-        }
-    })
+        )
+    ,
+    getCurrentUserInformation: () => webApi<IResponseForGetCurrentUser>('POST', '/SepidRESTService/Authentication/CurrentUserInformation')
 }
-
-export const sepidApi: any = webApiProxy();*/
-Object.assign(window, { webApi });
+export const BasicController = {
+    getVersion: () => webApi<string>("GET", "/SepidRESTService/BasicInfo/GetVersion")
+}
+function crudControllerFactory<T>(pluralName: string, singularName?): IActionsForCRUD<T> {
+    singularName = singularName || (pluralName.endsWith('s') ? pluralName.substr(0, pluralName.length - 1) : pluralName);
+    return {
+        handleReadList: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}ListEx`, data),
+        handleRead: id => webApi('GET', `/SepidRESTService/${pluralName}/${singularName}/${id}`),
+        handleCreate: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}`, data),
+        handleDeleteList: id => webApi('POST', `/SepidRESTService/${pluralName}/DeleteList`, id),
+        handleUpdate: (id, data) => webApi('PUT', `/SepidRESTService/${pluralName}/${singularName}`, data)
+    };
+}
+export const UserController = crudControllerFactory<UserDTO>('Users');
+export const UserGroupController = crudControllerFactory<UserDTO>('UserGroups');
+export const DeviceController = crudControllerFactory<UserDTO>('Devices');
+//export const  
+Object.assign(window, { webApi, BasicController });

@@ -8,7 +8,7 @@ export { ReactDataGrid };
 
 export { NotFoundView } from './views/404';
 export { registryFactory } from './lib/registry-factory';
-export { editorByAccessor, i18n, icon, menuBar  } from './lib/shared-vars';
+export { editorByAccessor, i18n, icon, menuBar,i18nAttr  } from './lib/shared-vars';
 export { listViews, tags, reports, acl, dashboardBlocks } from './lib/shared-vars';
 export { funcAsComponentClass, FuncComponent, setFunctionalView } from './lib/functional-component';
 export { BaseComponent, CriticalContent } from './lib/base-component';
@@ -18,7 +18,7 @@ export { route, routeTable } from './lib/router';
 export { remoteApiProxy, remoteApi, refetch, refetchFactory } from './lib/rest-api';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
-export { Template, Action } from './lib/decorators';
+export { SubRender, Action } from './lib/decorators';
 export { Field, ErrorCodeForFieldValidation, IFieldProps, ObjectField, UserFields } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';
@@ -36,6 +36,7 @@ export { ListViewBox } from './lib/list-view-box';
 export { devTools, JsonInspector, DeveloperBar } from './lib/developer-features';
 export { DataLookup } from './lib/data-lookup';
 export { TreeList } from './lib/tree-list';
+export {ComboBox} from './lib/combo-box'
 export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
 export { AppBar, IconButton, Toolbar } from '@material-ui/core';

@@ -33,7 +33,7 @@ export class AppUtils extends BaseComponent<any, any>{
                 }
             }
             AppUtils.showDialog(content, opts);
-        }); 1
+        }); 
     }
     static showDataDialog<T>(content: ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T> {
         return new Promise((resolve, reject) => {

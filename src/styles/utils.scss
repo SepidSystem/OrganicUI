@@ -1,5 +1,4 @@
 .medium-fields {
-     
     .panel-content {
         display: flex;
         flex-wrap: wrap;
@@ -9,7 +8,7 @@
         float: right;
     }
 }
- 
+
 .half-column-fields {
     .panel-content {
         display: flex;
@@ -20,6 +19,7 @@
         float: right;
     }
 }
+
 .full-width-fields {
     .panel-content {
         display: flex;
@@ -31,10 +31,43 @@
     }
 }
 
-.mid-fixed-width {
-    max-width: 200px;
-    min-width: 200px;
+.flip-container {
+    perspective: 1000px;
 }
-.error-mode *{
-    text-align:left;
+
+/* flip the pane when hovered */
+
+.flip-container.applied .flipper {
+    transform: rotateY(180deg);
+}
+
+.flip-container,
+.back,
+.front {
+    width: 100%;
+     
+}
+
+.flip-container {
+    .flipper {
+        transition: 0.6s;
+        transform-style: preserve-3d;
+        position: relative;
+    }
+    .front,
+    .back {
+        backface-visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .front {
+        z-index: 2;
+        /* for firefox 31 */
+        transform: rotateY(0deg);
+    }
+    .back {
+        transform: rotateY(180deg);
+      
+    }
 }

@@ -13,9 +13,9 @@ namespace LicApp.Frontend.DataItemGroup {
     const api = OrganicUI.remoteApi as DeviceAPI;
     const actions: IActionsForCRUD<DeviceDTO> = {
         handleCreate: dto => api.createDevice(dto),
-        handleRead: id => api.findDeviceById(id), handleLoadData: params => api.readDeviceList(params),
+        handleRead: id => api.findDeviceById(id), handleReadList: params => api.readDeviceList(params),
         handleUpdate: (id, dto) => api.updateDeviceById(id, dto),
-        handleDelete: id => api.deleteDeviceById(id)
+        handleDeleteList: id => api.deleteDeviceById(id)
     };
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/data-item-group/:id',
