@@ -1,5 +1,5 @@
 import { BaseComponent } from './base-component';
-import {  icon, i18n } from './shared-vars';
+import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 const { classNames } = Utils;
 
@@ -45,10 +45,9 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
     }
     getListViewBox(): ListViewBox<any> {
-        if (!this.state.isOpen) debugger;
         const { listViewContainer } = this.refs;
 
-        return this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0];;
+        return this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0] as any;
     }
     closePopup() {
         if (this.openRequestTime && ((+ new Date() - this.openRequestTime) < 200))
@@ -101,7 +100,6 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     }
     repatch(delta: Partial<DataLookupState>, target?) {
         if ('isOpen' in delta && !delta.isOpen && this.state.isOpen && this.openRequestTime) {
-            debugger;
             const { listViewContainer } = this.refs;
             if (listViewContainer) {
                 const rows = Array.from(listViewContainer.querySelectorAll(".ms-DetailsRow")).map(r => Array.from(r.classList));
@@ -115,8 +113,8 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     processDOM() {
         const { listViewContainer, textField } = this.refs;
         const s = this.state;
-        this.listViewBox = this.listViewBox || this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0];
-        if (!this.listViewBox) setTimeout(() => this.repatch({}), 100);
+        this.listViewBox = this.getListViewBox();
+        if (!this.listViewBox) setTimeout(() => this.repatch({}), 10);
 
         const { actionsForListViewBox } = this;
         this.actionsForListViewBox = this.actionsForListViewBox || (this.listViewBox && this.listViewBox.props.actions);
@@ -164,7 +162,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
         const promised = (valueArray.filter(v => this.cache[v] instanceof Promise).map(v => this.cache[v]));
         const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v])).join(',');
-        console.log({ innerText, valueArray });
+
         return innerText;
     }
     render() {

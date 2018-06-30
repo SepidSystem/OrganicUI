@@ -49,4 +49,15 @@ module LocalizeFA_IR {
     i18n('data-item-groups', 'اقلام اطلاعاتی سازمان');
     i18n('departments', 'دپارتمان ها');
     i18n('employees', 'پرسنل');
+
+    i18n('operator-like','مشابه');
+    i18n('operator-eq','برابر با');
+    i18n('operator-neq','نامساوی');
+    i18n('operator-lt','کمتر');
+    i18n('operator-lte','کمتر یا مساوی');
+    i18n('operator-gt','بزرگتر');
+    i18n('operator-gte','بزرگتر یا مساوی');
+    i18n('operator-between','مابین');
+    
+    
 }   

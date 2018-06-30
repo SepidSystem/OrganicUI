@@ -1,7 +1,7 @@
 /// <reference path="../organicUI.d.ts" />
 
 import { BaseComponent } from './base-component';
-import {   icon, i18n } from './shared-vars';
+import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 
 import { Field } from './data';
@@ -30,11 +30,13 @@ export interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
     options: TOptions;
     params: TParams;
+    customActions?:Partial<TActions>;
     children?: React.ReactNode;
 
 }
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
     devPortId: number;
+    actions: TActions;
     showDevBoard(msg): any {
         const boards = Array.from(document.querySelectorAll('#dev-server-board'));
         boards.forEach(board => {
@@ -42,7 +44,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
             board.innerHTML = msg;
         });
     }
-
+   
     serverChanged() {
         this.showDevBoard('server files is changed, building bundle started...');
 
@@ -71,8 +73,9 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
     }
     static instanceCounter = 0;
 
-    constructor(p) {
-        super(p);
+    constructor(p:OrganicBoxProps<TActions, TOptions, TParams>) {
+        super( p); 
+        this.actions=Object.assign({},p.actions,p.customActions || {});
         this.devPortId = Utils.accquireDevPortId();
         const stableState = localStorage.getItem('stableState')
         const counter = OrganicBox.instanceCounter++;

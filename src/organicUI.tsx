@@ -15,7 +15,7 @@ export { BaseComponent, CriticalContent } from './lib/base-component';
 export { PureComponent, Component, createElement, cloneElement } from 'react';
 export { Utils, changeCase } from './lib/utils';
 export { route, routeTable } from './lib/router';
-export { remoteApiProxy, remoteApi, refetch, refetchFactory } from './lib/rest-api';
+export { remoteApiProxy, remoteApi, refetch, createClientForREST } from './lib/rest-api';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
 export { SubRender, Action } from './lib/decorators';

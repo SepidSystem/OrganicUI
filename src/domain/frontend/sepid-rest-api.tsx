@@ -1,7 +1,7 @@
 /// <reference path="../../organicUI.d.ts" />
 /// <reference path="./entities.d.ts" />
-const { changeCase, refetchFactory } = OrganicUI;
-const webApiSettings: refetchFactoryOptions = () => {
+const { changeCase, createClientForREST } = OrganicUI;
+const webApiClientSettings: OptionsForRESTClient = () => {
     const token = localStorage.getItem('token');
 
     if (!location.href.endsWith('/login') && !token) location.href = '/view/auth/login';
@@ -18,7 +18,7 @@ const webApiSettings: refetchFactoryOptions = () => {
         }
     };
 }
-const webApi = refetchFactory(webApiSettings);
+export const webApi = createClientForREST(webApiClientSettings);
 
 export interface IRowListResultDto<T> {
     rows: T[];
@@ -52,18 +52,41 @@ export const AuthenticationController = {
 export const BasicController = {
     getVersion: () => webApi<string>("GET", "/SepidRESTService/BasicInfo/GetVersion")
 }
-function crudControllerFactory<T>(pluralName: string, singularName?): IActionsForCRUD<T> {
+
+function crudControllerFactory<T>(pluralName: string, { singularName, extraReadList } = {} as any): IActionsForCRUD<T> {
     singularName = singularName || (pluralName.endsWith('s') ? pluralName.substr(0, pluralName.length - 1) : pluralName);
+    const handleReadList = (data: IAdvancedQueryFilters) => webApi<IListData<T>>('POST', `/SepidRESTService/${pluralName}/${singularName}ListEx`, data);
+
+
     return {
-        handleReadList: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}ListEx`, data),
+        handleReadList,
         handleRead: id => webApi('GET', `/SepidRESTService/${pluralName}/${singularName}/${id}`),
         handleCreate: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}`, data),
-        handleDeleteList: id => webApi('POST', `/SepidRESTService/${pluralName}/DeleteList`, id),
+        handleDeleteList: ids => webApi('POST', `/SepidRESTService/${pluralName}/DeleteList`, ids),
         handleUpdate: (id, data) => webApi('PUT', `/SepidRESTService/${pluralName}/${singularName}`, data)
     };
 }
-export const UserController = crudControllerFactory<UserDTO>('Users');
-export const UserGroupController = crudControllerFactory<UserDTO>('UserGroups');
-export const DeviceController = crudControllerFactory<UserDTO>('Devices');
+function simpleReadListFactory<T>(pluralName, singularName) {
+    return (data: IAdvancedQueryFilters) => webApi<IListData<T>>('POST', `/SepidRESTService/${pluralName}/${singularName}List`, data);
+}
+export const RolesController = crudControllerFactory<RoleDTO>('Roles');
+RolesController.handleReadList = simpleReadListFactory('Roles', 'Role');
+ 
+export const UsersController = crudControllerFactory<UserDTO>('Users');
+export const UserGroupsController = crudControllerFactory<UserDTO>('UserGroups');
+export const DevicesController = crudControllerFactory<DeviceDTO>('Devices');
+export const EmployeesController = crudControllerFactory<EmployeeDTO>('Employees');
+function mapDepartments(items: DepartmentDTO[]) {
+    const results: DepartmentDTO[] = JSON.parse(JSON.stringify(items));
+    let counter = 0;
+    while (counter < results.length) {
+        const item = results[counter];
+        item.subDepartments && results.push(...item.subDepartments);
+        counter++;
+    }
+    return results;
+}
+export const DepartmentsController = crudControllerFactory<DepartmentDTO>('Departments');
+DepartmentsController.handleReadList = (data: IAdvancedQueryFilters) => webApi<IListData<DepartmentDTO>>('POST', `/SepidRESTService/Departments/DepartmentList`, data).then(mapDepartments as any);
 //export const  
 Object.assign(window, { webApi, BasicController });

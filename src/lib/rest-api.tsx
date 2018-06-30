@@ -1,27 +1,28 @@
 import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
+import { AppUtils } from "./app-utils";
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));
 }
- 
-export function refetchFactory(options?:refetchFactoryOptions ) {
-    function refetch<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, body?): Promise<T> {
-        if (refetch['bodyMapper'])
-            body = refetch['bodyMapper']({ method, url, body });
 
-        if (method == 'GET' && body && Object.keys(body).length) {
-            url = url + (url.includes('?') ? '&' : '?') + Object.keys(body).map(key => `${key}=${encodeURIComponent(body[key])}`).join('&');
+export function createClientForREST(options?: OptionsForRESTClient) {
+    function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T> {
+        if (restClient['bodyMapper'])
+            data = restClient['bodyMapper']({ method, url, body: data });
+
+        if (method == 'GET' && data && Object.keys(data).length) {
+            url = url + (url.includes('?') ? '&' : '?') + Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&');
         }
 
         if (method == 'GET') {
-            const resultOfCache = refetch['cache'].get(url);
+            const resultOfCache = restClient['cache'].get(url);
             if (resultOfCache) return Promise.resolve(resultOfCache);
         }
-        if (!(['GET', 'HEAD'].includes(method)) && body)
-            refetch['cache'].reset();
+        if (!(['GET', 'HEAD'].includes(method)) && data)
+            restClient['cache'].reset();
         const obj = options instanceof Function ? options() : options;
-        const result = axios(Object.assign({}, { url, method, data: body }, obj || {})).then(resp => {
+        const result = axios(Object.assign({}, { url, method, data }, obj || {})).then(resp => {
 
             const { headers } = resp;
             var result = changeCase.camelCase(resp.data);
@@ -43,27 +44,27 @@ export function refetchFactory(options?:refetchFactoryOptions ) {
                 Object.assign(result, { rows });
             }
             if (method == 'GET')
-                refetch['cache'].set(url, result, 1000 * 10);
+                restClient['cache'].set(url, result, 1000 * 10);
 
-            if (refetch['delay']) return delayedValue(result, refetch['delay']);
+            if (restClient['delay']) return delayedValue(result, restClient['delay']);
 
             return result;
 
 
         }, error => {
             console.groupCollapsed(`${method} ${url.split('?')[0]}`);
-            console.log(error);
+ 
             console.groupEnd();
             return Promise.reject(error);
         }
-        );
+        ).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
 
-        return Object.assign(result, { url, method, body });
+        return Object.assign(result, { url, method, data });
     }
-    Object.assign(refetch, { delay: 0, cache: LRU(200), bodyMapper: null })
-    return refetch;
+    Object.assign(restClient, { delay: 0, cache: LRU(200), bodyMapper: null })
+    return restClient;
 };
-export const refetch = refetchFactory();
+export const refetch = createClientForREST();
 const patterns = {
     create: 'create(.+)',
     findById: 'find(.+)ById',

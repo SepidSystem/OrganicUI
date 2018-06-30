@@ -18,12 +18,23 @@ OrganicUI.devTools.set('SingleView|Logs', target => {
     </section>);
     setTimeout(() => target.forceUpdate(), 100);
 });
+OrganicUI.devTools.set('SingleView|Show Undefined Fields', (target) => {
+ 
+    if (!(target.props && target.props.params && target.props.params.id)) {
+        alert('you cannot use this tool in Add Form,please save , then edit');
+        return;
+    }
+    const { undefinedFields } = target as any;
+    const fields = Object.keys(undefinedFields).filter(x=>x && x!='-');
+    console.log('undefined Fields>>>>', fields)
+    target.devElement = <OrganicUI.JsonInspector data={fields} />;
+    target.forceUpdate();
+});
 
 OrganicUI.devTools.set('ListView|Show ListData', (target) => {
-     
+
     const { listData } = target.refs.dataList.state;
-    console.log('listData>>>>',listData)
     target.devElement = <OrganicUI.JsonInspector data={listData} />;
-    setTimeout(() => target.forceUpdate(), 100);
+    target.forceUpdate();
 });
 

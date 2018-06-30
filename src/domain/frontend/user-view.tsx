@@ -2,7 +2,7 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 import { roleListView } from './role-view'
-import { UserController } from "./sepid-rest-api";
+import { UsersController } from "./sepid-rest-api";
 namespace LicApp.Frontend.User {
     const { DataLookup } = OrganicUI;
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
@@ -20,13 +20,13 @@ namespace LicApp.Frontend.User {
     };
 
     const singleView: StatelessSingleView = params =>
-        (<SingleViewBox params={params} actions={UserController} options={options}  >
+        (<SingleViewBox params={params} actions={UsersController} options={options}  >
 
             <DataPanel header={i18n("primary-fields")} primary className="half-column-fields"  >
                 <Field accessor="active"    >
                     <MaterialUI.Checkbox />
                 </Field>
-                <Field accessor="roleIds"     >
+                <Field accessor="rolesIds"     >
                     <DataLookup multiple source={roleListView} />
                 </Field>
 
@@ -53,11 +53,12 @@ namespace LicApp.Frontend.User {
     routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={UserController} options={options} params={p}>
+        <ListViewBox actions={UsersController} options={options} params={p}>
 
             <DataList>
                 <Field accessor="fullName" />
                 <Field accessor="username" />
+                <Field accessor="active" /> 
             </DataList>
         </ListViewBox>
     )

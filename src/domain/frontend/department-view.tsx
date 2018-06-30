@@ -2,6 +2,8 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
+import { DepartmentsController } from "./sepid-rest-api";
+
 
 const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
 const { routeTable, DataList, DataForm, DataPanel, DataListPanel } = OrganicUI;
@@ -25,21 +27,22 @@ const options: IOptionsForCRUD = {
 
 };
 const singleView: StatelessSingleView = params =>
-    (<SingleViewBox params={params} actions={actions} options={options} >
+    (<SingleViewBox params={params} actions={DepartmentsController} options={options} >
 
         <DataPanel header={i18n("primary-fields")} primary className="medium-fields">
             <Field accessor="id" readonly />
-            <Field accessor="departmentName" required />
+            <Field accessor="name" required />
+            <Field accessor="description" required />
         </DataPanel>
 
     </SingleViewBox>);
 routeTable.set(options.routeForSingleView, singleView);
 
 export const departmentListView: StatelessListView = p => (
-    <ListViewBox actions={actions} options={options} params={p}>
+    <ListViewBox actions={DepartmentsController} options={options} params={p}>
         <DataList>
             {!p.forDataLookup && <Field accessor="id" />}
-            <Field accessor="departmentName" />
+            <Field accessor="name" />
         </DataList>
     </ListViewBox>
 )

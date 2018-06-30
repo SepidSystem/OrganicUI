@@ -4,8 +4,8 @@ import format = require('string-template');
 let devPortIdCounter = 0;
 export const Utils = {
 
-	
-	 
+
+
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
 	},
@@ -132,7 +132,7 @@ export const Utils = {
 			}
 		}
 		].filter(item => !!item);
-		const { root } = (target as any).refs;
+		const root = target && (target as any).refs && (target as any).refs.root;
 		return <FabricUI.ActionButton onMouseEnter={() => (root && root.classList.add('dev-target'))}
 			onMouseLeave={() => root && root.classList.remove('dev-target')}
 			iconProps={{ iconName: 'Code' }}
@@ -149,7 +149,7 @@ export const Utils = {
 								key: key.split('|')[1],
 								name: key.split('|')[1],
 								onClick: () => {
-								  onExecute(target, target)
+									onExecute(target, target)
 								}
 							})))
 			}} />;
@@ -169,10 +169,24 @@ export const Utils = {
 				{ onClick: () => callback(methods[key]()) } as any,
 				i18n(changeCase.paramCase(key)))
 		);
+	},
+	simulateClick(elem) {
+		// Create our event (with options)
+		var evt = new MouseEvent('click', {
+			bubbles: true,
+			cancelable: true,
+			view: window
+		});
+		// If cancelled, don't dispatch our event
+		return !elem.dispatchEvent(evt);
+	},
+	merge<T>(...args:Partial<T>[]):T {
+		return args.reduce((accumulator, obj) => Object.assign(accumulator, obj), {}) as T;
 	}
 
 }
 import * as changeCaseObject from 'change-case-object'
 import { devTools } from "./developer-features";
+import { TabClassKey } from "@material-ui/core/Tab";
 
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

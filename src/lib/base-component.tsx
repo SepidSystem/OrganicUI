@@ -1,8 +1,12 @@
 import { IStateListener, StateListener } from "./state-listener";
 import ErrorIcon from '@material-ui/icons/Warning';
 import { Component } from 'react';
+
 export class BaseComponent<P, S> extends Component<P, S>{
+    static refIdCounter = 0;
+
     devElement: any;
+    refId: number;
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
@@ -19,10 +23,12 @@ export class BaseComponent<P, S> extends Component<P, S>{
         this.stateListener = React.Children.toArray(this.props.children || [])
             .filter((r: React.ReactElement<any>) => r.type == StateListener)
             .map(child => (child as any).props);
-
+        const refId = ++BaseComponent.refIdCounter;
+        Object.assign(this.state, { refId });
 
     }
     componentDidMount() {
+
         const { root } = this.refs;
         root && Object.assign(root, { vdom: this, componentRef: this });
 
@@ -40,12 +46,12 @@ export class BaseComponent<P, S> extends Component<P, S>{
         }
         this.forceUpdate();
     }
-    querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement) {
+    querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement) : T[]{
         const { root } = this.refs;
         console.assert(!!root, `root is null@queryAllComponentRefs with ${cssSelector}`);
         return (Array.from(((target || root) as HTMLElement).querySelectorAll(cssSelector)))
             .filter((item: any) => (item as IComponentRefer<T>).componentRef)
-            .map((item: any) => (item as IComponentRefer<T>).componentRef)
+            .map((item: any) => (item as IComponentRefer<T>).componentRef as any)
     }
     isRootRender() {
         const { root } = this.refs as { root: HTMLElement };
@@ -81,11 +87,11 @@ export class BaseComponent<P, S> extends Component<P, S>{
 
     }
     render() {
-        if(this.refs.root && !this.refs.root['componentRef'])
+        if (this.refs.root && !this.refs.root['componentRef'])
 
-        setTimeout(() => this.componentDidMount(), 100);
+            setTimeout(() => this.componentDidMount(), 100);
         if (this.devElement) {
-             return <div ref="root" className="developer-features">
+            return <div ref="root" className="developer-features">
                 {this.devElement}
             </div>
         }

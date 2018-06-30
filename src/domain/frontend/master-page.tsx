@@ -65,12 +65,11 @@ export class DefaultMasterPage extends BaseComponent<any, IState> {
     @SubRender()
     renderVersionInfo(version: string) {
         return [
-            <label >{i18n('app-version')}</label>,
-            <span className="app-version">{version.split('_').join('.')}</span>]
+            <label key='label' >{i18n('app-version')}</label>,
+            <span key='ver' className="app-version">{version.split('_').join('.')}</span>]
     }
     @SubRender()
     renderUserInfo(currentUser: IResponseForGetCurrentUser) {
-        console.log({ currentUser });
         return currentUser.username;
     }
     render() {

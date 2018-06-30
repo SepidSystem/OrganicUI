@@ -1,7 +1,8 @@
+/// <reference path="organicUI.d.ts" />
 import './dev-tools/devtools-data-form';
 import './dev-tools/devtools-boxes';
+import './dev-tools/devtools-rest';
 import { DevFriendlyCommand } from './lib/developer-features';
-/// <reference path="organicUI.d.ts" />
 OrganicUI.devTools.set('Translate', (dev) => {
     OrganicUI.DeveloperBar.topElement = <FabricUI.Dialog onDismiss={() => {
         OrganicUI.DeveloperBar.topElement = null;
@@ -28,7 +29,6 @@ OrganicUI.devTools.set('Reset All Dev Tools', () => {
     Array.from(document.querySelectorAll('.developer-features'))
         .map((dv: any) => (dv as IComponentRefer<IDeveloperFeatures>).componentRef)
         .filter(dv => dv && dv.devElement).forEach(dv => {
-            debugger;
             dv.devElement = null;
             const dev = dv as any;
             dev.forceUpdate && dev.forceUpdate();
@@ -48,7 +48,8 @@ document.addEventListener('keydown', e => {
             Array.from(document.querySelectorAll('.developer-features,.developer-bar'))
                 .map((ele: any) => (ele as IComponentRefer<React.Component<any>>).componentRef)
                 .filter(ele => !!ele);
-        componentRefs.forEach(item => item.forceUpdate());
+        componentRefs.forEach(item => (item['devElement'] = null, item.forceUpdate()));
     }
 }
 );
+console['error'] = () => 0;

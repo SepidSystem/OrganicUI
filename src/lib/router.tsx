@@ -35,6 +35,9 @@ export function route(path: string, args: Object): typeof React.Component {
                     args[paramName] = value;
 
             }
+            const query = location.href.split('?')[1] || '';
+            query.split('&').filter(x=>x).map(part => part.split('=')).forEach(([key, value]) => args[key] = decodeURIComponent(value));
+
             return true;
         }
         return null;

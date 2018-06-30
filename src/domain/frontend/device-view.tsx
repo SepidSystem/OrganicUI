@@ -5,7 +5,7 @@
 
 const { DataLookup, FilterPanel } = OrganicUI;
 import { departmentListView } from "./department-view";
-import { DeviceController } from "./sepid-rest-api";
+import { DevicesController } from "./sepid-rest-api";
 import { DeviceEntranceModes, DeviceMatchingModes, DeviceModels } from "./zero-data-structures";
 
 const { Field, ObjectField, SingleViewBox, ListViewBox, ComboBox } = OrganicUI;
@@ -26,7 +26,7 @@ const options: IOptionsForCRUD =
 declare const sampleDto: DeviceDTO;
 
 const singleView: StatelessSingleView = params =>
-    (<SingleViewBox params={params} actions={DeviceController} options={options}  >
+    (<SingleViewBox params={params} actions={DevicesController} options={options}  >
 
         <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
             <Field accessor="code" required>
@@ -84,7 +84,7 @@ const singleView: StatelessSingleView = params =>
                 <MaterialUI.Checkbox />
             </Field>
             <Field accessor="syncLogStartDate" />
-            <Field accessor="deparmentId">
+            <Field accessor="departmentId">
                 <DataLookup source={departmentListView} />
             </Field>
         </DataPanel>
@@ -92,14 +92,15 @@ const singleView: StatelessSingleView = params =>
 routeTable.set(options.routeForSingleView, singleView);
 
 const listView: StatelessListView = p => (
-    <ListViewBox actions={DeviceController} options={options} params={p}>
+    <ListViewBox actions={DevicesController} options={options} params={p}>
 
         <DataList>
             <Field accessor="name" />
             <Field accessor="code" />
             <Field accessor="serial" />
-            <Field accessor="model" />
-
+            <Field accessor="model" required>
+                <ComboBox items={DeviceModels.Models} />
+            </Field>
         </DataList>
     </ListViewBox>
 )

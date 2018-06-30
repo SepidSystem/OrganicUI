@@ -13,3 +13,4 @@ editorByAccessor.set('employmentStatus', <Select type="text" />);
 editorByAccessor.set('departmentId', <DataLookup  source={departmentListView} />);
 
 editorByAccessor.set('isActive', <Checkbox />);
+editorByAccessor.set('active', <Checkbox   />);

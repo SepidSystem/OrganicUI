@@ -89,6 +89,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    a.op{
+        width:100%;
+        order:100;
+        font-size:70%;
+    }
 }
 
 /*
@@ -248,7 +253,7 @@ a.close {
     display: contents;
 }
  
-.filter-panel {
+.filter-panel .MuiPaper-root{
     flex-direction: column;
     display: flex;
     padding:5px;

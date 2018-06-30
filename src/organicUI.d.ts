@@ -64,7 +64,7 @@ declare global {
   }
   export interface IActionsForCRUD<TDto> {
     mapFormData?: (dto: TDto) => TDto;
-    beforeSave?: (dto: TDto) => TDto;
+    handleBeforeSave?: (dto: TDto) => TDto;
     handleCreate: (dto: TDto) => Promise<any>;
 
     handleUpdate: (id: any, dto: TDto) => Promise<any>;
@@ -90,7 +90,7 @@ declare global {
     forDataLookup?: boolean;
     multipleDataLookup?: boolean;
     height?: number;
-
+    selectedId?:any;
     corner?: any;
     onSelectionChanged?: Function;
   }
@@ -104,7 +104,7 @@ declare global {
     link?: Function | string;
   }
   export interface ITreeListNode {
-    text, key, parentKey, isLeaf?, type;
+    text, key, parentKey, isLeaf?, type,extraValue?;
     expaneded?: boolean
   }
   export interface IRegistry<T> {
@@ -148,12 +148,12 @@ declare global {
     parentId: number;
   }
   interface IAdvancedQueryFilters {
-    FromRowIndex: number;
-    ToRowIndex: number;
-    FilterModel: any[];
-    SortModel: any[];
+    fromRowIndex: number;
+    toRowIndex: number;
+    filterModel: any[];
+    sortModel: any[];
   }
-  export type refetchFactoryOptions = (() => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>
+  export type OptionsForRESTClient = (() => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>
   export interface IAppModel {
     getMenuItems(): { menu: IMenu }[];
     defaultMasterPage: () => any;

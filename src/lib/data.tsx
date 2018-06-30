@@ -6,6 +6,8 @@ import { changeCase, Utils } from './utils';
 import * as React from "react";
 import { ReactNode } from "react";
 import { DataForm } from "./data-form";
+import { AppUtils } from "./app-utils";
+import { ComboBox } from "./combo-box";
 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
@@ -15,20 +17,35 @@ interface IFieldMessage {
 }
 
 export type ErrorCodeForFieldValidation = string;
+export interface IFieldState {
+    messages?: IFieldMessage[];
+    currentOp?: string;
+
+}
 export interface IFieldProps {
     accessor?: string;
+    operators?: any[];
     onGet?, onSet?: Function;
     onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
+    onRenderCell?: (item?: any, index?: number, column?: any) => any;
     label?: any;
     icon?: any;
     required?: boolean;
     readonly?: boolean;
     messages?: IFieldMessage[];
+
     getInfoMessage?: () => string;
     children?: any;
     className?: string;
 }
-export class Field extends BaseComponent<IFieldProps, IFieldProps>{
+export interface FilterItem {
+    op: string;
+    value: string;
+    value2?: string;
+    values?: string[];
+    fieldName:string; 
+}
+export class Field extends BaseComponent<IFieldProps, IFieldState>{
     clientWidthNoErrorMode: number;
     inputElement: React.ReactElement<any>;
     dataForm: DataForm;
@@ -41,6 +58,12 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         this.handleSetData = this.handleSetData.bind(this);
         this.handleGetData = this.handleGetData.bind(this);
 
+    }
+    getFilterItem():FilterItem{
+        let value=this.extractedValue;
+        const op='LIKE';
+         
+        return {fieldName:this.props.accessor,value,op};
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(accessor))
     extractedValue: any;
@@ -90,7 +113,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         return value;
     }
     handleSetData(e: React.ChangeEvent<HTMLInputElement>) {
-        const value: any = [e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
+        const inputElement = this.getInputElement();
+        const dataType = inputElement.type && inputElement.type['dataType'];
+        const value: any = [dataType == 'boolean' ?
+            e && e.target && e.target.checked : undefined, e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
         const p = this.props;
         if (p.onSet instanceof Function) return p.onSet(value);
         const { root } = this.refs;
@@ -116,17 +142,34 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         dataForm && dataForm.props.validate && this.revalidate();
 
     }
+
+    getValueProps(dataType, value) {
+
+        if (dataType == 'boolean') {
+            if (value === undefined) return {};
+            return { defaultChecked: value, checked: value };
+        }
+        return { value };
+    }
+    getInputElement() {
+        let inputElement = this.props.children as React.ReactElement<any>;
+        if (!inputElement)
+            inputElement = editorByAccessor(changeCase.camelCase(this.props.accessor));
+        if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
+
+        return inputElement;
+    }
+    getCurrentOp() {
+        return this.state.currentOp || (this.props.operators[0] && this.props.operators[0].Id);
+    }
     render() {
+
         const p = this.props, s = this.state;
         s.messages = s.messages || p.messages || [];
         const dataForm = this.getDataForm(true);
         const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
         const iconForStatus: string = hasError && '';// 'fa-exclamation-triangle';
-        let inputElement = p.children as React.ReactElement<any>;
-        if (!inputElement)
-            inputElement = editorByAccessor(changeCase.camelCase(p.accessor));
-
-        if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
+        let inputElement = this.getInputElement();
         const st = '';
         const classNameFromInputType = inputElement && inputElement.type && inputElement.type['field-className'];
         const filterFromInputType: Function = inputElement && inputElement.type && inputElement.type['field-filter'];
@@ -149,9 +192,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
                     }, 100);
                     this.repatch({});
                 },
-                value: this.extractedValue,
+
                 className: Utils.classNames(inputElement.props && inputElement.props.className, st)
-            }
+            }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.extractedValue)
         );
         console.assert(filterFromInputType === undefined || filterFromInputType instanceof Function, 'filterFromInputType is not function', filterFromInputType);
         const label = Field.getLabel(p.accessor, p.label);
@@ -166,13 +209,13 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
             this.clientWidthNoErrorMode = root.clientWidth;
         }
 
-        if (p.accessor == "DepartmentName") debugger;
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
-        //}
+
         return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
         } >
-            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, !!this.extractedValue && 'has-value', p.className)}>
+            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, this.extractedValue !== undefined && 'has-value', p.className)}>
+
                 <label key="label" className="label">{label}</label>
                 <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
                     {inputElement}
@@ -188,11 +231,13 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
 
 
 
-                <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
+                {!p.operators && <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
                     {this.clientWidthNoErrorMode && root && s.messages && s.messages[0] &&
                         <p style={{ width: `${this.clientWidthNoErrorMode}px`, maxWidth: `${this.clientWidthNoErrorMode}px` }} className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
-                </div>
+                </div>}
+                {p.operators && <a href="#" className="op" onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
+                    {i18n('operator-' + this.getCurrentOp())}</a>}
 
             </div>
 
@@ -200,6 +245,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
 
 
         </div >
+    }
+    getOperatorFromUser() {
+        const defaultValues = { op: this.getCurrentOp() };
+        AppUtils.showDataDialog(<DataForm>
+            <Field accessor="op">
+                <ComboBox items={this.props.operators} />
+            </Field>
+        </DataForm>, { defaultValues }).then(({ op }) => this.repatch({ currentOp: op }));
     }
     processDOM() {
         let value = this.handleGetData();
@@ -221,6 +274,16 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
         if (readonly)
             Utils.makeReadonly(this.refs.root);
         else Utils.makeWritable(this.refs.root);
+
+        let inputElement = this.getInputElement();
+        const dataType: string = inputElement && inputElement.type && inputElement.type['dataType'];
+        if (dataType == 'boolean' && this.refs.root) {
+            const htmlCheckBox = this.refs.root.querySelector('input[type=checkbox]') as HTMLInputElement;
+            if (htmlCheckBox &&
+                (!!this.extractedValue !== htmlCheckBox.checked))
+                Utils.simulateClick(htmlCheckBox);
+
+        }
     }
     componentDidMount() {
         super.componentDidMount();
@@ -251,9 +314,11 @@ export class Field extends BaseComponent<IFieldProps, IFieldProps>{
     }
     getTextReader() {
         const { children } = this.props;
-        const type = children && children.type;
-        const textReader = (type && type.textReader) || defaultTextReader;
-        return val => textReader(this, children && children.props, val);
+        const inputElement = Field.prototype.getInputElement.apply(this);
+        const type = inputElement && inputElement.type;
+        const textReader = (type && type.textReader);
+
+        return textReader && (val => textReader(this, children && children.props, val));
     }
 }
 const defaultTextReader = (fld, props, s) => s;

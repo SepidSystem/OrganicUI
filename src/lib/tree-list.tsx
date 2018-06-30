@@ -3,18 +3,20 @@
 import { BaseComponent } from './base-component';
 import { Utils } from './utils';
 import { Checkbox } from '@material-ui/core';
+import { Spinner } from './spinner';
 interface ITreeListProps {
     value?: ITreeListNode[];
     onChange?: (nodes) => any;
     height: number;
+    nodes: ITreeListNode[];
+
 }
 export class TreeList extends BaseComponent<ITreeListProps, any>{
-    nodes: ITreeListNode[];
     constructor(p) {
         super(p);
     }
     isLeafNode(node: ITreeListNode): any {
-        if (!('isLeaf' in node)) node.isLeaf = !this.nodes.some(n => n.parentKey == node.key);
+        if (!('isLeaf' in node)) node.isLeaf = !this.props.nodes.some(n => n.parentKey == node.key);
 
         return !!node.isLeaf;
     }
@@ -22,23 +24,24 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
         targetNode.type = delta == '+' ? (((targetNode.type || 0) + 1) % 3) : +(delta);
 
         if (!this.isLeafNode(targetNode)) {
-            this.nodes
+            this.props.nodes
                 .filter(x => x.parentKey == targetNode.key)
                 .forEach(x => this.changeType(x, targetNode.type));
         }
 
         this.forceUpdate();
-        this.props.onChange(this.nodes);
+        this.props.onChange(this.props.nodes);
     }
     static checkBoxClassNames = ["type-flag type-flag0 fa fa-square-o",
         "type-flag  type-flag1 fa fa-check-square ",
         "type-flag  type-flag2 fa   fa-times-rectangle ",
         "type-flag  type-flag3 fa  fa-dot-circle-o  "];
     renderNodes(parentId) {
-        if (this.nodes instanceof Array && this.nodes.length == 0) this.nodes = null;
+        let nodes = this.props.nodes;
+        if (nodes instanceof Array && nodes.length == 0) nodes = null;
 
-        this.nodes = this.nodes || (this.props.value instanceof Array ? JSON.parse(JSON.stringify(this.props.value)) : []);
-        const nodes = this.nodes.filter(n => n.parentKey == parentId);
+        nodes = this.props.nodes || (this.props.value instanceof Array ? JSON.parse(JSON.stringify(this.props.value)) : []);
+        nodes = nodes.filter(n => n.parentKey == parentId);
         if (nodes.length == 0) return null;
         return <ul className={parentId ? "subitems" : ""}>
             {nodes.map(node => ([<li key={node.key} className={
@@ -71,7 +74,8 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
     }
     render() {
         const p = this.props;
-        return <div className="tree-list" style={{ maxHeight: `${p.height}px`,height: `${p.height}px`, overflow: 'scroll', overflowX: 'hidden' }}>
+        if(p.nodes instanceof Promise) return <Spinner />;
+        return <div className="tree-list" style={{ maxHeight: `${p.height}px`, height: `${p.height}px`, overflow: 'scroll', overflowX: 'hidden' }}>
             {this.renderNodes(0)}
         </div>
     }

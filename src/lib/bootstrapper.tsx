@@ -69,11 +69,11 @@ export function startApp(appModel: IAppModel) {
     afterLoadCallback instanceof Function && afterLoadCallback();
 }
 export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
-    if (Utils['getAllPermission']) {
+    if (Utils['scaningAllPermission']) {
 
         return Promise.resolve([]);
     }
-    Utils['getAllPermission'] = +new Date();
+    Utils['scaningAllPermission'] = +new Date();
     const result: ITreeListNode[] = [];
     let appliedUrls = [];
     const urls = Object.keys(table.data);
@@ -84,7 +84,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
             renderViewToComplete(url, temp).then(() => {
                 appliedUrls.push(url);
                 if (appliedUrls.length == urls.length) {
-                    Utils['getAllPermission'] = 0;
+                    Utils['scaningAllPermission'] = 0;
 
                     setTimeout(() => OrganicUI.Utils.setNoWarn(false), 3000);
                     setTimeout(() => resolve(result), 1);

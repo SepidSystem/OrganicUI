@@ -62,7 +62,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                     items: DeveloperBar.devMenuItems
                 }} iconProps={{ iconName: 'Code' }}
             />}
-
+            {!!DeveloperBar.developerFriendlyEnabled &&  Utils.renderDevButton('REST',null)}
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
         </div>

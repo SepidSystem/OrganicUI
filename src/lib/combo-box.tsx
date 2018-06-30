@@ -9,10 +9,10 @@ interface ComboBoxProps {
 }
 export const ComboBox = (p: ComboBoxProps) => (
     <Select value={p.value} onChange={p.onChange}>
-        {p.items.map(item => <MenuItem value={item.Id}>{(item.Name)}</MenuItem>)}
+        {p.items.map(item => <MenuItem key={item.Id} value={item.Id}>{i18n(item.Name)}</MenuItem>)}
     </Select>);
 function textReader(field: Field, props: ComboBoxProps, id) {
     const selectedItems = props.items.filter(ite => ite.Id == id);
-    return selectedItems && selectedItems[0].Name;
+    return selectedItems[0] && selectedItems[0].Name;
 }
 Object.assign(ComboBox, { textReader });

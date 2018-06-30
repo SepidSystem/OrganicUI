@@ -2,9 +2,13 @@
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
+import { EmployeesController } from "./sepid-rest-api";
+import { EmployeeGenders } from "./zero-data-structures";
+ 
+
 namespace EmployeeView {
     const { Field, ObjectField, SingleViewBox, ListViewBox } = OrganicUI;
-    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
+    const { routeTable,ComboBox, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
 
     const { AppUtils } = OrganicUI;
 
@@ -13,12 +17,7 @@ namespace EmployeeView {
 
     //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
     const api = OrganicUI.remoteApi as EmployeeAPI;
-    const actions: IActionsForCRUD<EmployeeDTO> = {
-        handleCreate: dto => api.createEmployee(dto),
-        handleRead: id => api.findEmployeeById(id), handleReadList: params => api.readEmployeeList(params),
-        handleUpdate: (id, dto) => api.updateEmployeeById(id, dto),
-        handleDeleteList: id => api.deleteEmployeeById(id)
-    };
+     
     const options: IOptionsForCRUD = {
         routeForSingleView: '/view/admin/employee/:id',
         routeForListView: '/view/admin/employees',
@@ -65,22 +64,24 @@ namespace EmployeeView {
         </DataForm>);
     }
     const singleView: StatelessSingleView = params =>
-        (<SingleViewBox params={params} actions={actions} options={options} >
+        (<SingleViewBox params={params} actions={EmployeesController} options={options} >
 
             <DataPanel header="primary-fields" primary className="half-column-fields" >
-                <Field accessor="isActive" required />
+                <Field accessor="active" required />
                 <Field accessor="-" />
-                <Field accessor="FirstName" required />
-                <Field accessor="LastName" required />
-                <Field accessor="Code" required />
-                <Field accessor="NationalCode" required />
-                <Field accessor="Tel" required />
-                <Field accessor="Mobile" required />
-                <Field accessor="Email" required />
-                <Field accessor="Gender" required />
-                <Field accessor="StartDate" required />
-                <Field accessor="FinishDate" required />
-                <Field accessor="EmploymentStatus" required />
+                <Field accessor="firstName" required />
+                <Field accessor="lastName" required />
+                <Field accessor="code" required />
+                <Field accessor="nationalCode" required />
+                <Field accessor="tel" required />
+                <Field accessor="mobile" required />
+                <Field accessor="email" required />
+                <Field accessor="gender" required >
+                    <ComboBox items={EmployeeGenders.Genders} />
+                </Field>
+                <Field accessor="startDate" required />
+                <Field accessor="finishDate" required />
+                <Field accessor="employmentStatus" required />
             </DataPanel>
             <DataPanel header="locations" className="half-column-fields">
                 <Field accessor="DepartmentId" required />
@@ -97,10 +98,10 @@ namespace EmployeeView {
     routeTable.set(options.routeForSingleView, singleView);
 
     const listView: StatelessListView = p => (
-        <ListViewBox actions={actions} options={options} params={p}>
+        <ListViewBox actions={EmployeesController} options={options} params={p}>
             <DataList>
                 <Field accessor="id" />
-                <Field accessor="customerName" />
+                <Field accessor="customerName" onRenderCell={(item:EmployeeDTO)=>item.firstName + ' '+item.lastName} />
             </DataList>
         </ListViewBox>
     )

@@ -1,13 +1,12 @@
 /// <reference path="./organicUI.d.ts" />
- 
+
+import { Field } from "./lib/data";
+
+
 MaterialUI.Checkbox['field-className'] = 'reversed-label no-material gray-color check-field';
+MaterialUI.Checkbox['dataType'] = 'boolean';
 MaterialUI.TextField['field-className'] = '';
-MaterialUI.TextField['field-filter'] = (props, field,label) => {
- 
-   // props.inputProps=props.inputProps || {};
-   // props.inputProps.label=label;
-    //props.label=label;
-    //props.InputLabelProps={className:'mui-right-label'};
+MaterialUI.Checkbox['textReader'] = function (field: Field, props: any, value) {
+    return <MaterialUI.FormControlLabel label={null} disabled control={<MaterialUI.Checkbox defaultChecked={value} value={value} />} />;
 }
 
-  

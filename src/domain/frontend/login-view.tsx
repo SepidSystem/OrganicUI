@@ -37,7 +37,7 @@ namespace LoginView {
         }
         render() {
             const { serverResponse } = this.state;
-            return <ViewBox options={{ className: 'login-box content col-xl-4 col-md-6 col-10' }} params={this.props} actions={{}}>
+            return <ViewBox options={{ className: 'login-box content col-lg-4 col-md-6 col-10' }} params={this.props} actions={{}}>
                 <div ref="root" className={Utils.classNames("flip-container", this.state.serverResponse && "applied")}>
                     <div className="flipper" style={{ minHeight: this.state.flipperHeight || null }}>
                         <div ref="front" className="front">
@@ -64,8 +64,8 @@ namespace LoginView {
                         </div>
                         <div ref="back" className="back">
                             {serverResponse && serverResponse.success && <section className="success-mode">
-                                <h2 className="title is-2">✔</h2>
-                                <div>
+                                <h2 className="center title is-1">✔</h2>
+                                <div className="center  title is-3">
                                     {i18n('login-redirect')}
                                 </div>
                             </section>}
@@ -78,7 +78,7 @@ namespace LoginView {
                                 <div className="center">
                                     {i18n(serverResponse.message || this.props.message)}
                                 </div>
-                                <br />
+                                <br /> <br />
                                 <button className="button  "
                                     onClick={() => this.repatch({ serverResponse: null })} type="submit">
                                     {i18n('login-retry')}</button>

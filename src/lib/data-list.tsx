@@ -53,7 +53,9 @@ export const Pagination = funcAsComponentClass<IPaginationProps, IPaginationProp
 //----------------------------------------------------------------------------------------
 export interface IDataListProps {
     itemHeight?: number;
+    onLoadRequestParams?: Function;
     loader?: (req: IDataListLoadReq) => Promise<IListData>;
+    onDoubleClick?: () => void;
     onCurrentRowChanged?: (row: any) => any;
     rowCount?: number;
     paginationMode?: 'paged' | 'scrolled';
@@ -111,8 +113,11 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
     reload() {
         this.items = null;
         const s = this.state;
+        this.cache.reset();
+        this.items=[];
         const listData = this.loadDataIfNeeded(+s.startFrom) as any;
-        this.repatch({ listData });
+        listData instanceof Promise && listData.then(listData=>this.repatch({listData}));
+        return listData;
     }
     constructor(p: IDataListProps) {
         super(p);
@@ -126,6 +131,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
         Object.assign(this.state, { loadingPageIndex: 0 });
         this.handleScroll = this.handleScroll.bind(this);
         this.adjustScroll = this.adjustScroll.bind(this);
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.calcRowCount();
     }
     calcRowCount() {
@@ -144,12 +150,16 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
         Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
         this.lastDataLoading = new Date();
         if (fetchableRowCount < 0) fetchableRowCount = 0;
+        const params = { startFrom, rowCount: fetchableRowCount, };
         const promise = this.props.loader(
-            { startFrom, rowCount: fetchableRowCount, }
+            this.props.onLoadRequestParams instanceof Function ? this.props.onLoadRequestParams(params)
+                : params
         );
 
         return promise instanceof Promise && promise.then(listData => {
-
+            if (listData instanceof Array) {
+                listData = { rows: listData, totalRows: listData.length };
+            }
             if (listData.rows) {
                 if (p.paginationMode == 'scrolled')
                     listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
@@ -193,17 +203,21 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
         this.repatch({});
 
     }
-
+    handleDoubleClick(e: React.MouseEvent<any>) {
+        this.props.onDoubleClick && this.props.onDoubleClick();
+    }
     renderContent() {
         this.calcRowCount();
         const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+        const textReaders = columnArray.filter(col => col && (col.type == Field)).map(fld => Field.prototype.getTextReader.apply(fld))
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
-                .map(col => Object.assign({}, col.props || {}, {
+                .map((col, idx) => Object.assign({}, col.props || {}, {
                     key: col.props.accessor, name: i18n(col.props.label || OrganicUI.changeCase.paramCase(col.props.accessor))
                     , maxWidth: 300, onRender: (item?: any, index?: number, column?: IColumn) => {
-
-                        return item[column.key];
+                        const textReader = textReaders[idx];
+                        const displayText = textReader instanceof Function ? textReader(item[column.key]) : item[column.key];
+                        return col.props.onRenderCell instanceof Function ? col.props.onRenderCell(item, index, column) : displayText;
                     }
                 } as Partial<IColumn>) as IColumn)
 
@@ -234,10 +248,12 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
 
                 }} />;
         return (
-            <div ref="root">
+            <div ref="root" onDoubleClick={this.handleDoubleClick}>
 
                 {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null} className={Utils.classNames("developer-features", "data-list", p.paginationMode)} style={{ minHeight: (p.height + 'px') }} >
-                    <div className="data-list-content" ref="content" style={{ minHeight: p.paginationMode == 'scrolled' ? parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' : 'auto' }}>
+                    <div className="data-list-content" ref="content"
+
+                        style={{ minHeight: p.paginationMode == 'scrolled' ? parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' : 'auto' }}>
                     </div>
                     {this.refs.root && items && <div className="data-list-c1" style={p.paginationMode == 'scrolled' ? {
                         height: p.height + 'px',

@@ -40,10 +40,12 @@ declare interface DeviceDTO {
     connectionStatusStr:string;
 }
 declare interface EmployeeDTO {
-
+    firstName:string;
+    lastName:string;
 }
 declare interface DepartmentDTO {
     departmentName: string;
+    subDepartments:DepartmentDTO[];
 }
 declare interface UserDTO {
     id: number;
@@ -58,8 +60,10 @@ declare interface UserDTO {
 declare interface UserGroupDTO {
 
 }
+declare interface RolePermissionDTO{accessType,permissionKey}
 declare interface RoleDTO {
     id: string;
     name: string;
     permissions: ITreeListNode[];
+    rolePermissions: RolePermissionDTO[];
 }

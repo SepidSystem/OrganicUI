@@ -3,8 +3,8 @@ import { BaseComponent } from './base-component';
 import { funcAsComponentClass } from './functional-component';
 import { Utils } from './utils';
 import { Callout, IButtonProps } from 'office-ui-fabric-react';
-import {  ButtonProps } from '@material-ui/core/Button';
- 
+import { ButtonProps } from '@material-ui/core/Button';
+
 import { i18n, icon } from './shared-vars';
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
@@ -84,7 +84,7 @@ interface IAdvButtonProps {
     children?: any;
     isLoading?: boolean;
     callout?: any;
-    primary?:boolean;
+    primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
     size?: 'small' | 'medium' | 'large';
     onClick?: () => Promise<any>;
@@ -99,23 +99,31 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
     refs: {
         root: Element
     }
-    closeCallOut(){
-        this.repatch({callout:null});
+    closeCallOut() {
+        this.repatch({ callout: null });
     }
     render(p = this.props, s = this.state, repatch = this.repatch) {
         const className = Utils.classNames("adv-button", p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size);
-        const advButton = <MaterialUI.Button  className={className}
-{...p}
+        const advButton = <MaterialUI.Button className={className}
+            {...p}
             onClick={e => {
                 e.preventDefault();
                 if (s.callout) return repatch({ callout: null });
                 const asyncClick = async () => {
                     repatch({ isLoading: true, callout: null });
-                    const result = await p.onClick();
-                    const lastMod = +new Date();
-                    setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
-                    result && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                    !result && repatch({ isLoading: false, callout: null });
+                    const resultAsync = p.onClick();
+                    if (resultAsync instanceof Promise) {
+                        resultAsync.catch(error=>{
+                            console.log('Advanced Button Error>>>>>',error);
+                            repatch({ isLoading: false, callout: null });
+                            return error;
+                        })
+                        const result = await resultAsync;
+                        const lastMod = +new Date();
+                        React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
+                        React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
+                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
+                    }
                 }
                 asyncClick();
             }
@@ -128,7 +136,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         React.createElement(p.buttonComponent || MaterialUI.Button,
             Object.assign({}, p, {
                 className: Utils.classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
-            //    iconProps: !s.isLoading && p.iconProps,
+                //    iconProps: !s.isLoading && p.iconProps,
 
             }),
             !s.isLoading && !s.callout && p.children,
@@ -178,14 +186,14 @@ function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
 
         <div className="panel" key="panel">
             {!!p.header && <div className={"panel-heading " + ((p.actions && 'actionable') || '')}>
-                <span  key="temp" className="temp"></span>
+                <span key="temp" className="temp"></span>
                 <div key="title" className={" title is-6 is-vcentered "}>
                     {i18n(p.header)}
-                    {p.actions && <DropDownButton key="actions"  onActionExecute={p.onActionExecute} actions={p.actions} />}
+                    {p.actions && <DropDownButton key="actions" onActionExecute={p.onActionExecute} actions={p.actions} />}
                 </div>
 
             </div>}
-            {!!p.hasSearch && <div  key="block" className="panel-block">
+            {!!p.hasSearch && <div key="block" className="panel-block">
                 <SearchInput className="is-small" />
             </div>}
             {!!p.tabs && <p className="panel-tabs">

@@ -121,15 +121,9 @@ export class ListViewBox<T> extends
     columns: IFieldProps[];
 
     getFilterPanel() {
-
         this.columns = this.columns || this.getColumns();
-
-        return <FilterPanel dataForm={this.state.dataFormForFilterPanel}>
-            {this.columns.map(col => (<Field accessor={col.accessor} >
-                <MaterialUI.TextField />
-            </Field>
-
-            ))}
+        return <FilterPanel onApplyClick={()=>this.refs.dataList.reload()} dataForm={this.state.dataFormForFilterPanel}>
+            {this.columns.map(col => (<Field  {...col} />))}
         </FilterPanel>
     }
     selection: Selection;
@@ -152,6 +146,7 @@ export class ListViewBox<T> extends
         this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
         this.handleEdit = this.handleEdit.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
+        this.handleLoadRequestParams = this.handleLoadRequestParams.bind(this);
     }
     getColumns(): IFieldProps[] {
         const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
@@ -192,8 +187,8 @@ export class ListViewBox<T> extends
     }
     getId(row) {
         const s = this.state;
-        if (this.props.actions.getId instanceof Function)
-            return this.props.actions.getId(row);
+        if (this.actions.getId instanceof Function)
+            return this.actions.getId(row);
         return Utils.defaultGetId(row);
     }
     denyHandleSelectionChanged: boolean;
@@ -207,7 +202,8 @@ export class ListViewBox<T> extends
             setTimeout(() => {
                 this.denyHandleSelectionChanged = true;
                 try {
-                    indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
+                    if (indices.length)
+                        indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
                 } finally {
                     this.denyHandleSelectionChanged = false;
                 }
@@ -216,17 +212,61 @@ export class ListViewBox<T> extends
     }
     handleReadList(params) {
         if (this.isRootRender()) {
-            return this.props.actions.handleReadList(params)
+            return this.actions.handleReadList(params).then(r => {
+                setTimeout(() => this.adjustSelectedRow(), 200);
+                return r;
+            });
         }
         else {
             return Promise.resolve({ rows: [], totalRows: 0 });
         }
     }
+    animateCheckmark() {
+        let limitTry = 30;
+        const tryToAnimate = () => {
+            const elements = Array.from(document.querySelectorAll('.ms-DetailsRow.is-selected .ms-DetailsRow-cellCheck'));
+            if (!elements.length && limitTry-- > 0) {
+                setTimeout(tryToAnimate.bind(this), 50);
+            }
+            elements.forEach(element => element.classList.add('animated', 'tada'));
+        }
+        tryToAnimate();
+    }
+    adjustSelectedRow() {
+        const { selectedId } = this.props.params;
+        let limitTry = 30;
+        this.denyHandleSelectionChanged = true;
+        if (selectedId) {
+            const tryToSelect = () => {
+                const items = this.selection.getItems();
+                let found = false;
+
+                items.forEach((item, idx) => {
+                    if (!item) return;
+                    if (found) return;
+                    found = this.getId(item) == selectedId;
+                    found && setTimeout(() => this.selection.setIndexSelected(idx, true, false), 100);
+                });
+                if (!found && --limitTry > 0) setTimeout(() => tryToSelect(), 200);
+                else {
+                    this.denyHandleSelectionChanged = false;
+
+                }
+            }
+            tryToSelect();
+        }
+    }
+
     componentDidMount() {
         super.componentDidMount();
         this.setPageTitle(i18n.get(this.props.options.pluralName));
-    }
 
+    }
+    handleLoadRequestParams(params: IAdvancedQueryFilters) {
+        const filterPanel=this.querySelectorAll<FilterPanel>('.filter-panel')[0];
+        params.filterModel = filterPanel.getFilterItems().filter(filterItem=>!!filterItem.value);
+        return params; 
+    }
     renderContent() {
         if ((React.Children.map(this.props.children || [], child => child) || [])
             .filter((child: any) => !!child && child.type == DataList && !child.props.loader)
@@ -255,11 +295,12 @@ export class ListViewBox<T> extends
                     {}, child.props, {
                         ref: "dataList",
                         height: params.height || 500,
-
+                        onDoubleClick: this.handleEdit,
+                        onLoadRequestParams: this.handleLoadRequestParams,
                         loader: this.handleReadList,
                         paginationMode: child.props.paginationMode || 'paged',
                         selection: this.selection
-                    } as Partial<IDetailsListProps>,
+                    } as Partial<IDataListProps>,
 
                     { corner } as Partial<IDataListProps>,
                     multiple
@@ -296,7 +337,6 @@ export class ListViewBox<T> extends
                     </AdvButton>
                 </CriticalContent>
                 <CriticalContent permissionKey="view-permission" />
-
                 <CriticalContent permissionKey="edit-permission" />
                 <CriticalContent permissionKey="delete-permission" />
                 <CriticalContent permissionKey="copy-permission" />

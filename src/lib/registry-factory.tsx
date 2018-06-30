@@ -9,7 +9,7 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): IReg
         let result = (data[key]) as T;
 
         if (key && result === undefined && !notFounded[key]) {
-            OrganicUI.Utils.warn('registry not found', key);
+            //OrganicUI.Utils.warn('registry not found', key);
             notFounded[key] = 1;
         }
         if (!result) {
