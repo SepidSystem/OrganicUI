@@ -40,8 +40,8 @@
 .flip-container.applied .flipper {
     transform: rotateY(180deg);
 }
-
-.flip-container,
+   
+.flip-container, 
 .back,
 .front {
     width: 100%;
@@ -70,4 +70,15 @@
         transform: rotateY(180deg);
       
     }
+}
+.activate-focused-only{
+    visibility: hidden; 
+}
+.focused .activate-focused-only{
+    visibility: visible; 
+}
+
+footer.is-centered{
+    display: flex;
+    justify-content: center;
 }

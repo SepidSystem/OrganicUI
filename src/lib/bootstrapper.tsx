@@ -4,8 +4,9 @@ import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { i18n } from "./shared-vars";
 
 import { Utils } from "./utils";
-import { OrganicBoxProps } from "./organic-box";
+ 
 import { IOptionsForViewBox } from "./view-box";
+import { IAppModel, ITreeListNode } from "@organic-ui";
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {

@@ -8,11 +8,11 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import { ReactElement, cloneElement } from "react";
 import { i18n } from "./shared-vars";
-
+ 
 interface IDialogProps {
     title?, content?: any;
     actions?: { [key: string]: Function }
-    defaultValues?:any;
+    defaultValues?: any;
 }
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
@@ -36,10 +36,13 @@ export class AppUtils extends BaseComponent<any, any>{
             AppUtils.showDialog(content, opts);
         });
     }
-    static showDataDialog<T>(content: ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T> {
+    static confrimActionByUser(p: { actionName: string, actionData }): Promise<never> {
+        return Promise.resolve(true as never);
+    }
+    static showDataDialog<T>(content: ReactElement<Partial<OrganicUi.IDataFormProps<T>>>, opts?: IDialogProps): Promise<T> {
         return new Promise((resolve, reject) => {
             opts = opts || {} as any;
-            let data: T = opts.defaultValues||  {} as any;
+            let data: T = opts.defaultValues || {} as any;
             opts.actions = {
                 accept() {
                     AppUtils.showDialog(null);
@@ -50,7 +53,7 @@ export class AppUtils extends BaseComponent<any, any>{
                     reject();
                 }
             }
-            content = cloneElement(content, {  onFieldWrite: (key, value) => data[key] = value, onFieldRead: key => data[key] });
+            content = cloneElement(content, { onFieldWrite: (key, value) => data[key] = value, onFieldRead: key => data[key] });
             AppUtils.showDialog(content, opts);
         });
     }
@@ -73,7 +76,7 @@ export class AppUtils extends BaseComponent<any, any>{
             </Dialog>}
         </section>
     }
-    static  afterREST({ method,url,data,result  }) {
+    static afterREST({ method, url, data, result }) {
         return result;
     }
 } 

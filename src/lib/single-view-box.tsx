@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 
 import { icon, i18n } from './shared-vars';
@@ -6,17 +6,17 @@ import { Utils } from './utils';
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
-import { IDataListProps, DataList } from './data-list';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
+import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 
 
-interface SingleViewBoxState { formData: any; validated: boolean; }
+interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
-    IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState> {
+    IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState<T>> {
     undefinedFields: Object;
     objectCreation: number;
     constructor(p) {
@@ -43,7 +43,7 @@ export class SingleViewBox<T> extends OrganicBox<
     componentWillMount() {
         const { actions, params } = this.props;
         this.state.formData = params.id > 0
-            ? actions.handleRead(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) }))
+            ? actions.read(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) }))
             : this.mapFormData({});
     }
     getId(row) {
@@ -51,8 +51,14 @@ export class SingleViewBox<T> extends OrganicBox<
             return this.actions.getId(row);
         return Utils.defaultGetId(row);
     }
-    getFormData() {
-        return this.state.formData;
+    getFormData(): T {
+        const { formData } = this.state;
+        if (formData instanceof Promise) return null;
+        return formData;
+    }
+    setFieldValue(fieldName, value) {
+        const formData = this.getFormData();
+        formData && (formData[fieldName] = value);
     }
     async handleSave(navigateToListView?) {
         this.repatch({ validated: true });
@@ -71,15 +77,15 @@ export class SingleViewBox<T> extends OrganicBox<
         if (id == 'new') id = 0;
         let formData = JSON.parse(JSON.stringify(s.formData));
         console.assert(!!this.actions.handleBeforeSave || this.actions.handleBeforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.handleBeforeSave);
-     
+
         if (this.actions.handleBeforeSave instanceof Function)
-            formData = this.actions.handleBeforeSave(formData) ;
-        if (this.actions.handleCreate instanceof Function && this.actions.handleUpdate instanceof Function)
-            updateResult = id > 0 ? this.actions.handleUpdate(id, formData) : this.actions.handleCreate(formData);
+            formData = this.actions.handleBeforeSave(formData);
+        if (this.actions.create instanceof Function && this.actions.update instanceof Function)
+            updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
             return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-5 animated fadeIn">{i18n('error')}</div>
                 <div className="animated fadeInDown">
-                    {i18n('not impl handleUpdate & handleCreate')}
+                    {i18n('not impl update & create')}
                 </div>
             </div>);
         }
@@ -87,9 +93,9 @@ export class SingleViewBox<T> extends OrganicBox<
             () => {
                 const { title, desc } = this.getSuccess();
 
-                navigateToListView && setTimeout(() => this.navigateToBack(), 3000);
+                navigateToListView && setTimeout(() => this.navigateToBack(), navigateToListView ? 10 : 3000);
                 setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
-                return <div className="single-view-callout" style={{ padding: '3px' }}>
+                return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
                     <header className="columns">
                         <div className="column" style={{ maxWidth: "70px" }}>
                             <span className="animated tada">
@@ -132,7 +138,7 @@ export class SingleViewBox<T> extends OrganicBox<
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
 
-        s.formData = s.formData || {};// this.actions.handleRead(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
+        s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         return <section className="single-view developer-features" ref="root">
             <h1 className="title is-5 columns" style={{ margin: '0' }}>
                 <div className="column is-11">

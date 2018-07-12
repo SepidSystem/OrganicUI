@@ -1,21 +1,16 @@
-/// <reference path="../../organicUI.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
 
-const { DataLookup, FilterPanel } = OrganicUI;
 import { departmentListView } from "./department-view";
 import { DevicesController } from "./sepid-rest-api";
 import { DeviceEntranceModes, DeviceMatchingModes, DeviceModels } from "./zero-data-structures";
-
-const { Field, ObjectField, SingleViewBox, ListViewBox, ComboBox } = OrganicUI;
-const { routeTable, DataList, DataForm, DataPanel, DataListPanel } = OrganicUI;
-const { TextField } = MaterialUI;
-
+import { DataLookup, Field, SingleViewBox, ListViewBox, ComboBox, IOptionsForCRUD, StatelessSingleView, StatelessListView } from "@organic-ui";
+import { routeTable, DataList, DataPanel,  TextField } from "@organic-ui";
+ 
 const { i18n } = OrganicUI;
 
-//OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-const api = OrganicUI.remoteApi as DeviceAPI;
 
 const options: IOptionsForCRUD =
 {
@@ -23,11 +18,9 @@ const options: IOptionsForCRUD =
     routeForListView: '/view/admin/devices',
     pluralName: 'devices', singularName: "device", iconCode: 'fa-calculator'
 };
-declare const sampleDto: DeviceDTO;
-
+ 
 const singleView: StatelessSingleView = params =>
     (<SingleViewBox params={params} actions={DevicesController} options={options}  >
-
         <DataPanel header={i18n("primary-fields")} primary className="medium-fields" >
             <Field accessor="code" required>
                 <TextField type="text" />

@@ -8,6 +8,7 @@ import { ReactNode } from "react";
 import { DataForm } from "./data-form";
 import { AppUtils } from "./app-utils";
 import { ComboBox } from "./combo-box";
+import { IComponentRefer, ErrorCodeForFieldValidation, IFieldProps } from "@organic-ui";
 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
@@ -16,34 +17,19 @@ interface IFieldMessage {
     by?: string;
 }
 
-export type ErrorCodeForFieldValidation = string;
+
 export interface IFieldState {
     messages?: IFieldMessage[];
     currentOp?: string;
 
 }
-export interface IFieldProps {
-    accessor?: string;
-    operators?: any[];
-    onGet?, onSet?: Function;
-    onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
-    onRenderCell?: (item?: any, index?: number, column?: any) => any;
-    label?: any;
-    icon?: any;
-    required?: boolean;
-    readonly?: boolean;
-    messages?: IFieldMessage[];
 
-    getInfoMessage?: () => string;
-    children?: any;
-    className?: string;
-}
 export interface FilterItem {
     op: string;
     value: string;
     value2?: string;
     values?: string[];
-    fieldName:string; 
+    fieldName: string;
 }
 export class Field extends BaseComponent<IFieldProps, IFieldState>{
     clientWidthNoErrorMode: number;
@@ -59,11 +45,11 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.handleGetData = this.handleGetData.bind(this);
 
     }
-    getFilterItem():FilterItem{
-        let value=this.extractedValue;
-        const op='LIKE';
-         
-        return {fieldName:this.props.accessor,value,op};
+    getFilterItem(): FilterItem {
+        let value = this.extractedValue;
+        const op = 'LIKE';
+
+        return { fieldName: this.props.accessor, value, op };
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(accessor))
     extractedValue: any;
@@ -81,6 +67,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     }
     handleGetData() {
         const p = this.props;
+
         if (p.onGet instanceof Function) return p.onGet();
         const { root } = this.refs;
         if (!root) return;
@@ -89,7 +76,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         let getters: (string | Function)[] = [];
         while (parent) {
             const { componentRef } = parent as any;
-            const props = componentRef && componentRef.props as IFieldReaderWriter;
+            const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props) {
                 const value = props.onFieldRead || props.accessor;
                 value && getters.push(value);
@@ -105,6 +92,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const accessorPath: string[] = getters.slice(0, idxForNearestReadFieldFunc).reverse() as any;
         const nearestReadFieldFunc = getters[idxForNearestReadFieldFunc] as Function;
         let value: any = nearestReadFieldFunc(accessorPath.shift());
+        if (p.accessor == 'rolesIds') console.log('handleGetData>>>>>', { value });
 
         while (accessorPath.length) {
             value = value[accessorPath.shift()];
@@ -128,7 +116,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
         while (parent) {
             const { componentRef } = parent as any;
-            const props = componentRef && componentRef.props as IFieldReaderWriter;
+            const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props && props.onFieldWrite) {
                 props.onFieldWrite(p.accessor, value);
                 this.extractedValue = value;
@@ -138,6 +126,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             }
             parent = parent.parentElement;
         }
+
 
         dataForm && dataForm.props.validate && this.revalidate();
 
@@ -162,6 +151,40 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     getCurrentOp() {
         return this.state.currentOp || (this.props.operators[0] && this.props.operators[0].Id);
     }
+    changeEvent: Function;
+    createHandleSetData(defaultCb: Function) {
+        return !defaultCb ? this.handleSetData.bind(this) : function () {
+            defaultCb(...arguments);
+            this.handleSetData(...arguments);
+
+        }.bind(this);
+    }
+    focusEvent: Function;
+    createFocusEvent(defaultCb: Function) {
+        const cb: Function = e => this.refs.container.classList.add('focused');
+
+        return !defaultCb ? cb : function () {
+            defaultCb(...arguments);
+            cb(...arguments);
+        }.bind(this);
+    }
+    blurEvent: Function;
+    createBlurEvent(defaultCb: Function) {
+        const cb: Function = e => {
+            const { target } = e;
+            setTimeout(() => {
+                if (document.activeElement == target) return;
+                this.refs.container.classList.remove('focused');
+
+            }, 100);
+            this.repatch({});
+        }
+
+        return !defaultCb ? cb : function () {
+            defaultCb(...arguments);
+            cb(...arguments);
+        }.bind(this);
+    }
     render() {
 
         const p = this.props, s = this.state;
@@ -173,25 +196,16 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const st = '';
         const classNameFromInputType = inputElement && inputElement.type && inputElement.type['field-className'];
         const filterFromInputType: Function = inputElement && inputElement.type && inputElement.type['field-filter'];
+        this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData(inputElement.props.onChange));
+        this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
+        this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
 
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
-                onChange: this.handleSetData,
-                onChanged: this.handleSetData,
-                onFocus: (e: React.KeyboardEvent<any>) => {
-                    this.refs.container.classList.add('focused');
-
-                },
-
-                onBlur: (e: React.KeyboardEvent<any>) => {
-                    const { target } = e;
-                    setTimeout(() => {
-                        if (document.activeElement == target) return;
-                        this.refs.container.classList.remove('focused');
-
-                    }, 100);
-                    this.repatch({});
-                },
+                onChange: this.changeEvent,
+                onChanged: this.changeEvent,
+                onFocus: this.focusEvent,
+                onBlur: this.blurEvent,
 
                 className: Utils.classNames(inputElement.props && inputElement.props.className, st)
             }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.extractedValue)
@@ -210,7 +224,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
-
+        if (p.onlyInput) return inputElement;
         return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
         } >
@@ -293,13 +307,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.processDOM();
     }
     getErrorMessage() {
-        const val = this.handleGetData(), p = this.props;
+        let val = this.handleGetData(), p = this.props;
+        if (val instanceof Array && val.length == 0) val = undefined;
         const dataForm = this.getDataForm(true);
         const message = ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
             || (dataForm && dataForm.invalidItems && dataForm.invalidItems.
                 filter(invalidItem => invalidItem.accessor == p.accessor)
                 .map(invalidItem => invalidItem.message)[0])
-            || (p.required && !val && 'error-required')
+            || (p.required && typeof val != 'number' && !val && 'error-required')
             || (p.onErrorCode instanceof Function) && p.onErrorCode(val);
         return message && Utils.i18nFormat(message, changeCase.paramCase(p.accessor));
 
@@ -372,7 +387,4 @@ function getAllChildren(instance): React.Component<any, any>[] {
 interface IUserFieldProps {
     extraFields?: any;
 }
-const userFields: FuncComponent<IUserFieldProps, IUserFieldProps> = (p, s) => {
-    return <span />
-}
-export const UserFields = funcAsComponentClass<IUserFieldProps, IUserFieldProps>(userFields);
+

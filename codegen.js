@@ -21,7 +21,7 @@ const codeTemplates = {
 SELECT * FROM  ${tableName}
 WHERE (1=1)`,
     view: (viewId) => (
-        `/// <reference path="../organicUI.d.ts" />   
+        `/// <reference path="../dts/globals.d.ts" />   
 module ${prettyCase(viewId)}View {
     const { BaseView, ActionManager, routeTable, i18n, icon, showIconAndText, showIconText,funcAsViewClass } = OrganicUI;
     const { Card, Panel,SearchInput } = OrganicUI.Controls;

@@ -13,12 +13,15 @@
 @import './master-page';
 @import './material-design-fabric';
 @import './utils';
-@import './flexboxgrid';
+@import './flexboxgrid';  
 @import './json-inspector';
 @import './developer-features';
 @import './data-lookup';
+@import './date-picker';
 @import './tree-list';
+@import './time-slot';
 @import './login-view';
+@import '../domain/frontend/app';
 .actionable {
     position: relative;
     min-height: auto;

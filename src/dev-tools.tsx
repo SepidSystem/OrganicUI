@@ -1,8 +1,9 @@
-/// <reference path="organicUI.d.ts" />
+/// <reference path="./dts/globals.d.ts" />
 import './dev-tools/devtools-data-form';
 import './dev-tools/devtools-boxes';
 import './dev-tools/devtools-rest';
 import { DevFriendlyCommand } from './lib/developer-features';
+import { IComponentRefer, IDeveloperFeatures } from '@organic-ui';
 OrganicUI.devTools.set('Translate', (dev) => {
     OrganicUI.DeveloperBar.topElement = <FabricUI.Dialog onDismiss={() => {
         OrganicUI.DeveloperBar.topElement = null;

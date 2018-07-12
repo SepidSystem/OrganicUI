@@ -1,12 +1,16 @@
+/// <reference path="../dts/organic-ui.d.ts" />
 import { IStateListener, StateListener } from "./state-listener";
 import ErrorIcon from '@material-ui/icons/Warning';
 import { Component } from 'react';
-
+import { createMayBeObject } from './may-be';
+import { IComponentRefer } from "@organic-ui";
+import { isDevelopmentEnv } from "./developer-features";
 export class BaseComponent<P, S> extends Component<P, S>{
     static refIdCounter = 0;
 
     devElement: any;
     refId: number;
+    nodes: any;
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
@@ -25,7 +29,28 @@ export class BaseComponent<P, S> extends Component<P, S>{
             .map(child => (child as any).props);
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
-
+        this.tryCountLimits = {};
+    }
+    tryCountLimits: { [key: string]: number };
+    nodeByRef<T = any>(refName: string): T {
+        const result = this.refs[refName];
+        this.tryCountLimits[refName] = this.tryCountLimits[refName] === undefined ? 5 :
+            this.tryCountLimits[refName];
+        if (result)
+            delete this.tryCountLimits[refName];
+        else setTimeout(nodeRefTick, 10, this, refName);
+        return createMayBeObject(result);
+    }
+    evaluate<T>(args: string | { refId?, defaultValue? }, cb: (ref: T) => any) {
+        if(typeof args=='string') args={refId:args};
+        const ref = this.nodeByRef<T>(args.refId);
+        try {
+            const finalResult = ref && cb(ref);
+            return finalResult || args.defaultValue;
+        }
+        catch (exc) {
+            return args.defaultValue;
+        }
     }
     componentDidMount() {
 
@@ -33,7 +58,8 @@ export class BaseComponent<P, S> extends Component<P, S>{
         root && Object.assign(root, { vdom: this, componentRef: this });
 
     }
-    repatch(delta: Partial<S>, target?) {
+    repatch(delta: Partial<S>  , target?) {
+        if(delta['debug'] && !OrganicUI.isProdMode()) debugger;
         if (window['repatchDebug']) debugger;
         target = target || this.state;
         Object.assign(target, delta);
@@ -46,7 +72,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
         }
         this.forceUpdate();
     }
-    querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement) : T[]{
+    querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[] {
         const { root } = this.refs;
         console.assert(!!root, `root is null@queryAllComponentRefs with ${cssSelector}`);
         return (Array.from(((target || root) as HTMLElement).querySelectorAll(cssSelector)))
@@ -116,4 +142,15 @@ export class BaseComponent<P, S> extends Component<P, S>{
 export function CriticalContent(p: { permissionKey: string, children?}) {
 
     return <div className={"critical-content"} data-key={p.permissionKey}>{p.children}</div>
+}
+const nodeRefTick = (target: BaseComponent<any, any>, refName) => {
+    const result = target.refs[refName];
+    if (result) return;
+    if (target.tryCountLimits[refName]--) {
+        console.warn('nodeRefTick issue>>>', target, refName);
+
+    }
+    target.repatch({});
+    setTimeout(nodeRefTick, 20, target, refName);
+
 }

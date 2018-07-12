@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />   
+/// <reference path="../dts/globals.d.ts" />   
 import { BaseComponent } from './base-component';
 import { icon, i18n } from './shared-vars';
 import { registryFactory } from './registry-factory';
@@ -6,15 +6,12 @@ import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils } from './utils';
 import { DeveloperBar } from '../organicUI';
-import { IColumn, IDetailsList, IDetailsListProps, DetailsList } from 'office-ui-fabric-react';
+import { IColumn, IDetailsList, IDetailsListProps, DetailsList, ConstrainMode } from 'office-ui-fabric-react';
 
 import { Cache } from 'lru-cache';
-import { IFieldProps, Field } from './data';
-export interface IDataListLoadReq {
-    startFrom: number;
-    rowCount: number;
+import {   Field } from './data';
+import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 
-}
 
 interface IPaginationProps {
     currentPageIndex: number;
@@ -51,24 +48,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
 };
 export const Pagination = funcAsComponentClass<IPaginationProps, IPaginationProps>(pagination);
 //----------------------------------------------------------------------------------------
-export interface IDataListProps {
-    itemHeight?: number;
-    onLoadRequestParams?: Function;
-    loader?: (req: IDataListLoadReq) => Promise<IListData>;
-    onDoubleClick?: () => void;
-    onCurrentRowChanged?: (row: any) => any;
-    rowCount?: number;
-    paginationMode?: 'paged' | 'scrolled';
-    template?: string;
-    height?: number;
-    minWidth?: number;
-    popupForActions?: React.ReactNode | Function;
-    onRowClick?: (rowIdx: number, row: any) => void;
-    rowSelection?: any;
-    templatedApplied?: boolean;
-    corner?: any;
-    children?: any | any[];
-}
+
 export interface IDataListState {
     currentRow: any;
     startFrom?: number;
@@ -84,10 +64,11 @@ export interface IDataListState {
     loadingPageIndex?: number;
     popupActionForRowIndex?: number;
     ratio?: number;
+    noPaging?: boolean;
 }
 let randomStrings = {};
 
-function defaultEmptyResult(p: IDataListProps) {
+function defaultEmptyResult(p: OrganicUi.IDataListProps) {
     return <div className="">no-result</div>;
 }
 /*
@@ -97,7 +78,7 @@ const rowRenderer = p => (
         <Spinner />
     </div >);
     */
-export class DataList extends BaseComponent<IDataListProps, IDataListState> implements IDeveloperFeatures {
+export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListState> implements IDeveloperFeatures {
     items: any[];
     rowCount: number;
     static defaultProps = {
@@ -110,16 +91,17 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
     }
     static Templates = registryFactory<Function>()
     devPortId: number;
+
     reload() {
         this.items = null;
         const s = this.state;
         this.cache.reset();
-        this.items=[];
+        this.items = [];
         const listData = this.loadDataIfNeeded(+s.startFrom) as any;
-        listData instanceof Promise && listData.then(listData=>this.repatch({listData}));
+        listData instanceof Promise && listData.then(listData => this.repatch({ listData }));
         return listData;
     }
-    constructor(p: IDataListProps) {
+    constructor(p: OrganicUi.IDataListProps) {
         super(p);
         this.devPortId = Utils.accquireDevPortId();
 
@@ -158,6 +140,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
 
         return promise instanceof Promise && promise.then(listData => {
             if (listData instanceof Array) {
+                this.repatch({ noPaging: true });
                 listData = { rows: listData, totalRows: listData.length };
             }
             if (listData.rows) {
@@ -225,14 +208,18 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
         const p = this.props, s: IDataListState = this.state;
         s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
         const length = this.rowCount || 10;
-        const items = this.items = Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx));
+        
+        const items = this.items =
+            s.noPaging ? s.listData.rows :
+                Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx));
         const dataListProps: IDetailsListProps = Object.assign({ ref: "detailList" }, {
             columns,
             items,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : length)
                 : (!!listData && length)),
-            minHeight: p.height
+            minHeight: p.height,
+            constrainMode:ConstrainMode.unconstrained ,
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         } as Partial<IDetailsListProps>, p) as any;
         const { itemHeight } = this.props;
@@ -242,7 +229,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
                 loadingPageIndex={s.loadingPageIndex}
                 currentPageIndex={s.currentPageIndex}
                 onPageIndexChange={pageIndex => {
-                    this.repatch({ loadingPageIndex: pageIndex });
+                     this.repatch({ loadingPageIndex: pageIndex });
                     this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, resetCache: true, forcedMode: true, currentPageIndex: pageIndex });
 
 
@@ -263,7 +250,7 @@ export class DataList extends BaseComponent<IDataListProps, IDataListState> impl
                         {React.createElement(FabricUI.DetailsList, dataListProps)}
                         <div className="columns">
                             {p.corner && <div className="column corner">{p.corner}</div>}
-                            {pagination && <div className="column pagination">{pagination}</div>}
+                            {!s.noPaging && pagination && <div className="column pagination">{pagination}</div>}
 
                         </div>
                     </div>}

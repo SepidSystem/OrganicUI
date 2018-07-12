@@ -3,7 +3,7 @@ html {
     background: rgb(222, 233, 238);
 }
 
-main {
+main.main-container {
     text-align: right;
     position: absolute;
     right: 310px;
@@ -55,11 +55,13 @@ main {
     background: #fff !important;
     border-radius: 7px !important;
 }
+#root,.MuiInput-root,label,input,button,span{ 
+font-family: Vazir !important;
 
+}
 .master-page {
     display: flex;
     min-height: 100%;
-    font-family: Vazir !important;
     .router {
         min-height: 48px;
         display: flex;
@@ -114,6 +116,8 @@ main {
             }
         }
         min-width: 280px;
+        max-width: 280px;
+        
         background: rgb(72, 74, 105);
         .triangle {
             display: none;

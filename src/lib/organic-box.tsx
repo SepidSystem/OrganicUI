@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 import { BaseComponent } from './base-component';
 import { icon, i18n } from './shared-vars';
@@ -7,11 +7,8 @@ import { Utils } from './utils';
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
-import { IDataListProps, DataList } from './data-list';
-import { DataForm } from './data-form';
-import { Spinner } from './spinner';
 
-import { isDevelopmentMode } from './developer-features';
+import { isDevelopmentEnv } from './developer-features';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 interface SingleViewBoxState { formData: any; validated: boolean; }
@@ -30,7 +27,7 @@ export interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
     options: TOptions;
     params: TParams;
-    customActions?:Partial<TActions>;
+    customActions?: Partial<TActions>;
     children?: React.ReactNode;
 
 }
@@ -44,7 +41,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
             board.innerHTML = msg;
         });
     }
-   
+
     serverChanged() {
         this.showDevBoard('server files is changed, building bundle started...');
 
@@ -73,9 +70,9 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
     }
     static instanceCounter = 0;
 
-    constructor(p:OrganicBoxProps<TActions, TOptions, TParams>) {
-        super( p); 
-        this.actions=Object.assign({},p.actions,p.customActions || {});
+    constructor(p: OrganicBoxProps<TActions, TOptions, TParams>) {
+        super(p);
+        this.actions = Object.assign({}, p.actions, p.customActions || {});
         this.devPortId = Utils.accquireDevPortId();
         const stableState = localStorage.getItem('stableState')
         const counter = OrganicBox.instanceCounter++;
@@ -98,7 +95,7 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
 
             }
         }
-        if (isDevelopmentMode() && counter == 0) {
+        if (isDevelopmentEnv() && counter == 0) {
             try {
                 this.webSocket = new WebSocket(`ws://${location.host}/watch`);
                 this.webSocket.onmessage = ({ data }) => {
@@ -110,4 +107,4 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
             } catch (exc) { }
         }
     }
-} 
+}

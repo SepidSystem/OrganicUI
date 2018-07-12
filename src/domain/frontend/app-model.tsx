@@ -1,6 +1,6 @@
 import { DefaultMasterPage } from "./master-page";
 
-const { Menu, i18n } = OrganicUI;
+import { Menu, i18n, IAppModel } from  '@organic-ui';
 export default class AppModel implements IAppModel {
     
     getMenuItems() {
@@ -24,6 +24,10 @@ export default class AppModel implements IAppModel {
                 // OrRoleIDs: [],
                 // AndRoleIDs: [BasePermissionsStructure.DEVICE_DEFINE_READ],
                 menu: new Menu(30, 'دستگاه ها', '/view/admin/devices', null, 'fa-calculator', null, false, 0)
+            }, {
+                // OrRoleIDs: [],
+                // AndRoleIDs: [BasePermissionsStructure.DEVICE_DEFINE_READ],
+                menu: new Menu(31, 'زمان بندی', '/view/admin/schedules', null, 'fa-lock', null, false, 0)
             },
             {
                 // OrRoleIDs: [],

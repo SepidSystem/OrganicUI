@@ -1,20 +1,20 @@
 
-/// <reference path="../../organicUI.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
+/// <reference path="../../dts/organic-ui.d.ts" />
 
 import { BasicController, IResponseForGetCurrentUser, AuthenticationController } from "./sepid-rest-api";
 
 
-const { BaseComponent, SubRender, JssProvider, createGenerateClassName, MenuIcon, Collapsible, i18n } = OrganicUI;
+import { BaseComponent, SubRender, createGenerateClassName, Collapsible, i18n, icon, Utils, DeveloperBar } from '@organic-ui';
+const JssProvider: any = OrganicUI.JssProvider;
 
-const { AppBar, IconButton, Toolbar } = OrganicUI;
 const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true,
     productionPrefix: '',
 });
 const { Fabric } = OrganicUI.FabricUI;
-const { menuBar, Component, icon, Utils } = OrganicUI;
 
-const { DeveloperBar } = OrganicUI;
+
 const { showIcon, classNames } = Utils;
 
 function GeneralHeader() {

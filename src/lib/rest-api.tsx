@@ -1,6 +1,7 @@
 import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
 import { AppUtils } from "./app-utils";
+import { OptionsForRESTClient } from "@organic-ui";
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));

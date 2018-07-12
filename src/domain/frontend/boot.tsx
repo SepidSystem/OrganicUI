@@ -1,4 +1,5 @@
 import { webApi } from "./sepid-rest-api";
+import { IAdvancedQueryFilters } from "@organic-ui";
 
 const customMapProps = {
     startFrom: '_start',

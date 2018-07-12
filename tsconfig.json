@@ -1,33 +1,38 @@
 {
-    "compilerOptions": {
-      "sourceMap": true,
-      "allowJs": true,
-      "target": "es6",
-      "jsx": "react",
-       "module": "commonjs",
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "moduleResolution": "node",       
-       "lib": [
-        "es6",
-        "es7",
-        "es2017.object","es2016.array.include","es2017",
-        "dom"
-      ]
-    },
-    "exclude": [
-      "dist",
-      "build",
-      "node_modules"
+  "compilerOptions": {
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "es6",
+    "jsx": "react",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "/node_modules/@types",
+      "/src/dts"
     ],
-    "files":[
-         "./src/organicUI.d.ts",
-  
-        "./src/domain/frontend/api.d.ts",
-        "./src/domain/frontend/entities.d.ts"
+    "moduleResolution": "node",
+    "lib": [
+      "es6",
+      "es7",
+      "es2017.object",
+      "es2016.array.include",
+      "es2017",
+      "dom"
     ]
-    ,"include": [
-      "./src/organicUI.d.ts",
-      "./src/platform.d.ts"
-    ]
-  }
+  },
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules"
+  ],
+  "files": [
+    "./src/dts/globals.d.ts",
+    "./src/domain/frontend/api.d.ts",
+    "./src/domain/frontend/entities.d.ts"
+  ],
+  "include": [
+    "./src/dts/globals.d.ts"
+   
+  ]
+}

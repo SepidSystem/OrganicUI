@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 import { BaseComponent, CriticalContent } from './base-component';
 import { icon, i18n } from './shared-vars';
@@ -6,14 +6,14 @@ import { Utils } from './utils';
 import { FilterPanel } from './filter-panel';
 import { listViews } from './shared-vars';
 import { ReactElement } from 'react';
-import { IDataListProps, DataList } from './data-list';
-
+import {   DataList } from './data-list';
+ 
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 
-import { IDetailsListProps, Selection } from 'office-ui-fabric-react';
+import { IDetailsListProps, Selection, ConstrainMode } from 'office-ui-fabric-react';
 import OrganicBox from './organic-box';
-import { Field, IFieldProps } from './data';
+import { Field } from './data';
 import PrintIcon from '@material-ui/icons/Print';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
@@ -21,6 +21,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import { AppUtils } from './app-utils';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -106,23 +107,18 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
     }
 }
 
-interface ListViewBoxProps {
-    options?: IOptionsForCRUD;
-    params: IListViewParams;
-    actions: IActionsForCRUD<any>, children;
-
-};
+ 
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends
-    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
-    implements IDeveloperFeatures {
+    OrganicBox< IActionsForCRUD<T>,  IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
+    implements  IDeveloperFeatures {
 
     columns: IFieldProps[];
 
     getFilterPanel() {
         this.columns = this.columns || this.getColumns();
-        return <FilterPanel onApplyClick={()=>this.refs.dataList.reload()} dataForm={this.state.dataFormForFilterPanel}>
+        return <FilterPanel onApplyClick={() => this.refs.dataList.reload()} dataForm={this.state.dataFormForFilterPanel}>
             {this.columns.map(col => (<Field  {...col} />))}
         </FilterPanel>
     }
@@ -138,7 +134,7 @@ export class ListViewBox<T> extends
     constructor(p) {
         super(p);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
-        this.handleReadList = this.handleReadList.bind(this);
+        this.readList = this.readList.bind(this);
         this.selection = new FabricUI.Selection({
             selectionMode: this.getMultiple() ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
             onSelectionChanged: this.handleSelectionChanged
@@ -151,7 +147,7 @@ export class ListViewBox<T> extends
     getColumns(): IFieldProps[] {
         const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
         if (!dataList) return;
-        const { children } = dataList.props as IDataListProps;
+        const { children } = dataList.props as OrganicUi.IDataListProps;
         return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
 
     }
@@ -181,7 +177,7 @@ export class ListViewBox<T> extends
             </ul>}
         </div>, { title: "delete-items" });
         if (!confrimResult) return;
-        items.map(dto => this.getId(dto)).forEach(id => actions.handleDeleteList(id));
+        items.map(dto => this.getId(dto)).forEach(id => actions.deleteList(id));
 
         this.refs.dataList.reload();
     }
@@ -191,28 +187,34 @@ export class ListViewBox<T> extends
             return this.actions.getId(row);
         return Utils.defaultGetId(row);
     }
-    denyHandleSelectionChanged: boolean;
-    handleSelectionChanged() {
-        if (this.denyHandleSelectionChanged) return;
+    denyHandleSelectionChanged: number;
 
-        const { onSelectionChanged } = this.props.params;
+    handleSelectionChanged() {
+        
+        const now = +new Date();
+        if (this.denyHandleSelectionChanged && (now - this.denyHandleSelectionChanged) < 500) return;
+       const { onSelectionChanged } = this.props.params;
         const indices = this.selection.getSelectedIndices();
         onSelectionChanged instanceof Function && onSelectionChanged(indices, this.selection);
         onSelectionChanged instanceof Function &&
             setTimeout(() => {
-                this.denyHandleSelectionChanged = true;
+                 
+                this.denyHandleSelectionChanged = +new Date();
                 try {
                     if (indices.length)
                         indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
                 } finally {
-                    this.denyHandleSelectionChanged = false;
+                    this.denyHandleSelectionChanged = 0;
                 }
+                 
+                 this.adjustSelectedRow()   ;
+     
             }, 20);
         //this.repatch({});
     }
-    handleReadList(params) {
+    readList(params) {
         if (this.isRootRender()) {
-            return this.actions.handleReadList(params).then(r => {
+            return this.actions.readList(params).then(r => {
                 setTimeout(() => this.adjustSelectedRow(), 200);
                 return r;
             });
@@ -233,39 +235,50 @@ export class ListViewBox<T> extends
         tryToAnimate();
     }
     adjustSelectedRow() {
-        const { selectedId } = this.props.params;
+
+        const { params } = this.props;
+
+        const { selectedId } = params;
         let limitTry = 30;
-        this.denyHandleSelectionChanged = true;
-        if (selectedId) {
+        if (selectedId || params.defaultSelectedValues) {
+            const defaultSelectedValues =
+                params.defaultSelectedValues instanceof Function ?
+                    params.defaultSelectedValues() : [];
             const tryToSelect = () => {
                 const items = this.selection.getItems();
-                let found = false;
-
+                let foundIndex = -1;
                 items.forEach((item, idx) => {
                     if (!item) return;
-                    if (found) return;
-                    found = this.getId(item) == selectedId;
-                    found && setTimeout(() => this.selection.setIndexSelected(idx, true, false), 100);
-                });
-                if (!found && --limitTry > 0) setTimeout(() => tryToSelect(), 200);
-                else {
-                    this.denyHandleSelectionChanged = false;
+                    const id = this.getId(item);
+                    if (id == selectedId)
+                        foundIndex = idx;
+                    if (defaultSelectedValues.includes(id))
+                        foundIndex = idx;
+                    (foundIndex >= 0) && setTimeout(foundIndex => {
+                        this.denyHandleSelectionChanged = +new Date();
 
-                }
+                        this.selection.setIndexSelected(foundIndex, true, false);
+                        this.denyHandleSelectionChanged = 0;
+                    }, 100, foundIndex);
+                });
+                if ((foundIndex < 0) && --limitTry > 0) setTimeout(() => tryToSelect(), 200);
+
             }
             tryToSelect();
         }
+
     }
 
     componentDidMount() {
         super.componentDidMount();
-        this.setPageTitle(i18n.get(this.props.options.pluralName));
+        !this.props.params.forDataLookup && this.setPageTitle(i18n.get(this.props.options.pluralName));
 
     }
-    handleLoadRequestParams(params: IAdvancedQueryFilters) {
-        const filterPanel=this.querySelectorAll<FilterPanel>('.filter-panel')[0];
-        params.filterModel = filterPanel.getFilterItems().filter(filterItem=>!!filterItem.value);
-        return params; 
+    handleLoadRequestParams(params: OrganicUi.IAdvancedQueryFilters) {
+        const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
+        if (filterPanel)
+            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
+        return params;
     }
     renderContent() {
         if ((React.Children.map(this.props.children || [], child => child) || [])
@@ -297,12 +310,13 @@ export class ListViewBox<T> extends
                         height: params.height || 500,
                         onDoubleClick: this.handleEdit,
                         onLoadRequestParams: this.handleLoadRequestParams,
-                        loader: this.handleReadList,
+                        loader: this.readList,
                         paginationMode: child.props.paginationMode || 'paged',
-                        selection: this.selection
-                    } as Partial<IDataListProps>,
+                        selection: this.selection,
 
-                    { corner } as Partial<IDataListProps>,
+                    } as Partial<OrganicUi.IDataListProps>,
+
+                    //    { corner } as Partial<IDataListProps>,
                     multiple
                         ? {
                             selectionMode: 2, checkboxVisibility: 1
@@ -313,7 +327,9 @@ export class ListViewBox<T> extends
         });
 
         if (!root) setTimeout(() => this.repatch({}), 10);
-        if (params.forDataLookup) return <section className="developer-features list-view-data-lookup" ref="root"  > {children}</section>;
+        if (params.forDataLookup)
+            return <section className="developer-features list-view-data-lookup"
+                style={{ maxHeight: (params.height ? params.height + 'px' : 'auto'), overflowY: 'scroll' }} ref="root"  > {children}</section>;
 
         return <section className="list-view developer-features" ref="root"   >
 

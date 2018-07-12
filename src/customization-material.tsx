@@ -1,4 +1,4 @@
-/// <reference path="./organicUI.d.ts" />
+/// <reference path="./dts/globals.d.ts" />
 
 import { Field } from "./lib/data";
 

@@ -105,8 +105,8 @@ export const Utils = {
 		const text = i18n.get(i18nCode) as any;
 		return format(text, args);
 	},
-	showIcon(icon: string) {
-		return !!icon && <i key={icon} className={Utils.classNames("icon", icon.split('-')[0], icon)} />;
+	showIcon(icon: string, className?: string) {
+		return !!icon && <i key={icon} className={Utils.classNames("icon", className, icon.split('-')[0], icon)} />;
 	},
 	defaultGetId: ({ id }) => id,
 	setNoWarn(v) {
@@ -141,10 +141,10 @@ export const Utils = {
 				shouldFocusOnMount: true,
 				items:
 					topItems.concat(
-						Object.keys(devTools.data)
+						Object.keys( OrganicUI.devTools.data)
 							.filter(key =>
 								key.startsWith(targetText + '|'))
-							.map(key => [key, devTools.data[key]])
+							.map(key => [key, OrganicUI.devTools.data[key]])
 							.map(([key, onExecute]) => ({
 								key: key.split('|')[1],
 								name: key.split('|')[1],
@@ -180,13 +180,24 @@ export const Utils = {
 		// If cancelled, don't dispatch our event
 		return !elem.dispatchEvent(evt);
 	},
-	merge<T>(...args:Partial<T>[]):T {
+	merge<T>(...args: Partial<T>[]): T {
 		return args.reduce((accumulator, obj) => Object.assign(accumulator, obj), {}) as T;
+	},
+	toArray(arg): any[] {
+		return arg instanceof Array ? arg : [arg];
+	},
+	sumValues(numbers: number[]) {
+		return numbers.reduce((a, b) => a + b, 0);
+	},
+	clone<T>(x: T): T {
+		return JSON.parse(JSON.stringify(x))
+	},
+	uniqueArray<T>(array: T[]):T[] {
+		return Object.keys(  array.reduce((a, b) => (a[b + ''] = 1, a), {})).map(key=>(key as any) as T);
 	}
 
 }
 import * as changeCaseObject from 'change-case-object'
-import { devTools } from "./developer-features";
-import { TabClassKey } from "@material-ui/core/Tab";
-
+import { IDeveloperFeatures, TMethods } from "@organic-ui";
+ 
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

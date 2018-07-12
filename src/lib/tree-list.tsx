@@ -1,16 +1,11 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 import { BaseComponent } from './base-component';
 import { Utils } from './utils';
 import { Checkbox } from '@material-ui/core';
 import { Spinner } from './spinner';
-interface ITreeListProps {
-    value?: ITreeListNode[];
-    onChange?: (nodes) => any;
-    height: number;
-    nodes: ITreeListNode[];
+import { ITreeListNode, ITreeListProps } from '@organic-ui';
 
-}
 export class TreeList extends BaseComponent<ITreeListProps, any>{
     constructor(p) {
         super(p);

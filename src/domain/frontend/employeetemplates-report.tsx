@@ -1,26 +1,12 @@
-/// <reference path="../../organicUI.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 /// <reference path="entities.d.ts" />
 /// <reference path="api.d.ts" />
 
-namespace LicApp.Frontend.EmployeeTemplates {
-    const { Field, ObjectField, SingleViewBox, ListViewBox, ReportViewBox } = OrganicUI;
-    const { routeTable, DataList,   DataForm, DataPanel, DataListPanel } = OrganicUI;
-    const { DetailsList, SelectionMode, TextField } = FabricUI;
 
-    const { i18n } = OrganicUI;
-
-    //OrganicUI.routeTable.set('/view/customer/:id', CustomerView, { mode: 'single' });
-    const api = OrganicUI.remoteApi as CustomerAPI;
-    const actions: IActionsForCRUD<CustomerDTO> = {
-        handleCreate: dto => api.createCustomer(dto),
-        handleRead: id => api.findCustomerById(id), handleReadList: params => api.readCustomerList(params),
-        handleUpdate: (id, dto) => api.updateCustomerById(id, dto),
-        handleDeleteList: id => api.deleteCustomerById(id)
-    };
-    const reportView = (params) =>
-        (<ReportViewBox actions={null} options={null} params={params} >
+import { ReportViewBox,routeTable } from  '@organic-ui'; 
+const reportView = (params) =>
+    (<ReportViewBox actions={null} options={null} params={params} >
 
 
-        </ReportViewBox>);
-    routeTable.set('/view/admin/reports/employeetemplates', reportView);
-}
+    </ReportViewBox>);
+routeTable.set('/view/admin/reports/employeetemplates', reportView);

@@ -1,6 +1,8 @@
+import { AppUtils, DeveloperBar } from "@organic-ui";
+
 export const masterPage = p => <article className="blank minimal master-page">
-    <OrganicUI.DeveloperBar />
+    <DeveloperBar />
 
     {p.children}
-    <OrganicUI.AppUtils />
+    <AppUtils />
 </article>;

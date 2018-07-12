@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts"  
+/// <reference path="../dts/globals.d.ts"  
 import { BaseComponent } from './base-component';
 import { funcAsComponentClass } from './functional-component';
 import { Utils } from './utils';
@@ -87,7 +87,7 @@ interface IAdvButtonProps {
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
     size?: 'small' | 'medium' | 'large';
-    onClick?: () => Promise<any>;
+    onClick?: () =>  any ;
     fixedWidth?: boolean;
     className?: string;
     calloutWidth?: number;
@@ -110,9 +110,10 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                 e.preventDefault();
                 if (s.callout) return repatch({ callout: null });
                 const asyncClick = async () => {
-                    repatch({ isLoading: true, callout: null });
-                    const resultAsync = p.onClick();
+                    const resultAsync = p.onClick instanceof Function &&  p.onClick();
                     if (resultAsync instanceof Promise) {
+                        repatch({ isLoading: true, callout: null });
+                  
                         resultAsync.catch(error=>{
                             console.log('Advanced Button Error>>>>>',error);
                             repatch({ isLoading: false, callout: null });

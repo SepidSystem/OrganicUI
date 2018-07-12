@@ -1,4 +1,4 @@
-export class Menu implements IMenu {
+export class Menu implements OrganicUi.IMenu {
     constructor(public id: number,
         public title: string,
         public routerLink: string,

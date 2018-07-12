@@ -1,8 +1,9 @@
 import { BaseComponent } from "./base-component";
 import { DataForm } from "./data-form";
 import { i18n } from './shared-vars';
-import { Field, FilterItem, IFieldProps } from "./data";
+import { Field, FilterItem } from "./data";
 import { Utils } from "./utils";
+import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
 
 interface IFilterPanelProps {
     dataForm?: any;

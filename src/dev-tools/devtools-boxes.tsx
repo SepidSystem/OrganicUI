@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 
 OrganicUI.devTools.set('SingleView|Actions', target => {

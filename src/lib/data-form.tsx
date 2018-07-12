@@ -1,7 +1,7 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/organic-ui.d.ts" />
 
 
-import { icon, i18n, funcAsComponentClass, FuncComponent, BaseComponent, FabricUI } from "../organicUI";
+import { icon, i18n,  BaseComponent, FabricUI } from "../organicUI";
 import { Utils, changeCase } from './utils';
 
 
@@ -9,7 +9,8 @@ import { Panel } from "./ui-kit";
 
 import { PanelType, IColumn } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
-import { IFieldProps, Field } from "./data";
+import {   Field } from "./data";
+import { IFieldProps } from "@organic-ui";
  
 interface IDataListState {
     message?: { type, text };
@@ -21,7 +22,7 @@ interface IDataListState {
     validated?: boolean;
 
 }
-export class DataForm extends BaseComponent<IDataFormProps, IDataListState> implements IDeveloperFeatures {
+export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IDataListState> implements OrganicUi.IDeveloperFeatures {
     devPortId: number;
     getDevButton() {
         return Utils.renderDevButton('DataForm', this as any);
@@ -130,7 +131,7 @@ export class DataForm extends BaseComponent<IDataFormProps, IDataListState> impl
         if (this.devElement) return;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
 
-        this.querySelectorAll<IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
+        this.querySelectorAll<OrganicUi.IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 
     }
     componentDidMount() {
@@ -151,18 +152,9 @@ interface IDataPanelState {
     readonly?: boolean;
 
 }
-interface DataListPanelProps extends Partial<FabricUI.IDetailsListProps>, Partial<IDataPanelProps> {
-
-    formMode?: 'modal' | 'callout' | 'panel' | 'section';
-    avoidAdd?, avoidDelete?, avoidEdit?: boolean;
-    customBar?: TMethods;
-    accessor?: string;
-    onErrorCode?: onErrorCodeResult;
-    singularName?, pluralName?: string;
-}
-
-export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListState>
-    implements IBindableElement {
+ 
+export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, IDataListState>
+    implements OrganicUi.IBindableElement {
     targetItem: any;
     items: any[];
     lastMod: number;
@@ -191,8 +183,8 @@ export class DataListPanel extends BaseComponent<DataListPanelProps, IDataListSt
         let getters: (string | Function)[] = [];
         while (parent) {
             const { componentRef } = parent as any;
-            const onFieldRead = componentRef && componentRef.props && (componentRef.props as IFieldReaderWriter).onFieldRead;
-            const onFieldWrite = componentRef && componentRef.props && (componentRef.props as IFieldReaderWriter).onFieldWrite;
+            const onFieldRead = componentRef && componentRef.props && (componentRef.props as OrganicUi.IFieldReaderWriter).onFieldRead;
+            const onFieldWrite = componentRef && componentRef.props && (componentRef.props as OrganicUi.IFieldReaderWriter).onFieldWrite;
 
             if (onFieldRead instanceof Function && onFieldWrite instanceof Function) {
 

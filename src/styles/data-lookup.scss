@@ -1,4 +1,7 @@
 .data-lookup {
+    min-height: 30px;
+    margin: 2px;
+    position: relative;
     .editor {
         display: flex;
         flex-direction: row;
@@ -6,7 +9,46 @@
             width: 100%;
         }
     }
-    &.deactive .editor {
+    .inner-text {
+        position: absolute;
+        right: 2px;
+        width: auto;
+        top: 0;
+        bottom: 0;
+        vertical-align: middle;
+        display: flex;
+        align-items: center;        
+        .text {
+        
+            display: flex;
+        }
+        .selected-item{
+            background: #ddd;
+            padding:0 2px;
+            margin:0px 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size:90%;
+            display: inline-flex;
+        }
+        .selected-items{
+            display: flex;
+            max-height: 80%;
+            overflow: hidden;
+        }
+        .remove-btn{
+            visibility: hidden;
+            min-width: 20px;
+            width:20px;
+        }
+    }
+    .selected-item:hover{
+        .remove-btn{
+            visibility: visible;
+        }
+    }
+      .editor {
         position: absolute;
         left: 0;
         top: 0;
@@ -31,25 +73,16 @@
             align-items: flex-start;
         }
     }
-    min-height: 30px;
-    margin:2px;
-    position: relative;
     .list-view-container {
         background-color: white;
         box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
         visibility: visible;
         position: absolute;
-        height: 300px;
-        z-index: 100000000;
+         z-index: 100000000;
         top: 34px;
         left: 15px;
         right: 0;
         padding: 4px;
-        .list-view-data-lookup {
-            margin: 3px;
-            overflow: hidden;
-            max-height: 280px;
-        }
     }
     .caretDownWrapper {
         left: 2px;
@@ -59,7 +92,7 @@
         display: flex;
         align-items: flex-start;
         justify-content: center;
-        svg{
+        svg {
             position: static;
         }
     }

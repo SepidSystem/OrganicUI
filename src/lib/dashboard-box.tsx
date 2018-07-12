@@ -1,4 +1,4 @@
-/// <reference path="../organicUI.d.ts" />
+/// <reference path="../dts/globals.d.ts" />
 
 import { BaseComponent } from './base-component';
 import {   icon, i18n } from './shared-vars';
@@ -9,7 +9,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Field } from './data';
 import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
-import { IDataListProps, DataList } from './data-list';
+ 
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';

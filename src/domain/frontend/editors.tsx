@@ -1,9 +1,9 @@
 import { departmentListView } from "./department-view";
-
+const {DatePicker}=OrganicUI;
 const { editorByAccessor,DataLookup } = OrganicUI;
 const { TextField, Checkbox,Select  } = MaterialUI;
 editorByAccessor.customTester(s => s.endsWith('Name'), <TextField />);
-editorByAccessor.customTester(s => s.endsWith('Date'), <Select />);
+editorByAccessor.customTester(s => s.endsWith('Date'), <DatePicker />);
 editorByAccessor.customTester(s => !!s , <TextField />);
 editorByAccessor.set('-', <input type="text" style={{ display: 'none' }} />);
 editorByAccessor.set('address', <TextField type="text" />);

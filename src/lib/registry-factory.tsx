@@ -1,8 +1,8 @@
 
 
-export function registryFactory<T>(mapper?: (result: T, key: string) => T): IRegistry<T> {
+export function registryFactory<T>(mapper?: (result: T, key: string) => T): OrganicUi.IRegistry<T> {
     let data = {}, notFounded = {}, secondaryValues = {};
-    const testers: CustomTesterForRegistry[] = [], resultForTesters: T[] = [];
+    const testers: OrganicUi.CustomTesterForRegistry[] = [], resultForTesters: T[] = [];
     function getter(key, setValue?: T): T {
         if (arguments.length == 2) return set(key, setValue) as any;
         if (key instanceof Object) return key;
@@ -19,9 +19,10 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): IReg
                 if (((tester instanceof Function) && tester(key))
                     || ((tester instanceof RegExp) && tester.test(key))
                     //    || (typeof tester == 'string' && wildcard(tester, key))
-                )
+                ){ 
                     result = resultForTesters[counter];
-
+                    break;
+                }
                 counter++;
             }
 
@@ -41,7 +42,7 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): IReg
     }
 
     const directGet = (key: string) => data[key] || key;
-    const customTester = (tester: CustomTesterForRegistry, value: T) => (testers.push(tester), resultForTesters.push(value));
+    const customTester = (tester: OrganicUi.CustomTesterForRegistry, value: T) => (testers.push(tester), resultForTesters.push(value));
     return Object.assign(getter, { get: directGet, register, data, set, notFounded, secondaryValues, customTester });
 
 }

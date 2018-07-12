@@ -1,14 +1,19 @@
-import { Component, createElement, funcAsComponentClass, Utils, icon, BaseComponent, registryFactory } from "../organicUI";
-import { HTMLAttributes, ReactElement } from "react";
+import { BaseComponent } from './base-component';
+import { registryFactory } from './registry-factory';
+import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
+import { IDeveloperFeatures } from "@organic-ui";
 export { JsonInspector };
 export function isDevMode() {
 
     return !!DeveloperBar.developerFriendlyEnabled;
 }
-export const isDevelopmentMode = () => !!DeveloperBar.isDevelopmentEnv;
+export const isDevelopmentEnv = () => !!DeveloperBar.isDevelopmentEnv;
 export type DevFriendlyCommand = (target: IDeveloperFeatures & BaseComponent<any, any>) => void;
+export function isProdMode() {
+    return !isDevelopmentEnv() ;
+}
 export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
     targetText: string, target: any;
@@ -62,7 +67,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                     items: DeveloperBar.devMenuItems
                 }} iconProps={{ iconName: 'Code' }}
             />}
-            {!!DeveloperBar.developerFriendlyEnabled &&  Utils.renderDevButton('REST',null)}
+            {!!DeveloperBar.developerFriendlyEnabled && Utils.renderDevButton('REST', null)}
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
         </div>

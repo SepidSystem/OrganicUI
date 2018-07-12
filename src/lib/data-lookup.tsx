@@ -3,38 +3,51 @@ import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 const { classNames } = Utils;
 
-import { isDevelopmentMode } from './developer-features';
+import { isDevelopmentEnv } from './developer-features';
 import { DetailsList } from 'office-ui-fabric-react';
 import { TextField } from '@material-ui/core';
 import { ListViewBox } from './list-view-box';
 import { Spinner } from './spinner';
+import { Event } from './decorators';
+ 
 interface DataLookupProps {
-    source: StatelessListView;
-    onChange?: (id) => void;
+    source:OrganicUi.StatelessListView;
+    className?: string;
+    onChange?: (value) => void;
     onFocus?: () => void;
+    onDisplayText?: (value) => React.ReactNode;
     multiple?: boolean;
     value?: any;
+    iconCode?: string;
+    minHeightForPopup?: string;
 }
 interface DataLookupState {
     isOpen?: boolean;
     isActive?: boolean;
-    currentRow: any;
     isHidden?: boolean;
     value?: any;
 }
 function closeAllPopup(activeDataLookup?) {
     const query = () => Array.from(document.querySelectorAll('.closable-element'))
         .map(element => element['componentRef'] as DataLookup)
-        .forEach(dataLookup => activeDataLookup != dataLookup && dataLookup.closePopup());
+        .forEach(dataLookup => activeDataLookup != dataLookup && dataLookup.closePopup({ isActive: false }));
     setTimeout(query, 300);
 }
 export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
-    listViewElement: React.SFCElement<IListViewParams>;
-    actionsForListViewBox: IActionsForCRUD<any>;
+    static defaultProps = {
+        iconCode: 'fa-search',
+        minHeightForPopup: '300px'
+    }
+    listViewElement: React.SFCElement<OrganicUi.IListViewParams>;
+    actionsForListViewBox: OrganicUi.IActionsForCRUD<any>;
     cache: { [key: string]: any };
     refs: {
         listViewContainer: HTMLElement;
         textField: any;
+        root: HTMLElement;
+        editorWrapper: HTMLElement;
+        innerTextSpan: HTMLElement;
+        innerText: HTMLElement;
     }
     openRequestTime: number;
     listViewBox: ListViewBox<any>;
@@ -43,16 +56,18 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.cache = {};
         this.handleClick = this.handleClick.bind(this);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
+        this.listViewBoxNotFoundCounter = 2;
     }
     getListViewBox(): ListViewBox<any> {
         const { listViewContainer } = this.refs;
 
-        return this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0] as any;
+        return this.querySelectorAll('.list-view-data-lookup', listViewContainer)[0] as ListViewBox<any>;
+
     }
-    closePopup() {
+    closePopup(delta?: Partial<DataLookupState>) {
         if (this.openRequestTime && ((+ new Date() - this.openRequestTime) < 200))
             return;
-        this.repatch({ isOpen: false, isHidden: false, isActive: false });
+        this.repatch(Object.assign({ isOpen: false, isHidden: false, isActive: false }, delta || {}));
 
     }
     handleClick(e: React.MouseEvent<any>) {
@@ -70,6 +85,18 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         closeAllPopup(this);
         this.repatch({ isOpen, isHidden: false, isActive: true })
     }
+    adjustEditorPadding() {
+        const { innerTextSpan, root, editorWrapper, innerText } = this.refs;
+        if (!root || !innerTextSpan) return;
+        const input = editorWrapper.querySelector('input');
+
+        let width = Math.ceil(innerText.offsetWidth || innerTextSpan.offsetWidth) + 15;
+        if (Math.abs(innerTextSpan.offsetWidth - innerText.offsetWidth) > 20)
+            width = Math.ceil(innerTextSpan.offsetWidth) + 30;
+        input && input.style && (input.style.paddingRight = width + 'px');
+
+
+    }
     handleSelectionChanged(indices: number[], index) {
 
         const listViewBox = this.getListViewBox();
@@ -85,6 +112,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         }
         else {
 
+            this.repatch({ value: ids[0] });
             if (ids.length) {
                 closeAllPopup();
 
@@ -109,13 +137,17 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         super.repatch(delta, target);
     }
     tryToActionsForListViewBox: number;
-
+    listViewBoxNotFoundCounter: number;
     processDOM() {
         const { listViewContainer, textField } = this.refs;
         const s = this.state;
         this.listViewBox = this.getListViewBox();
-        if (!this.listViewBox) setTimeout(() => this.repatch({}), 10);
+        this.listViewBoxNotFoundCounter = this.listViewBoxNotFoundCounter || 0;
+        if (!this.listViewBox && this.listViewBoxNotFoundCounter >= 0) {
+            this.listViewBoxNotFoundCounter--;
+            setTimeout(() => this.repatch({}), 10);
 
+        }
         const { actionsForListViewBox } = this;
         this.actionsForListViewBox = this.actionsForListViewBox || (this.listViewBox && this.listViewBox.props.actions);
         if (actionsForListViewBox != this.actionsForListViewBox && !this.openRequestTime) this.repatch({ isOpen: false, isHidden: false });
@@ -136,6 +168,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     componentDidMount() {
         super.componentDidMount();
         this.processDOM();
+        this.props.value && this.repatch({ value: this.props.value });
 
     }
     componentDidUpdate() {
@@ -143,55 +176,90 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.processDOM();
     }
     getValue() {
-        const v = this.state.value || this.props.value;
-        if (v instanceof Array && v.length == 0) return null;
-        return v;
+        const result = [this.state.value, this.props.value].filter(v => v !== undefined)[0];
+        if (result instanceof Array && result.length == 0) return null;
+        return result;
     }
-    getInnerText(): any {
-        if (!this.actionsForListViewBox) return this.getValue() && Promise.resolve('wait');
+    unshiftIds(...Ids) {
+
+    }
+    getInnerText(): any[] {
+        if (!this.actionsForListViewBox) return this.getValue() && Promise.resolve('wait') as any;
         const value = this.getValue();
         let result = null;
 
         const valueArray = (value instanceof Array ? (value || []) as any[] : [value]).filter(x => !!x);
         valueArray.forEach(v =>
-            this.cache[v] = this.cache[v] || this.actionsForListViewBox.handleRead(v)
+            this.cache[v] = this.cache[v] || this.actionsForListViewBox.read(v)
                 .then(r => {
                     this.cache[v] = r, this.forceUpdate();
                     return r;
                 }));
-
+        Promise.all(Object.values(this.cache).filter(promise => promise instanceof Promise))
+            .then(() => this.unshiftIds(...valueArray))
         const promised = (valueArray.filter(v => this.cache[v] instanceof Promise).map(v => this.cache[v]));
-        const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v])).join(',');
+        const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v]));
 
         return innerText;
     }
+    @Event()
+    handleSetValue(value) {
+        this.repatch({ value });
+        this.props.onChange instanceof Function && this.props.onChange(value);
+
+    }
     render() {
         const p = this.props, s = this.state;
-        if (this.actionsForListViewBox)
-            s.currentRow = s.currentRow ||
-                (p.value && this.actionsForListViewBox.handleRead(p.value)
-                    .then(currentRow => (this.repatch({ currentRow }), currentRow)));
-        const innerText = this.getInnerText();
+
+        const innerText = p.onDisplayText instanceof Function ? undefined : this.getInnerText();
         const { listViewContainer } = this.refs;
         if (s.isOpen && !listViewContainer)
             setTimeout(() => this.forceUpdate(), 10);
-        const textField = !(innerText instanceof Promise) && <TextField onFocus={p.onFocus} itemRef="textField"
-            value={innerText} />;
+        const textField = !(innerText instanceof Promise) &&
+            <TextField onFocus={p.onFocus} itemRef="textField"
 
-        this.listViewElement = this.listViewElement || (listViewContainer && React.createElement(p.source, { forDataLookup: true, multipleDataLookup: p.multiple, corner: p.multiple && this.getCorner(), height: listViewContainer.clientHeight - 10, onSelectionChanged: this.handleSelectionChanged } as Partial<IListViewParams>));
-        return <div ref="root" className={classNames("closable-element", "data-lookup", s.isActive ? 'active' : 'deactive')}
+            />;
+        this.adjustEditorPadding();
+        this.listViewElement = this.listViewElement || (listViewContainer && React.createElement(p.source, {
+            forDataLookup: true,
+            defaultSelectedValues: () => Utils.toArray([s.value, p.value].filter(v => v !== undefined)[0]),
+            getValue: () => [s.value, p.value].filter(v => v !== undefined)[0],
+            dataLookup: this,
+            multipleDataLookup: p.multiple,
+            corner: p.multiple && this.getCorner(),
+            height: listViewContainer.clientHeight - 3,
+            onSelectionChanged: this.handleSelectionChanged,
+            setValue: this.handleSetValue.bind(this)
+        } as Partial<OrganicUi.IListViewParams>));
+        const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
+        return <div ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
             onClick={this.handleClick}>
             {innerText instanceof Promise && <span className="spinner-container"> <Spinner /></span>}
-            <div className="editor">
-                {textField}
+            <div className="editor" ref="editorWrapper">{textField}</div>
+            {(p.onDisplayText || maxWidthForTextOverflow) &&
+                (p.onDisplayText || innerText instanceof Array) &&
+                <div className="inner-text" ref="innerText">
+                    <div className="text " >
+                        <span ref="innerTextSpan" className="selected-items" style={{ maxWidth: maxWidthForTextOverflow + "px" }}>
+                            {p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) : innerText.map(title => (
+                                <span title={title} className="selected-item">
+                                    <span >
+                                        {title}
+                                    </span>
+                                    <a href="#" className="remove-btn"><i className="fa fa-times"> </i></a>
+                                </span>))}</span></div>
 
-            </div>
+                    {Utils.showIcon(this.props.iconCode, 'activate-focused-only')}
+                </div>}
             <span className="caretDownWrapper  ">
                 <svg className="MuiSvgIcon-root MuiSelect-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 10l5 5 5-5z"></path>
                 </svg>
             </span>
-            {(s.isOpen) && <div className="list-view-container box " style={{ display: s.isHidden ? 'none' : 'block' }} ref="listViewContainer">
+            {(s.isOpen) && <div className="list-view-container box " style={{
+                display: s.isHidden ? 'none' : 'block',
+                minHeight: p.minHeightForPopup
+            }} ref="listViewContainer">
 
                 {this.listViewElement}
             </div>

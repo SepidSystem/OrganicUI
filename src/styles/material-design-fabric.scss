@@ -237,3 +237,9 @@
 .ms-DetailsList {
     overflow-x: hidden !important;
 }
+.MuiModal-root {
+    footer{
+        display: flex;
+        justify-content: center;
+    }
+}
