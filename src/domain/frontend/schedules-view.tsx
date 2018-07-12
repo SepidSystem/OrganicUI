@@ -28,7 +28,7 @@ function handleBeforeSave(schedule: AppEntities.ScheduleDTO) {
 }
 interface IState {
     dayCount: number;
-    scheduleType: number;
+    
 }
 class SingleView extends BaseComponent<any, IState>{
 
@@ -38,14 +38,14 @@ class SingleView extends BaseComponent<any, IState>{
 
         this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.setFieldValue('type', scheduleType));
         const schedule: AppEntities.ScheduleDTO = this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.getFormData());
-        this.repatch({ scheduleType, dayCount: (+scheduleType == +ScheduleType.Weekly) ? daysInOneWeek : schedule.cycle });
+        this.repatch({   dayCount: (+scheduleType == +ScheduleType.Weekly) ? daysInOneWeek : schedule.cycle });
 
     }
     getDays(schedule: AppEntities.ScheduleDTO): number[] {
-        const { scheduleType, dayCount } = this.state;
+        const {   dayCount } = this.state;
 
-        let length = Math.max((+schedule.type == +ScheduleType.Daily) ? dayCount : daysInOneWeek,
-            (+schedule.cycle || daysInOneWeek), ...(schedule.scheduleShifts || []).map(ss => ss.dayNumber));
+        let length = Math.max((+schedule.type == +ScheduleType.Daily) ? dayCount : daysInOneWeek
+            , ...(schedule.scheduleShifts || []).map(ss => ss.dayNumber));
         if (length > 90) length = 90;
         return Array.from({ length }).map((_, idx) => (idx + 1));
     }
@@ -63,11 +63,11 @@ class SingleView extends BaseComponent<any, IState>{
     render() {
         const schedule: AppEntities.ScheduleDTO = this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.getFormData());
         if (schedule) {
-            this.state.scheduleType = this.state.scheduleType || schedule.type;
+            schedule.type =  schedule.type || +ScheduleType.Weekly;
             schedule.cycle = schedule.cycle || daysInOneWeek;
             this.state.dayCount = this.state.dayCount || schedule.cycle;
         }
-        const { scheduleType } = this.state;
+        const scheduleType=schedule && schedule.type ;
         return (<SingleViewBox ref="singleViewBox" customActions={{ handleBeforeSave }} params={this.props as any} actions={SchedulesController} options={options}  >
             <div className="row">
                 <div className="col-sm-6">
@@ -80,7 +80,7 @@ class SingleView extends BaseComponent<any, IState>{
 
                 <MaterialUI.RadioGroup
                     className="col-sm-4 " style={{ flexDirection: 'row', minHeight: '74px' }}
-                    value={this.state.scheduleType + ""}
+                    value={schedule && schedule.type + ""}
                     onChange={this.handleTypeChange.bind(this)}
                 >
                     <MaterialUI.FormControlLabel value={ScheduleType.Weekly} control={<MaterialUI.Radio />} label={i18n("weekly")} />
@@ -92,7 +92,7 @@ class SingleView extends BaseComponent<any, IState>{
                     className="col-sm-4 " >
                     <Field accessor="cycle">
                         <TextField placeholder="day-count"
-                            onBlur={() => this.repatch({ debug: true, dayCount: +schedule.cycle })} type="number" defaultValue={daysInOneWeek} />
+                            onBlur={() => this.repatch({ dayCount: +schedule.cycle })} type="number" defaultValue={daysInOneWeek} />
                     </Field>
 
                 </div>}

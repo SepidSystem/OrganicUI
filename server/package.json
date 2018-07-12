@@ -8,11 +8,17 @@
     "url": "https://taheri24.ir"
   },
   "dependencies": {
+    "body-parser": "^1.18.2",
     "camelcase": "^4.1.0",
     "change-case-object": "^2.0.0",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "json-server": "^0.12.1",
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "recursive-watch": "^1.1.4",
+    "require-reload": "^0.2.2",
+    "shelljs": "^0.8.2",
+    "express-ws": "^3.0.0"
+    
   }
 }

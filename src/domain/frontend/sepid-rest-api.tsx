@@ -7,7 +7,7 @@ const webApiClientSettings: OptionsForRESTClient = () => {
     if (!location.href.endsWith('/login') && !token) location.href = '/view/auth/login';
 
     return {
-        baseURL: baseURL || `http://192.168.1.66:51368/`,//  `http://${location.hostname}:51368/`,
+        baseURL: baseURL || `http://192.168.1.66:41368/`,//  `http://${location.hostname}:51368/`,
         headers: {
             'Authorization': token ? `Bearer ${token}` : '',
             'Access-Control-Allow-Origin': '*'
@@ -64,7 +64,8 @@ function crudControllerFactory<T>(pluralName: string, { singularName, extraReadL
         read: id => webApi('GET', `/SepidRESTService/${pluralName}/${singularName}/${id}`),
         create: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}`, data),
         deleteList: ids => webApi('POST', `/SepidRESTService/${pluralName}/DeleteList`, ids),
-        update: (id, data) => webApi('PUT', `/SepidRESTService/${pluralName}/${singularName}`, data)
+        update: (id, data) => webApi('PUT', `/SepidRESTService/${pluralName}/${singularName}`, data),
+        getText:dto=>(dto as any).name
     };
 }
 function simpleReadListFactory<T>(pluralName, singularName) {

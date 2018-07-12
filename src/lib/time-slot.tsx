@@ -54,9 +54,13 @@ interface IState {
     targetRange: HTMLElement;
     rangeData: ITimeSlotRange;
     rangeIndex: number;
-    messageInCallout: React.ReactNode;
+    errorMessage: React.ReactNode;
 }
 export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
+    refs: {
+        root: HTMLElement;
+        main: HTMLElement;
+    }
     static checkTime(time: string): boolean {
         const parts = time.split(':');
         if ((parts.length < 2) || (parts.length > 3)) return false;
@@ -74,8 +78,9 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
         const { rangeIndex, rangeData } = this.state;
         const ranges = Utils.clone(this.state.ranges);
         ranges[rangeIndex] = rangeData;
-        this.fullUpdate(ranges).then(() => this.repatch({ targetRange: null }),
-            errorMessage => this.repatch({ messageInCallout: errorMessage }));
+        this.fullUpdate(ranges)
+            .then(() => this.repatch({ targetRange: null }),
+                errorMessage => this.repatch({ errorMessage }));
     }
 
     componentWillMount() {
@@ -83,10 +88,20 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
     }
     fullUpdate(ranges: ITimeSlotRange[]): Promise<boolean> {
         const conflict = checkConflictOfRanges(ranges);
-        if (conflict)
+        if (conflict) {
+            const { root } = this.refs;
+            if (root) {
+                conflict.forEach(idx => {
+                    const range = root.querySelector(`.range${idx}`);
+                    (range && range.classList.add('animated', 'flash'));
+
+                });
+                setTimeout(() => Array.from(root.querySelectorAll('.animated')).forEach(ele => ele.classList.remove('animated', 'flash')), 1000);
+            }
             return Promise.reject(Utils.i18nFormat('time-slot-conflict',
                 conflict.join(','))
             );
+        }
         for (let counter = 0; counter < ranges.length; counter++) {
             const errorCode = checkTimeRange(ranges[counter], ranges[counter + 1]);
 
@@ -151,9 +166,9 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                     {Utils.showIcon("fa-eraser")}
                 </a>
             </div >
-            {!!s.targetRange && <OrganicUI.Callout target={s.targetRange} >
+            {!!s.targetRange && <OrganicUI.Callout onDismiss={() => this.repatch({ targetRange: null })} target={s.targetRange} >
                 <br />
-                <AdvSection className="compact" errorMessage={s.messageInCallout} onCloseMessage={() => this.repatch({ messageInCallout: null })}>
+                <AdvSection className="compact" errorMessage={s.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })}>
                     <DataForm className="data-form-row"
                         onFieldRead={key => s.rangeData[key]}
                         onFieldWrite={(key, value) => s.rangeData[key] = value}>

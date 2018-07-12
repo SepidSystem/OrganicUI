@@ -91,6 +91,7 @@ i18n('productName', 'سپیداستار')
 i18n('time-slot-conflict', ['تداخل وجود دارد : ', '{s}'].join(' '));
 // schedule
 i18n('schedule', 'زمان بندی');
+i18n('schedules', 'زمان بندی ها');
 i18n('cycle', 'دوره');
 i18n('start-date', 'تاریخ شروع');
 i18n('from', 'از');
