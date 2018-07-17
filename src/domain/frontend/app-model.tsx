@@ -1,8 +1,8 @@
 import { DefaultMasterPage } from "./master-page";
 
-import { Menu, i18n, IAppModel } from  '@organic-ui';
+import { Menu, i18n, IAppModel } from '@organic-ui';
 export default class AppModel implements IAppModel {
-    
+
     getMenuItems() {
         return [
             {
@@ -25,9 +25,12 @@ export default class AppModel implements IAppModel {
                 // AndRoleIDs: [BasePermissionsStructure.DEVICE_DEFINE_READ],
                 menu: new Menu(30, 'دستگاه ها', '/view/admin/devices', null, 'fa-calculator', null, false, 0)
             }, {
-                // OrRoleIDs: [],
-                // AndRoleIDs: [BasePermissionsStructure.DEVICE_DEFINE_READ],
-                menu: new Menu(31, 'زمان بندی', '/view/admin/schedules', null, 'fa-lock', null, false, 0)
+                menu: new Menu(1000, 'مدیریت دسترسی', null, null, 'fa-lock', null, true, 0)
+            },
+            {
+                menu: new Menu(1001, 'زمان بندی', '/view/admin/schedules', null, 'fa-lock', null, false, 1000)
+            }, {
+                menu: new Menu(1002, 'گروه دسترسی', '/view/admin/access-groups', null, 'fa-access', null, false, 1000)
             },
             {
                 // OrRoleIDs: [],

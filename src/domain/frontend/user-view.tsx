@@ -46,7 +46,7 @@ const singleView: StatelessSingleView = params =>
     </SingleViewBox>);
 routeTable.set(options.routeForSingleView, singleView);
 
-const listView: StatelessListView = p => (
+export const listView: StatelessListView = p => (
     <ListViewBox actions={UsersController} options={options} params={p}>
 
         <DataList>

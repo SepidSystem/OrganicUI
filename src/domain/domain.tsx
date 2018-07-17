@@ -4,7 +4,6 @@
 import './frontend/sepid-rest-api';
 import './frontend/boot';
 import './frontend/editors';
-
 import './frontend/login-view';
 import './frontend/dashboard-view';
 import './frontend/user-group-view';
@@ -14,6 +13,7 @@ import './frontend/role-view';
 import './frontend/dataitemgroup-view';
 import './frontend/device-view';
 import './frontend/schedules-view';
+import './frontend/access-group-view';
 import './frontend/employee-view';
 import './frontend/attendancelive-report';
 import './frontend/attendance-report';

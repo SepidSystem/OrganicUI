@@ -30,3 +30,6 @@ declare global {
 }
 
 
+declare module 'curl-cmd'{
+  
+}

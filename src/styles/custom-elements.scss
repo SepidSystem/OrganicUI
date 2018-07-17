@@ -1,5 +1,36 @@
-.advanced-section.compact{
-    .no-message{
+.advanced-section.compact {
+    .no-message {
         display: none;
     }
+}
+.title.is-centered{
+    display: flex;
+    justify-content: center;
+}
+.advanced-sidebar {
+    background: linear-gradient(to bottom, rgb(221, 221, 221) 0%, #eee 100%);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    box-shadow: inset -1px 0px 1px 0px #555;
+    padding-top:20px;
+    a{
+        min-width: 50px;
+        display: flex;
+        justify-content: center;
+        padding:10px 0; 
+    }
+}
+.ms-Callout-main{
+    overflow: visible !important;
+}
+.close-dialog{
+    overflow: visible;
+    max-height: 0;
+    cursor: pointer;
+    font-size:20px;
+    margin:2px 10px;
+    color:#555;
 }

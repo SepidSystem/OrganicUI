@@ -66,7 +66,7 @@ class loginView extends BaseComponent<any, IState>{
                     <div ref="back" className="back">
                         {serverResponse && serverResponse.success && <section className="success-mode">
                             <h2 className="center title is-1" style={{ fontSize:'100px'}}>✔</h2>
-                            <div className="center  title is-3">
+                            <div className="center  title is-3"  style={{ fontSize:'20px'}}>
                                 {i18n('login-redirect')}
                             </div>
                         </section>}

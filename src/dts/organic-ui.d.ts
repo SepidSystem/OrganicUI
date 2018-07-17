@@ -30,12 +30,14 @@ declare namespace OrganicUi {
     export class BaseComponent<P, S=any> extends React.Component<P, S>{
         props: P;
         state: S;
+        autoUpdateState: PartialFunction<S>;
         nodeByRef<T = any>(refName: string): T;
-        repatch(delta: Partial<S> & {debug?}, target?);
+        repatch(delta: Partial<S> & { debug?}, target?);
         querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[];
         setPageTitle(title);
         renderErrorMode(title, subtitle);
         evaluate<T>(args: string | { refId }, cb: (ref: T) => any);
+        defaultState(delta: Partial<S>);
     }
     export function CriticalContent(p: { permissionKey: string, children?}): JSX.Element;
 
@@ -55,16 +57,17 @@ declare namespace OrganicUi {
         required?: boolean;
         readonly?: boolean;
         messages?: IFieldMessage[];
-        onlyInput?:boolean;
+        onlyInput?: boolean;
         getInfoMessage?: () => string;
         children?: any;
         className?: string;
     }
-    export interface IAdvSectionProps extends React.HTMLAttributes<any>{
 
-        errorMessage:any;
-        onActionExecute?:(actionName:string)=>void;
-        onCloseMessage:()=>void
+    export interface IAdvSectionProps extends React.HTMLAttributes<any> {
+
+        errorMessage: any;
+        onActionExecute?: (actionName: string) => void;
+        onCloseMessage: () => void
     }
     export interface FilterItem {
         op: string;
@@ -92,13 +95,17 @@ declare namespace OrganicUi {
         renderDevButton(targetText, target: IDeveloperFeatures),
         accquireDevPortId();
         renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function });
+        reduceEntriesToObject(data:any):any;
+        limitValue(value: number, opts:{ min?, max?}): number ;
+	
         simulateClick(elem);
         merge<T>(...args: Partial<T>[]): T;
         toArray(arg): any[];
         sumValues(numbers: number[]);
         clone<T>(x: T): T;
         uniqueArray<T>(array: T[])
-
+        validateData<T>(data: T, callbacks: OrganicUi.PartialFunction<T>): OrganicUi.IDataFormAccessorMsg[];
+        assignDefaultValues<T>(data: T, defaultValues: Partial<T>)
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -171,7 +178,7 @@ declare namespace OrganicUi {
         IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, any> {
         getId(row): any;
         getFormData(): T;
-        setFieldValue(fieldName:string,value);
+        setFieldValue(fieldName: string, value);
     }
     export function ListViewBox<T>(p: OrganicBoxProps<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams>): JSX.Element;
     interface ComboBoxProps {
@@ -214,7 +221,7 @@ declare namespace OrganicUi {
     }
     export interface IActionsForCRUD<TDto> {
         mapFormData?: (dto: TDto) => TDto;
-        handleBeforeSave?: (dto: TDto) => TDto;
+        beforeSave?: (dto: TDto) => TDto;
         create: (dto: TDto) => Promise<any>;
 
         update: (id: any, dto: TDto) => Promise<any>;
@@ -223,11 +230,14 @@ declare namespace OrganicUi {
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
         getDefaultValues?: () => TDto;
         getUrlForSingleView?(id: string): string;
-        onErrorCode?: (data: any) => IDataFormAccessorMsg[];
+        validate?: (data: any) => IDataFormAccessorMsg[];
         getText?: (dto: TDto) => string;
         getId?: (dto: TDto) => any;
         getPageTitle?: (dto: TDto) => string;
     }
+    type PartialFunction<T> = {
+        [P in keyof T]?: (value: T[P]) => any;
+    };
     export interface IOptionsForCRUD {
         insertButtonContent?: any;
         singularName: string;
@@ -383,14 +393,21 @@ declare namespace OrganicUi {
         isLoading?: boolean;
         callout?: any;
         primary?: boolean;
-        type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
-        size?: 'small' | 'medium' | 'large';
+
         onClick?: () => any;
         fixedWidth?: boolean;
         className?: string;
         calloutWidth?: number;
         lastMod?: number;
         buttonComponent?: any;
+        fullWidth?: boolean;
+        href?: string;
+        mini?: boolean;
+        size?: 'small' | 'medium' | 'large';
+        type?: string;
+        variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab';
+        color?: 'inherit' | 'primary' | 'secondary' | 'default';
+  
     }
     export const AdvButton: React.SFC<IAdvButtonProps>;
     // Custom Components for  SepidSystem Company 
@@ -429,7 +446,7 @@ declare module '@organic-ui' {
     export const DataLookup: typeof OrganicUi.DataLookup;
     export const i18n: typeof OrganicUi.i18n;
     export const routeTable: typeof OrganicUi.routeTable;
-    export type IFieldProps=OrganicUi.IFieldProps;
+    export type IFieldProps = OrganicUi.IFieldProps;
     export const Field: typeof OrganicUi.Field;
     export type IAppModel = OrganicUi.IAppModel;
     export type Menu = OrganicUi.Menu;
@@ -441,7 +458,10 @@ declare module '@organic-ui' {
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
     export type StatelessListView = OrganicUi.StatelessListView;
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
-    export type OptionsForRESTClient = (() => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>;
+    export interface OptForRESTClient extends Partial<AxiosRequestConfig> {
+        title: string;
+    }
+    export type OptionsForRESTClient = (() => Partial<OptForRESTClient>) | OptForRESTClient;
     export const createClientForREST: (options?: OptionsForRESTClient) => typeof restClient;
     function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
     export type ResultSet<T> = OrganicUi.ResultSet<T>;
@@ -478,7 +498,7 @@ declare module '@organic-ui' {
     export type ITreeListProps = OrganicUi.ITreeListProps;
     export type CustomTesterForRegistry = OrganicUi.CustomTesterForRegistry;
     export type IDeveloperFeatures = OrganicUi.IDeveloperFeatures;
-    export type IAdvSectionProps=OrganicUi.IAdvSectionProps;
+    export type IAdvSectionProps = OrganicUi.IAdvSectionProps;
     export const isProdMode: typeof OrganicUi.isProdMode;
     export type ITimeEditProps = OrganicUi.ITimeEditProps;
     export type IMessageBarProps = OrganicUi.IMessageBarProps;

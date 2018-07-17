@@ -5,7 +5,7 @@
 import { BasicController, IResponseForGetCurrentUser, AuthenticationController } from "./sepid-rest-api";
 
 
-import { BaseComponent, SubRender, createGenerateClassName, Collapsible, i18n, icon, Utils, DeveloperBar } from '@organic-ui';
+import { BaseComponent, SubRender, createGenerateClassName, Collapsible, i18n, icon, Utils, DeveloperBar, AdvButton } from '@organic-ui';
 const JssProvider: any = OrganicUI.JssProvider;
 
 const generateClassName = createGenerateClassName({
@@ -16,7 +16,10 @@ const { Fabric } = OrganicUI.FabricUI;
 
 
 const { showIcon, classNames } = Utils;
-
+function handleSignOut() {
+    localStorage.removeItem('token');
+    return Utils.navigate('/view/auth/login');
+}
 function GeneralHeader() {
     return <div className="columns" style={{ width: '100%' }}>
         <div className="column is-1">
@@ -103,10 +106,10 @@ export class DefaultMasterPage extends BaseComponent<any, IState> {
                                 {Utils.showIcon('fa-user-circle')}
                             </div>
                             <div className="column" style={{ maxWidth: '110px', marginLeft: '10px' }}>
-                                <MaterialUI.Button >
+                                <AdvButton onClick={handleSignOut}>
                                     {Utils.showIcon('fa-sign-out')}
                                     {i18n('sign-out')}
-                                </MaterialUI.Button>
+                                </AdvButton>
                             </div>
 
                         </div>

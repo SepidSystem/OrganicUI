@@ -6,6 +6,7 @@ const customMapProps = {
     rowCount: '_limit'
 
 }
+/*
 OrganicUI.refetch['bodyMapper'] = ({ url, method, body }) => {
     if (method != 'GET' || !body) return body;
     for (var key in customMapProps) {
@@ -15,7 +16,7 @@ OrganicUI.refetch['bodyMapper'] = ({ url, method, body }) => {
 
     }
     return body;
-}
+}*/
 webApi['bodyMapper'] = ({ url, method, body }) => {
     if (body && 'startFrom' in body && 'rowCount' in body) {
         const result = {

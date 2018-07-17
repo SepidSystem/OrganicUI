@@ -5,33 +5,77 @@ import { Component } from 'react';
 import { createMayBeObject } from './may-be';
 import { IComponentRefer } from "@organic-ui";
 import { isDevelopmentEnv } from "./developer-features";
+import { Utils } from "./utils";
 export class BaseComponent<P, S> extends Component<P, S>{
     static refIdCounter = 0;
-
+    issues: { [key: string]: Date };
+    _autoUpdateState: S;
     devElement: any;
     refId: number;
     nodes: any;
+    autoUpdateTimer: number;
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
+    processAutoUpdateState() {
+        
+        if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length==0) {
+            clearInterval(this.autoUpdateTimer);
+        }
+        const newState = Object.keys(this.autoUpdateState).map(key => {
+            const method = this.autoUpdateState[key];
+            try {
+                const result = method(key);
+                if (result instanceof Promise) {
+                    (result as Promise<any>).then(r => {
+                        Object.assign(this._autoUpdateState, { [key]: r });
+                        setTimeout(() => this.repatch({ [key]: r } as any), 1);
+                        return r;
+                    });
+                    delete this.autoUpdateState[key];
+                    return null;
+                }
+                return [key, result];
 
+            } catch{
+                return null;
+            }
+        }).filter(x => !!x).filter(([key, value]) => this._autoUpdateState[key] !== value);
+ 
+        if (newState.length) {
+            this._autoUpdateState = Object.assign({}, this.state || {}) as S;
+            this.repatch(Utils.reduceEntriesToObject(newState) as S);
+        }
+
+    }
+    componentWillMount() {
+        if (this.autoUpdateState) {
+            this._autoUpdateState = Object.assign({}, this.state || {}) as S;
+            this.processAutoUpdateState();
+            this.autoUpdateTimer = setInterval(this.processAutoUpdateState.bind(this), 100);
+        }
+    }
     base: any;
     linkState: any;
     state: S;
     refs: any;
     stateListener: IStateListener[];
+    autoUpdateState: OrganicUi.PartialFunction<S>;
     constructor(props: P) {
         super(props);
         this.repatch = this.repatch.bind(this);
         this.state = {} as any;
+        this.issues = {} as any;
         this.stateListener = React.Children.toArray(this.props.children || [])
             .filter((r: React.ReactElement<any>) => r.type == StateListener)
             .map(child => (child as any).props);
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
         this.tryCountLimits = {};
+
     }
     tryCountLimits: { [key: string]: number };
+
     nodeByRef<T = any>(refName: string): T {
         const result = this.refs[refName];
         this.tryCountLimits[refName] = this.tryCountLimits[refName] === undefined ? 5 :
@@ -41,8 +85,8 @@ export class BaseComponent<P, S> extends Component<P, S>{
         else setTimeout(nodeRefTick, 10, this, refName);
         return createMayBeObject(result);
     }
-    evaluate<T>(args: string | { refId?, defaultValue? }, cb: (ref: T) => any) {
-        if(typeof args=='string') args={refId:args};
+    evaluate<T>(args: string | { refId?, defaultValue?}, cb: (ref: T) => any) {
+        if (typeof args == 'string') args = { refId: args };
         const ref = this.nodeByRef<T>(args.refId);
         try {
             const finalResult = ref && cb(ref);
@@ -53,14 +97,17 @@ export class BaseComponent<P, S> extends Component<P, S>{
         }
     }
     componentDidMount() {
-
         const { root } = this.refs;
-        root && Object.assign(root, { vdom: this, componentRef: this });
-
+        root && Object.assign(root, { componentRef: this });
     }
-    repatch(delta: Partial<S>  , target?) {
-        if(delta['debug'] && !OrganicUI.isProdMode()) debugger;
-        if (window['repatchDebug']) debugger;
+    defaultState(delta: Partial<S>) {
+        Utils.assignDefaultValues(this.state, delta);
+    }
+    repatch(delta: Partial<S>, target?) {
+        if (!OrganicUI.isProdMode()) {
+            if (delta['debug']) debugger;
+            if (window['repatchDebug'] && !OrganicUI.isProdMode()) debugger;
+        }
         target = target || this.state;
         Object.assign(target, delta);
         const keys = Object.keys(delta);
@@ -138,6 +185,10 @@ export class BaseComponent<P, S> extends Component<P, S>{
             </div>
         </section>);
     }
+    componentWillUnmount() {
+        this.autoUpdateTimer && clearTimeout(this.autoUpdateTimer);
+        this.autoUpdateTimer = 0;
+    }
 }
 export function CriticalContent(p: { permissionKey: string, children?}) {
 
@@ -146,10 +197,18 @@ export function CriticalContent(p: { permissionKey: string, children?}) {
 const nodeRefTick = (target: BaseComponent<any, any>, refName) => {
     const result = target.refs[refName];
     if (result) return;
-    if (target.tryCountLimits[refName]--) {
-        console.warn('nodeRefTick issue>>>', target, refName);
-
+    if (target.tryCountLimits[refName])
+        target.tryCountLimits[refName]--;
+    else {
+        const lastEcho = +(target.issues[refName] || 0);
+        const now = +new Date();
+        if (!lastEcho || (now - lastEcho > 2500)) {
+            console.warn('nodeRefTick issue>>>', target, refName);
+            target.issues[refName] = new Date();
+        }
     }
+
+
     target.repatch({});
     setTimeout(nodeRefTick, 20, target, refName);
 

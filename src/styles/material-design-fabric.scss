@@ -4,7 +4,7 @@
     margin: 10px 5px;
     .label {
         position: absolute;
-        top: 0.75rem;
+        top: 0.35rem;
         line-height: 1.5rem;
         pointer-events: none;
         padding-left: 0.125rem;
@@ -236,6 +236,9 @@
 
 .ms-DetailsList {
     overflow-x: hidden !important;
+}
+.MuiPaper-root{
+    direction: rtl;
 }
 .MuiModal-root {
     footer{

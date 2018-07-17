@@ -26,7 +26,7 @@ OrganicUI.devTools.set('SingleView|Show Undefined Fields', (target) => {
     }
     const { undefinedFields } = target as any;
     const fields = Object.keys(undefinedFields).filter(x=>x && x!='-');
-    console.log('undefined Fields>>>>', fields)
+    console.log('undefined Fields>>>>', fields);
     target.devElement = <OrganicUI.JsonInspector data={fields} />;
     target.forceUpdate();
 });

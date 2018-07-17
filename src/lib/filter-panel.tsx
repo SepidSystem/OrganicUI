@@ -41,7 +41,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
         return <section ref="root" className="filter-panel  developer-features">
 
             <MaterialUI.Paper className=""  >
-
+                
                 <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm[key]} onFieldWrite={(key, value) => {
                     this.dataForm[key] = value
                 }
@@ -55,7 +55,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                 </DataForm>
                 <footer>
                     <OrganicUI.AdvButton variant="raised" color="primary" onClick={this.props.onApplyClick}>{i18n('apply')}</OrganicUI.AdvButton>
-                    <MaterialUI.Button>{i18n('clear')}</MaterialUI.Button>
+                    <MaterialUI.Button onClick={() => (this.dataForm = {}, this.repatch({}))}>{i18n('clear')}</MaterialUI.Button>
 
                 </footer>
             </MaterialUI.Paper>

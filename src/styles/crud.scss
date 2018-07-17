@@ -15,6 +15,23 @@
 }
 
 .list-view {
+    header.navigator{
+        display: flex;
+        position: relative;
+        min-height: 30px;
+    }
+    .search-field{
+justify-self: flex-end;
+ position: absolute;
+ left:10px;
+ svg{
+    position: absolute;
+    left:10px;
+    width:1.5rem;
+    height:1.5rem;
+    
+ }
+    }
     footer.buttons {
         margin-top: 5px;
         justify-content: flex-end;
@@ -36,6 +53,7 @@
 .list-view-header {
     display: flex;
     flex-wrap: wrap;
+   
     .insert-btn {
         max-width: 140px;
         height: 140px;
@@ -61,9 +79,12 @@
         }
     }
     .buttons {
-         width: 100%;
-         margin-top:5px;
+         
+        width: 100%;
+        margin-top: 5px;
         justify-content: flex-end;
+        align-items: flex-start;
+        min-height: 60px;
         button {
             box-shadow: 1px 1px rgba(0, 0, 0, .3);
             min-height: 48px;

@@ -1,10 +1,16 @@
+.json-inspector__leaf_root {
+    max-height: 300px;
+    min-height: 300px;
+    overflow: scroll;
+    overflow-x: hidden;
+    width: 100%;
+}
+
 .json-inspector,
 .json-inspector__selection {
     font: 14px/1.4 Consolas, monospace;
-    
     text-align: left;
     direction: ltr;
-
 }
 
 .json-inspector__leaf {
@@ -14,20 +20,17 @@
 .json-inspector__line {
     display: block;
     position: relative;
-
     cursor: default;
 }
 
 .json-inspector__line:after {
     content: '';
-
     position: absolute;
     top: 0;
     left: -200px;
     right: -50px;
     bottom: 0;
     z-index: -1;
-
     pointer-events: none;
 }
 
@@ -35,7 +38,7 @@
     background: rgba(0, 0, 0, 0.06);
 }
 
-.json-inspector__leaf_composite > .json-inspector__line {
+.json-inspector__leaf_composite>.json-inspector__line {
     cursor: pointer;
 }
 
@@ -50,6 +53,7 @@
 
 .json-inspector__search {
     min-width: 300px;
+    width: 100%;
     margin: 0 10px 10px 0;
     padding: 2px;
 }
@@ -85,7 +89,6 @@
 .json-inspector__show-original {
     display: inline-block;
     padding: 0 6px;
-
     color: #666;
     cursor: pointer;
 }
@@ -99,5 +102,113 @@
 }
 
 .json-inspector__show-original:hover:after {
-    content: ' expand'
+    content: 'expand'
+}
+
+section.rest-confrim {
+    min-width: 500px;
+    input,span {
+        font-family: Tahoma !important;
+    }
+    .fa{
+        margin:0px 5px;
+    }
+    .fa-exclamation-triangle{
+        color:orange;
+        text-shadow: 0 0 2px #666;
+    }
+    input[type=text] {
+        background: transparent;
+    }
+    hr {
+        margin: 5px 0px;
+    }
+    .columns {
+        margin: 0 !important;
+    }
+    .http-method {
+        min-height: 34px;
+        padding: 0 4px;
+        align-content: center;
+        align-items: center;
+        border-radius: 5px;
+        span.verb {
+            box-shadow: inset 0px 0 2px #111;
+            min-width: 100px;
+            font-size: 80%;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            min-height: 25px;
+            align-items: center;
+        }
+        .column {
+            padding: 0;
+        }
+        input[type=text] {
+            background: transparent;
+        }
+    }
+    .http-method.post {
+        border: 1px solid rgba(73, 204, 144, 1);
+        background: rgba(73, 204, 144, 0.2);
+        span.verb {
+            background: rgba(73, 204, 144, 1);
+        }
+    }
+    .http-method.put {
+        border: 1px solid rgba(252, 161, 48, 1);
+        background: rgba(252, 161, 48, 0.2);
+        span.verb {
+            background: rgba(252, 161, 48, 1);
+        }
+    }
+    .http-method.put {
+        border: 1px solid rgba(252, 161, 48, 1);
+        background: rgba(252, 161, 48, 0.2);
+        span.verb {
+            background: rgba(252, 161, 48, 1);
+        }
+    }
+    .http-method.get {
+        border: 1px solid rgba(97, 175, 254, 1);
+        background: rgba(97, 175, 254, 0.2);
+        span.verb {
+            background: rgba(97, 175, 254, 1);
+        }
+    }
+    .http-method.delete {
+        border: 1px solid rgba(249, 62, 62, 1);
+        background: rgba(249, 62, 62, 0.2);
+        span.verb {
+            background: rgba(249, 62, 62, 1);
+        }
+    }
+    .server-error {
+        background: #222;
+        color: white;
+        padding: 8px;
+    }
+    footer {
+        display: flex;
+        flex-direction: column;
+        .secondary-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+    .title {
+        justify-content: center;
+        display: flex;
+    }
+    .key-value {
+        background: #eee;
+        box-shadow: inset 0px 0px 2px #555; 
+        margin: 2px 0;
+        padding: 5px;
+        width: 100%;
+        border-radius: 5px;
+    }
 }

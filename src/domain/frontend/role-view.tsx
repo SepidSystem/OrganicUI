@@ -35,7 +35,7 @@ class SingleView extends OrganicUI.BaseComponent<any, IStateForSingleView>{
     }
     constructor(p) {
         super(p);
-        this.handleBeforeSave = this.handleBeforeSave.bind(this);
+        this.beforeSave = this.beforeSave.bind(this);
     }
     applyCheckedItems(nodes: ITreeListNode[]) {
         const processRolePermission = (rolePermission: AppEntities.RolePermissionDTO) => {
@@ -68,7 +68,7 @@ class SingleView extends OrganicUI.BaseComponent<any, IStateForSingleView>{
         processRolePermission(null);
         return nodes;
     }
-    handleBeforeSave(role: AppEntities.RoleDTO) {
+    beforeSave(role: AppEntities.RoleDTO) {
 
 
         role.rolePermissions =
@@ -82,7 +82,7 @@ class SingleView extends OrganicUI.BaseComponent<any, IStateForSingleView>{
             this.state.permissions = this.state.permissions || OrganicUI.scanAllPermission(routeTable).then(r => this.applyCheckedItems(r)).then(permissions => this.repatch({ permissions })) as any;
         }
         else setTimeout(() => this.repatch({}), 100);
-        return (<SingleViewBox params={this.props as any} actions={RolesController} customActions={{ handleBeforeSave: this.handleBeforeSave }} options={options} ref="singleViewBox">
+        return (<SingleViewBox params={this.props as any} actions={RolesController} customActions={{ beforeSave: this.beforeSave }} options={options} ref="singleViewBox">
 
             <DataPanel header={i18n("primary-fields")} primary className="half-column-fields" >
                 <Field accessor="id" readonly>

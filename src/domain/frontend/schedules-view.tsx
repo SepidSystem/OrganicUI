@@ -5,7 +5,7 @@
 import { departmentListView } from "./department-view";
 import { SchedulesController } from "./sepid-rest-api";
 import { DeviceEntranceModes, DeviceMatchingModes, DeviceModels } from "./zero-data-structures";
-import { routeTable, BaseComponent, SingleViewBox, ListViewBox, Field, TimeSlot, ComboBox, DataList, IOptionsForCRUD, StatelessListView, ITimeSlotRange, i18n, TextField } from "@organic-ui";
+import { routeTable, BaseComponent, SingleViewBox, ListViewBox, Field, TimeSlot, ComboBox, DataList, IOptionsForCRUD, StatelessListView, ITimeSlotRange, i18n, TextField, Utils } from "@organic-ui";
 import { AppEntities } from "./entities";
 
 
@@ -21,32 +21,36 @@ export enum ScheduleType {
     Daily = "2"
 
 }
-function handleBeforeSave(schedule: AppEntities.ScheduleDTO) {
+function beforeSave(schedule: AppEntities.ScheduleDTO) {
     if (+schedule.type == +ScheduleType.Weekly) schedule.cycle = daysInOneWeek;
     schedule.scheduleShifts = schedule.scheduleShifts.filter(ss => ss.startTime && ss.endTime);
     return schedule;
 }
+
+const validate = (schedule: AppEntities.ScheduleDTO) => Utils.validateData(schedule, {
+    cycle: value => value > 90 && `schedule-cycle-outbound`
+
+});
+
 interface IState {
     dayCount: number;
-    
+    schedule: AppEntities.ScheduleDTO;
 }
 class SingleView extends BaseComponent<any, IState>{
+    refs: {
+        singleViewBox: SingleViewBox;
+    }
 
     handleTypeChange(event) {
-
         const scheduleType = +event.target.value;
-
-        this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.setFieldValue('type', scheduleType));
-        const schedule: AppEntities.ScheduleDTO = this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.getFormData());
-        this.repatch({   dayCount: (+scheduleType == +ScheduleType.Weekly) ? daysInOneWeek : schedule.cycle });
-
+        this.state.schedule.type = scheduleType;
+        this.repatch({ dayCount: (+scheduleType == +ScheduleType.Weekly) ? daysInOneWeek : this.state.schedule.cycle });
     }
-    getDays(schedule: AppEntities.ScheduleDTO): number[] {
-        const {   dayCount } = this.state;
-
-        let length = Math.max((+schedule.type == +ScheduleType.Daily) ? dayCount : daysInOneWeek
-            , ...(schedule.scheduleShifts || []).map(ss => ss.dayNumber));
-        if (length > 90) length = 90;
+    getSequenceForDays(schedule: AppEntities.ScheduleDTO): number[] {
+        const { dayCount } = this.state;
+        if (!schedule) return Array.from({ length: daysInOneWeek });
+        let length = Utils.limitValue(Math.max((schedule && +schedule.type == +ScheduleType.Daily) ? dayCount : daysInOneWeek
+            , ...(schedule.scheduleShifts || []).map(ss => ss.dayNumber)), { max: 90 });
         return Array.from({ length }).map((_, idx) => (idx + 1));
     }
     formatTime(s: string) {
@@ -55,23 +59,27 @@ class SingleView extends BaseComponent<any, IState>{
         return parts.join(':');
     }
     handleChangesForRanges(dayNo: number, ranges: ITimeSlotRange[]) {
-        const schedule: AppEntities.ScheduleDTO = this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.getFormData());
-        const newRanges = ranges.map(r => ({ dayNumber: dayNo, startTime: this.formatTime(r.from), endTime: this.formatTime(r.to) }));
-        schedule.scheduleShifts = schedule.scheduleShifts.filter(ss => ss.dayNumber != dayNo).concat(newRanges as any);
-    }
+        const { schedule } = this.state;
 
+        const newRanges = ranges.map(r => ({ dayNumber: dayNo, startTime: this.formatTime(r.from), endTime: this.formatTime(r.to) }));
+        if (schedule)
+            schedule.scheduleShifts = schedule.scheduleShifts.filter(ss => ss.dayNumber != dayNo).concat(newRanges as any);
+    }
+    autoUpdateState = {
+        schedule: () => this.refs.singleViewBox.getFormData(),
+        dayCount: () => Promise.resolve(this.state.schedule.cycle)
+    }
     render() {
-        const schedule: AppEntities.ScheduleDTO = this.evaluate<SingleViewBox>('singleViewBox', singleViewBox => singleViewBox.getFormData());
-        if (schedule) {
-            schedule.type =  schedule.type || +ScheduleType.Weekly;
-            schedule.cycle = schedule.cycle || daysInOneWeek;
-            this.state.dayCount = this.state.dayCount || schedule.cycle;
-        }
-        const scheduleType=schedule && schedule.type ;
-        return (<SingleViewBox ref="singleViewBox" customActions={{ handleBeforeSave }} params={this.props as any} actions={SchedulesController} options={options}  >
+
+        const { schedule } = this.state;
+        if (schedule)
+            Utils.assignDefaultValues(schedule, { scheduleShifts: [], type: +ScheduleType.Weekly, cycle: daysInOneWeek });
+
+        const scheduleType = schedule && schedule.type;
+        return (<SingleViewBox ref="singleViewBox" customActions={{ beforeSave, validate }} params={this.props as any} actions={SchedulesController} options={options}  >
             <div className="row">
                 <div className="col-sm-6">
-                    <Field accessor="name" />
+                    <Field accessor="name" required />
                 </div>
 
                 <div className="col-sm-6">
@@ -103,21 +111,24 @@ class SingleView extends BaseComponent<any, IState>{
                 </div>}
 
             </div>
-            {!!schedule && this.getDays(schedule).map((dayNo, idx) => (
-                <TimeSlot
-                    onChange={ranges => this.handleChangesForRanges(dayNo, ranges)}
-                    prefix={dayNo}
-                    ranges={schedule.scheduleShifts && schedule.scheduleShifts.filter(ss => ss.dayNumber == dayNo).map(ss => ({
-                        from: ss.startTime,
-                        to: ss.endTime
-                    }))} />))}
+            <div className="schedule-shifts" style={{ maxHeight: '350px', overflowY: 'scroll', overflowX: 'hidden', minHeight: '350px' }}>
+                {!!schedule && this.getSequenceForDays(schedule).map((dayNo, idx) => (
+                    <TimeSlot
+                        key={+dayNo}
+                        onChange={ranges => this.handleChangesForRanges(dayNo, ranges)}
+                        prefix={dayNo}
+                        ranges={schedule.scheduleShifts && schedule.scheduleShifts.filter(ss => ss.dayNumber == dayNo).map(ss => ({
+                            from: ss.startTime,
+                            to: ss.endTime
+                        }))} />))}
+            </div>
 
         </SingleViewBox>);
     }
 }
 routeTable.set(options.routeForSingleView, SingleView);
 
-const listView: StatelessListView = p => (
+export const listView: StatelessListView = p => (
     <ListViewBox actions={SchedulesController} options={options} params={p}>
         <DataList>
             <Field accessor="name" />

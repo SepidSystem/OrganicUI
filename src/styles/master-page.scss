@@ -6,14 +6,16 @@ html {
 main.main-container {
     text-align: right;
     position: absolute;
-    right: 310px;
-    left: 10px;
+    right: 350px;
+    left: 50px;
 }
-.version-container{
-    label{
-        margin:2px 20px;
+
+.version-container {
+    label {
+        margin: 2px 20px;
     }
 }
+
 .main-content {
     footer {
         padding: 10px 2px;
@@ -55,10 +57,16 @@ main.main-container {
     background: #fff !important;
     border-radius: 7px !important;
 }
-#root,.MuiInput-root,label,input,button,span{ 
-font-family: Vazir !important;
 
+#root,
+.MuiInput-root,
+label,
+input,
+button,
+span {
+    font-family: Yekan;
 }
+
 .master-page {
     display: flex;
     min-height: 100%;
@@ -71,7 +79,8 @@ font-family: Vazir !important;
         }
         a {
             display: block;
-            width: 100%
+            width: 100%;
+            font-size:16px;
         }
     }
     aside {
@@ -83,7 +92,7 @@ font-family: Vazir !important;
                 flex-direction: row-reverse;
                 .icon {
                     width: auto !important;
-                    margin:0 5px;
+                    margin: 0 5px;
                 }
             }
             i.icon {
@@ -117,7 +126,6 @@ font-family: Vazir !important;
         }
         min-width: 280px;
         max-width: 280px;
-        
         background: rgb(72, 74, 105);
         .triangle {
             display: none;
@@ -130,7 +138,7 @@ font-family: Vazir !important;
         }
         .router {
             position: relative;
-            font-family: 'Vazir' !important;
+            font-family: 'Yekan' !important;
         }
         .router.active:active,
         .router.active:hover {

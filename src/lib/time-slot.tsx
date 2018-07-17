@@ -143,7 +143,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
 
             </main>
             <main className="range-wrapper">
-                <div className="ranges">     {s.ranges.filter(r => r.from && r.to).map((range, idx) => (
+                <div className="ranges">     {s.ranges && s.ranges.filter(r => r.from && r.to).map((range, idx) => (
                     <span className={`range range${idx}`}
                         onClick={e => this.repatch({ rangeIndex: idx, rangeData: Utils.clone(range), targetRange: e.target as HTMLElement })}
                         style={{
@@ -197,6 +197,9 @@ interface ITimeSlotDialogProps {
     ranges: ITimeSlotRange[];
 }
 class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
+    refs: {
+        range: HTMLElement;
+    }
     componentWillMount() {
         TimeSlotDialog.Instance = this;
         this.state.ranges = Utils.clone(this.props.ranges);
@@ -208,24 +211,27 @@ class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
 
     render() {
         return <AdvSection errorMessage={this.state.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })} >
-            {this.state.ranges.map(range => (
+            <h3 className="title is-3 is-centered">{i18n('timeslot-group-edit')}</h3>
+            <div className="ranges" ref="range">
+                {this.state.ranges.map((range, index) => (
 
-                <DataForm className="data-form-row"
-                    onFieldRead={key => range[key]}
-                    onFieldWrite={(key, value) => range[key] = value}>
-                    <Field accessor="from">
-                        <TimeEdit />
-                    </Field>
-                    <Field accessor="to">
-                        <TimeEdit />
-                    </Field>
+                    <DataForm className={`data-form-row  range${index}`}
+                        onFieldRead={key => range[key]}
+                        onFieldWrite={(key, value) => range[key] = value}>
+                        <Field accessor="from">
+                            <TimeEdit />
+                        </Field>
+                        <Field accessor="to">
+                            <TimeEdit />
+                        </Field>
 
-                </DataForm>
+                    </DataForm>
 
-            ))}
+                ))}
+            </div>
             <footer className="is-centered">
-                <OrganicUI.AdvButton color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  >{Utils.showIcon('fa-check')}{i18n('apply')}  </OrganicUI.AdvButton >
-                <OrganicUI.AdvButton onClick={() => AppUtils.showDialog(null)} > {i18n('close')}  </OrganicUI.AdvButton >
+                <MaterialUI.Button fullWidth color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  >{Utils.showIcon('fa-check')}{i18n('apply')}  </MaterialUI.Button >
+
             </footer>
         </AdvSection>
 

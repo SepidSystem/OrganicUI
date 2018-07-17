@@ -2,69 +2,87 @@ import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
 import { AppUtils } from "./app-utils";
 import { OptionsForRESTClient } from "@organic-ui";
+import   * as curl  from    'curl-cmd' ; // href
+ 
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));
 }
 
+export const instances = [];
 export function createClientForREST(options?: OptionsForRESTClient) {
-    function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T> {
+    async function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T> {
         if (restClient['bodyMapper'])
             data = restClient['bodyMapper']({ method, url, body: data });
 
         if (method == 'GET' && data && Object.keys(data).length) {
             url = url + (url.includes('?') ? '&' : '?') + Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&');
         }
-
-        if (method == 'GET') {
-            const resultOfCache = restClient['cache'].get(url);
-            if (resultOfCache) return Promise.resolve(resultOfCache);
-        }
+        //if (method == 'GET') {
+        //  const resultOfCache = restClient['cache'].get(url);
+        //  if (resultOfCache) return Promise.resolve(resultOfCache);
+        //}
         if (!(['GET', 'HEAD'].includes(method)) && data)
             restClient['cache'].reset();
-        const obj = options instanceof Function ? options() : options;
-        const result = axios(Object.assign({}, { url, method, data }, obj || {})).then(resp => {
+        const params = { url, method, data, options };
+        Object.assign(createClientForREST, { lastRequest: params });
 
-            const { headers } = resp;
-            var result = changeCase.camelCase(resp.data);
-            const headerPairs = typeof headers == 'object' ? headers : Array.from((headers as any).entries()).reduce((a, [key, value]) => (a[key] = value, a), {});
+        const firstPromise = (restClient['confrim'] instanceof Function) ?
+            restClient['confrim'](Object.assign({ mode: 0 }, params)) as Promise<T> : (Promise.resolve(false) as any) as Promise<T>;
+        const opts = options instanceof Function ? options() : options;
+        Object.assign(params, opts);
+        let showResponse = false;
+        const result = firstPromise
+            .then(activate => (showResponse = !!activate, activate))
+            .then(() => axios(params)).then(resp => {
 
-            if ('x-total-count' in headerPairs) {
-                const totalRows = +headerPairs['x-total-count'];
-                result = { totalRows, rows: result };
+                const { headers } = resp;
+                var result = changeCase.camelCase(resp.data);
+                const headerPairs = typeof headers == 'object' ? headers : Array.from((headers as any).entries()).reduce((a, [key, value]) => (a[key] = value, a), {});
+
+                if ('x-total-count' in headerPairs) {
+                    const totalRows = +headerPairs['x-total-count'];
+                    result = { totalRows, rows: result };
+                }
+                let rows: Array<any>[] = result.rows;
+                if (rows instanceof Array && rows[0] instanceof Array) {
+                    const keys: string[] = result.rows[0];
+                    rows = rows.slice(1).map(r => {
+                        let obj = {};
+                        r.forEach((v, idx) => obj[keys[idx]] = v);
+                        return obj;
+                    }) as any;
+                    rows = changeCase.camelCase(rows);
+                    Object.assign(result, { rows });
+                }
+                if (method == 'GET')
+                    restClient['cache'].set(url, result, 1000 * 10);
+
+                if (restClient['delay']) return delayedValue(result, restClient['delay']);
+                if (showResponse)
+                    return restClient['confrim'](Object.assign({ mode: 2 }, params, { result })).then(() => result);
+                else
+                    return result;
+
+
+            }, async error => {
+                console.groupCollapsed(`${method} ${url.split('?')[0]}`);
+
+                console.groupEnd();
+                if (restClient['failLogger'] instanceof Function)
+                    await Promise.all([restClient['failLogger']({ options, url, method, data, error })]);
+
+                return Promise.reject(error);
             }
-            let rows: Array<any>[] = result.rows;
-            if (rows instanceof Array && rows[0] instanceof Array) {
-                const keys: string[] = result.rows[0];
-                rows = rows.slice(1).map(r => {
-                    let obj = {};
-                    r.forEach((v, idx) => obj[keys[idx]] = v);
-                    return obj;
-                }) as any;
-                rows = changeCase.camelCase(rows);
-                Object.assign(result, { rows });
-            }
-            if (method == 'GET')
-                restClient['cache'].set(url, result, 1000 * 10);
-
-            if (restClient['delay']) return delayedValue(result, restClient['delay']);
-
-            return result;
-
-
-        }, error => {
-            console.groupCollapsed(`${method} ${url.split('?')[0]}`);
- 
-            console.groupEnd();
-            return Promise.reject(error);
-        }
-        ).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
+            ).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
 
         return Object.assign(result, { url, method, data });
     }
-    Object.assign(restClient, { delay: 0, cache: LRU(200), bodyMapper: null })
+    Object.assign(restClient, { options, delay: 0, cache: LRU(200), bodyMapper: null });
+    instances.push(restClient);
     return restClient;
 };
+/*
 export const refetch = createClientForREST();
 const patterns = {
     create: 'create(.+)',
@@ -107,5 +125,6 @@ export function remoteApiProxy() {
 }
 
 
-export const remoteApi: any = remoteApiProxy();
+export const remoteApi: any = remoteApiProxy();*/
+Object.assign(createClientForREST, { instances });
 Object.assign(window, { axios });

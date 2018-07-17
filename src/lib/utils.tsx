@@ -115,7 +115,9 @@ export const Utils = {
 	warn(...args) {
 		!OrganicUI.Utils['noWarn'] && console.warn(...args);
 	},
-	renderDevButton(targetText, target: IDeveloperFeatures) {
+	renderDevButton(ident: string | { prefix, targetText }, target: IDeveloperFeatures) {
+		if (typeof ident == 'string') ident = { prefix: ident, targetText: ident };
+		const { prefix, targetText } = ident;
 		const topItems = [{
 			key: 'reset',
 			name: `Reset DevTools `,
@@ -141,9 +143,9 @@ export const Utils = {
 				shouldFocusOnMount: true,
 				items:
 					topItems.concat(
-						Object.keys( OrganicUI.devTools.data)
+						Object.keys(OrganicUI.devTools.data)
 							.filter(key =>
-								key.startsWith(targetText + '|'))
+								key.startsWith(prefix + '|'))
 							.map(key => [key, OrganicUI.devTools.data[key]])
 							.map(([key, onExecute]) => ({
 								key: key.split('|')[1],
@@ -186,18 +188,39 @@ export const Utils = {
 	toArray(arg): any[] {
 		return arg instanceof Array ? arg : [arg];
 	},
+	reduceEntriesToObject(arg: any[][]): Object {
+		return arg.reduce((a, entry) => (a[entry[0]] = entry[1], a), {})
+	},
+	limitValue(value: number, { min=undefined, max=undefined }): number {
+		if (max !== undefined) value = Math.min(value, max);
+		if (min !== undefined) value = Math.min(value, min);
+		return value;
+	},
 	sumValues(numbers: number[]) {
 		return numbers.reduce((a, b) => a + b, 0);
 	},
 	clone<T>(x: T): T {
 		return JSON.parse(JSON.stringify(x))
 	},
-	uniqueArray<T>(array: T[]):T[] {
-		return Object.keys(  array.reduce((a, b) => (a[b + ''] = 1, a), {})).map(key=>(key as any) as T);
+	uniqueArray<T>(array: T[]): T[] {
+		return Object.keys(array.reduce((a, b) => (a[b + ''] = 1, a), {})).map(key => (key as any) as T);
+	},
+	validateData<T>(data: T, callbacks: OrganicUi.PartialFunction<T>): OrganicUi.IDataFormAccessorMsg[] {
+		return Object.keys(callbacks)
+			.map(accessor => {
+				const cb = callbacks[accessor] as Function;
+				const message = cb(data[accessor]);
+				return { message, accessor };
+			}).filter(({ message }) => !!message);
+	},
+	assignDefaultValues<T>(data: T, defaultValues: Partial<T>) {
+		if (!data || !defaultValues) return;
+		Object.keys(defaultValues)
+			.forEach(key => data[key] = data[key] === undefined ? defaultValues[key] : data[key]);
 	}
 
 }
 import * as changeCaseObject from 'change-case-object'
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
- 
+
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

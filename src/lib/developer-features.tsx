@@ -4,6 +4,7 @@ import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
 import { IDeveloperFeatures } from "@organic-ui";
+import { instances } from './rest-api';
 export { JsonInspector };
 export function isDevMode() {
 
@@ -12,7 +13,7 @@ export function isDevMode() {
 export const isDevelopmentEnv = () => !!DeveloperBar.isDevelopmentEnv;
 export type DevFriendlyCommand = (target: IDeveloperFeatures & BaseComponent<any, any>) => void;
 export function isProdMode() {
-    return !isDevelopmentEnv() ;
+    return !isDevelopmentEnv();
 }
 export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
@@ -51,6 +52,16 @@ export class DeveloperBar extends BaseComponent<any, any> {
     componentWillUnmount() {
         clearInterval(this.timerId);
     }
+    renderDevButtonForRestClients() {
+        return instances.map(
+            target => {
+                let { options } = target;
+                options = options instanceof Function ? options() : options;
+                const targetText = options && options.title;
+
+                return targetText && Utils.renderDevButton({ prefix: 'REST', targetText  }, target);
+            });
+    }
     render() {
         if (DeveloperBar.developerFriendlyEnabled) {
             DeveloperBar.devMenuItems = DeveloperBar.devMenuItems ||
@@ -67,7 +78,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                     items: DeveloperBar.devMenuItems
                 }} iconProps={{ iconName: 'Code' }}
             />}
-            {!!DeveloperBar.developerFriendlyEnabled && Utils.renderDevButton('REST', null)}
+            {!!DeveloperBar.developerFriendlyEnabled && this.renderDevButtonForRestClients()}
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
         </div>

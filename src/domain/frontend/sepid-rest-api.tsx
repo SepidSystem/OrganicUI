@@ -3,11 +3,12 @@ import { createClientForREST, IActionsForCRUD, OptionsForRESTClient, IListData, 
 import { AppEntities } from "./entities";
 const webApiClientSettings: OptionsForRESTClient = () => {
     const token = localStorage.getItem('token');
-    const baseURL = isProdMode() && localStorage.getItem('baseURL');
-    if (!location.href.endsWith('/login') && !token) location.href = '/view/auth/login';
-
+    const baseURL =!isProdMode() && (localStorage.getItem('baseURL')|| undefined) ;
+  //  if (!location.href.endsWith('/login') && !token) location.href = '/view/auth/login';
+    
     return {
-        baseURL: baseURL || `http://192.168.1.66:41368/`,//  `http://${location.hostname}:51368/`,
+        title:'Web API',
+        baseURL,//: baseURL || `http://192.168.1.66:51368/`,//  `http://${location.hostname}:51368/`,
         headers: {
             'Authorization': token ? `Bearer ${token}` : '',
             'Access-Control-Allow-Origin': '*'
@@ -65,7 +66,7 @@ function crudControllerFactory<T>(pluralName: string, { singularName, extraReadL
         create: data => webApi('POST', `/SepidRESTService/${pluralName}/${singularName}`, data),
         deleteList: ids => webApi('POST', `/SepidRESTService/${pluralName}/DeleteList`, ids),
         update: (id, data) => webApi('PUT', `/SepidRESTService/${pluralName}/${singularName}`, data),
-        getText:dto=>(dto as any).name
+        getText: dto => (dto as any).name
     };
 }
 function simpleReadListFactory<T>(pluralName, singularName) {
@@ -75,6 +76,7 @@ export const RolesController = crudControllerFactory<AppEntities.RoleDTO>('Roles
 RolesController.readList = simpleReadListFactory('Roles', 'Role');
 RolesController.getText = dto => dto.name;
 export const UsersController = crudControllerFactory<AppEntities.UserDTO>('Users');
+UsersController.getText = dto => dto.fullName;
 export const UserGroupsController = crudControllerFactory<AppEntities.UserDTO>('UserGroups');
 export const DevicesController = crudControllerFactory<AppEntities.DeviceDTO>('Devices');
 export const EmployeesController = crudControllerFactory<AppEntities.EmployeeDTO>('Employees');
@@ -90,6 +92,12 @@ function mapDepartments(items: AppEntities.DepartmentDTO[]) {
 }
 export const DepartmentsController = crudControllerFactory<AppEntities.DepartmentDTO>('Departments');
 DepartmentsController.readList = (data: IAdvancedQueryFilters) => webApi<OrganicUi.IListData<AppEntities.DepartmentDTO>>('POST', `/SepidRESTService/Departments/DepartmentList`, data).then(mapDepartments as any);
-export const SchedulesController = crudControllerFactory('Schedules');
+
+export const DataItemGroupsController = crudControllerFactory<AppEntities.DataItemGroupDTO>('DataItemGroups');
+DataItemGroupsController.readList = params => webApi('POST', '/SepidRESTService/DataItemGroups/DataItemGroupList', params);
+
+export const SchedulesController = crudControllerFactory<AppEntities.ScheduleDTO>('Schedules');
+export const DoorsController = crudControllerFactory('Doors');
+export const AccessGroupController = crudControllerFactory<AppEntities.DataItemGroupDTO>('AccessGroups');
 //export const  
 Object.assign(window, { SchedulesController, webApi, BasicController });

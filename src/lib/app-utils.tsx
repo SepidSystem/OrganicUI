@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import { ReactElement, cloneElement } from "react";
 import { i18n } from "./shared-vars";
- 
+
 interface IDialogProps {
     title?, content?: any;
     actions?: { [key: string]: Function }
@@ -67,7 +67,11 @@ export class AppUtils extends BaseComponent<any, any>{
         return <section className="app-utils" >
             {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
                 {dialogInstance.title && <DialogTitle> {i18n(dialogInstance.title)}</DialogTitle>}
-                <DialogContent>
+                <a href="#"  className="close-dialog" onClick={e => {
+                    e.preventDefault();
+                    AppUtils.showDialog(null);
+                }}><i className="fa fa-times" /></a>
+                <DialogContent style={{ overflowX: 'hidden' }}>
                     {dialogInstance.content}
                 </DialogContent>
                 {dialogInstance.actions && <DialogActions>

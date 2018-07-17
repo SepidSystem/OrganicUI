@@ -4,11 +4,10 @@ import { BaseComponent, CriticalContent } from './base-component';
 import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { FilterPanel } from './filter-panel';
-import { listViews } from './shared-vars';
-import { ReactElement } from 'react';
-import {   DataList } from './data-list';
- 
-import { Spinner } from './spinner';
+
+import { DataList } from './data-list';
+
+
 import { AdvButton, Placeholder } from './ui-kit';
 
 import { IDetailsListProps, Selection, ConstrainMode } from 'office-ui-fabric-react';
@@ -21,7 +20,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import { AppUtils } from './app-utils';
-import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, TextField } from '@organic-ui';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -107,14 +106,18 @@ export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBo
     }
 }
 
- 
+
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
 export class ListViewBox<T> extends
-    OrganicBox< IActionsForCRUD<T>,  IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
-    implements  IDeveloperFeatures {
+    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
+    implements IDeveloperFeatures {
 
     columns: IFieldProps[];
+    static fakeLoad() {
+        const date = (Utils['scaningAllPermission'] && +Utils['scaningAllPermission']) || 0;
+        return ((+ Date()) - date < 500);
+    }
 
     getFilterPanel() {
         this.columns = this.columns || this.getColumns();
@@ -163,7 +166,7 @@ export class ListViewBox<T> extends
         const row = (this.selection.getItems()[index]);
         const id = this.getId(row);
         const url = this.getUrlForSingleView(id);
-        return OrganicUI.renderViewToComplete(url).then(() => Utils.navigate(url));
+        return Utils.navigate(url);
     }
     async handleRemove() {
         const indices = this.selection.getSelectedIndices();
@@ -190,15 +193,15 @@ export class ListViewBox<T> extends
     denyHandleSelectionChanged: number;
 
     handleSelectionChanged() {
-        
+
         const now = +new Date();
         if (this.denyHandleSelectionChanged && (now - this.denyHandleSelectionChanged) < 500) return;
-       const { onSelectionChanged } = this.props.params;
+        const { onSelectionChanged } = this.props.params;
         const indices = this.selection.getSelectedIndices();
         onSelectionChanged instanceof Function && onSelectionChanged(indices, this.selection);
         onSelectionChanged instanceof Function &&
             setTimeout(() => {
-                 
+
                 this.denyHandleSelectionChanged = +new Date();
                 try {
                     if (indices.length)
@@ -206,14 +209,14 @@ export class ListViewBox<T> extends
                 } finally {
                     this.denyHandleSelectionChanged = 0;
                 }
-                 
-                 this.adjustSelectedRow()   ;
-     
+
+                this.adjustSelectedRow();
+
             }, 20);
         //this.repatch({});
     }
     readList(params) {
-        if (this.isRootRender()) {
+        if (!ListViewBox.fakeLoad()) {
             return this.actions.readList(params).then(r => {
                 setTimeout(() => this.adjustSelectedRow(), 200);
                 return r;
@@ -281,6 +284,7 @@ export class ListViewBox<T> extends
         return params;
     }
     renderContent() {
+
         if ((React.Children.map(this.props.children || [], child => child) || [])
             .filter((child: any) => !!child && child.type == DataList && !child.props.loader)
             .length == 0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
@@ -308,7 +312,7 @@ export class ListViewBox<T> extends
                     {}, child.props, {
                         ref: "dataList",
                         height: params.height || 500,
-                        onDoubleClick: this.handleEdit,
+                        onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
                         onLoadRequestParams: this.handleLoadRequestParams,
                         loader: this.readList,
                         paginationMode: child.props.paginationMode || 'paged',
@@ -335,7 +339,7 @@ export class ListViewBox<T> extends
 
             {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
-            <div className="title is-5">
+            <div className="title is-3">
                 {Utils.i18nFormat('list-view-title-fmt', this.props.options.pluralName)}
             </div>
             <header className="  static-height list-view-header"  >
@@ -366,48 +370,28 @@ export class ListViewBox<T> extends
 
                 </div>
             </header>
-            <div className=" " key="cats">
-                {s.toggleButtons.showCats && <div className="column is-4">
-                    <div className="tags is-vcentered">
-                        <span className="tag ">
-                            {'  '}World{'  '}
-                            <button className="delete is-small"></button>
-                        </span>
+
+            <MaterialUI.Paper className="  main-content column  "   >
+
+                <header className="navigator">
+                    <MaterialUI.Button onClick={this.handleEdit} >
+                        <EditIcon />
+                        {i18n('edit')}
+                    </MaterialUI.Button>
+                    <MaterialUI.Button onClick={this.handleRemove}   >
+                        <DeleteIcon />
+                        {i18n('delete-items')}
+
+                    </MaterialUI.Button>
+                    <div className="search-field">
+                        <SearchIcon width="64px" height="64px" />
+                        <MaterialUI.TextField />
                     </div>
-                    <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
-                        <select className="" style={{ width: '100%' }}>
-                            {['area', 'earned', 'payment', ''].map(s => <option className="">{s}</option>)}
+                </header>
+                {!!this.refs.root && children}
 
-                        </select>
+            </MaterialUI.Paper>
 
-                    </div>{' '}
-                    <div className="select" style={{ width: '49%', marginBottom: '4px' }}>
-                        <select className="" style={{ width: '100%' }}>
-                            {['SUM', 'MAX', 'MIN', 'AVG'].map(s => <option className="">{s}</option>)}
-
-                        </select>
-
-                    </div>
-
-                </div>}
-                <br />
-                <MaterialUI.Paper className="  main-content column  "   >
-
-                    <header>
-                        <MaterialUI.Button onClick={this.handleEdit} >
-                            <EditIcon />
-                            {i18n('edit')}
-                        </MaterialUI.Button>
-                        <MaterialUI.Button onClick={this.handleRemove}   >
-                            <DeleteIcon />
-                            {i18n('delete-items')}
-
-                        </MaterialUI.Button>
-                    </header>
-                    {!!this.refs.root && children}
-
-                </MaterialUI.Paper>
-            </div>
 
             <br />
             {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={() => this.repatch({ deleteDialogIsOpen: false })}>

@@ -309,21 +309,21 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     getErrorMessage() {
         let val = this.handleGetData(), p = this.props;
         if (val instanceof Array && val.length == 0) val = undefined;
-        const dataForm = this.getDataForm(true);
         const message = ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
-            || (dataForm && dataForm.invalidItems && dataForm.invalidItems.
-                filter(invalidItem => invalidItem.accessor == p.accessor)
-                .map(invalidItem => invalidItem.message)[0])
+
             || (p.required && typeof val != 'number' && !val && 'error-required')
             || (p.onErrorCode instanceof Function) && p.onErrorCode(val);
         return message && Utils.i18nFormat(message, changeCase.paramCase(p.accessor));
 
     }
-    revalidate() {
+    revalidate({customInvalidItems}={customInvalidItems:null}) {
         const s = this.state, p = this.props;
 
         const message = this.getErrorMessage();
         s.messages = (p.messages || []).concat(!message ? [] : [{ message, type: 'danger' }])
+            .concat(customInvalidItems instanceof Array ? customInvalidItems.
+                filter(invalidItem => invalidItem.accessor == p.accessor) : []);
+
         this.forceUpdate();
         return !!message && { accessor: p.accessor, message };
     }

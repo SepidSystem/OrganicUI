@@ -11,6 +11,7 @@ import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
+import { createClientForREST } from './rest-api';
 
 
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
@@ -19,6 +20,7 @@ export class SingleViewBox<T> extends OrganicBox<
     IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState<T>> {
     undefinedFields: Object;
     objectCreation: number;
+    static updateFail:Function;
     constructor(p) {
         super(p);
         this.navigateToBack = this.navigateToBack.bind(this);
@@ -43,7 +45,8 @@ export class SingleViewBox<T> extends OrganicBox<
     componentWillMount() {
         const { actions, params } = this.props;
         this.state.formData = params.id > 0
-            ? actions.read(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) }))
+            ? actions.read(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) })
+        ,)
             : this.mapFormData({});
     }
     getId(row) {
@@ -61,40 +64,42 @@ export class SingleViewBox<T> extends OrganicBox<
         formData && (formData[fieldName] = value);
     }
     async handleSave(navigateToListView?) {
+        const p = this.props, s = this.state;
         this.repatch({ validated: true });
 
         const { dataForm } = this.refs;
         console.assert(!!dataForm, 'dataForm is null @ handleSave');
-        await dataForm.revalidateAllFields();
+        let formData = JSON.parse(JSON.stringify(s.formData));
+        console.assert(!!this.actions.beforeSave || this.actions.beforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.beforeSave);
 
-        if (dataForm.invalidItems && dataForm.invalidItems[0]) {
-            dataForm.setFocusByAcccesor(dataForm.invalidItems[0].accessor);
+        if (this.actions.beforeSave instanceof Function)
+            [formData] = await Promise.all([this.actions.beforeSave(formData)]);
+        const [invalidItems] = await Promise.all([dataForm.revalidateAllFields(formData)]);
+        if (invalidItems && invalidItems[0]) {
+            dataForm.setFocusByAcccesor(invalidItems[0].accessor);
             return dataForm.getErrorCard();
         }
-        const p = this.props, s = this.state;
         let updateResult: Promise<any>;
         let { id } = p.params;
         if (id == 'new') id = 0;
-        let formData = JSON.parse(JSON.stringify(s.formData));
-        console.assert(!!this.actions.handleBeforeSave || this.actions.handleBeforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.handleBeforeSave);
-
-        if (this.actions.handleBeforeSave instanceof Function)
-            formData = this.actions.handleBeforeSave(formData);
+ 
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
             updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
-            return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-5 animated fadeIn">{i18n('error')}</div>
+            return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-3 animated fadeIn">{i18n('error')}</div>
                 <div className="animated fadeInDown">
                     {i18n('not impl update & create')}
                 </div>
             </div>);
         }
+   
         return updateResult.then(
             () => {
                 const { title, desc } = this.getSuccess();
-
-                navigateToListView && setTimeout(() => this.navigateToBack(), navigateToListView ? 10 : 3000);
-                setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
+                if (navigateToListView)
+                    setTimeout(this.navigateToBack, 10);
+                else
+                    setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
                 return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
                     <header className="columns">
                         <div className="column" style={{ maxWidth: "70px" }}>
@@ -103,17 +108,23 @@ export class SingleViewBox<T> extends OrganicBox<
                             </span>
                         </div>
                         <div className="column" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="title is-5">{title}</div>
+                            <div className="title is-3">{title}</div>
                         </div>
                     </header>
 
 
                 </div>;
-            });
+            },error=>(this.devElement=this.makeDevElementForDiag(error),this.repatch({})  ));
 
 
 
 
+    }
+    makeDevElementForDiag(error){
+        
+        if(!SingleViewBox.updateFail) return null;
+        return SingleViewBox.updateFail(Object.assign({},createClientForREST['lastRequest'] || {},{error,result:error,
+            onProceed:()=>(this.devElement=null,this.repatch({}))}))
     }
     navigateToNewItem() {
 
@@ -140,7 +151,7 @@ export class SingleViewBox<T> extends OrganicBox<
 
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         return <section className="single-view developer-features" ref="root">
-            <h1 className="title is-5 columns" style={{ margin: '0' }}>
+            <h1 className="title is-3 columns" style={{ margin: '0' }}>
                 <div className="column is-11">
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>
@@ -164,7 +175,7 @@ export class SingleViewBox<T> extends OrganicBox<
                         s.formData[accessor] = value;
                     }}
                     validate={s.validated}
-                    onErrorCode={this.actions.onErrorCode}
+                    onErrorCode={this.actions.validate}
                     data={s.formData}>
 
                     {this.props.children}

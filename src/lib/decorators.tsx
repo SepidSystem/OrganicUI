@@ -10,11 +10,11 @@ export function SubRender() {
     return function (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
         const method = descriptor.value;
 
-       
+
         descriptor.value = function () {
             const args = Array.from(arguments);
             if (args.some(arg => arg instanceof Promise)) return <Spinner />;
-            // if (args.some(arg => (arg === undefined) || (arg === null))) return null;
+            if (args.some(arg => (arg === undefined) || (arg === null))) return null;
             return method.apply(this, arguments);
         }.bind(target);
         Object.assign(descriptor.value, { mode: 'template' });

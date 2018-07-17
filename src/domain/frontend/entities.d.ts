@@ -2,6 +2,7 @@
 /// <reference path="../../dts/organic-ui.d.ts" />
 
 import { ITreeListNode } from "@organic-ui";
+import { unstable_renderSubtreeIntoContainer } from "react-dom";
 
 declare namespace AppEntities {
     export interface CustomerDTO {
@@ -82,5 +83,17 @@ declare namespace AppEntities {
         cycle: number;
         scheduleShifts: { id, dayNumber, startTime, endTime }[];
     }
-
+    export interface AccessGroupDTO {
+        name: string;
+        description: string;
+        users:number[],
+        details: {
+            schduleId: number, doorId: number
+        }[];
+    }
+    export interface DataItemGroupDTO{
+        id:number;
+        name:string;
+        moduleKey:string;
+    }
 }

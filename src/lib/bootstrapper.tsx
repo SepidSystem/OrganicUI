@@ -75,6 +75,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
         return Promise.resolve([]);
     }
     Utils['scaningAllPermission'] = +new Date();
+     
     const result: ITreeListNode[] = [];
     let appliedUrls = [];
     const urls = Object.keys(table.data);

@@ -89,6 +89,11 @@ i18n('productName', 'سپیداستار')
 
 // time-slot
 i18n('time-slot-conflict', ['تداخل وجود دارد : ', '{s}'].join(' '));
+i18n('invalid-timeslot-from','زمان وارد شده در زمان شروع ناصحیح است');
+i18n('invalid-timeslot-to','زمان وارد شده در زمان پایان ناصحیح است');
+i18n('invalid-timeslot-range-from-to','زمان شروع از زمان پایان بیشتر است');
+i18n('invalid-timeslot-range-unsorted','زمان های وارد شده مرتب نیست');
+i18n('timeslot-group-edit','اصلاح گروهی');
 // schedule
 i18n('schedule', 'زمان بندی');
 i18n('schedules', 'زمان بندی ها');
@@ -96,8 +101,12 @@ i18n('cycle', 'دوره');
 i18n('start-date', 'تاریخ شروع');
 i18n('from', 'از');
 i18n('to', 'به');
+i18n('schedule-cycle-outbound','حداکثر دوره زمانی 90 روزه میباشد');
 i18n('weekly', 'بصورت هفته');
 i18n('daily', 'بصورت روزانه');
 
 
-
+// access-groups
+i18n('access-group', 'گروه دسترسی');
+i18n('access-groups', 'گروه دسترسی ها');
+i18n('details','جزثیات')
