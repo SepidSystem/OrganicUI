@@ -18,8 +18,8 @@ export class BaseComponent<P, S> extends Component<P, S>{
         throw new Error("Method not implemented.");
     }
     processAutoUpdateState() {
-        
-        if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length==0) {
+
+        if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length == 0) {
             clearInterval(this.autoUpdateTimer);
         }
         const newState = Object.keys(this.autoUpdateState).map(key => {
@@ -41,7 +41,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
                 return null;
             }
         }).filter(x => !!x).filter(([key, value]) => this._autoUpdateState[key] !== value);
- 
+
         if (newState.length) {
             this._autoUpdateState = Object.assign({}, this.state || {}) as S;
             this.repatch(Utils.reduceEntriesToObject(newState) as S);
@@ -103,7 +103,12 @@ export class BaseComponent<P, S> extends Component<P, S>{
     defaultState(delta: Partial<S>) {
         Utils.assignDefaultValues(this.state, delta);
     }
-    repatch(delta: Partial<S>, target?) {
+
+    repatch(delta: Partial<S>, target?, delay?) {
+        if (delay) {
+            setTimeout(this.repatch.bind(this), delay, delta, target);
+            return;
+        }
         if (!OrganicUI.isProdMode()) {
             if (delta['debug']) debugger;
             if (window['repatchDebug'] && !OrganicUI.isProdMode()) debugger;

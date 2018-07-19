@@ -11,6 +11,7 @@ import { PanelType, IColumn } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
 import { Field } from "./data";
 import { IFieldProps } from "@organic-ui";
+import { DataList } from "./data-list";
 
 interface IDataListState {
     message?: { type, text };
@@ -112,7 +113,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IDataListS
                 const customInvalidItems = this.props.onErrorCode instanceof Function ?
                     (this.props.onErrorCode(this.props.data) || []) : [];
                 this.invalidItems = this.querySelectorAll<Field>('.field-accessor')
-                    .map(fld => fld.revalidate({customInvalidItems}))
+                    .map(fld => fld.revalidate({ customInvalidItems }))
                     .filter(x => !!x)
                     .concat(customInvalidItems).filter(x => !!x);
                 resolve(this.invalidItems);
@@ -159,10 +160,12 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
     targetItem: any;
     items: any[];
     lastMod: number;
+
     refs: {
         root: HTMLElement;
         dataForm: DataForm;
         dataFormWrapper: HTMLElement;
+        datalist: DataList;
     }
     static formModes = {
         dialog: FabricUI.Dialog,
@@ -171,10 +174,17 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         callout: FabricUI.Callout,
         section: 'section'
     }
+    dataList: any;
+    dataListProps: OrganicUi.IDataListProps;
     tryToBinding() {
         this.items = this.getItems();
         if (this.items)
             this.repatch({});
+    }
+    componentDidMount() {
+        super.componentDidMount && super.componentDidMount();
+        setTimeout(
+            () => this.refs.datalist && this.refs.datalist.reload(), 400);
     }
     getItems() {
         if (this.items) return this.items;
@@ -194,7 +204,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     onFieldWrite(this.props.accessor, []);
                     items = onFieldRead(this.props.accessor);
                 }
-
+                this.items = items;
                 return items;
 
             }
@@ -213,6 +223,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
             }
         })
     }
+
     render(p = this.props, s = this.state) {
         const header =
             p.header === undefined ? (p.pluralName && Utils.i18nFormat('header-for-data-list-panel', p.pluralName)) : p.header;
@@ -231,16 +242,29 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (!items) {
             setTimeout(() => this.tryToBinding(), 20);
         }
-        const detailListProps: FabricUI.IDetailsListProps = Object.assign({}, { key: 'datalist' + this.lastMod }, extraPropsOfDetailList, { layoutMode: FabricUI.DetailsListLayoutMode.justified }, p, {});
-        detailListProps.columns = detailListProps.columns &&
+
+        this.dataListProps = this.dataListProps || Object.assign({} as OrganicUi.IDataListProps,
+            {
+                ref: 'datalist',
+                loader: () => {
+                    if (window['loaderDebug']) debugger;
+                    return Promise.resolve(this.items);
+                }, height: p.dataListHeight,
+                paginationMode: 'scrolled'
+            },
+
+            { key: 'datalist' + this.lastMod },
+            extraPropsOfDetailList,
+            { layoutMode: FabricUI.DetailsListLayoutMode.justified }, p, {});
+        /*detailListProps.columns = detailListProps.columns &&
             detailListProps.columns.map(col => Object.assign({}, col, { name: i18n.get(col.name) } as Partial<IColumn>));
         detailListProps.columns = detailListProps.columns ||
             React.Children.map(this.props.children || [], (child: JSX.Element) => child.props && (child.props as IFieldProps).accessor)
                 .filter(x => !!x).map(key => ({ minWidth: 100, key, fieldName: key, name: Field.getLabel(key) } as FabricUI.IColumn)) as FabricUI.IColumn[];
-
+*/
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
-        const detailList = React.createElement(FabricUI.DetailsList, detailListProps);
+        this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, p.children);
         if (s.targetSelector && s.targetSelector.includes('delete'))
             setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataFormWrapper']), 100);
 
@@ -249,9 +273,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             if (targetSelector && targetSelector.includes('add')) {
                 this.targetItem = {};
-                this.repatch({ selectedItem: null });
+                //    this.repatch({ selectedItem: null });
             }
-            this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null,message:null } : {message:null, validated: false, isOpen: true, targetSelector });
+
+            this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });
         }
 
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
@@ -260,6 +285,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         <FabricUI.DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
         !p.customBar && !p.avoidDelete &&
         <FabricUI.DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
+        this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
         !!p.children && s.isOpen &&
         React.createElement((DataListPanel.formModes[p.formMode] || FabricUI.Callout) as any, {
             className: "data-list-panel-fields",
@@ -297,34 +323,38 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                         {!s.selectedItem
 
                             && <OrganicUI.AdvButton primary
-                                onClick={async () => {
+                                onClick={() => {
 
                                     const { dataForm } = this.refs;
                                     console.assert(!!dataForm, 'dataForm is null');
-                                    await dataForm.revalidateAllFields();
-                                    this.repatch({ validated: true });
-                                    if (dataForm.invalidItems && dataForm.invalidItems.length) {
-                                        Promise.all(dataForm.invalidItems)
-                                            .then(invalidItems => {
-                                                invalidItems = invalidItems.filter(x => !!x);
-                                                this.repatch(
-                                                    {
-                                                        message: {
-                                                            text: i18n(invalidItems[0].message),
-                                                            type: FabricUI.MessageBarType.error
-                                                        }
-                                                    });
-                                                setTimeout(() => this.repatch({ message: null }), 3000);
-                                            });
-                                        return;
-                                    }
-                                    this.getItems().push(this.targetItem), this.lastMod = +new Date();
-                                    this.repatch(
-                                        { isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
+                                    dataForm.revalidateAllFields().then(() => {
+                                        this.repatch({ validated: true });
+                                        if (dataForm.invalidItems && dataForm.invalidItems.length) {
+                                            Promise.all(dataForm.invalidItems)
+                                                .then(invalidItems => {
+                                                    invalidItems = invalidItems.filter(x => !!x);
+                                                    this.repatch(
+                                                        {
+                                                            message: {
+                                                                text: i18n(invalidItems[0].message),
+                                                                type: FabricUI.MessageBarType.error
+                                                            }
+                                                        });
+                                                    setTimeout(() => this.repatch({ message: null }), 3000);
+                                                });
+                                            return;
+                                        }
+                                        this.items = this.getItems();
+                                        this.items.push(this.targetItem);
+                                        this.lastMod = +new Date();
+                                        this.refs.datalist.reload();
+                                        this.repatch(
+                                            { isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
 
 
-                                    this.targetItem = {};
+                                        this.targetItem = {};
 
+                                    });
                                 }}
                                 disabled={!!s.selectedItem}  >
                                 {i18n('add')}</OrganicUI.AdvButton>}
@@ -344,15 +374,15 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                         return;
                                     }
                                     this.items[s.selectedItemIndex] = JSON.parse(JSON.stringify(this.targetItem));
-                                   // this.repatch(
-                                     //   { message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
+                                    // this.repatch(
+                                    //   { message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
 
                                 }
                                 if (s.targetSelector && s.targetSelector.includes('delete') &&
                                     typeof s.selectedItemIndex == 'number') {
                                     this.items.splice(s.selectedItemIndex, 1);
                                 }
-                                this.repatch({ validated: true, isOpen: false, targetSelector: null,message:null });
+                                this.repatch({ validated: true, isOpen: false, targetSelector: null, message: null });
 
                             }}
                             primary={!!s.selectedItem}
@@ -363,8 +393,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     {!!this.state.message && <div> <FabricUI.MessageBar messageBarType={this.state.message.type} >{this.state.message.text} </FabricUI.MessageBar>
                     </div>}
                 </div>))
-            , detailList].filter(x => !!x);
-        return <div className={Utils.classNames(  "bindable",p.className)} ref="root">{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
+        ].filter(x => !!x);
+
+        return <div className={Utils.classNames("data-list-panel-wrapper bindable", p.className)} ref="root" style={p.style}>{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
     }
 }
 export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
@@ -397,7 +428,9 @@ export class DataPanel extends BaseComponent<IDataPanelProps, IDataPanelState>{
             {React.createElement(Panel, Object.assign({}, p, { header }))}
         </div>;
     }
-
+    defaultProps = {
+        dataListHeight: 200
+    }
 }
 
 

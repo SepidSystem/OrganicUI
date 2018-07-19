@@ -1,4 +1,4 @@
-import * as OrganicUIMod from '../organicUI';
+import * as OrganicUIMod from '@organic-ui';
 import * as Components from "bloomer";
 
 import * as UiKit from '../lib/ui-kit';
@@ -29,7 +29,4 @@ declare global {
   
 }
 
-
-declare module 'curl-cmd'{
-  
-}
+ 

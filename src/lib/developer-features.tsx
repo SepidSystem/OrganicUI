@@ -36,6 +36,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
         return this.devPorts.reduce((a, devPort) => a + devPort.devPortId, 0);
     }
     scanDevPorts() {
+        if (!isDevMode()) return;
         this.devPorts =
             Array.from(document.querySelectorAll('.developer-features'))
                 .map(ele => ele['componentRef'] as IDeveloperFeatures)
@@ -59,7 +60,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                 options = options instanceof Function ? options() : options;
                 const targetText = options && options.title;
 
-                return targetText && Utils.renderDevButton({ prefix: 'REST', targetText  }, target);
+                return targetText && Utils.renderDevButton({ prefix: 'REST', targetText }, target);
             });
     }
     render() {

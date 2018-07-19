@@ -21,6 +21,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { AppUtils } from './app-utils';
 import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, TextField } from '@organic-ui';
+import { createClientForREST } from './rest-api';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
 export interface TemplateForCRUDProps extends React.Props<any> {
@@ -215,16 +216,28 @@ export class ListViewBox<T> extends
             }, 20);
         //this.repatch({});
     }
+    static fetchFail:Function;
+    static fetchFailSuppressDate:number;
+    
     readList(params) {
         if (!ListViewBox.fakeLoad()) {
             return this.actions.readList(params).then(r => {
                 setTimeout(() => this.adjustSelectedRow(), 200);
                 return r;
-            });
+            },error=>(this.devElement=this.makeDevElementForDiag(error),this.repatch({})  ));
         }
         else {
             return Promise.resolve({ rows: [], totalRows: 0 });
         }
+    }
+    makeDevElementForDiag(error){
+        const now=+new Date();
+ 
+        if(ListViewBox.fetchFailSuppressDate &&  (now < ListViewBox.fetchFailSuppressDate))
+         return null;
+        if(!ListViewBox.fetchFail) return null;
+        return ListViewBox.fetchFail(Object.assign({},createClientForREST['lastRequest'] || {},{error,result:error,
+            onProceed:()=>(ListViewBox.fetchFailSuppressDate=+new Date()+3000,this.devElement=null,this.repatch({}))}))
     }
     animateCheckmark() {
         let limitTry = 30;
@@ -330,7 +343,7 @@ export class ListViewBox<T> extends
             return child;
         });
 
-        if (!root) setTimeout(() => this.repatch({}), 10);
+        if (!root) setTimeout(() =>  (this.repatch({})), 10);
         if (params.forDataLookup)
             return <section className="developer-features list-view-data-lookup"
                 style={{ maxHeight: (params.height ? params.height + 'px' : 'auto'), overflowY: 'scroll' }} ref="root"  > {children}</section>;

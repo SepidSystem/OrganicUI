@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
-import { Utils, AdvButton, AppUtils, BaseComponent, SingleViewBox } from "@organic-ui";
+import { Utils, AdvButton, AppUtils, BaseComponent, SingleViewBox, ListViewBox } from "@organic-ui";
 
 
 
@@ -32,8 +32,47 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
     handleChange(event, mode) {
         this.repatch({ mode });
     }
-    render() {
+    renderColumns() {
         const baseURL = localStorage.getItem('baseURL');
+        const { error } = this.state;
+
+        const { message, response } = error || {} as any;
+        if (this.props.mode == 2 && !response)
+            return null;
+
+        return <div className="columns">
+            <MaterialUI.FormControlLabel
+                className="column  " style={{ visibility: this.props.mode == 2 ? 'hidden' : 'visible', flex: '1', padding: 0 }}
+                control={
+                    <MaterialUI.Checkbox
+                        defaultChecked={this.state.showResponse}
+                        onChange={event => this.repatch({ showResponse: event.target.checked })}
+
+                    />
+                }
+                label="Show Response"
+            />
+            <div className="key-value column " dir='ltr' style={{ display: 'flex', flex: '2', direction: 'ltr', alignItems: 'center' }}>
+
+                {this.props.mode != 2 && <span style={{ margin: '0px 8px' }}>
+                    <input type="text" spellCheck={false}
+                        onClick={e => (e.target as any).select()}
+                        value={baseURL} style={{ border: 'none', outline: 'none', margin: '3px' }} />
+                </span>}
+
+                {this.props.mode != 2 && <AdvButton variant="outlined" className="set-base-url-buttton" color="default"
+                    onClick={() => {
+                        const baseURL = prompt('baseURL', localStorage.getItem('baseURL') || '');
+                        baseURL && localStorage.setItem('baseURL', baseURL);
+                    }}
+                >Set Base URL</AdvButton>}
+                {this.props.mode == 2 && response && <div style={{ margin: '0px 8px' }} >
+                    <b>Response Status : </b>{response.status}{' '}{response.statusText}
+                </div>}
+            </div>
+        </div>
+    }
+    render() {
         const { error, method, url, mode, options, resolve } = this.state;
         const opts = options instanceof Function ? options() : options;
         const data = (mode == 0 && this.state.data) ||
@@ -44,13 +83,24 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
             console.log({ error });
         }
 
-        const { message, response } = error || {} as any;
 
         return <section dir='ltr' style={{ direction: 'ltr' }} className={Utils.classNames("rest-confrim", error && 'server-side-error')}>
-            {!error && <div className="title is-3">REST Inspection</div>}
-            {!!error && <div className="title is-2">
-            <i className="fa fa-exclamation-triangle"></i>
-            Server Side Error</div>}
+            {!error && this.props.mode != 2 && <div className="title is-4">
+                <i className="fa fa-cloud-upload"></i>
+                <span>
+                    Request to Server
+                </span>
+            </div>}
+            {!error && this.props.mode == 2 && <div className="title is-4">
+                <i className="fa fa-cloud-download"></i>
+                <span>
+                    Server Response
+                </span></div>}
+            {!!error && <div className="title is-4">
+                <i className="fa fa-exclamation-triangle"></i>
+                <span>
+                    Server Side Error
+                </span></div>}
             <div className={`columns http-method ${(method || '').toLowerCase()}`} style={{ width: '100%' }}>
                 <div className="column" style={{ maxWidth: '80px', minWidth: '80px' }} >
                     <span className="verb">
@@ -65,41 +115,10 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                 </div>
 
             </div>
-            <hr/>
-            <div className="columns">
-                <MaterialUI.FormControlLabel
-                    className="column  " style={{ visibility: this.props.mode == 2 ? 'hidden' : 'visible', flex: '1', padding: 0 }}
-                    control={
-                        <MaterialUI.Checkbox
-                            defaultChecked={this.state.showResponse}
-                            onChange={event => this.repatch({ showResponse: event.target.checked })}
-
-                        />
-                    }
-                    label="Show Response"
-                />
-                <div className="key-value column " dir='ltr' style={{ display: 'flex', flex: '2', direction: 'ltr', alignItems: 'center' }}>
-                    <b style={{ margin: '0px 8px' }}  >BaseURL : {' '}
-                    </b>{' '}{' '}
-                    <span style={{ margin: '0px 8px' }}>
-                        <input type="text" spellCheck={false}
-                            onClick={e => (e.target as any).select()}
-                            value={baseURL} style={{ border: 'none', outline: 'none', margin: '3px', minWidth: '200px' }} />
-                    </span>
-
-                    <AdvButton variant="outlined" className="set-base-url-buttton" color="default"
-                        onClick={() => {
-                            const baseURL = prompt('baseURL', localStorage.getItem('baseURL') || '');
-                            baseURL && localStorage.setItem('baseURL', baseURL);
-                        }}
-                    >Set Base URL</AdvButton>
-
-                </div>
-            </div>
+            <hr />
+            {this.renderColumns()}
             {!!error && <hr />}
-            {this.props.mode == 2 && response && <div className="key-value response-status">
-                <b>Response Status : </b>{response.status}{' '}{response.statusText}
-            </div>}
+
 
             <MaterialUI.Tabs
                 value={this.state.mode}
@@ -107,7 +126,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                 textColor="primary"
                 onChange={this.handleChange.bind(this)}
             >
-                <MaterialUI.Tab label="Request Body" />
+                <MaterialUI.Tab label="Request Body" disabled={!this.props.data} />
                 <MaterialUI.Tab label="Headers" />
                 {this.props.mode == 2 && <MaterialUI.Tab label="Response" />}
 
@@ -140,7 +159,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                             OrganicUI.AppUtils.showDialog(null);
                             if (this.props.onProceed instanceof Function)
                                 return this.props.onProceed();
-                            setTimeout(() => resolve(!!this.state.showResponse), 10);
+                            setTimeout(() => this.props.resolve(!!this.state.showResponse), 10);
                         }}
                     >
                         <span className="animated tada">
@@ -152,7 +171,8 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
     }
 }
 function restInspector(p) {
-    return new Promise(resolve => OrganicUI.AppUtils.showDialog(React.createElement(RestInspector, p)));
+    return new Promise(resolve => OrganicUI.AppUtils.showDialog(React.createElement(RestInspector,
+        Object.assign({ resolve }, p))));
 }
 OrganicUI.devTools.set('REST|Set Base URL', target => {
     const baseURL = prompt('baseURL', localStorage.getItem('baseURL') || '');
@@ -183,5 +203,6 @@ setTimeout(function () {
         });
     }
 }, hasClient ? 2 : 1000);
-const updateFail = p => React.createElement(RestInspector, Object.assign({}, p, { mode: 2 }));
-Object.assign(SingleViewBox, { updateFail });
+const fetchFail = p => React.createElement(RestInspector, Object.assign({}, p, { mode: 2 }));
+Object.assign(SingleViewBox, { fetchFail });
+Object.assign(ListViewBox, { fetchFail });

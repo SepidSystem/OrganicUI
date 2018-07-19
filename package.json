@@ -11,8 +11,6 @@
   "scripts": {
     "start": "node server/server",
     "build": "webpack --mode  production --config config/webpack.js",
-    "build:domain": "webpack --mode  development --entry domain --config config/webpack.js",
-    "build:domain:profile": "webpack  --profile --json --mode  development --entry domain --config config/webpack.js  > output.json",
     "profile": "webpack  --config config/webpack.js --profile   --json ",
     "build:watch": "webpack --watch --mode  development --config config/webpack.js ",
     "build:dev": "webpack --mode development  --config config/webpack.js",

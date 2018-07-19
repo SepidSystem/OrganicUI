@@ -4,14 +4,16 @@ import { Utils } from './utils';
 const { classNames } = Utils;
 
 import { isDevelopmentEnv } from './developer-features';
-import { DetailsList } from 'office-ui-fabric-react';
+import { DetailsList, elementContains } from 'office-ui-fabric-react';
 import { TextField } from '@material-ui/core';
 import { ListViewBox } from './list-view-box';
 import { Spinner } from './spinner';
 import { Event } from './decorators';
- 
+import { IOptionsForCRUD, IActionsForCRUD } from '@organic-ui';
+import OrganicBox from './organic-box';
+
 interface DataLookupProps {
-    source:OrganicUi.StatelessListView;
+    source: React.ComponentType<OrganicUi.IListViewParams>;
     className?: string;
     onChange?: (value) => void;
     onFocus?: () => void;
@@ -38,8 +40,20 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         iconCode: 'fa-search',
         minHeightForPopup: '300px'
     }
-    listViewElement: React.SFCElement<OrganicUi.IListViewParams>;
+    static textReader = (fld, prop: DataLookupProps, value) => {
+        const { source } = prop as any;
+        if (!source.listViewActions) {
+            const listView = OrganicBox.extractOrganicBoxFromComponent(source);
+            if (listView && listView.props) {
+                source.listViewActions = Object.assign({}, listView.props.actions, listView.props.customActions);
+                source.listViewOptions = listView.props.options;
+            }
+        }
+        return <DataLookupCell actions={source.listViewActions} options={source.listViewOptions} value={value} />
+    }
+    listViewElement: React.ReactElement<OrganicUi.IListViewParams>;
     actionsForListViewBox: OrganicUi.IActionsForCRUD<any>;
+    optionsForListViewBox: OrganicUi.IOptionsForCRUD;
     cache: { [key: string]: any };
     refs: {
         listViewContainer: HTMLElement;
@@ -149,7 +163,10 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
         }
         const { actionsForListViewBox } = this;
-        this.actionsForListViewBox = this.actionsForListViewBox || (this.listViewBox && this.listViewBox.props.actions);
+        this.optionsForListViewBox = this.optionsForListViewBox || (this.listViewBox &&
+            Object.assign({}, this.listViewBox.props.options));
+        this.actionsForListViewBox = this.actionsForListViewBox || (this.listViewBox &&
+            Object.assign({}, this.listViewBox.props.actions, this.listViewBox.props.customActions || {}));
         if (actionsForListViewBox != this.actionsForListViewBox && !this.openRequestTime) this.repatch({ isOpen: false, isHidden: false });
         if (this.props.value && !this.state.isHidden && !this.actionsForListViewBox && !this.tryToActionsForListViewBox) {
             this.tryToActionsForListViewBox = this.tryToActionsForListViewBox || 0;
@@ -183,24 +200,27 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     unshiftIds(...Ids) {
 
     }
-    getInnerText(): any[] {
+    getInnerText(): JSX.Element[] {
         if (!this.actionsForListViewBox) return this.getValue() && Promise.resolve('wait') as any;
         const value = this.getValue();
         let result = null;
 
         const valueArray = (value instanceof Array ? (value || []) as any[] : [value]).filter(x => !!x);
-        valueArray.forEach(v =>
-            this.cache[v] = this.cache[v] || this.actionsForListViewBox.read(v)
-                .then(r => {
-                    this.cache[v] = r, this.forceUpdate();
-                    return r;
-                }));
-        Promise.all(Object.values(this.cache).filter(promise => promise instanceof Promise))
-            .then(() => this.unshiftIds(...valueArray))
-        const promised = (valueArray.filter(v => this.cache[v] instanceof Promise).map(v => this.cache[v]));
-        const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v]));
-
-        return innerText;
+        /*    valueArray.forEach(v =>
+                this.cache[v] = this.cache[v] || this.actionsForListViewBox.read(v)
+                    .then(r => {
+                        this.cache[v] = r, this.forceUpdate();
+                        return r;
+                    }));
+            Promise.all(Object.values(this.cache).filter(promise => promise instanceof Promise))
+                .then(() => this.unshiftIds(...valueArray))
+            const promised = (valueArray.filter(v => this.cache[v] instanceof Promise).map(v => this.cache[v]));
+            const innerText = promised[0] || valueArray.map(v => v && this.actionsForListViewBox.getText && this.actionsForListViewBox.getText(this.cache[v]));
+    */
+        return valueArray.map(value => (<DataLookupCell
+            actions={this.actionsForListViewBox as any}
+            options={this.optionsForListViewBox as any}
+            value={value} />));
     }
     @Event()
     handleSetValue(value) {
@@ -242,7 +262,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
                     <div className="text " >
                         <span ref="innerTextSpan" className="selected-items" style={{ maxWidth: maxWidthForTextOverflow + "px" }}>
                             {p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) : innerText.map(title => (
-                                <span title={title} className="selected-item">
+                                <span className="selected-item">
                                     <span >
                                         {title}
                                     </span>
@@ -259,10 +279,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
             {(s.isOpen) && <div className="list-view-container box " style={{
                 display: s.isHidden ? 'none' : 'block',
                 minHeight: p.minHeightForPopup
-            }} ref="listViewContainer">
-
-                {this.listViewElement}
-            </div>
+            }} ref="listViewContainer">{this.listViewElement}</div>
             }
         </div>
     }
@@ -275,6 +292,36 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
 
 }
+interface DataLookupCellProps {
+    actions: IActionsForCRUD<any>;
+    options: IOptionsForCRUD;
+    value: any;
+
+}
+class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
+    static cache = {};
+    state: {
+        result: any;
+    }
+    getListViewName() {
+        return this.props.options.singularName || this.props.options.pluralName;
+    }
+    componentWillMount() {
+        super.componentWillMount && super.componentWillMount();
+        const p = this.props;
+        const cacheId = this.getListViewName() + p.value;
+
+        this.state.result = DataLookupCell.cache[cacheId] || (p.value &&
+            p.actions.read(this.props.value)
+                .then(dto => p.actions.getText(dto))
+                .then(result => DataLookupCell.cache[cacheId] = result)
+                .then(result => this.repatch({ result })));
+    }
+    render() {
+        return this.state.result instanceof Promise ? <Spinner /> : this.state.result;
+    }
+}
+
 document.body.addEventListener('click', e => {
     const { target } = (e as any) as { target: HTMLElement };
     if (!target) return;

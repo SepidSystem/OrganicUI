@@ -32,6 +32,9 @@ export interface OrganicBoxProps<TActions, TOptions, TParams> {
 
 }
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
+    static isOrganicBox() {
+        return true;
+    }
     devPortId: number;
     actions: TActions;
     showDevBoard(msg): any {
@@ -69,7 +72,17 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
 
     }
     static instanceCounter = 0;
-
+    static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>) {
+        const element = Utils.skinDeepRender(componentType, {});
+        let { organicBox } = componentType as any;
+        if (organicBox) return organicBox;
+        organicBox = Utils.queryElement(element, (el: JSX.Element) =>
+            (el.type) && (el.type as any).isOrganicBox   instanceof Function &&
+            (el.type as any).isOrganicBox()
+        );
+        Object.assign(element.type, { organicBox });
+        return organicBox;
+    }
     constructor(p: OrganicBoxProps<TActions, TOptions, TParams>) {
         super(p);
         this.actions = Object.assign({}, p.actions, p.customActions || {});

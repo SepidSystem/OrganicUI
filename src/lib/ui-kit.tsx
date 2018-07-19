@@ -87,7 +87,7 @@ interface IAdvButtonProps {
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
     size?: 'small' | 'medium' | 'large';
-    onClick?: () =>  any ;
+    onClick?: () => any;
     fixedWidth?: boolean;
     className?: string;
     calloutWidth?: number;
@@ -110,20 +110,23 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                 e.preventDefault();
                 if (s.callout) return repatch({ callout: null });
                 const asyncClick = async () => {
-                    const resultAsync = p.onClick instanceof Function &&  p.onClick();
+                    const resultAsync = p.onClick instanceof Function && p.onClick();
                     if (resultAsync instanceof Promise) {
                         repatch({ isLoading: true, callout: null });
-                  
-                        resultAsync.catch(error=>{
-                            console.log('Advanced Button Error>>>>>',error);
+
+                        resultAsync.catch(error => {
+                            console.log('Advanced Button Error>>>>>', error);
                             repatch({ isLoading: false, callout: null });
                             return error;
                         })
-                        const result = await resultAsync;
-                        const lastMod = +new Date();
-                        React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
-                        React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
+                        Promise.all([resultAsync])
+                            .then(([result]) => {
+
+                                const lastMod = +new Date();
+                                React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
+                                React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
+                                !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
+                            });
                     }
                 }
                 asyncClick();

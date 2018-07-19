@@ -6,7 +6,7 @@ export { FabricUI };
 import * as ReactDataGrid from 'react-data-grid';
 export { ReactDataGrid };
 
-export { NotFoundView } from './views/404';
+export { NotFoundView } from './lib/404';
 export { registryFactory } from './lib/registry-factory';
 export { editorByAccessor, i18n, icon, menuBar, i18nAttr } from './lib/shared-vars';
 export { listViews, tags, reports, acl, dashboardBlocks } from './lib/shared-vars';
@@ -16,6 +16,7 @@ export { PureComponent, Component, createElement, cloneElement } from 'react';
 export { route, routeTable } from './lib/router';
 export { Utils, changeCase } from './lib/utils';
 export { /*remoteApiProxy, remoteApi, refetch,*/ createClientForREST } from './lib/rest-api';
+export {Anchor} from './lib/anchor';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
 export { SubRender, Action, Event } from './lib/decorators';
@@ -39,7 +40,9 @@ export { TreeList } from './lib/tree-list';
 export { ComboBox } from './lib/combo-box'
 export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
-export { AppBar, IconButton, Toolbar, TextField } from '@material-ui/core';
+
+
+export { TextField, Checkbox, Select, Button,RadioGroup,FormControlLabel } from '@material-ui/core';
 export let currentView: any
 export { DatePicker } from './lib/date-picker';
 

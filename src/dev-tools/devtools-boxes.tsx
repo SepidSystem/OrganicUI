@@ -30,7 +30,9 @@ OrganicUI.devTools.set('SingleView|Show Undefined Fields', (target) => {
     target.devElement = <OrganicUI.JsonInspector data={fields} />;
     target.forceUpdate();
 });
+OrganicUI.devTools.set('ListView|Show Web Request',(target)=>{
 
+});
 OrganicUI.devTools.set('ListView|Show ListData', (target) => {
 
     const { listData } = target.refs.dataList.state;

@@ -2,8 +2,8 @@ import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
 import { AppUtils } from "./app-utils";
 import { OptionsForRESTClient } from "@organic-ui";
-import   * as curl  from    'curl-cmd' ; // href
- 
+import * as curl from 'curl-cmd'; // href
+
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));
@@ -65,18 +65,9 @@ export function createClientForREST(options?: OptionsForRESTClient) {
                     return result;
 
 
-            }, async error => {
-                console.groupCollapsed(`${method} ${url.split('?')[0]}`);
-
-                console.groupEnd();
-                if (restClient['failLogger'] instanceof Function)
-                    await Promise.all([restClient['failLogger']({ options, url, method, data, error })]);
-
-                return Promise.reject(error);
-            }
-            ).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
-
-        return Object.assign(result, { url, method, data });
+            }).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
+        Object.assign(result, { url, method, data });
+        return result;
     }
     Object.assign(restClient, { options, delay: 0, cache: LRU(200), bodyMapper: null });
     instances.push(restClient);

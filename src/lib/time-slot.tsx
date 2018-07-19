@@ -5,7 +5,7 @@ import { DataForm } from './data-form';
 import { Field } from './data';
 import { i18n } from './shared-vars';
 import { BaseComponent } from './base-component';
-import { ITimeSlotRange } from '@organic-ui';
+import { ITimeSlotRange, Button, Callout } from '@organic-ui';
 import { AdvSection } from './advanced-section';
 import { TimeEdit } from './time-edit';
 import { TextField } from '@material-ui/core';
@@ -86,8 +86,10 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
     componentWillMount() {
         this.state.ranges = Utils.clone(this.props.ranges || []);
     }
+    invalids: any;
     fullUpdate(ranges: ITimeSlotRange[]): Promise<boolean> {
         const conflict = checkConflictOfRanges(ranges);
+        this.invalids = {};
         if (conflict) {
             const { root } = this.refs;
             if (root) {
@@ -98,6 +100,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                 });
                 setTimeout(() => Array.from(root.querySelectorAll('.animated')).forEach(ele => ele.classList.remove('animated', 'flash')), 1000);
             }
+            this.invalids = { [conflict[0]]: true, [conflict[1]]: true };
             return Promise.reject(Utils.i18nFormat('time-slot-conflict',
                 conflict.join(','))
             );
@@ -105,9 +108,10 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
         for (let counter = 0; counter < ranges.length; counter++) {
             const errorCode = checkTimeRange(ranges[counter], ranges[counter + 1]);
 
-            if (errorCode)
+            if (errorCode) {
+                this.invalids = { [counter]: true };
                 return Promise.reject(Utils.i18nFormat(errorCode, counter));
-
+            }
         }
 
         this.doChange(ranges);
@@ -120,7 +124,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
         const ranges = Utils.clone(this.state.ranges);
         for (let i = 0; i < 5; i++) ranges[i] = ranges[i] || { from: '', to: '' };
 
-        AppUtils.showDialog(<TimeSlotDialog onOkeyClick={ranges => this.fullUpdate(ranges).catch(errorMessage => TimeSlotDialog.Instance.setErrorMessage(errorMessage))} ranges={ranges} />)
+        AppUtils.showDialog(<TimeSlotDialog onOkeyClick={ranges => this.fullUpdate(ranges).catch(errorMessage => TimeSlotDialog.Instance.setErrorMessage(errorMessage, this.invalids))} ranges={ranges} />)
     }
     doChange(ranges: ITimeSlotRange[]) {
 
@@ -166,7 +170,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                     {Utils.showIcon("fa-eraser")}
                 </a>
             </div >
-            {!!s.targetRange && <OrganicUI.Callout onDismiss={() => this.repatch({ targetRange: null })} target={s.targetRange} >
+            {!!s.targetRange && <Callout onDismiss={() => this.repatch({ targetRange: null })} target={s.targetRange} >
                 <br />
                 <AdvSection className="compact" errorMessage={s.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })}>
                     <DataForm className="data-form-row"
@@ -187,7 +191,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                 </AdvSection>
 
 
-            </OrganicUI.Callout>}
+            </Callout>}
         </section >
 
     }
@@ -204,33 +208,38 @@ class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
         TimeSlotDialog.Instance = this;
         this.state.ranges = Utils.clone(this.props.ranges);
     }
-    setErrorMessage(errorMessage) {
-        this.repatch({ errorMessage });
+    setErrorMessage(errorMessage, invalids) {
+        invalids = invalids || {};
+        this.repatch({ errorMessage, invalids });
     }
     static Instance: TimeSlotDialog;
+    renderRanges() {
+        let { ranges, invalids } = this.state;
+        invalids = invalids || {};
+        return ranges instanceof Array && ranges.map((range, index) => (
+            <DataForm key={index} className={Utils.classNames(invalids && invalids[index] && 'invalid', 'data-form-row', `range${index}`)}
+                onFieldRead={key => range[key]}
+                onFieldWrite={(key, value) => (range[key] = value,console.log(range,key), this.repatch({ invalids: Utils.excl(invalids, index) }, undefined, 100))}>
+                <Field key="from" accessor="from">
+                    <TimeEdit />
+                </Field>
+                <Field key="to" accessor="to">
+                    <TimeEdit />
+                </Field>
 
+            </DataForm>
+
+        ))
+    }
     render() {
+
         return <AdvSection errorMessage={this.state.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })} >
             <h3 className="title is-3 is-centered">{i18n('timeslot-group-edit')}</h3>
             <div className="ranges" ref="range">
-                {this.state.ranges.map((range, index) => (
-
-                    <DataForm className={`data-form-row  range${index}`}
-                        onFieldRead={key => range[key]}
-                        onFieldWrite={(key, value) => range[key] = value}>
-                        <Field accessor="from">
-                            <TimeEdit />
-                        </Field>
-                        <Field accessor="to">
-                            <TimeEdit />
-                        </Field>
-
-                    </DataForm>
-
-                ))}
+                {this.renderRanges()}
             </div>
             <footer className="is-centered">
-                <MaterialUI.Button fullWidth color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  >{Utils.showIcon('fa-check')}{i18n('apply')}  </MaterialUI.Button >
+                <Button fullWidth color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  >{Utils.showIcon('fa-check')}{i18n('apply')}  </Button >
 
             </footer>
         </AdvSection>

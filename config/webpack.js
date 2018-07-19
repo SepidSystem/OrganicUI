@@ -9,21 +9,28 @@ const dist = join(__dirname, '..', 'assets', 'bundle');
 const exclude = /(node_modules|bower_components)/;
 const { argv } = require('yargs');
 const CleanEntryPlugin = require('clean-entry-webpack-plugin');
-
-const entry = {
-	vendors: './src/imported-vendors',
+const { statSync } = require('fs');
+const fileExists = filePath => {
+	const filePathArray = filePath instanceof Array ? filePath : [filePath];
+	try {
+		for (const fileName of filePathArray) {
+			const r = statSync(fileName);
+			if (!r.size) return false;
+		}
+		return true;
+	}
+	catch{
+		return false;
+	}
+}
+const _entry = {
+	vendors: './src/imported-vendors.tsx',
 	organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
 	devtools: ['./src/dev-tools.tsx'],
 	domain: './src/domain/domain.tsx',
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 };
-
-if (argv.entry) {
-	if (argv.entry instanceof Array)
-		Object.keys(entry).forEach(key => !argv.entry.includes(key) && (delete entry[key]));
-	else
-		Object.keys(entry).forEach(key => (key = key.split('-')[0], argv.entry != key) && (delete entry[key]));
-}
+const entry = Object.keys(_entry).filter(key => fileExists(_entry[key])).reduce((a, key) => Object.assign(a, { [key]: _entry[key] }), {});
  
 module.exports = env => {
 	const isProd = env && env.production;

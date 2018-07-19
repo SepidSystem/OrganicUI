@@ -332,8 +332,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const inputElement = Field.prototype.getInputElement.apply(this);
         const type = inputElement && inputElement.type;
         const textReader = (type && type.textReader);
-
-        return textReader && (val => textReader(this, children && children.props, val));
+         return textReader && (val => textReader(this, children && children.props, val));
     }
 }
 const defaultTextReader = (fld, props, s) => s;

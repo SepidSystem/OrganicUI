@@ -6,6 +6,8 @@ $prefix-width:30px;
 section.time-slot {
     direction: ltr;
     position: relative;
+    font-family: Tahoma !important;
+
     min-height: 40px;
     .hour{
         width:0px;
@@ -18,7 +20,7 @@ section.time-slot {
         text-align: center;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items:flex-end;
         top:0;
         bottom: 0;
     }
@@ -27,7 +29,7 @@ section.time-slot {
         justify-content: space-between;
         position: absolute;
         top: 0;
-        height: 16px;
+        height: 20px;
         right: $buttons-width;
         left: $prefix-width;
         font-size: 70%;
@@ -40,7 +42,7 @@ section.time-slot {
         background: #aaa;
         box-shadow: inset 3px 3px 10px #555;
         position: absolute;
-        top: 15px;
+        top: 20px;
         bottom: 0;
         height: 16px;
         right: $buttons-width;
@@ -66,6 +68,7 @@ section.time-slot {
         }
     }
     .range-wrapper {
+        
         background: transparent;
         box-shadow: none;
         border:none;
@@ -76,7 +79,7 @@ section.time-slot {
         display: flex;
         align-content: center;
         justify-content: center;
-        justify-items: center;
+        justify-items: flex-end;
         bottom: 0;
         top: 0;
         font-size: 120%;

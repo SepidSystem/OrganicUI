@@ -191,7 +191,7 @@ export const Utils = {
 	reduceEntriesToObject(arg: any[][]): Object {
 		return arg.reduce((a, entry) => (a[entry[0]] = entry[1], a), {})
 	},
-	limitValue(value: number, { min=undefined, max=undefined }): number {
+	limitValue(value: number, { min = undefined, max = undefined }): number {
 		if (max !== undefined) value = Math.min(value, max);
 		if (min !== undefined) value = Math.min(value, min);
 		return value;
@@ -217,7 +217,35 @@ export const Utils = {
 		if (!data || !defaultValues) return;
 		Object.keys(defaultValues)
 			.forEach(key => data[key] = data[key] === undefined ? defaultValues[key] : data[key]);
+	},
+	isClass(type) {
+		const desc = Object.getOwnPropertyDescriptor(type, 'prototype')
+		return desc && desc.writable === false;
+	},
+	excl(object, ...keys) {
+		keys = keys.map(key => key + "");
+		return Utils.reduceEntriesToObject(Object.entries(object).filter(([key]) => !keys.includes(key)));
 	}
+	,
+	skinDeepRender(type, params) {
+		const target = Utils.isClass(type) ? new type(params) : type(params);
+		if (React.isValidElement(target)) return target;
+		const instance = target as OrganicUi.BaseComponent<any, any>;
+		instance.componentWillMount && instance.componentWillMount();
+		return target.render();
+
+
+	},
+	queryElement(element: React.ReactElement<any>, tester: (element) => boolean) {
+		const queue: any[] = [element];
+		while (queue.length) {
+			const item = queue.shift();
+			if (item && tester(item)) return item;
+			if (item.props && item.props.children)
+				queue.push(...React.Children.toArray(item.props.children));
+
+		}
+	} 
 
 }
 import * as changeCaseObject from 'change-case-object'

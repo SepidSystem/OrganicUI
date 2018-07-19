@@ -10,9 +10,8 @@ import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
-import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
+import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams, Button } from '@organic-ui';
 import { createClientForREST } from './rest-api';
-
 
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
@@ -20,7 +19,7 @@ export class SingleViewBox<T> extends OrganicBox<
     IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState<T>> {
     undefinedFields: Object;
     objectCreation: number;
-    static updateFail:Function;
+    static fetchFail: Function;
     constructor(p) {
         super(p);
         this.navigateToBack = this.navigateToBack.bind(this);
@@ -44,9 +43,15 @@ export class SingleViewBox<T> extends OrganicBox<
     }
     componentWillMount() {
         const { actions, params } = this.props;
+
         this.state.formData = params.id > 0
-            ? actions.read(params.id).then(formData => this.repatch({ formData: this.mapFormData(formData) })
-        ,)
+            ? actions.read(params.id).then(
+                formData => this.repatch({ formData: this.mapFormData(formData) })
+                , error => {
+
+                    this.devElement = this.makeDevElementForDiag(error), this.repatch({})
+                })
+
             : this.mapFormData({});
     }
     getId(row) {
@@ -82,7 +87,7 @@ export class SingleViewBox<T> extends OrganicBox<
         let updateResult: Promise<any>;
         let { id } = p.params;
         if (id == 'new') id = 0;
- 
+
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
             updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
@@ -92,7 +97,7 @@ export class SingleViewBox<T> extends OrganicBox<
                 </div>
             </div>);
         }
-   
+
         return updateResult.then(
             () => {
                 const { title, desc } = this.getSuccess();
@@ -114,17 +119,19 @@ export class SingleViewBox<T> extends OrganicBox<
 
 
                 </div>;
-            },error=>(this.devElement=this.makeDevElementForDiag(error),this.repatch({})  ));
+            }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
 
 
 
 
     }
-    makeDevElementForDiag(error){
-        
-        if(!SingleViewBox.updateFail) return null;
-        return SingleViewBox.updateFail(Object.assign({},createClientForREST['lastRequest'] || {},{error,result:error,
-            onProceed:()=>(this.devElement=null,this.repatch({}))}))
+    makeDevElementForDiag(error) {
+
+        if (!SingleViewBox.fetchFail) return null;
+        return SingleViewBox.fetchFail(Object.assign({}, createClientForREST['lastRequest'] || {}, {
+            error, result: error,
+            onProceed: () => (this.devElement = null, this.repatch({}))
+        }))
     }
     navigateToNewItem() {
 
@@ -156,12 +163,12 @@ export class SingleViewBox<T> extends OrganicBox<
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>
                 <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
-                    <MaterialUI.Button variant="outlined" onClick={this.navigateToBack}   >
+                    <Button variant="outlined" onClick={this.navigateToBack}   >
                         {' '}
                         {i18n('back')}
                         {' '}
                         <FabricUI.Icon iconName="Back" />
-                    </MaterialUI.Button >
+                    </Button >
                 </div>
             </h1>
             <MaterialUI.Paper className="main-content">

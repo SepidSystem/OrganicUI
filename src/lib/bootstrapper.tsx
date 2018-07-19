@@ -7,6 +7,7 @@ import { Utils } from "./utils";
  
 import { IOptionsForViewBox } from "./view-box";
 import { IAppModel, ITreeListNode } from "@organic-ui";
+import { NotFoundView } from "./404";
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {
@@ -18,7 +19,7 @@ export function mountViewToRoot(selector?, url?) {
     const root = typeof selector == 'string' ? document.querySelector(selector) : selector as HTMLElement;
     const params = {};
 
-    const viewType: typeof React.Component = route(url || location.pathname, params) || OrganicUI.NotFoundView as any;
+    const viewType: typeof React.Component = route(url || location.pathname, params) ||  NotFoundView as any;
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
     const view = React.createElement(viewType, params, );
@@ -52,21 +53,6 @@ export function startApp(appModel: IAppModel) {
 
     mountViewToRoot();
     window.onpopstate = () => mountViewToRoot();
-    setInterval(
-        () =>
-            Array.from(
-
-                document.querySelectorAll('a.nav:not(.applied-nav)'))
-                .filter(an => !an.classList.contains('applied-nav'))
-                .forEach(anchor => {
-                    anchor.classList.add('applied-nav');
-                    anchor.addEventListener('click',
-                        e => {
-                            e.preventDefault();
-                            history.pushState(null, null, (anchor as HTMLAnchorElement).href);
-                            mountViewToRoot()
-                        });
-                }), 300)
     afterLoadCallback instanceof Function && afterLoadCallback();
 }
 export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {

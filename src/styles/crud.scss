@@ -15,22 +15,23 @@
 }
 
 .list-view {
-    header.navigator{
+    header.navigator {
         display: flex;
         position: relative;
         min-height: 30px;
     }
-    .search-field{
-justify-self: flex-end;
- position: absolute;
- left:10px;
- svg{
-    position: absolute;
-    left:10px;
-    width:1.5rem;
-    height:1.5rem;
-    
- }
+    .search-field {
+        justify-self: flex-end;
+        position: absolute;
+        top:2px;
+        left: 10px;
+        svg {
+            position: absolute;
+            left: 0px;
+            top:-5px;
+            width: 32px !important;
+            height: 32px !important;
+        }
     }
     footer.buttons {
         margin-top: 5px;
@@ -53,12 +54,10 @@ justify-self: flex-end;
 .list-view-header {
     display: flex;
     flex-wrap: wrap;
-   
     .insert-btn {
         max-width: 140px;
         height: 140px;
-        margin-right:20px;
-            
+        margin-right: 20px;
         box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
         .flag {
             position: absolute;
@@ -79,7 +78,6 @@ justify-self: flex-end;
         }
     }
     .buttons {
-         
         width: 100%;
         margin-top: 5px;
         justify-content: flex-end;
@@ -97,7 +95,6 @@ justify-self: flex-end;
         }
     }
     .filter-panel {
-        flex:1;
-
+        flex: 1;
     }
 }

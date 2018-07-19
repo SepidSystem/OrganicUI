@@ -5,6 +5,9 @@
     src: url('/assets/fonts/Yekan.woff') format('woff');
 }
 
-#root,.title {
+#root,.title,.ms-DetailsRow-cell {
     font-family: Yekan;
+}
+.MuiInput-input{
+    font-family: Yekan !important;
 }

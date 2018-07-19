@@ -1,7 +1,6 @@
 
-import { routeTable } from "../organicUI";
-
-import * as React from "react";
+import { routeTable } from "./router";
+ 
 
 export class NotFoundView extends React.Component<any, any> {
 

@@ -95,9 +95,9 @@ declare namespace OrganicUi {
         renderDevButton(targetText, target: IDeveloperFeatures),
         accquireDevPortId();
         renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function });
-        reduceEntriesToObject(data:any):any;
-        limitValue(value: number, opts:{ min?, max?}): number ;
-	
+        reduceEntriesToObject(data: any): any;
+        limitValue(value: number, opts: { min?, max?}): number;
+
         simulateClick(elem);
         merge<T>(...args: Partial<T>[]): T;
         toArray(arg): any[];
@@ -106,6 +106,8 @@ declare namespace OrganicUi {
         uniqueArray<T>(array: T[])
         validateData<T>(data: T, callbacks: OrganicUi.PartialFunction<T>): OrganicUi.IDataFormAccessorMsg[];
         assignDefaultValues<T>(data: T, defaultValues: Partial<T>)
+        skinDeepRender<T>(type: React.ComponentType<T>, params: T): JSX.Element;
+        scanElement(element: React.ReactElement<any>, tester: (element) => boolean): JSX.Element;
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -335,6 +337,7 @@ declare namespace OrganicUi {
         getMenuItems(): { menu: IMenu }[];
         defaultMasterPage: () => any;
     }
+    export function startApp(appModel: IAppModel);
     export interface ITimeSlotRange { from: string, to: string }
     export interface ITimeSlotProps {
         ranges: ITimeSlotRange[];
@@ -367,11 +370,13 @@ declare namespace OrganicUi {
     interface DataListPanelProps extends Partial<IDataPanelProps> {
 
         formMode?: 'modal' | 'callout' | 'panel' | 'section';
+        dataListHeight?: number;
         avoidAdd?, avoidDelete?, avoidEdit?: boolean;
         customBar?: TMethods;
         accessor?: string;
         onErrorCode?: onErrorCodeResult;
         singularName?, pluralName?: string;
+        style?: React.CSSProperties;
     }
     export const DataListPanel: React.SFC<DataListPanelProps>;
 
@@ -387,6 +392,7 @@ declare namespace OrganicUi {
         minHeightForPopup?: string;
     }
     export const DataLookup: React.SFC<DataLookupProps>;
+    export class TreeList extends BaseComponent<ITreeListProps, any>{ }
 
     interface IAdvButtonProps {
         children?: any;
@@ -407,7 +413,7 @@ declare namespace OrganicUi {
         type?: string;
         variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab';
         color?: 'inherit' | 'primary' | 'secondary' | 'default';
-  
+
     }
     export const AdvButton: React.SFC<IAdvButtonProps>;
     // Custom Components for  SepidSystem Company 
@@ -439,27 +445,40 @@ declare namespace OrganicUi {
 }
 
 declare module '@organic-ui' {
+
     export type TMethods = OrganicUi.TMethods;
 
     export const Utils: typeof OrganicUi.Utils;
     export const AppUtils: typeof OrganicUi.AppUtils;
     export const DataLookup: typeof OrganicUi.DataLookup;
+    export const TreeList: typeof OrganicUi.TreeList;
     export const i18n: typeof OrganicUi.i18n;
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps;
     export const Field: typeof OrganicUi.Field;
     export type IAppModel = OrganicUi.IAppModel;
+    export const startApp: typeof OrganicUi.startApp;
+
     export type Menu = OrganicUi.Menu;
     export const Menu: typeof OrganicUi.Menu;
     export type IActionsForCRUD<TDto> = OrganicUi.IActionsForCRUD<TDto>;
     export type IOptionsForCRUD = OrganicUi.IOptionsForCRUD;
     export { AxiosRequestConfig as RequestConfig } from 'axios';
     import { AxiosRequestConfig } from 'axios';
+    import { AnchorHTMLAttributes } from 'react';
+    export const JssProvider: any;
+    export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
+    import * as FabricUI from 'office-ui-fabric-react';
+    export { FabricUI };
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
     export type StatelessListView = OrganicUi.StatelessListView;
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
     export interface OptForRESTClient extends Partial<AxiosRequestConfig> {
         title: string;
+    }
+    export const appData: {
+        appModel?: IAppModel
+
     }
     export type OptionsForRESTClient = (() => Partial<OptForRESTClient>) | OptForRESTClient;
     export const createClientForREST: (options?: OptionsForRESTClient) => typeof restClient;
@@ -483,6 +502,8 @@ declare module '@organic-ui' {
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
     export const ReportViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
+    export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
+    export const DatePicker: React.SFC<any>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
@@ -521,5 +542,6 @@ declare module '@organic-ui' {
     export function SubRender(): typeof decoSubRender;
 
     //   Inspired Components;
-    export { TextField } from '@material-ui/core';
+    export { TextField, Checkbox, Select, Button,RadioGroup,FormControlLabel } from '@material-ui/core';
+    export {Callout} from 'office-ui-fabric-react';
 }
