@@ -4,11 +4,10 @@ const babelOpts = require('./babel');
 const styles = require('./styles');
 const setup = require('./setup');
 const path = require('path');
-const package = require('../package.json');
-const dist = join(__dirname, '..', 'assets', 'bundle');
+
 const exclude = /(node_modules|bower_components)/;
 const { argv } = require('yargs');
-const CleanEntryPlugin = require('clean-entry-webpack-plugin');
+
 const { statSync } = require('fs');
 const fileExists = filePath => {
 	const filePathArray = filePath instanceof Array ? filePath : [filePath];
@@ -23,15 +22,23 @@ const fileExists = filePath => {
 		return false;
 	}
 }
-const _entry = {
+let _entry = {
 	vendors: './src/imported-vendors.tsx',
 	organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
 	devtools: './src/dev-tools.tsx',
 	domain: './src/domain/domain.tsx',
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 };
-const entry = Object.keys(_entry).filter(key => fileExists(_entry[key])).reduce((a, key) => Object.assign(a, { [key]: _entry[key] }), {});
+function getSourcePath(filePath) {
+	if (filePath instanceof Array)
+		return filePath.map(getSourcePath);
+	return path.join(process.env.sourceDir || process.cwd(), filePath);
+}
+const entry = Object.keys(_entry)
+	.filter(key => fileExists(getSourcePath(_entry[key])))
+	.reduce((a, key) => Object.assign(a, { [key]: getSourcePath(_entry[key]) }), {});
 const hasCoreBuild = !!entry.organicUI;
+const dist = hasCoreBuild ? join(process.env.sourceDir, 'assets', 'bundle') : path.join(process.env.sourceDir, 'dist');
 const rules = [
 	hasCoreBuild && {
 		test: /\.css$/,

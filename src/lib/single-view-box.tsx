@@ -12,7 +12,7 @@ import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 import { createClientForREST } from './rest-api';
-import {   Button } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
@@ -155,7 +155,7 @@ export class SingleViewBox<T> extends OrganicBox<
         const { options } = this.props;
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
-        
+
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         return <section className="single-view developer-features" ref="root">
             <h1 className="title is-3 columns" style={{ margin: '0' }}>

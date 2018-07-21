@@ -2,7 +2,7 @@ const path = require('path');
 const serverConfig = require('./config')
 const shelljs = require('shelljs');
 const fs = require('fs');
-
+const { argv } = require('yargs');
 
 const checkFileExists = s => new Promise(r => fs.access(s, fs.F_OK, e => r(!e)))
 const fileExists = filePath => {
@@ -14,29 +14,35 @@ const fileExists = filePath => {
         }
         return true;
     }
-    catch(exc){
-        console.log(exc);
+    catch (exc) {
         return false;
     }
 }
-const child = shelljs.exec('npm run build:watch', { async: true });
+
+const webpackCommand = [path.join(__dirname, '../node_modules/.bin/webpack')
+    , '--mode development',
+`--config ${__dirname}/../config/webpack.js` ];
+shelljs.env['sourceDir']=process.cwd();
+const child = shelljs.exec(webpackCommand.join(' '),{async:true} );
+ 
 child.stdout.on('data', data => {
     if ((data || '').includes('size'))
         setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
-    console.log(data);
 });
 if (fileExists(path.join(process.cwd(), './src/styles/all.scss'))) {
     shelljs.exec('npm run build:sass', { async: true });
     const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
-    child2.stdout.on('data', console.log);
+   // child2.stdout.on('data', console.log);
 }
 const express = require('express');
 const server = express();
 require('express-ws')(server);
-server.use('/view', (req, res) => res.sendFile(path.join(process.cwd(), 'assets/single-page-app.html')));
+server.use('/view', (req, res) => res.sendFile(path.join(__dirname, '../assets/single-page-app.html')));
 const assetsPath = path.join(__dirname, '../assets');
-server.use('/assets/domain', express.static(path.join(__dirname, '..', 'assets', 'domain')));
-server.use('/assets', express.static(assetsPath));
+const assetsPath2 = path.join(process.cwd(), 'assets');
+server.use('/assets/bundle/domain', express.static(path.join(process.cwd(), 'dist')));
+server.use('/assets', express.static(assetsPath), express.static(assetsPath2));
+
 server.get('/', (req, res) => res.redirect('/view/dashboard'));
 let allWebSockets = [];
 const notifyToAllUserForFileChanging = msg => {
@@ -54,7 +60,8 @@ server.ws('/watch', function (ws, req) {
     }
     allWebSockets.push(ws);
 });
-server.listen(serverConfig.port, () => console.log(`listening on port ${serverConfig.port}`));
+const port= argv.port  || serverConfig.port;
+server.listen(port, () => console.log(`listening on port ${port}`));
 checkFileExists(path.join(__dirname, '../src/domain/domain.tsx')).then(result => {
     if (!result) return;
     const sourceDir = path.join(process.cwd(), 'src');

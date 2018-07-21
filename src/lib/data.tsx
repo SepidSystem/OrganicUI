@@ -8,7 +8,7 @@ import { ReactNode } from "react";
 import { DataForm } from "./data-form";
 import { AppUtils } from "./app-utils";
 import { ComboBox } from "./combo-box";
-import { IComponentRefer, ErrorCodeForFieldValidation, IFieldProps } from "@organic-ui";
+import { IComponentRefer,   IFieldProps } from "@organic-ui";
 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
