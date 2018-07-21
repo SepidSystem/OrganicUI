@@ -1,8 +1,8 @@
 const path = require('path');
-const serverConfig = require('./config')
+
 const shelljs = require('shelljs');
 const fs = require('fs');
-const { argv } = require('yargs');
+let { argv } = require('yargs');
 
 const checkFileExists = s => new Promise(r => fs.access(s, fs.F_OK, e => r(!e)))
 const fileExists = filePath => {
@@ -18,13 +18,15 @@ const fileExists = filePath => {
         return false;
     }
 }
-
+const serverConfig = fileExists('./server-config.json') ? require(path.join(process.cwd(), 'server-config')) : require('./config');
+argv = Object.assign({ buildMode: 'development', port: serverConfig.port || 3000 }, argv);
 const webpackCommand = [path.join(__dirname, '../node_modules/.bin/webpack')
-    , '--mode development',
-`--config ${__dirname}/../config/webpack.js` ];
-shelljs.env['sourceDir']=process.cwd();
-const child = shelljs.exec(webpackCommand.join(' '),{async:true} );
- 
+    , `--mode ${argv.buildMode}`, ``
+    , argv.buildMode == 'development' && '--watch'
+    , `--config ${__dirname}/../config/webpack.js`].filter(x => !!x);
+shelljs.env['sourceDir'] = process.cwd();
+const child = shelljs.exec(webpackCommand.join(' '), { async: true });
+
 child.stdout.on('data', data => {
     if ((data || '').includes('size'))
         setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
@@ -32,7 +34,7 @@ child.stdout.on('data', data => {
 if (fileExists(path.join(process.cwd(), './src/styles/all.scss'))) {
     shelljs.exec('npm run build:sass', { async: true });
     const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
-   // child2.stdout.on('data', console.log);
+    // child2.stdout.on('data', console.log);
 }
 const express = require('express');
 const server = express();
@@ -60,7 +62,7 @@ server.ws('/watch', function (ws, req) {
     }
     allWebSockets.push(ws);
 });
-const port= argv.port  || serverConfig.port;
+const port = argv.port || serverConfig.port;
 server.listen(port, () => console.log(`listening on port ${port}`));
 checkFileExists(path.join(__dirname, '../src/domain/domain.tsx')).then(result => {
     if (!result) return;
