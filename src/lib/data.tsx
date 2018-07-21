@@ -92,8 +92,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const accessorPath: string[] = getters.slice(0, idxForNearestReadFieldFunc).reverse() as any;
         const nearestReadFieldFunc = getters[idxForNearestReadFieldFunc] as Function;
         let value: any = nearestReadFieldFunc(accessorPath.shift());
-        if (p.accessor == 'rolesIds') console.log('handleGetData>>>>>', { value });
-
+       
         while (accessorPath.length) {
             value = value[accessorPath.shift()];
             if (!(value instanceof Object)) break;

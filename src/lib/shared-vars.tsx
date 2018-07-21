@@ -1,5 +1,4 @@
 import { registryFactory } from "./registry-factory";
-alert('dgdfg');
 export const i18n = registryFactory<React.ReactNode>((registeredText, key) => (registeredText = registeredText || key, <span title={key} key={key} className="i18n" >{registeredText}</span>));
 export const i18nAttr = key => i18n.get(key);
 export const extraSheets = registryFactory<() => React.ReactNode>();
