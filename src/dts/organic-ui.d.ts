@@ -299,6 +299,12 @@ declare namespace OrganicUi {
         forceUpdate(): void;
         getDevButton(): JSX.Element;
     }
+    export type DevFriendlyCommand = (target: IDeveloperFeatures & BaseComponent<any, any>) => void;
+
+    export const devTools: IRegistry<DevFriendlyCommand>;
+    export const JsonInspector: React.SFC<any>;
+    export const DeveloperBar: React.SFC<any> & { topElement, isDevelopmentEnv: boolean, developerFriendlyEnabled };
+
     export function isProdMode(): boolean;
     export interface IFieldReaderWriter {
 
@@ -413,7 +419,7 @@ declare namespace OrganicUi {
         type?: string;
         variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab';
         color?: 'inherit' | 'primary' | 'secondary' | 'default';
-
+        disabled?: boolean;
     }
     export const AdvButton: React.SFC<IAdvButtonProps>;
     // Custom Components for  SepidSystem Company 
@@ -429,6 +435,8 @@ declare namespace OrganicUi {
         confrim(content, opts?: IDialogProps): Promise<any>;
         confrimActionByUser(p: { actionName: string, actionData }): Promise<never>;
         showDataDialog<T>(content: React.ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T>;
+          afterREST({ method, url, data, result }) ;
+  
     }
     export interface IMessageBarProps {
         className?: string;
@@ -520,12 +528,18 @@ declare module '@organic-ui' {
     export type CustomTesterForRegistry = OrganicUi.CustomTesterForRegistry;
     export type IDeveloperFeatures = OrganicUi.IDeveloperFeatures;
     export type IAdvSectionProps = OrganicUi.IAdvSectionProps;
-    export const isProdMode: typeof OrganicUi.isProdMode;
     export type ITimeEditProps = OrganicUi.ITimeEditProps;
     export type IMessageBarProps = OrganicUi.IMessageBarProps;
     export function createGenerateClassName(p: any);
     export function Collapsible(p: any);
-    export const DeveloperBar: React.SFC<any>;
+    export type IRegistry<T> = OrganicUi.IRegistry;
+
+    export const isProdMode: typeof OrganicUi.isProdMode;
+    export const devTools: typeof OrganicUi.devTools;
+    export const JsonInspector: typeof OrganicUi.JsonInspector;
+    export const DeveloperBar: typeof OrganicUi.DeveloperBar;
+
+
     // SepidSystem
     export type ITimeSlotRange = OrganicUi.ITimeSlotRange;
     export const TimeSlot: typeof OrganicUi.TimeSlot;
@@ -542,6 +556,6 @@ declare module '@organic-ui' {
     export function SubRender(): typeof decoSubRender;
 
     //   Inspired Components;
-    export { TextField, Checkbox, Select, Button,RadioGroup,FormControlLabel } from '@material-ui/core';
-    export {Callout} from 'office-ui-fabric-react';
+    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel } from '@material-ui/core';
+    export { Callout } from 'office-ui-fabric-react';
 }

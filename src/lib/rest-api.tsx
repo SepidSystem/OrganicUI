@@ -1,8 +1,5 @@
 import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
-import { AppUtils } from "./app-utils";
-import { OptionsForRESTClient } from "@organic-ui";
-import * as curl from 'curl-cmd'; // href
 
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
@@ -10,7 +7,7 @@ function delayedValue<T>(v: T, timeout): Promise<T> {
 }
 
 export const instances = [];
-export function createClientForREST(options?: OptionsForRESTClient) {
+export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
     async function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T> {
         if (restClient['bodyMapper'])
             data = restClient['bodyMapper']({ method, url, body: data });
@@ -32,6 +29,7 @@ export function createClientForREST(options?: OptionsForRESTClient) {
         const opts = options instanceof Function ? options() : options;
         Object.assign(params, opts);
         let showResponse = false;
+        const { afterREST } = OrganicUI.AppUtils;
         const result = firstPromise
             .then(activate => (showResponse = !!activate, activate))
             .then(() => axios(params)).then(resp => {
@@ -65,7 +63,7 @@ export function createClientForREST(options?: OptionsForRESTClient) {
                     return result;
 
 
-            }).then(result => AppUtils.afterREST instanceof Function ? AppUtils.afterREST({ url, data, method, result }) : result);
+            }).then(result => afterREST instanceof Function ? afterREST({ url, data, method, result }) : result);
         Object.assign(result, { url, method, data });
         return result;
     }

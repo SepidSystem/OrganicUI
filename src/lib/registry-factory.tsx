@@ -19,7 +19,7 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): Orga
                 if (((tester instanceof Function) && tester(key))
                     || ((tester instanceof RegExp) && tester.test(key))
                     //    || (typeof tester == 'string' && wildcard(tester, key))
-                ){ 
+                ) {
                     result = resultForTesters[counter];
                     break;
                 }
@@ -35,10 +35,8 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): Orga
         Object.assign(data, delta);
     }
     function set(key: string, value: T, extraValue?) {
-        let data = {};
-        data[key] = value;
         extraValue !== undefined && (secondaryValues[key] = extraValue);
-        register(data);
+        register({ [key]: value });
     }
 
     const directGet = (key: string) => data[key] || key;

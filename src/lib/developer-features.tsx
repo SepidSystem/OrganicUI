@@ -3,7 +3,7 @@ import { registryFactory } from './registry-factory';
 import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
-import { IDeveloperFeatures } from "@organic-ui";
+ 
 import { instances } from './rest-api';
 export { JsonInspector };
 export function isDevMode() {
@@ -11,10 +11,10 @@ export function isDevMode() {
     return !!DeveloperBar.developerFriendlyEnabled;
 }
 export const isDevelopmentEnv = () => !!DeveloperBar.isDevelopmentEnv;
-export type DevFriendlyCommand = (target: IDeveloperFeatures & BaseComponent<any, any>) => void;
 export function isProdMode() {
     return !isDevelopmentEnv();
 }
+export type DevFriendlyCommand = (target: OrganicUi.IDeveloperFeatures & BaseComponent<any, any>) => void;
 export const devTools = registryFactory<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
     targetText: string, target: any;
@@ -28,7 +28,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
     static developerFriendlyEnabled: boolean;
     timerId: any;
     renderedSigure: number;
-    devPorts: IDeveloperFeatures[];
+    devPorts: OrganicUi.IDeveloperFeatures[];
     refs: {
         root: HTMLElement;
     }
@@ -39,7 +39,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
         if (!isDevMode()) return;
         this.devPorts =
             Array.from(document.querySelectorAll('.developer-features'))
-                .map(ele => ele['componentRef'] as IDeveloperFeatures)
+                .map(ele => ele['componentRef'] as OrganicUi.IDeveloperFeatures)
                 .filter(ele => !!ele);
         if (this.timerId && this.refs.root && this.renderedSigure != this.getSigure()) {
             this.renderedSigure = this.getSigure();

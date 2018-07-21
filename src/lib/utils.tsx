@@ -126,7 +126,7 @@ export const Utils = {
 			key: 'assign-window',
 			name: 'Set As Global Var',
 			onClick: () => {
-				const key = prompt('global varaible name , you can use this variable in    console', OrganicUI.changeCase.camelCase(targetText));
+				const key = prompt('global varaible name , you can use this variable in    console', changeCase.camelCase(targetText));
 				if (!key) return;
 				let pairs = {};
 				pairs[key] = target;
@@ -250,5 +250,5 @@ export const Utils = {
 }
 import * as changeCaseObject from 'change-case-object'
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
-
+ 
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

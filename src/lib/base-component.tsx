@@ -4,7 +4,6 @@ import ErrorIcon from '@material-ui/icons/Warning';
 import { Component } from 'react';
 import { createMayBeObject } from './may-be';
 import { IComponentRefer } from "@organic-ui";
-import { isDevelopmentEnv } from "./developer-features";
 import { Utils } from "./utils";
 export class BaseComponent<P, S> extends Component<P, S>{
     static refIdCounter = 0;

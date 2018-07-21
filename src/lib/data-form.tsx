@@ -3,8 +3,7 @@
 
 import { icon, i18n, BaseComponent, FabricUI } from "../organicUI";
 import { Utils, changeCase } from './utils';
-
-
+import { AdvButton } from './ui-kit';
 import { Panel } from "./ui-kit";
 
 import { PanelType, IColumn } from "office-ui-fabric-react";
@@ -322,7 +321,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     <footer>
                         {!s.selectedItem
 
-                            && <OrganicUI.AdvButton primary
+                            && <AdvButton primary
                                 onClick={() => {
 
                                     const { dataForm } = this.refs;
@@ -357,7 +356,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                     });
                                 }}
                                 disabled={!!s.selectedItem}  >
-                                {i18n('add')}</OrganicUI.AdvButton>}
+                                {i18n('add')}</AdvButton>}
                         {!!s.selectedItem && s.targetSelector && <OrganicUI.AdvButton
                             className={s.targetSelector.replace('.', '')}
                             onClick={async () => {

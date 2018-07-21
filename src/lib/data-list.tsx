@@ -4,7 +4,7 @@ import { icon, i18n } from './shared-vars';
 import { registryFactory } from './registry-factory';
 import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
-import { Utils } from './utils';
+import { Utils ,changeCase} from './utils';
 import { DeveloperBar } from '../organicUI';
 import { IColumn, IDetailsList, IDetailsListProps, DetailsList, ConstrainMode } from 'office-ui-fabric-react';
 
@@ -200,7 +200,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
                 .map((col, idx) => Object.assign({}, col.props || {}, {
-                    key: col.props.accessor, name: i18n(col.props.label || OrganicUI.changeCase.paramCase(col.props.accessor))
+                    key: col.props.accessor, name: i18n(col.props.label || changeCase.paramCase(col.props.accessor))
                     , maxWidth: 300, onRender: (item?: any, index?: number, column?: IColumn) => {
                         const textReader = textReaders[idx];
                         const displayText = textReader instanceof Function ? textReader(item[column.key]) : item[column.key];
