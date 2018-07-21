@@ -71,7 +71,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                         key, name: key, onClick: () => devTools.data[key](this)
                     } as IContextualMenuItem));
         }
-        return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px' }} className="developer-bar">
+        return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px',display:!DeveloperBar.developerFriendlyEnabled && 'none' }} className="developer-bar">
             {DeveloperBar.topElement}
             {!!DeveloperBar.developerFriendlyEnabled && <FabricUI.ActionButton
                 menuProps={{
