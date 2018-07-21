@@ -26,7 +26,7 @@ const fileExists = filePath => {
 const _entry = {
 	vendors: './src/imported-vendors.tsx',
 	organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
-	devtools: ['./src/dev-tools.tsx'],
+	devtools: './src/dev-tools.tsx',
 	domain: './src/domain/domain.tsx',
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 };

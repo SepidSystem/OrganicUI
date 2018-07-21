@@ -27,9 +27,7 @@
     "node_modules"
   ],
   "files": [
-    "./src/dts/globals.d.ts",
-    "./src/domain/frontend/api.d.ts",
-    "./src/domain/frontend/entities.d.ts"
+    "./src/dts/globals.d.ts" 
   ],
   "include": [
     "./src/dts/globals.d.ts"

@@ -79,11 +79,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
             (mode == 1 && opts.headers) ||
             (mode == 2 && (error || this.state.result || this.props.data));
 
-        if (error) {
-            console.log({ error });
-        }
-
-
+   
         return <section dir='ltr' style={{ direction: 'ltr' }} className={Utils.classNames("rest-confrim", error && 'server-side-error')}>
             {!error && this.props.mode != 2 && <div className="title is-4">
                 <i className="fa fa-cloud-upload"></i>
