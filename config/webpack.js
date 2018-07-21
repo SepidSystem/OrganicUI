@@ -31,7 +31,36 @@ const _entry = {
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 };
 const entry = Object.keys(_entry).filter(key => fileExists(_entry[key])).reduce((a, key) => Object.assign(a, { [key]: _entry[key] }), {});
- 
+const hasCoreBuild = !!entry.organicUI;
+const rules = [
+	hasCoreBuild && {
+		test: /\.css$/,
+		loaders: ['style-loader', 'css-loader?modules=true&camelCase=true&localIdentName=[local]']
+
+	},
+	hasCoreBuild && {
+		test: /\.(scss|sass)$/,
+		use: [
+			'css-loader',
+			{
+				loader: 'fast-sass-loader'
+			}
+		]
+	}, {
+		test: /\.jsx?$/,
+		exclude,
+		loader: {
+			loader: 'babel-loader',
+			options: babelOpts
+		}
+	}, {
+		test: /\.tsx?$/,
+		exclude,
+		loader: {
+			loader: 'ts-loader'
+
+		}
+	}].filter(x => !!x);
 module.exports = env => {
 	const isProd = env && env.production;
 	const plugins = setup(isProd);
@@ -67,44 +96,9 @@ module.exports = env => {
 			extensions: ['.ts', '.js', '.css', '.json', '.tsx', '.jsx'],
 			alias: {
 				'@organic-ui': path.resolve(__dirname, '../src/organic-ui-alias'),
-
 			}
 		},
-		module: {
-			rules: [
-				{
-					test: /\.css$/,
-					loaders: ['style-loader', 'css-loader?modules=true&camelCase=true&localIdentName=[local]']
-
-				},
-				{
-					test: /\.(scss|sass)$/,
-					use: [
-						'css-loader',
-						{
-							loader: 'fast-sass-loader'
-						}
-					]
-				}, {
-					test: /\.jsx?$/,
-					exclude,
-					loader: {
-						loader: 'babel-loader',
-						options: babelOpts
-					}
-				}, {
-					test: /\.tsx?$/,
-					exclude,
-					loader: {
-						loader: 'ts-loader'
-
-					}
-				}
-			/*	, {
-				test: /\.(sass|scss)$/,
-				use: isProd ? ExtractText.extract({ fallback: 'style-loader', use: styles }) : styles
-			}*/]
-		},
+		module: { rules },
 		plugins
 	};
 };
