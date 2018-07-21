@@ -16,7 +16,7 @@ export { PureComponent, Component, createElement, cloneElement } from 'react';
 export { route, routeTable } from './lib/router';
 export { Utils, changeCase } from './lib/utils';
 export { /*remoteApiProxy, remoteApi, refetch,*/ createClientForREST } from './lib/rest-api';
-export {Anchor} from './lib/anchor';
+export { Anchor } from './lib/anchor';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
 export { SubRender, Action, Event } from './lib/decorators';
@@ -34,7 +34,7 @@ export { ViewBox } from './lib/view-box';
 export { DashboardBox } from './lib/dashboard-box';
 export { ReportViewBox } from './lib/report-view-box';
 export { ListViewBox } from './lib/list-view-box';
-export { devTools, JsonInspector, DeveloperBar,isProdMode } from './lib/developer-features';
+export { devTools, JsonInspector, DeveloperBar, isProdMode } from './lib/developer-features';
 export { DataLookup } from './lib/data-lookup';
 export { TreeList } from './lib/tree-list';
 export { ComboBox } from './lib/combo-box'
@@ -42,7 +42,7 @@ export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
 
 
-export { TextField, Checkbox, Select, Button,RadioGroup,FormControlLabel } from '@material-ui/core';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel } from '@material-ui/core';
 export let currentView: any
 export { DatePicker } from './lib/date-picker';
 
@@ -50,7 +50,7 @@ export { default as JssProvider } from 'react-jss/lib/JssProvider';
 export { createGenerateClassName } from '@material-ui/core/styles';
 export { default as MenuIcon } from '@material-ui/icons/Menu';
 export { default as ExpandMoreIcon } from '@material-ui/icons/ExpandMore';
- 
+export { loadDevScript } from './lib/load-dev-script';
 export { Callout } from 'office-ui-fabric-react/lib/Callout';
 export { default as Collapsible } from 'react-collapsible';
 export { MessageBar } from './lib/message-bar';
