@@ -20,7 +20,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import { AppUtils } from './app-utils';
-import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, TextField } from '@organic-ui';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { createClientForREST } from './rest-api';
 const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
 
