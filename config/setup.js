@@ -18,9 +18,8 @@ module.exports = production => {
 	if (production) {
 		plugins.push(
 			new MinifyPlugin(),
-			new webpack.LoaderOptionsPlugin({ minimize: true }),
-			new webpack.optimize.ModuleConcatenationPlugin()
-
+			new webpack.LoaderOptionsPlugin({ minimize: true })
+		 
 		);
 	} else {
 		// dev only

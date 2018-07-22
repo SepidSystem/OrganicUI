@@ -3,7 +3,7 @@ import { registryFactory } from './registry-factory';
 import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
- 
+import frameworkVersion from '../version';
 import { instances } from './rest-api';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 export { JsonInspector };
@@ -72,7 +72,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
                         key, name: key, onClick: () => devTools.data[key](this)
                     } as IContextualMenuItem));
         }
-        return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px',display:!DeveloperBar.developerFriendlyEnabled && 'none' }} className="developer-bar">
+        return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px', display: !DeveloperBar.developerFriendlyEnabled && 'none' }} className="developer-bar">
             {DeveloperBar.topElement}
             {!!DeveloperBar.developerFriendlyEnabled && <ActionButton
                 menuProps={{
@@ -83,6 +83,11 @@ export class DeveloperBar extends BaseComponent<any, any> {
             {!!DeveloperBar.developerFriendlyEnabled && this.renderDevButtonForRestClients()}
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
+            {!!frameworkVersion && <span className="framework-version">
+                <label>
+                    Framework Ver:
+            </label>
+                <b>{frameworkVersion}</b></span>}
         </div>
     }
 }
