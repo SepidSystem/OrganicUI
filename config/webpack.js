@@ -28,6 +28,7 @@ let _entry = {
 	domain: './src/domain/domain.tsx',
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
 };
+process.env.sourceDir = process.env.sourceDir || process.cwd();
 function getSourcePath(filePath) {
 	if (filePath instanceof Array)
 		return filePath.map(getSourcePath);
@@ -102,7 +103,7 @@ module.exports = env => {
 		resolve: {
 			extensions: ['.ts', '.js', '.css', '.json', '.tsx', '.jsx'],
 			alias: {
-				'@organic-ui': path.resolve(__dirname, '../src/organic-ui-alias'),
+				'@organic-ui': path.resolve(__dirname, 'organic-ui-alias'),
 			}
 		},
 		module: { rules },

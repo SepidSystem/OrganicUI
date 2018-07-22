@@ -12,7 +12,8 @@ import { Dialog } from "office-ui-fabric-react/lib/Dialog";
 import { Field } from "./data";
 import { DataList } from "./data-list";
 import { IDetailsListProps, DetailsListLayoutMode } from "office-ui-fabric-react/lib-es2015/DetailsList";
-import { PanelType, Panel } from "office-ui-fabric-react/lib-es2015/Panel";
+import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
+import {Panel} from './ui-kit';
 import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 
 interface IDataListState {

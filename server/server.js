@@ -28,6 +28,7 @@ let allWebSockets = [];
 const notifyToAllUserForFileChanging = msg => allWebSockets.forEach(ws => ws.readyState == 1 && ws.send(JSON.stringify(msg)));
 
 let allWebSocketsChangeCounter = 0;
+
 if (argv.action == 'build' || argv.action == 'dev-server') {
     const webpackCommand = [path.join(__dirname, '../node_modules/.bin/webpack')
         , `--mode ${argv.buildMode}`, ``
@@ -39,6 +40,7 @@ if (argv.action == 'build' || argv.action == 'dev-server') {
     child.stdout.on('data', data => {
         if ((data || '').includes('size'))
             setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
+        console.log(data);
     });
 
     if (fileExists(path.join(process.cwd(), './src/styles/all.scss'))) {
@@ -63,18 +65,19 @@ if (argv.action.includes('server')) {
     server.ws('/watch', function (ws, req) {
         if (allWebSocketsChangeCounter++ > 1000) {
             allWebSocketsChangeCounter = 0;
-            allWebSockets = allWebSockets.filter(ws => ws.readyState == 1);
+            allSockets = allWebSockets.filter(ws => ws.readyState == 1);
         }
         allWebSockets.push(ws);
     });
     const port = argv.port || serverConfig.port;
     server.listen(port, () => console.log(`listening on port ${port}`));
 
-    checkFileExists(path.join(__dirname, '../src/domain/domain.tsx')).then(result => {
-        if (!result) return;
+
+    if (argv.buildMode == 'development') {
         const sourceDir = path.join(process.cwd(), 'src');
         const recursiveWatch = require('recursive-watch');
 
         recursiveWatch(sourceDir, files => notifyToAllUserForFileChanging('serverChanged'));
-    });
+    }
+
 }
