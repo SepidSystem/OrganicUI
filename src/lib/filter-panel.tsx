@@ -4,6 +4,7 @@ import { i18n } from './shared-vars';
 import { Field, FilterItem } from "./data";
 import { Utils } from "./utils";
 import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
+import { Paper, Button } from "./inspired-components";
 
 interface IFilterPanelProps {
     dataForm?: any;
@@ -40,7 +41,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
         const s = this.state;
         return <section ref="root" className="filter-panel  developer-features">
 
-            <MaterialUI.Paper className=""  >
+            <Paper className=""  >
                 
                 <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm[key]} onFieldWrite={(key, value) => {
                     this.dataForm[key] = value
@@ -55,10 +56,10 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                 </DataForm>
                 <footer>
                     <OrganicUI.AdvButton variant="raised" color="primary" onClick={this.props.onApplyClick}>{i18n('apply')}</OrganicUI.AdvButton>
-                    <MaterialUI.Button onClick={() => (this.dataForm = {}, this.repatch({}))}>{i18n('clear')}</MaterialUI.Button>
+                    <Button onClick={() => (this.dataForm = {}, this.repatch({}))}>{i18n('clear')}</Button>
 
                 </footer>
-            </MaterialUI.Paper>
+            </Paper>
         </section>
     }
 }

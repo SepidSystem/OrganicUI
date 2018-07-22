@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
-import { Utils, AdvButton, AppUtils, BaseComponent, SingleViewBox, ListViewBox } from "@organic-ui";
+import { Utils, AdvButton, AppUtils, BaseComponent, SingleViewBox, ListViewBox, FormControlLabel, Checkbox, Tabs, Tab } from "@organic-ui";
 
 
 
@@ -41,10 +41,10 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
             return null;
 
         return <div className="columns">
-            <MaterialUI.FormControlLabel
+            <FormControlLabel
                 className="column  " style={{ visibility: this.props.mode == 2 ? 'hidden' : 'visible', flex: '1', padding: 0 }}
                 control={
-                    <MaterialUI.Checkbox
+                    <Checkbox
                         defaultChecked={this.state.showResponse}
                         onChange={event => this.repatch({ showResponse: event.target.checked })}
 
@@ -116,17 +116,17 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
             {!!error && <hr />}
 
 
-            <MaterialUI.Tabs
+            <Tabs
                 value={this.state.mode}
                 indicatorColor="primary"
                 textColor="primary"
                 onChange={this.handleChange.bind(this)}
             >
-                <MaterialUI.Tab label="Request Body" disabled={!this.props.data} />
-                <MaterialUI.Tab label="Headers" />
-                {this.props.mode == 2 && <MaterialUI.Tab label="Response" />}
+                <Tab label="Request Body" disabled={!this.props.data} />
+                <Tab label="Headers" />
+                {this.props.mode == 2 && <Tab label="Response" />}
 
-            </MaterialUI.Tabs>
+            </Tabs>
             <main style={{ marginTop: '3px', minHeight: '320px', maxHeight: '320px' }}>
 
 

@@ -11,8 +11,8 @@ import { DataForm } from './data-form';
 import { Spinner } from './spinner';
 import { AdvButton, Placeholder } from './ui-kit';
  
-import OrganicBox from './organic-box';
-const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
+import OrganicBox from './organic-box'; 
+import { Paper } from './inspired-components';
 interface ReportViewBoxProps {
 
 };
@@ -30,8 +30,8 @@ export class ReportViewBox extends OrganicBox<any,any,any, ReportViewBoxState> {
     render(p = this.props) {
         return <section>
             <h1 className="title is-2">Report</h1>
-            <MaterialUI.Paper className="main-content">
-                <br /><br /><br /><br /> </MaterialUI.Paper>
+            <Paper className="main-content">
+                <br /><br /><br /><br /> </Paper>
         </section>
 
     }

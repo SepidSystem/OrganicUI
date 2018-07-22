@@ -1,16 +1,19 @@
 /// <reference path="../dts/organic-ui.d.ts" />
 
 
-import { icon, i18n, BaseComponent, FabricUI } from "../organicUI";
+import { icon, i18n } from "./shared-vars";
+import { Callout, DefaultButton, Icon, MessageBar } from './inspired-components';
+import { BaseComponent } from './base-component';
 import { Utils, changeCase } from './utils';
 import { AdvButton } from './ui-kit';
-import { Panel } from "./ui-kit";
 
-import { PanelType, IColumn } from "office-ui-fabric-react";
 import { Modal } from 'office-ui-fabric-react/lib/Modal';
+import { Dialog } from "office-ui-fabric-react/lib/Dialog";
 import { Field } from "./data";
-import { IFieldProps } from "@organic-ui";
 import { DataList } from "./data-list";
+import { IDetailsListProps, DetailsListLayoutMode } from "office-ui-fabric-react/lib-es2015/DetailsList";
+import { PanelType, Panel } from "office-ui-fabric-react/lib-es2015/Panel";
+import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 
 interface IDataListState {
     message?: { type, text };
@@ -39,7 +42,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IDataListS
     getErrorCard(): React.ReactNode {
         return this.invalidItems && !!this.invalidItems.length && (<div className="error-card"   >
             <div className="title is-5 animated fadeIn">
-                <FabricUI.Icon iconName="StatusErrorFull" />{'  '}
+                <Icon iconName="StatusErrorFull" />{'  '}
                 {i18n('error')}</div>
             <div className="animated fadeInDown">
                 {i18n('description-rejected-validation')}
@@ -167,10 +170,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         datalist: DataList;
     }
     static formModes = {
-        dialog: FabricUI.Dialog,
+        dialog: Dialog,
         modal: Modal,
-        panel: FabricUI.Panel,
-        callout: FabricUI.Callout,
+        panel: Panel,
+        callout: Callout,
         section: 'section'
     }
     dataList: any;
@@ -229,7 +232,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         this.targetItem = this.targetItem || {};
         this.lastMod = this.lastMod || +new Date();
         const items = this.getItems();
-        const extraPropsOfDetailList: Partial<FabricUI.IDetailsListProps> = {
+        const extraPropsOfDetailList: Partial<IDetailsListProps> = {
             items,
 
             onActiveItemChanged: (selectedItem, selectedItemIndex) => {
@@ -254,13 +257,8 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             { key: 'datalist' + this.lastMod },
             extraPropsOfDetailList,
-            { layoutMode: FabricUI.DetailsListLayoutMode.justified }, p, {});
-        /*detailListProps.columns = detailListProps.columns &&
-            detailListProps.columns.map(col => Object.assign({}, col, { name: i18n.get(col.name) } as Partial<IColumn>));
-        detailListProps.columns = detailListProps.columns ||
-            React.Children.map(this.props.children || [], (child: JSX.Element) => child.props && (child.props as IFieldProps).accessor)
-                .filter(x => !!x).map(key => ({ minWidth: 100, key, fieldName: key, name: Field.getLabel(key) } as FabricUI.IColumn)) as FabricUI.IColumn[];
-*/
+            { layoutMode: DetailsListLayoutMode.justified }, p, {});
+
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
         this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, p.children);
@@ -279,14 +277,14 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         }
 
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
-            <FabricUI.DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
+            <DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.customBar && !p.avoidEdit &&
-        <FabricUI.DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
+        <DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
         !p.customBar && !p.avoidDelete &&
-        <FabricUI.DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
+        <DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
         this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
         !!p.children && s.isOpen &&
-        React.createElement((DataListPanel.formModes[p.formMode] || FabricUI.Callout) as any, {
+        React.createElement((DataListPanel.formModes[p.formMode] || Callout) as any, {
             className: "data-list-panel-fields",
             ref: "panel",
             isOpen: s.isOpen, dialogDefaultMinWidth: '400px', dialogDefaultMaxWidth: '500px',
@@ -336,7 +334,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                                         {
                                                             message: {
                                                                 text: i18n(invalidItems[0].message),
-                                                                type: FabricUI.MessageBarType.error
+                                                                type: MessageBarType.error
                                                             }
                                                         });
                                                     setTimeout(() => this.repatch({ message: null }), 3000);
@@ -348,7 +346,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                         this.lastMod = +new Date();
                                         this.refs.datalist.reload();
                                         this.repatch(
-                                            { isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
+                                            { isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: MessageBarType.success } });
 
 
                                         this.targetItem = {};
@@ -368,13 +366,11 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                     await dataForm.revalidateAllFields();
                                     if (dataForm.invalidItems && dataForm.invalidItems.length) {
                                         this.repatch(
-                                            { message: { text: i18n(dataForm.invalidItems[0].message), type: FabricUI.MessageBarType.error } });
+                                            { message: { text: i18n(dataForm.invalidItems[0].message), type: MessageBarType.error } });
                                         setTimeout(() => this.repatch({ message: null }), 3000);
                                         return;
                                     }
                                     this.items[s.selectedItemIndex] = JSON.parse(JSON.stringify(this.targetItem));
-                                    // this.repatch(
-                                    //   { message: { text: i18n('add-success'), type: FabricUI.MessageBarType.success } });
 
                                 }
                                 if (s.targetSelector && s.targetSelector.includes('delete') &&
@@ -389,7 +385,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                         </OrganicUI.AdvButton>}
 
                     </footer>
-                    {!!this.state.message && <div> <FabricUI.MessageBar messageBarType={this.state.message.type} >{this.state.message.text} </FabricUI.MessageBar>
+                    {!!this.state.message && <div> <MessageBar messageBarType={this.state.message.type} >{this.state.message.text} </MessageBar>
                     </div>}
                 </div>))
         ].filter(x => !!x);

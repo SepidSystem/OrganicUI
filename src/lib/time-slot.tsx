@@ -9,7 +9,8 @@ import { ITimeSlotRange,  Callout } from '@organic-ui';
 
 import { AdvSection } from './advanced-section';
 import { TimeEdit } from './time-edit';
-import { TextField,Button } from '@material-ui/core';
+import { Button } from './inspired-components';
+ 
 const hourCount = 24;
 function handleEdit() {
     AppUtils.showDialog('sdfsdf');

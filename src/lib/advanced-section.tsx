@@ -1,4 +1,4 @@
-import { MessageBar } from './message-bar';
+import { SnackBar } from './snack-bar';
 import { BaseComponent } from './base-component';
 import { i18n } from './shared-vars';
 import { IAdvSectionProps } from '@organic-ui';
@@ -10,7 +10,7 @@ export class AdvSection extends BaseComponent<IAdvSectionProps, any>{
             <section {...p} className={Utils.classNames('advanced-section', p.className)}>
                 {p.children}
                 {'errorMessage' in p && <div className={Utils.classNames("error-message", !!p.errorMessage ? 'has-message' : 'no-message')} style={{ margin: '5px', visibility: !p.errorMessage ? 'hidden' : 'visible' }}>
-                    <MessageBar variant="error" onClose={p.onCloseMessage} >{i18n(p.errorMessage || ' ')}</MessageBar>
+                    <SnackBar variant="error" onClose={p.onCloseMessage} >{i18n(p.errorMessage || ' ')}</SnackBar>
                 </div>}
             </section>);
     }

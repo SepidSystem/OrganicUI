@@ -6,11 +6,12 @@ import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
 import { Utils ,changeCase} from './utils';
 import { DeveloperBar } from '../organicUI';
-import { IColumn, IDetailsList, IDetailsListProps, DetailsList, ConstrainMode } from 'office-ui-fabric-react';
-
+ 
 import { Cache } from 'lru-cache';
 import { Field } from './data';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
+import { DetailsList } from './inspired-components';
+import { IColumn, ConstrainMode, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
 
 
 interface IPaginationProps {
@@ -255,7 +256,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                         position: 'absolute', top:
                             ((this.refs.root && Math.floor(this.refs.root.scrollTop)) || 0) + 'px'
                     } : null} >
-                        {this.detailList = this.detailList || React.createElement(FabricUI.DetailsList, dataListProps)}
+                        {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
                         <div className="columns">
                             {p.corner && <div className="column corner">{p.corner}</div>}
                             {!s.noPaging && pagination && <div className="column pagination">{pagination}</div>}

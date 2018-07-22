@@ -2,9 +2,10 @@
 
 import { BaseComponent } from './base-component';
 import { Utils } from './utils';
-import { Checkbox } from '@material-ui/core';
+ 
 import { Spinner } from './spinner';
 import { ITreeListNode, ITreeListProps } from '@organic-ui';
+import { Checkbox } from './inspired-components';
 
 export class TreeList extends BaseComponent<ITreeListProps, any>{
     constructor(p) {

@@ -4,13 +4,14 @@ import { Utils } from './utils';
 const { classNames } = Utils;
 
 import { isDevelopmentEnv } from './developer-features';
-import { DetailsList, elementContains } from 'office-ui-fabric-react';
-import { TextField } from '@material-ui/core';
+ 
 import { ListViewBox } from './list-view-box';
 import { Spinner } from './spinner';
 import { Event } from './decorators';
 import { IOptionsForCRUD, IActionsForCRUD } from '@organic-ui';
 import OrganicBox from './organic-box';
+import { ActionButton } from 'office-ui-fabric-react/lib-es2015/Button';
+import { TextField } from './inspired-components';
 
 interface DataLookupProps {
     source: React.ComponentType<OrganicUi.IListViewParams>;
@@ -285,8 +286,8 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     }
     getCorner() {
         return <div>
-            <FabricUI.ActionButton iconProps={{ iconName: "Accept" }} />
-            <FabricUI.ActionButton iconProps={{ iconName: "Cancel" }} />
+            <ActionButton iconProps={{ iconName: "Accept" }} />
+            <ActionButton iconProps={{ iconName: "Cancel" }} />
         </div>
     }
 

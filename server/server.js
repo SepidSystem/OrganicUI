@@ -19,55 +19,61 @@ const fileExists = filePath => {
     }
 }
 const serverConfig = fileExists('./server-config.json') ? require(path.join(process.cwd(), 'server-config')) : require('./config');
-argv = Object.assign({ buildMode: 'development', port: serverConfig.port || 3000 }, argv);
-const webpackCommand = [path.join(__dirname, '../node_modules/.bin/webpack')
-    , `--mode ${argv.buildMode}`, ``
-    , argv.buildMode == 'development' && '--watch'
-    , `--config ${__dirname}/../config/webpack.js`].filter(x => !!x);
-shelljs.env['sourceDir'] = process.cwd();
-const child = shelljs.exec(webpackCommand.join(' '), { async: true });
-
-child.stdout.on('data', data => {
-    if ((data || '').includes('size'))
-        setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
-});
-if (fileExists(path.join(process.cwd(), './src/styles/all.scss'))) {
-    shelljs.exec('npm run build:sass', { async: true });
-    const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
-    // child2.stdout.on('data', console.log);
-}
-const express = require('express');
-const server = express();
-require('express-ws')(server);
-server.use('/view', (req, res) => res.sendFile(path.join(__dirname, '../assets/single-page-app.html')));
-const assetsPath = path.join(__dirname, '../assets');
-const assetsPath2 = path.join(process.cwd(), 'assets');
-server.use('/assets/bundle/domain', express.static(path.join(process.cwd(), 'dist')));
-server.use('/assets', express.static(assetsPath), express.static(assetsPath2));
-
-server.get('/', (req, res) => res.redirect('/view/dashboard'));
+process.argv = process.argv.filter(arg => !arg.includes(path.sep))
+if (!argv.action && process.argv[0] && !process.argv[0].startsWith('-'))
+    argv.action = process.argv[0];
+argv = Object.assign({ action: 'dev-server', buildMode: 'development', port: serverConfig.port || 3000 }, argv);
 let allWebSockets = [];
-const notifyToAllUserForFileChanging = msg => {
+const notifyToAllUserForFileChanging = msg => allWebSockets.forEach(ws => ws.readyState == 1 && ws.send(JSON.stringify(msg)));
 
-    allWebSockets.forEach(ws => {
-        ws.readyState == 1 && ws.send(JSON.stringify(msg));
-    }
-    );
-}
 let allWebSocketsChangeCounter = 0;
-server.ws('/watch', function (ws, req) {
-    if (allWebSocketsChangeCounter++ > 1000) {
-        allWebSocketsChangeCounter = 0;
-        allWebSockets = allWebSockets.filter(ws => ws.readyState == 1);
-    }
-    allWebSockets.push(ws);
-});
-const port = argv.port || serverConfig.port;
-server.listen(port, () => console.log(`listening on port ${port}`));
-checkFileExists(path.join(__dirname, '../src/domain/domain.tsx')).then(result => {
-    if (!result) return;
-    const sourceDir = path.join(process.cwd(), 'src');
-    const recursiveWatch = require('recursive-watch');
+if (argv.action == 'build' || argv.action == 'dev-server') {
+    const webpackCommand = [path.join(__dirname, '../node_modules/.bin/webpack')
+        , `--mode ${argv.buildMode}`, ``
+        , argv.buildMode == 'development' && '--watch',
+        , `--config`, path.join(__dirname, `/../config/webpack.js`)].filter(x => !!x);
+    shelljs.env['sourceDir'] = process.cwd();
+    const child = shelljs.exec(webpackCommand.join(' '), { async: true });
 
-    recursiveWatch(sourceDir, files => notifyToAllUserForFileChanging('serverChanged'));
-});
+    child.stdout.on('data', data => {
+        if ((data || '').includes('size'))
+            setTimeout(() => notifyToAllUserForFileChanging('reloadAllTargetedItems'), 1000);
+    });
+
+    if (fileExists(path.join(process.cwd(), './src/styles/all.scss'))) {
+        shelljs.exec('npm run build:sass', { async: true });
+        if (argv.buildMode == 'development') {
+            const child2 = shelljs.exec('npm run build:sass:watch', { async: true });
+            child2.stdout.on('data', console.log);
+        }
+    }
+}
+if (argv.action.includes('server')) {
+    const express = require('express');
+    const server = express();
+    require('express-ws')(server);
+    server.use('/view', (req, res) => res.sendFile(path.join(__dirname, '../assets/single-page-app.html')));
+    const assetsPath = path.join(__dirname, '../assets');
+    const assetsPath2 = path.join(process.cwd(), 'assets');
+    server.use('/assets/bundle/domain', express.static(path.join(process.cwd(), 'dist')));
+    server.use('/assets', express.static(assetsPath), express.static(assetsPath2));
+    server.get('/', (req, res) => res.redirect('/view/dashboard'));
+
+    server.ws('/watch', function (ws, req) {
+        if (allWebSocketsChangeCounter++ > 1000) {
+            allWebSocketsChangeCounter = 0;
+            allWebSockets = allWebSockets.filter(ws => ws.readyState == 1);
+        }
+        allWebSockets.push(ws);
+    });
+    const port = argv.port || serverConfig.port;
+    server.listen(port, () => console.log(`listening on port ${port}`));
+
+    checkFileExists(path.join(__dirname, '../src/domain/domain.tsx')).then(result => {
+        if (!result) return;
+        const sourceDir = path.join(process.cwd(), 'src');
+        const recursiveWatch = require('recursive-watch');
+
+        recursiveWatch(sourceDir, files => notifyToAllUserForFileChanging('serverChanged'));
+    });
+}

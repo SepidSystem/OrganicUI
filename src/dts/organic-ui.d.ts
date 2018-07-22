@@ -476,8 +476,7 @@ declare module '@organic-ui' {
     import { AnchorHTMLAttributes } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
-    import * as FabricUI from 'office-ui-fabric-react';
-    export { FabricUI };
+ 
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
     export type StatelessListView = OrganicUi.StatelessListView;
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
@@ -556,6 +555,7 @@ declare module '@organic-ui' {
     export function SubRender(): typeof decoSubRender;
 
     //   Inspired Components;
-    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel } from '@material-ui/core';
+    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel,Tabs,Tab,Radio } from '@material-ui/core';
     export { Callout } from 'office-ui-fabric-react';
+    export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 }

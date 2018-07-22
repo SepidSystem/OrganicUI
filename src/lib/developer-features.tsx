@@ -5,6 +5,7 @@ import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
  
 import { instances } from './rest-api';
+import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 export { JsonInspector };
 export function isDevMode() {
 
@@ -73,11 +74,11 @@ export class DeveloperBar extends BaseComponent<any, any> {
         }
         return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px',display:!DeveloperBar.developerFriendlyEnabled && 'none' }} className="developer-bar">
             {DeveloperBar.topElement}
-            {!!DeveloperBar.developerFriendlyEnabled && <FabricUI.ActionButton
+            {!!DeveloperBar.developerFriendlyEnabled && <ActionButton
                 menuProps={{
                     shouldFocusOnMount: true,
                     items: DeveloperBar.devMenuItems
-                }} iconProps={{ iconName: 'Code' }}
+                } as any} iconProps={{ iconName: 'Code' }}
             />}
             {!!DeveloperBar.developerFriendlyEnabled && this.renderDevButtonForRestClients()}
             {!!DeveloperBar.developerFriendlyEnabled

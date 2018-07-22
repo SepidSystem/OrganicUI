@@ -1,16 +1,15 @@
 const { join } = require('path');
 const webpack = require('webpack');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
-const  FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
 const root = join(__dirname, '..');
 const DashboardPlugin = require('webpack-dashboard/plugin');
 module.exports = production => {
-	// base plugins array
+	 // base plugins array
 	const plugins = [
-		new FriendlyErrorsWebpackPlugin(),
-  
-	//	new webpack.optimize.CommonsChunkPlugin({ name: 'vendors' }),
+		!production && new FriendlyErrorsWebpackPlugin(),
+		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 		new webpack.DefinePlugin({
 			'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development')
 		})
@@ -32,5 +31,5 @@ module.exports = production => {
 		);
 	}
 
-	return plugins;
+	return plugins.filter(x => !!x);
 };

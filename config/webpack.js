@@ -1,5 +1,4 @@
 const { join } = require('path');
-const ExtractText = require('extract-text-webpack-plugin');
 const babelOpts = require('./babel');
 const styles = require('./styles');
 const setup = require('./setup');
@@ -69,7 +68,8 @@ const rules = [
 		}
 	}].filter(x => !!x);
 module.exports = env => {
-	const isProd = env && env.production;
+	env.mode && Object.assign(env, { [env.mode]: true });
+	const isProd = (env && env.production);
 	const plugins = setup(isProd);
 	if (isProd) {
 		babelOpts.presets.push('babili');

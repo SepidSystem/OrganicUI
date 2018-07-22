@@ -2,10 +2,13 @@
 import { BaseComponent } from './base-component';
 import { funcAsComponentClass } from './functional-component';
 import { Utils } from './utils';
-import { Callout, IButtonProps } from 'office-ui-fabric-react';
+ 
 import { ButtonProps } from '@material-ui/core/Button';
 
 import { i18n, icon } from './shared-vars';
+import { Spinner } from './spinner';
+import {Callout, Button} from './inspired-components';
+import { DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
     const isActive = !!s.root && s.root.classList && s.root.classList.contains('is-active');
@@ -104,7 +107,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
     }
     render(p = this.props, s = this.state, repatch = this.repatch) {
         const className = Utils.classNames("adv-button", p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size);
-        const advButton = <MaterialUI.Button className={className}
+        const advButton = <Button className={className}
             {...p}
             onClick={e => {
                 e.preventDefault();
@@ -135,9 +138,9 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         >
             {!s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
-            {s.isLoading && <FabricUI.Spinner />}
-        </MaterialUI.Button>;
-        React.createElement(p.buttonComponent || MaterialUI.Button,
+            {s.isLoading && <Spinner />}
+        </Button>;
+        React.createElement(p.buttonComponent || Button,
             Object.assign({}, p, {
                 className: Utils.classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
                 //    iconProps: !s.isLoading && p.iconProps,
@@ -145,11 +148,11 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
             }),
             !s.isLoading && !s.callout && p.children,
             !s.isLoading && s.callout && i18n('hide-result'),
-            s.isLoading && <FabricUI.Spinner />);
+            s.isLoading && <Spinner />);
         return <span ref="root" className="adv-button"
         > {advButton}
             {React.isValidElement(s.callout) &&
-                <Callout directionalHint={FabricUI.DirectionalHint.topCenter} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
+                <Callout directionalHint={DirectionalHint.topCenter as any} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
                     {s.callout}
                 </Callout>}
         </span>

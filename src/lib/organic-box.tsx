@@ -9,8 +9,7 @@ import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
 
 import { isDevelopmentEnv } from './developer-features';
-const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
-
+ 
 interface SingleViewBoxState { formData: any; validated: boolean; }
 function loadScript(url) {
     //url is URL of external file, implementationCode is the code

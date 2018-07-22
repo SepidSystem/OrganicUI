@@ -6,24 +6,21 @@ import { Utils, changeCase } from './utils';
 import { FilterPanel } from './filter-panel';
 
 import { DataList } from './data-list';
-
+import { Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
 
 import { AdvButton, Placeholder } from './ui-kit';
 
-import { IDetailsListProps, Selection, ConstrainMode } from 'office-ui-fabric-react';
+
 import OrganicBox from './organic-box';
 import { Field } from './data';
-import PrintIcon from '@material-ui/icons/Print';
-import EditIcon from '@material-ui/icons/Edit';
-import AddIcon from '@material-ui/icons/Add';
-import SearchIcon from '@material-ui/icons/Search';
 
-import DeleteIcon from '@material-ui/icons/Delete';
 import { AppUtils } from './app-utils';
 import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { createClientForREST } from './rest-api';
-const { OverflowSet, SearchBox, DefaultButton, css } = FabricUI;
-
+import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
+import { SelectionMode } from 'office-ui-fabric-react/lib-es2015/DetailsList';
+import { Button, Paper, TextField } from './inspired-components';
+ 
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -38,75 +35,7 @@ function storeToggleButtons(v) {
 
 }
 
-
-export class OverflowSetForListView extends BaseComponent<{ listView: ListViewBox<any> }, any> {
-
-    public render() {
-        return (
-            <OverflowSet
-
-                items={[
-                    {
-                        key: 'newItem',
-                        name: 'Add',
-                        icon: 'Add',
-                        ariaLabel: 'New. Use left and right arrow keys to navigate',
-                        onClick: () => Utils.navigate(this.props.listView.getUrlForSingleView('new'))
-
-                    },
-                    {
-                        key: 'edit',
-                        name: 'Edit',
-                        icon: 'Edit',
-                        onClick: () => this.props.listView.handleEdit(),
-                    },
-                    {
-                        key: 'delete',
-                        name: 'Delete',
-                        icon: 'Delete',
-                        onClick: () => this.props.listView.repatch({ deleteDialogIsOpen: true })
-                    }
-                ]}
-                overflowItems={
-                    Array.from({ length: 4 }, (_, idx) => ({
-                        key: 'newItem',
-                        name: 'Action#1',
-                        icon: 'Add',
-                        ariaLabel: 'New. Use left and right arrow keys to navigate',
-                        onClick: () => { return; }
-                    }))
-
-                }
-                onRenderOverflowButton={this._onRenderOverflowButton}
-                onRenderItem={this._onRenderItem}
-            />
-        );
-    }
-
-    private _onRenderItem(item): JSX.Element {
-        if (item.onRender) {
-            return (
-                item.onRender(item)
-            );
-        }
-        /* iconProps={{ iconName: item.icon }}
-                        menuProps={item.subMenuProps}
-                       */
-        return (
-            <AdvButton onClick={item.onClick}    >{i18n(changeCase.paramCase(item.name))}</AdvButton>
-        );
-    }
-
-    private _onRenderOverflowButton(overflowItems: any[] | undefined): JSX.Element {
-        return (
-            <DefaultButton
-                menuIconProps={{ iconName: 'More' }}
-                menuProps={{ items: overflowItems! }}
-            />
-        );
-    }
-}
-
+ 
 
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
@@ -139,8 +68,8 @@ export class ListViewBox<T> extends
         super(p);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
         this.readList = this.readList.bind(this);
-        this.selection = new FabricUI.Selection({
-            selectionMode: this.getMultiple() ? FabricUI.SelectionMode.multiple : FabricUI.SelectionMode.single,
+        this.selection = new Selection({
+            selectionMode: this.getMultiple() ? SelectionMode.multiple : SelectionMode.single,
             onSelectionChanged: this.handleSelectionChanged
         });
         this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
@@ -378,49 +307,45 @@ export class ListViewBox<T> extends
                 <CriticalContent permissionKey="archive-permission" />
                 <CriticalContent permissionKey="trash-permission" />
                 <div className="buttons"  >
-                    <MaterialUI.Button   >
+                    <Button   >
                         <PrintIcon />
                         {i18n('export')}
-                    </MaterialUI.Button>
+                    </Button>
 
                 </div>
             </header>
 
-            <MaterialUI.Paper className="  main-content column  "   >
+            <Paper className="  main-content column  "   >
 
                 <header className="navigator">
-                    <MaterialUI.Button onClick={this.handleEdit} >
+                    <Button onClick={this.handleEdit} >
                         <EditIcon />
                         {i18n('edit')}
-                    </MaterialUI.Button>
-                    <MaterialUI.Button onClick={this.handleRemove}   >
+                    </Button>
+                    <Button onClick={this.handleRemove}   >
                         <DeleteIcon />
                         {i18n('delete-items')}
 
-                    </MaterialUI.Button>
+                    </Button>
                     <div className="search-field">
                         <SearchIcon width="64px" height="64px" />
-                        <MaterialUI.TextField />
+                        <TextField />
                     </div>
                 </header>
                 {!!this.refs.root && children}
 
-            </MaterialUI.Paper>
+            </Paper>
 
 
             <br />
-            {!!this.state.deleteDialogIsOpen && <FabricUI.Dialog isOpen={true} onDismiss={() => this.repatch({ deleteDialogIsOpen: false })}>
-                <FabricUI.DialogFooter>
-                    sdf
-                    </FabricUI.DialogFooter>
-            </FabricUI.Dialog>}
+
             <footer style={{ display: 'none', position: 'fixed', bottom: '40px', right: '340px' }}>
-                <MaterialUI.Button variant="fab" color="secondary" >
+                <Button variant="fab" color="secondary" >
                     <AddIcon />
-                </MaterialUI.Button>{' '}
-                <MaterialUI.Button variant="fab" color="secondary" >
+                </Button>{' '}
+                <Button variant="fab" color="secondary" >
                     <SearchIcon />
-                </MaterialUI.Button>
+                </Button>
             </footer>
 
         </section >;

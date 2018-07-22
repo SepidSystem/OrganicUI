@@ -1,10 +1,8 @@
 import { assignVendors } from './imported-vendors';
 assignVendors();
-import * as FabricUI from 'office-ui-fabric-react';
-export { FabricUI };
+ 
 
-import * as ReactDataGrid from 'react-data-grid';
-export { ReactDataGrid };
+ 
 
 export { NotFoundView } from './lib/404';
 export { registryFactory } from './lib/registry-factory';
@@ -41,8 +39,7 @@ export { ComboBox } from './lib/combo-box'
 export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
 
-
-export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel } from '@material-ui/core';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout ,DefaultButton,DetailsList,Icon,MessageBar,IconButton,SnackbarContent,Tab,Tabs,Fabric,Paper,Radio} from './lib/inspired-components';
 export let currentView: any
 export { DatePicker } from './lib/date-picker';
 
@@ -51,7 +48,7 @@ export { createGenerateClassName } from '@material-ui/core/styles';
 export { default as MenuIcon } from '@material-ui/icons/Menu';
 export { default as ExpandMoreIcon } from '@material-ui/icons/ExpandMore';
 export { loadDevScript } from './lib/load-dev-script';
-export { Callout } from 'office-ui-fabric-react/lib/Callout';
+
 export { default as Collapsible } from 'react-collapsible';
-export { MessageBar } from './lib/message-bar';
+export { SnackBar } from './lib/snack-bar';
 export { TimeSlot } from './lib/time-slot';

@@ -2,29 +2,19 @@
 import './dev-tools/devtools-data-form';
 import './dev-tools/devtools-boxes';
 import './dev-tools/devtools-rest';
-import { DevFriendlyCommand } from './lib/developer-features';
-import { IComponentRefer, IDeveloperFeatures } from '@organic-ui';
+import { TextField } from './lib/inspired-components';
+import { IComponentRefer, IDeveloperFeatures, AppUtils, DataForm, Field } from '@organic-ui';
 OrganicUI.devTools.set('Translate', (dev) => {
-    OrganicUI.DeveloperBar.topElement = <FabricUI.Dialog onDismiss={() => {
-        OrganicUI.DeveloperBar.topElement = null;
-        dev.forceUpdate();
-    }} isOpen={true} dialogContentProps={{
+    AppUtils.showDataDialog(<DataForm>
+        {Object.keys(OrganicUI.i18n.notFounded).map(key => (
+            <Field label={key} accessor={`__translate__${key}`}> <TextField /></Field>
 
-        title: 'Translate',
-        subText: 'detected unlocalized text in below lists'
-    }}  >
-        <table className="table is-bordered">
-            {Object.keys(OrganicUI.i18n.notFounded).map(key => (
-                <tr>
-                    <td>{key}</td>
-                    <td> <FabricUI.TextField /></td>
-                </tr>
+        ))}
 
-            ))}
-        </table>
-    </FabricUI.Dialog>;
+    </DataForm>)
+        .then(data => Object.keys(data).reduce((a, key) => Object.assign(a, { [key.replace('__translate__', '')]: data[key] }, {})))
+        .then(data => console.log(data));
 
-    dev.forceUpdate();
 });
 OrganicUI.devTools.set('Reset All Dev Tools', () => {
     Array.from(document.querySelectorAll('.developer-features'))

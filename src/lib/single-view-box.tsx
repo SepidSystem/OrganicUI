@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
-
+ 
 import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { Field } from './data';
@@ -12,7 +12,8 @@ import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 import { createClientForREST } from './rest-api';
-import { Button } from '@material-ui/core';
+ 
+import { Icon, Paper, Button } from './inspired-components';
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
@@ -109,7 +110,7 @@ export class SingleViewBox<T> extends OrganicBox<
                     <header className="columns">
                         <div className="column" style={{ maxWidth: "70px" }}>
                             <span className="animated tada">
-                                <FabricUI.Icon iconName="SkypeCircleCheck" className="ms-font-su" />
+                                <Icon iconName="SkypeCircleCheck" className="ms-font-su" />
                             </span>
                         </div>
                         <div className="column" style={{ display: 'flex', alignItems: 'center' }}>
@@ -167,11 +168,11 @@ export class SingleViewBox<T> extends OrganicBox<
                         {' '}
                         {i18n('back')}
                         {' '}
-                        <FabricUI.Icon iconName="Back" />
+                        <Icon iconName="Back" />
                     </Button >
                 </div>
             </h1>
-            <MaterialUI.Paper className="main-content">
+            <Paper className="main-content">
                 <DataForm ref="dataForm" onFieldRead={accessor => {
                     const val = s.formData[accessor];
                     if (val === undefined && accessor) this.undefinedFields[accessor] = 1;
@@ -195,7 +196,7 @@ export class SingleViewBox<T> extends OrganicBox<
                     <AdvButton onClick={this.navigateToBack}    > {i18n('cancel')}</AdvButton>
 
                 </footer>
-            </MaterialUI.Paper>
+            </Paper>
 
         </section>
     }

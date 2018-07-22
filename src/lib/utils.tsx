@@ -135,7 +135,7 @@ export const Utils = {
 		}
 		].filter(item => !!item);
 		const root = target && (target as any).refs && (target as any).refs.root;
-		return <FabricUI.ActionButton onMouseEnter={() => (root && root.classList.add('dev-target'))}
+		return <ActionButton onMouseEnter={() => (root && root.classList.add('dev-target'))}
 			onMouseLeave={() => root && root.classList.remove('dev-target')}
 			iconProps={{ iconName: 'Code' }}
 			text={targetText}
@@ -167,7 +167,7 @@ export const Utils = {
 		opts = opts || {};
 		const callback = opts.callback || function () { };
 		return Object.keys(methods).map(
-			key => React.createElement(opts.componentClass || MaterialUI.Button,
+			key => React.createElement(opts.componentClass || Button,
 				{ onClick: () => callback(methods[key]()) } as any,
 				i18n(changeCase.paramCase(key)))
 		);
@@ -224,7 +224,7 @@ export const Utils = {
 	},
 	excl(object, ...keys) {
 		keys = keys.map(key => key + "");
-		return Utils.reduceEntriesToObject(Object.entries(object).filter(([key]) => !keys.includes(key)));
+		return Utils.reduceEntriesToObject(Object.keys(object).map(key => ([key, object[key]])).filter(([key]) => !keys.includes(key)));
 	}
 	,
 	skinDeepRender(type, params) {
@@ -245,10 +245,12 @@ export const Utils = {
 				queue.push(...React.Children.toArray(item.props.children));
 
 		}
-	} 
+	}
 
 }
 import * as changeCaseObject from 'change-case-object'
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
- 
+import { ActionButton } from "office-ui-fabric-react/lib-es2015/Button";
+import { Button } from "./inspired-components";
+
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;
