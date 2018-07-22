@@ -20,6 +20,7 @@ const fileExists = filePath => {
 }
 const serverConfig = fileExists('./server-config.json') ? require(path.join(process.cwd(), 'server-config')) : require('./config');
 process.argv = process.argv.filter(arg => !arg.includes(path.sep))
+process.argv.some(arg=>arg=='production') && Object.assign(argv,{buildMode:'production'});
 if (!argv.action && process.argv[0] && !process.argv[0].startsWith('-'))
     argv.action = process.argv[0];
 argv = Object.assign({ action: 'dev-server', buildMode: 'development', port: serverConfig.port || 3000 }, argv);
