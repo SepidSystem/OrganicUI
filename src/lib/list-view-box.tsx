@@ -20,7 +20,7 @@ import { createClientForREST } from './rest-api';
 import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib-es2015/DetailsList';
 import { Button, Paper, TextField } from './inspired-components';
- 
+
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -35,7 +35,7 @@ function storeToggleButtons(v) {
 
 }
 
- 
+
 
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
@@ -147,13 +147,18 @@ export class ListViewBox<T> extends
     }
     static fetchFail: Function;
     static fetchFailSuppressDate: number;
-
+    requestIsFail: boolean;
     readList(params) {
-        if (!ListViewBox.fakeLoad()) {
+        if (!ListViewBox.fakeLoad() && !this.requestIsFail) {
             return this.actions.readList(params).then(r => {
                 setTimeout(() => this.adjustSelectedRow(), 200);
                 return r;
-            }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
+            }, error => {
+                this.requestIsFail=true;
+                this.devElement = this.makeDevElementForDiag(error);
+                this.repatch({})
+
+            });
         }
         else {
             return Promise.resolve({ rows: [], totalRows: 0 });

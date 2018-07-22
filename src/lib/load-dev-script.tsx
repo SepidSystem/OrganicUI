@@ -1,6 +1,6 @@
 
 
-export   function loadDevScript() {
+export function loadDevScript() {
     const devtoolsSrc = Array.from(
         document.querySelectorAll('script')
     ).map(ele => ele.getAttribute('data-devtools')).filter(x => !!x)[0];
@@ -10,5 +10,6 @@ export   function loadDevScript() {
     }
     const script = document.createElement('script');
     script.src = devtoolsSrc;
+    document.head.appendChild(script);
     return script;
 }
