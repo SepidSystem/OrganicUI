@@ -245,6 +245,9 @@ export const Utils = {
 				queue.push(...React.Children.toArray(item.props.children));
 
 		}
+	},
+	varDump(data){
+		return JSON.stringify(data);
 	}
 
 }

@@ -443,6 +443,7 @@ declare namespace OrganicUi {
         onClose?: Function;
         variant: 'success' | 'warning' | 'error' | 'info';
         children?: any;
+        style?:React.CSSProperties;
     }
     export interface ITimeEditProps {
         value?: string;
@@ -473,7 +474,7 @@ declare module '@organic-ui' {
     export type IOptionsForCRUD = OrganicUi.IOptionsForCRUD;
     export { AxiosRequestConfig as RequestConfig } from 'axios';
     import { AxiosRequestConfig } from 'axios';
-    import { AnchorHTMLAttributes } from 'react';
+    import { AnchorHTMLAttributes, CSSProperties } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
  

@@ -20,6 +20,8 @@ import { createClientForREST } from './rest-api';
 import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib-es2015/DetailsList';
 import { Button, Paper, TextField } from './inspired-components';
+import { Snackbar } from '@material-ui/core';
+import { SnackBar } from './snack-bar';
 
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
@@ -44,6 +46,7 @@ export class ListViewBox<T> extends
     implements IDeveloperFeatures {
 
     columns: IFieldProps[];
+    error: any;
     static fakeLoad() {
         const date = (Utils['scaningAllPermission'] && +Utils['scaningAllPermission']) || 0;
         return ((+ Date()) - date < 500);
@@ -154,7 +157,7 @@ export class ListViewBox<T> extends
                 setTimeout(() => this.adjustSelectedRow(), 200);
                 return r;
             }, error => {
-                this.requestIsFail=true;
+                this.requestIsFail = true;
                 this.devElement = this.makeDevElementForDiag(error);
                 this.repatch({})
 
@@ -166,7 +169,8 @@ export class ListViewBox<T> extends
     }
     makeDevElementForDiag(error) {
         const now = +new Date();
-
+        this.error = error;
+        this.repatch({});
         if (ListViewBox.fetchFailSuppressDate && (now < ListViewBox.fetchFailSuppressDate))
             return null;
         if (!ListViewBox.fetchFail) return null;
@@ -285,7 +289,7 @@ export class ListViewBox<T> extends
                 style={{ maxHeight: (params.height ? params.height + 'px' : 'auto'), overflowY: 'scroll' }} ref="root"  > {children}</section>;
 
         return <section className="list-view developer-features" ref="root"   >
-
+            {!!this.error && <SnackBar style={{width:'100%',maxWidth:'100%',minWidth:'100%'}} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
             {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
             <div className="title is-3">

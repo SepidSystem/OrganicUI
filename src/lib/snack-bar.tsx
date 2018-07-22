@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import Button from '@material-ui/core/Button';
 
- 
+
 
 import { withStyles } from '@material-ui/core/styles';
 import { Utils } from './utils'
@@ -16,13 +16,14 @@ const variantIcon = {
     info: InfoIcon,
 };
 export function SnackBar(props: IMessageBarProps) {
-    const {   className, children, onClose, variant, ...other } = props;
+    const { className, children, onClose, variant } = props;
     const Icon = variantIcon[variant] as any;
 
     return (
         <SnackbarContent
-            className={Utils.classNames( variant , className)}
-            aria-describedby="client-snackbar"
+        {...props}
+            className={Utils.classNames(variant,props.className, className)}
+             aria-describedby="client-snackbar"
             message={
                 <span id="client-snackbar"  >
                     <Icon />
@@ -36,10 +37,10 @@ export function SnackBar(props: IMessageBarProps) {
                     color="inherit"
                     onClick={onClose as any}
                 >
-                    <CloseIcon />
+                    {!!onClose && <CloseIcon />}
                 </IconButton>
             }
-            {...other}
+         
         />
     );
 }
