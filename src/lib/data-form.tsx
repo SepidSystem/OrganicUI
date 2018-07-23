@@ -11,10 +11,10 @@ import { Modal } from 'office-ui-fabric-react/lib/Modal';
 import { Dialog } from "office-ui-fabric-react/lib/Dialog";
 import { Field } from "./data";
 import { DataList } from "./data-list";
-import { IDetailsListProps, DetailsListLayoutMode } from "office-ui-fabric-react/lib-es2015/DetailsList";
-import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
-import {Panel} from './ui-kit';
-import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
+import { IDetailsListProps, DetailsListLayoutMode } from "office-ui-fabric-react/lib/DetailsList";
+import { PanelType } from "office-ui-fabric-react/lib/Panel";
+import { Panel } from './ui-kit';
+import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 
 interface IDataListState {
     message?: { type, text };

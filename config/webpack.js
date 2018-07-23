@@ -23,7 +23,7 @@ const fileExists = filePath => {
 }
 let _entry = {
 	vendors: './src/imported-vendors.tsx',
-	organicUI: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
+	base: ['./src/organicUI.tsx', './src/organicUI-init.tsx'],
 	devtools: './src/dev-tools.tsx',
 	domain: './src/domain/domain.tsx',
 	'domain-FA_IR': './src/domain/domain-FA_IR.tsx',
@@ -37,15 +37,15 @@ function getSourcePath(filePath) {
 const entry = Object.keys(_entry)
 	.filter(key => fileExists(getSourcePath(_entry[key])))
 	.reduce((a, key) => Object.assign(a, { [key]: getSourcePath(_entry[key]) }), {});
-const hasCoreBuild = !!entry.organicUI;
-const dist = hasCoreBuild ? join(process.env.sourceDir, 'assets', 'bundle') : path.join(process.env.sourceDir, 'dist');
+ 
+const dist =   join(process.env.sourceDir, 'assets', 'bundle')  ;
 const rules = [
-	hasCoreBuild && {
+  {
 		test: /\.css$/,
 		loaders: ['style-loader', 'css-loader?modules=true&camelCase=true&localIdentName=[local]']
 
 	},
-	hasCoreBuild && {
+  {
 		test: /\.(scss|sass)$/,
 		use: [
 			'css-loader',

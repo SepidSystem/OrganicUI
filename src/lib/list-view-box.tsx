@@ -18,9 +18,8 @@ import { AppUtils } from './app-utils';
 import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { createClientForREST } from './rest-api';
 import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
-import { SelectionMode } from 'office-ui-fabric-react/lib-es2015/DetailsList';
+import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { Button, Paper, TextField } from './inspired-components';
-import { Snackbar } from '@material-ui/core';
 import { SnackBar } from './snack-bar';
 
 export interface TemplateForCRUDProps extends React.Props<any> {

@@ -253,7 +253,7 @@ export const Utils = {
 }
 import * as changeCaseObject from 'change-case-object'
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
-import { ActionButton } from "office-ui-fabric-react/lib-es2015/Button";
+import { ActionButton } from "office-ui-fabric-react/lib/Button";
 import { Button } from "./inspired-components";
 
 export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;

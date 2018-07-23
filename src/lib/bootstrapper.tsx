@@ -4,10 +4,12 @@ import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { i18n } from "./shared-vars";
 
 import { Utils } from "./utils";
- 
+
 import { IOptionsForViewBox } from "./view-box";
 import { IAppModel, ITreeListNode } from "@organic-ui";
 import { NotFoundView } from "./404";
+import { MuiThemeProvider } from "@material-ui/core/styles";
+import theme from '../styles/theme';
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {
@@ -19,16 +21,20 @@ export function mountViewToRoot(selector?, url?) {
     const root = typeof selector == 'string' ? document.querySelector(selector) : selector as HTMLElement;
     const params = {};
 
-    const viewType: typeof React.Component = route(url || location.pathname, params) ||  NotFoundView as any;
+    const viewType: typeof React.Component = route(url || location.pathname, params) || NotFoundView as any;
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
     const view = React.createElement(viewType, params, );
 
     const masterPage = (viewType['masterPage']) || appData.appModel.defaultMasterPage();
-     const vdom = React.createElement(masterPage, {}, view);
+    const vdom = React.createElement(masterPage, {}, view);
     if (root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
-    ReactDOM.render(vdom, root);
+    ReactDOM.render(theme ?
+        <MuiThemeProvider theme={theme} >
+            {vdom}
+        </MuiThemeProvider>
+        : vdom, root);
 
 
 }
@@ -61,7 +67,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
         return Promise.resolve([]);
     }
     Utils['scaningAllPermission'] = +new Date();
-     
+
     const result: ITreeListNode[] = [];
     let appliedUrls = [];
     const urls = Object.keys(table.data);

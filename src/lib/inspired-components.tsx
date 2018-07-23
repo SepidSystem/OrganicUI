@@ -31,6 +31,16 @@ export const Paper: React.SFC<PaperProps> = _Paper as any;
 import { SnackbarContentProps, default as _SnackbarContent } from '@material-ui/core/SnackbarContent';
 export const SnackbarContent: React.SFC<SnackbarContentProps> = _SnackbarContent as any;
 
+import { default as _DialogTitle, DialogTitleProps } from '@material-ui/core/DialogTitle';
+export const DialogTitle: React.SFC<DialogTitleProps> = _DialogTitle as any;
+import { default as _Dialog, DialogProps } from '@material-ui/core/Dialog';
+export const Dialog: React.SFC<DialogProps> = _Dialog as any;
+
+import { default as _DialogContent, DialogContentProps } from '@material-ui/core/DialogContent';
+export const DialogContent: React.SFC<DialogContentProps> = _DialogContent as any;
+import { default as _DialogActions, DialogActionsProps } from '@material-ui/core/DialogActions';
+export const DialogActions: React.SFC<DialogActionsProps> = _DialogActions as any;
+
 import { default as _IconButton, IconButtonProps } from '@material-ui/core/IconButton';
 export const IconButton: React.SFC<IconButtonProps> = _IconButton as any;
 

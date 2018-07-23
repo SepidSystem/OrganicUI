@@ -1,4 +1,4 @@
-import Select from "@material-ui/core/Select/Select";
+import {Select} from "./inspired-components";
 import MenuItem from "@material-ui/core/MenuItem/MenuItem";
 import { i18n } from "./shared-vars";
 import { Field } from "./data";

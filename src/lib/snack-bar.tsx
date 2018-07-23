@@ -1,13 +1,7 @@
-import * as React from 'react';
 
-import Button from '@material-ui/core/Button';
-
-
-
-import { withStyles } from '@material-ui/core/styles';
 import { Utils } from './utils'
 import { IMessageBarProps } from '@organic-ui';
-import { SnackbarContent, IconButton } from './inspired-components';
+import { Button,SnackbarContent, IconButton } from './inspired-components';
 import { CheckCircleIcon, WarningIcon, ErrorIcon, InfoIcon, CloseIcon } from './icons';
 const variantIcon = {
     success: CheckCircleIcon,

@@ -25,6 +25,9 @@ import _InfoIcon from '@material-ui/icons/Info';
 export const InfoIcon: any = _InfoIcon;
 
 import _CloseIcon from '@material-ui/icons/Close';
-export const CloseIcon: any =_CloseIcon;
+export const CloseIcon: any = _CloseIcon;
 import _WarningIcon from '@material-ui/icons/Warning';
-export const WarningIcon: any =_WarningIcon;
+export const WarningIcon: any = _WarningIcon;
+
+import _MenuIcon from '@material-ui/icons/Menu';
+export const MenuIcon: any = _MenuIcon;

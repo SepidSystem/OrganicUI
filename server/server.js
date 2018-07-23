@@ -4,7 +4,7 @@ const shelljs = require('shelljs');
 const fs = require('fs');
 let { argv } = require('yargs');
 
-const checkFileExists = s => new Promise(r => fs.access(s, fs.F_OK, e => r(!e)))
+ 
 const fileExists = filePath => {
     const filePathArray = filePath instanceof Array ? filePath : [filePath];
     try {
@@ -60,7 +60,7 @@ if (argv.action.includes('server')) {
     const assetsPath2 = path.join(process.cwd(), 'assets');
     server.use('/assets/bundle/domain', express.static(path.join(process.cwd(), 'dist')));
     server.use('/assets', express.static(assetsPath), express.static(assetsPath2));
-    server.get('/', (req, res) => res.redirect('/view/dashboard'));
+        server.get('/', (req, res) => res.redirect('/view/dashboard'));
 
     server.ws('/watch', function (ws, req) {
         if (allWebSocketsChangeCounter++ > 1000) {

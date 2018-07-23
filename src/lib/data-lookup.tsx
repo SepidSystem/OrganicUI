@@ -10,7 +10,7 @@ import { Spinner } from './spinner';
 import { Event } from './decorators';
 import { IOptionsForCRUD, IActionsForCRUD } from '@organic-ui';
 import OrganicBox from './organic-box';
-import { ActionButton } from 'office-ui-fabric-react/lib-es2015/Button';
+import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from './inspired-components';
 
 interface DataLookupProps {

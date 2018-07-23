@@ -1,13 +1,9 @@
 import { BaseComponent } from "./base-component";
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import Button from '@material-ui/core/Button';
-import { Utils } from "./utils";
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
-import { ReactElement, cloneElement } from "react";
 import { i18n } from "./shared-vars";
+import { Utils } from "./utils";
+import { Dialog, DialogTitle, DialogContent, DialogActions } from './inspired-components';
+
+import { ReactElement, cloneElement } from "react";
 
 interface IDialogProps {
     title?, content?: any;
@@ -65,9 +61,9 @@ export class AppUtils extends BaseComponent<any, any>{
         AppUtils.Instance = this;
         const { dialogInstance } = AppUtils;
         return <section className="app-utils" >
-            {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
+            {dialogInstance && <Dialog  open={true} onClose={this.handleClose}  >
                 {dialogInstance.title && <DialogTitle> {i18n(dialogInstance.title)}</DialogTitle>}
-                <a href="#"  className="close-dialog" onClick={e => {
+                <a href="#" className="close-dialog" onClick={e => {
                     e.preventDefault();
                     AppUtils.showDialog(null);
                 }}><i className="fa fa-times" /></a>

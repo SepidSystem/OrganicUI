@@ -1,8 +1,8 @@
 import { assignVendors } from './imported-vendors';
 assignVendors();
- 
 
- 
+
+
 
 export { NotFoundView } from './lib/404';
 export { registryFactory } from './lib/registry-factory';
@@ -39,16 +39,17 @@ export { ComboBox } from './lib/combo-box'
 export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
 
-export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout ,DefaultButton,DetailsList,Icon,MessageBar,IconButton,SnackbarContent,Tab,Tabs,Fabric,Paper,Radio} from './lib/inspired-components';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio } from './lib/inspired-components';
 export let currentView: any
 export { DatePicker } from './lib/date-picker';
 
 export { default as JssProvider } from 'react-jss/lib/JssProvider';
 export { createGenerateClassName } from '@material-ui/core/styles';
-export { default as MenuIcon } from '@material-ui/icons/Menu';
-export { default as ExpandMoreIcon } from '@material-ui/icons/ExpandMore';
+
+export { MenuIcon, ExpandMoreIcon } from './lib/icons';
 export { loadDevScript } from './lib/load-dev-script';
 
 export { default as Collapsible } from 'react-collapsible';
 export { SnackBar } from './lib/snack-bar';
 export { TimeSlot } from './lib/time-slot';
+export { default as version } from './version';

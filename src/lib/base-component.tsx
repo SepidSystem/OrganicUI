@@ -1,6 +1,5 @@
 /// <reference path="../dts/organic-ui.d.ts" />
 import { IStateListener, StateListener } from "./state-listener";
-import ErrorIcon from '@material-ui/icons/Warning';
 import { Component } from 'react';
 import { createMayBeObject } from './may-be';
 import { IComponentRefer } from "@organic-ui";
@@ -179,7 +178,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
             <div className="hero-body" dir="ltr">
                 <div className="container" dir="ltr">
                     <p className="title" dir="ltr">
-                        {<ErrorIcon />}
+
                         {title}
                     </p>
                     <p className="subtitle" dir="ltr">
