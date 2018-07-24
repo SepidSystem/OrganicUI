@@ -6,12 +6,16 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const root = join(__dirname, '..');
 const DashboardPlugin = require('webpack-dashboard/plugin');
 module.exports = production => {
-	 // base plugins array
+	const now=new Date();
+	const buildDate=now.toISOString().split('T')[0].split('-').join('');
+	// base plugins array
+	
 	const plugins = [
 		!production && new FriendlyErrorsWebpackPlugin(),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 		new webpack.DefinePlugin({
-			'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development')
+			'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development'),
+			'BUILD_DATE':JSON.stringify(buildDate)
 		})
 	];
 

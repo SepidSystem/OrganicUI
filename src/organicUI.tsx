@@ -5,7 +5,7 @@ assignVendors();
 
 
 export { NotFoundView } from './lib/404';
-export { registryFactory } from './lib/registry-factory';
+export { openRegistry } from './lib/registry';
 export { editorByAccessor, i18n, icon, menuBar, i18nAttr } from './lib/shared-vars';
 export { listViews, tags, reports, acl, dashboardBlocks } from './lib/shared-vars';
 export { funcAsComponentClass, FuncComponent } from './lib/functional-component';
@@ -48,8 +48,10 @@ export { createGenerateClassName } from '@material-ui/core/styles';
 
 export { MenuIcon, ExpandMoreIcon } from './lib/icons';
 export { loadDevScript } from './lib/load-dev-script';
-
+export { UiModule } from './lib/ui-mod'
 export { default as Collapsible } from 'react-collapsible';
 export { SnackBar } from './lib/snack-bar';
 export { TimeSlot } from './lib/time-slot';
 export { default as version } from './version';
+
+import './ui-mod/ui-mod';

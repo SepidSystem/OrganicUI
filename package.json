@@ -9,7 +9,7 @@
     "url": "https://taheri24.ir"
   },
   "scripts": {
-    "start": "node server/server",
+    "start": "webpack --watch --mode  development --config config/webpack.js ",
     "build": "webpack --mode  production --config config/webpack.js",
     "profile": "webpack  --config config/webpack.js --profile   --json ",
     "build:watch": "webpack --watch --mode  development --config config/webpack.js ",

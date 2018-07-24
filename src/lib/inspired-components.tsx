@@ -47,6 +47,17 @@ export const IconButton: React.SFC<IconButtonProps> = _IconButton as any;
 import { default as _FormControlLabel, FormControlLabelProps } from '@material-ui/core/FormControlLabel';
 
 export const FormControlLabel: React.SFC<FormControlLabelProps> = _FormControlLabel as any;
+import _Menu, { MenuProps } from '@material-ui/core/Menu';
+export const Menu: React.SFC<MenuProps> = _Menu as any;
+
+import _MenuItem, { MenuItemProps } from '@material-ui/core/MenuItem';
+export const MenuItem: React.SFC<MenuItemProps> = _MenuItem as any;
+
+
+
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
 
 export { Callout } from 'office-ui-fabric-react/lib/Callout';
 export { DefaultButton } from 'office-ui-fabric-react/lib/Button';

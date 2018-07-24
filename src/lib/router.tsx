@@ -1,7 +1,7 @@
-import { registryFactory } from "./registry-factory";
+import { openRegistry } from "./registry";
 
 export const routes = [];
-export const routeTable = registryFactory<any>();
+export const routeTable = openRegistry<any>();
 export function route(path: string, args: Object): typeof React.Component {
     const match = (route: string) => {
         let pattern = route;

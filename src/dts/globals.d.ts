@@ -12,4 +12,5 @@ declare global {
   export const ReactDOM: typeof ReactDomMod;
   export const OrganicUI: typeof OrganicUIMod;
   export const LRU: any;
+  export const BUILD_DATE:string;
 }

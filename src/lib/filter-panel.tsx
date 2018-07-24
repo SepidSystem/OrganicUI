@@ -5,6 +5,7 @@ import { Field, FilterItem } from "./data";
 import { Utils } from "./utils";
 import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
 import { Paper, Button } from "./inspired-components";
+import { AdvButton } from "./ui-kit";
 
 interface IFilterPanelProps {
     dataForm?: any;
@@ -55,7 +56,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                     }
                 </DataForm>
                 <footer>
-                    <OrganicUI.AdvButton variant="raised" color="primary" onClick={this.props.onApplyClick}>{i18n('apply')}</OrganicUI.AdvButton>
+                    <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
                     <Button onClick={() => (this.dataForm = {}, this.repatch({}))}>{i18n('clear')}</Button>
 
                 </footer>

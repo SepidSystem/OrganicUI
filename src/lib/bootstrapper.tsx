@@ -1,10 +1,15 @@
 import { route, routeTable } from "./router";
 
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-import { i18n } from "./shared-vars";
+import { i18n, icon } from "./shared-vars";
 
 import { Utils } from "./utils";
-
+export function loadScript(src, onload?) {
+    const script = document.createElement('script');
+    Object.assign(script, { src, onload });
+    document.head.appendChild(script);
+    return script;
+}
 import { IOptionsForViewBox } from "./view-box";
 import { IAppModel, ITreeListNode } from "@organic-ui";
 import { NotFoundView } from "./404";
@@ -27,7 +32,7 @@ export function mountViewToRoot(selector?, url?) {
     const view = React.createElement(viewType, params, );
 
     const masterPage = (viewType['masterPage']) || appData.appModel.defaultMasterPage();
-    const vdom = React.createElement(masterPage, {}, view);
+    const vdom = React.createElement(masterPage, {}, view);;
     if (root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
     ReactDOM.render(theme ?
@@ -53,14 +58,26 @@ export function renderViewToComplete(url, selector: any = '#root2') {
         check();
     })
 }
+export const getCurrentUserLangauge = () => localStorage.getItem('lang') || 'FA_IR';  
+function loadLocalizationResource(userLang?) {
+    const scripts = Array.from(document.querySelectorAll('script'));
+    const domainScript = scripts.filter(({ src }) => src.includes('/domain.js'))[0];
+    userLang = userLang || getCurrentUserLangauge();
+    const src = domainScript.src.replace('.js', `-${userLang}.js`);
+    return new Promise(resolve => {
+        i18n.clear();
+        icon.clear();
+        loadScript(src, resolve)
+    });
+}
 export function startApp(appModel: IAppModel) {
     initializeIcons('/assets/fonts/');
     Object.assign(appData, { appModel });
-
-    mountViewToRoot();
     window.onpopstate = () => mountViewToRoot();
     afterLoadCallback instanceof Function && afterLoadCallback();
+    loadLocalizationResource().then(() => mountViewToRoot());
 }
+export const changeUserLanguage = lang => loadLocalizationResource(lang).then(() => mountViewToRoot());
 export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
     if (Utils['scaningAllPermission']) {
 

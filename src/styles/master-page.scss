@@ -1,3 +1,4 @@
+$side-width:280;
 body,
 html {
     background: rgb(222, 233, 238);
@@ -6,7 +7,7 @@ html {
 main.main-container {
     text-align: right;
     position: absolute;
-    right: 350px;
+    right: ($side-width+70)*1px;
     left: 50px;
 }
 
@@ -73,6 +74,22 @@ span {
 .master-page {
     display: flex;
     min-height: 100%;
+    >footer {
+        background: rgb(210, 210, 201);
+        position: fixed;
+        bottom:0;
+        left:0;
+        height:40px;
+        display: flex;
+        align-items: center;
+        right:$side-width*1px;
+        padding:0 20px;
+        direction: rtl;
+        justify-content: flex-end;
+        a{
+            margin:0 10px;      
+        }
+    }
     .router {
         min-height: 48px;
         display: flex;
@@ -127,8 +144,8 @@ span {
                 }
             }
         }
-        min-width: 280px;
-        max-width: 280px;
+        min-width: ($side-width)*1px;
+        max-width: ($side-width)*1px;
         background: rgb(72, 74, 105);
         .triangle {
             display: none;

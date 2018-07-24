@@ -32,11 +32,6 @@ const debounce = cb => {
     debounceTimer = setTimeout(() => (debounceTimer = null, cb()), 100);
 }
 
-function storeToggleButtons(v) {
-
-}
-
-
 
 interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
 
@@ -241,12 +236,10 @@ export class ListViewBox<T> extends
             .filter((child: any) => !!child && child.type == DataList && !child.props.loader)
             .length == 0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
         const { repatch } = this;
-        const queryNames = [];
         const onRowClick = (rowIdx, currentRow) => {
 
             //     currentRow && TemplateForCRUD.Instance && TemplateForCRUD.Instance.repatch({ currentRow })
         }
-        const onRowSelect = ([currentRow]) => onRowClick(null, currentRow);
         const { options, params } = this.props;
         const { corner } = params;
 
@@ -255,11 +248,9 @@ export class ListViewBox<T> extends
         const { root } = this.refs;
         const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => child.type == FilterPanel && child).filter(x => !!x)[0]) || this.getFilterPanel();
         const multiple = this.getMultiple();
-        let hasDataList = false;
         const children = !!root && React.Children.map(this.props.children || [], (child: any) => {
             if (child.type == FilterPanel) return null;
             if (child.type == DataList && !child.props.loader) {
-                hasDataList = true;
                 return React.cloneElement(child, Object.assign(
                     {}, child.props, {
                         ref: "dataList",
@@ -288,7 +279,7 @@ export class ListViewBox<T> extends
                 style={{ maxHeight: (params.height ? params.height + 'px' : 'auto'), overflowY: 'scroll' }} ref="root"  > {children}</section>;
 
         return <section className="list-view developer-features" ref="root"   >
-            {!!this.error && <SnackBar style={{width:'100%',maxWidth:'100%',minWidth:'100%'}} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
+            {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
             {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
             <div className="title is-3">

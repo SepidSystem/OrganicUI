@@ -1,6 +1,6 @@
 
 
-export function registryFactory<T>(mapper?: (result: T, key: string) => T): OrganicUi.IRegistry<T> {
+export function openRegistry<T>(mapper?: (result: T, key: string) => T): OrganicUi.IRegistry<T> {
     let data = {}, notFounded = {}, secondaryValues = {};
     const testers: OrganicUi.CustomTesterForRegistry[] = [], resultForTesters: T[] = [];
     function getter(key, setValue?: T): T {
@@ -41,6 +41,7 @@ export function registryFactory<T>(mapper?: (result: T, key: string) => T): Orga
 
     const directGet = (key: string) => data[key] || key;
     const customTester = (tester: OrganicUi.CustomTesterForRegistry, value: T) => (testers.push(tester), resultForTesters.push(value));
-    return Object.assign(getter, { get: directGet, register, data, set, notFounded, secondaryValues, customTester });
+    const clear=()=>(data={},secondaryValues={});
+    return Object.assign(getter, { clear,get: directGet, register, data, set, notFounded, secondaryValues, customTester });
 
 }

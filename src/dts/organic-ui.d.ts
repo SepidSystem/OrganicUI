@@ -127,6 +127,7 @@ declare namespace OrganicUi {
         set(key: string, value: T, extraValue?);
         get(key: string): string;
         customTester(v: CustomTesterForRegistry, value: T);
+        clear();
     }
 
 
@@ -163,6 +164,10 @@ declare namespace OrganicUi {
     export const reports: IRegistry<any>;
     export const dashboardBlocks: IRegistry<any>;
     export const acl: IRegistry<boolean>;
+    export interface UiModuleProps {
+        modName: string;
+    }
+    export const UiModule:React.SFC<UiModuleProps>;
     export interface OrganicBoxProps<TActions, TOptions, TParams> {
         actions: TActions;
         options: TOptions;
@@ -238,7 +243,7 @@ declare namespace OrganicUi {
         getPageTitle?: (dto: TDto) => string;
     }
     type PartialFunction<T> = {
-        [P in keyof T]?: (value: T[P]) => any;
+        [P in keyof T]?: ((value: T[P]) => any);
     };
     export interface IOptionsForCRUD {
         insertButtonContent?: any;
@@ -435,15 +440,15 @@ declare namespace OrganicUi {
         confrim(content, opts?: IDialogProps): Promise<any>;
         confrimActionByUser(p: { actionName: string, actionData }): Promise<never>;
         showDataDialog<T>(content: React.ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T>;
-          afterREST({ method, url, data, result }) ;
-  
+        afterREST({ method, url, data, result });
+
     }
     export interface IMessageBarProps {
         className?: string;
         onClose?: Function;
         variant: 'success' | 'warning' | 'error' | 'info';
         children?: any;
-        style?:React.CSSProperties;
+        style?: React.CSSProperties;
     }
     export interface ITimeEditProps {
         value?: string;
@@ -477,7 +482,7 @@ declare module '@organic-ui' {
     import { AnchorHTMLAttributes, CSSProperties } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
- 
+
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
     export type StatelessListView = OrganicUi.StatelessListView;
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
@@ -502,6 +507,7 @@ declare module '@organic-ui' {
     }
     export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
     export class BaseComponent<P, S> extends OrganicUi.BaseComponent<P, S>{ }
+    export const UiModule : typeof OrganicUi.UiModule;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export type SingleViewBox<T=any> = OrganicUi.SingleViewBox<T>;
@@ -556,7 +562,7 @@ declare module '@organic-ui' {
     export function SubRender(): typeof decoSubRender;
 
     //   Inspired Components;
-    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel,Tabs,Tab,Radio } from '@material-ui/core';
+    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Tabs, Tab, Radio } from '@material-ui/core';
     export { Callout } from 'office-ui-fabric-react';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 }

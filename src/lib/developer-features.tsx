@@ -1,5 +1,5 @@
 import { BaseComponent } from './base-component';
-import { registryFactory } from './registry-factory';
+import { openRegistry } from './registry';
 import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
@@ -16,7 +16,7 @@ export function isProdMode() {
     return !isDevelopmentEnv();
 }
 export type DevFriendlyCommand = (target: OrganicUi.IDeveloperFeatures & BaseComponent<any, any>) => void;
-export const devTools = registryFactory<DevFriendlyCommand>();
+export const devTools = openRegistry<DevFriendlyCommand>();
 export interface IDevFriendlyPortProps {
     targetText: string, target: any;
 
@@ -84,10 +84,10 @@ export class DeveloperBar extends BaseComponent<any, any> {
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}
             {!!frameworkVersion && <span className="framework-version">
-                <label>
+                <b>
                     Framework Ver:
-            </label>
-                <b>{frameworkVersion}</b></span>}
+            </b>
+                <label>{frameworkVersion}</label></span>}
         </div>
     }
 }

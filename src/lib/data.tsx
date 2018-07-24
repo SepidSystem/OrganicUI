@@ -1,4 +1,4 @@
-import { registryFactory } from "./registry-factory";
+import { openRegistry } from "./registry";
 import { FuncComponent, funcAsComponentClass } from "./functional-component";
 import { i18n, icon, editorByAccessor } from "./shared-vars";
 import { BaseComponent } from './base-component';
@@ -47,7 +47,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     }
     getFilterItem(): FilterItem {
         let value = this.extractedValue;
-        const op = 'LIKE';
+        const op = this.state.currentOp || 'LIKE';
 
         return { fieldName: this.props.accessor, value, op };
     }
@@ -348,7 +348,7 @@ interface ObjectFieldPattern {
 
 }
 export class ObjectField extends BaseComponent<ObjectFieldProps, ObjectFieldState>{
-    static patterns = registryFactory<ObjectFieldPattern>();
+    static patterns = openRegistry<ObjectFieldPattern>();
     render() {
         return <span />
     }

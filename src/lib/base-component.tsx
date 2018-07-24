@@ -15,6 +15,9 @@ export class BaseComponent<P, S> extends Component<P, S>{
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
+    layoutIsComplete() {
+        return true;
+    }
     processAutoUpdateState() {
 
         if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length == 0) {
@@ -162,15 +165,23 @@ export class BaseComponent<P, S> extends Component<P, S>{
         applyPageTitle.apply(this);
 
     }
+    static DefaultOfLayoutCompleteLimit = 10;
+    layoutCompleteLimit = BaseComponent.DefaultOfLayoutCompleteLimit;
     render() {
         if (this.refs.root && !this.refs.root['componentRef'])
-
             setTimeout(() => this.componentDidMount(), 100);
+
         if (this.devElement) {
-            return <div ref="root" className="developer-features">
-                {this.devElement}
-            </div>
+            return <div ref="root" className="developer-features">{this.devElement}</div>
         }
+        if (!this.layoutIsComplete()) {
+            if (this.layoutCompleteLimit-- > 0)
+                setTimeout(this.repatch, 20);
+            else
+                console.warn('layoutIsComplete warn>>>>', this);
+
+        }
+        else this.layoutCompleteLimit=BaseComponent.DefaultOfLayoutCompleteLimit;
         return this.renderContent();
     }
     renderErrorMode(title, subtitle) {

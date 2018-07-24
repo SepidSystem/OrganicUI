@@ -4,7 +4,7 @@
     margin: 10px 5px;
     .label {
         position: absolute;
-        top: 0.35rem;
+        top: 0.5rem;
         line-height: 1.5rem;
         pointer-events: none;
         padding-left: 0.125rem;
@@ -21,7 +21,7 @@
         color: #a6a6a6;
         transform: translateY(-50%);
         transform-origin: left center;
-        transition: transform 0.5s ease, color 0.6s linear, opacity 0.7s linear;
+        transition: transform 1s ease, color 0.6s linear, opacity 0.7s linear;
         will-change: transform, color, opacity;
         span {
             padding: 0.2rem 0 !important;
@@ -214,35 +214,61 @@
 }
 
 .ms-DetailsHeader {
-    border-bottom: 2px solid #c8c8c8 !important;
+    padding: 6px 0;
+    background: rgb(74, 171, 213) !important;
+    * {
+        background: rgb(74, 171, 213) !important;
+        color: white !important;
+    }
 }
 
-.ms-DetailsRow {
+.ms-List-cell {
+    &:hover .ms-Check,.is-checked.ms-Check {
+        visibility: visible;
+    }
+    .ms-Check {
+        visibility: hidden;
+    }
+    .ms-Check-circle {
+        font-size: 19px !important;
+    }
+    &:nth-child(odd) {
+        div {
+            background: rgb(218, 218, 218) !important;
+        }
+    }
+    &:nth-child(even) {
+        div {
+            background: rgb(241, 241, 241) !important;
+        }
+    }
     .ms-DetailsRow-check {
-        padding:0 7px;
+        padding: 0 7px;
     }
 }
-
-.ms-DetailsRow:hover {
-      .ms-DetailsRow-cellCheck {
-        border-right: 4px rgb(0, 120, 212) solid;
-        padding-right: 0px;
-    }
-    .ms-DetailsRow-check {
-        padding-right: 0px !important;
-    }
-}
-
 
 .ms-DetailsList {
     overflow-x: hidden !important;
 }
-.MuiPaper-root{
+
+.MuiPaper-root {
     direction: rtl;
 }
+
 .MuiModal-root {
-    footer{
+    footer {
         display: flex;
         justify-content: center;
+    }
+}
+
+.filter-panel {
+    .field:not(.no-material) {
+        .label {
+            top: 0.35rem;
+        }
+    }
+    .field.has-value:not(.no-material) .label {
+        top: -0.5rem;
     }
 }

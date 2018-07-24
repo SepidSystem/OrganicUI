@@ -9,19 +9,8 @@ import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
 
 import { isDevelopmentEnv } from './developer-features';
- 
-interface SingleViewBoxState { formData: any; validated: boolean; }
-function loadScript(url) {
-    //url is URL of external file, implementationCode is the code
-    //to be called from the file, location is the location to 
-    //insert the <script> element
 
-    var scriptTag = document.createElement('script');
-    scriptTag.src = url;
 
-    scriptTag.onload = () => 0;
-    document.head.appendChild(scriptTag);
-}
 export interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions: TActions;
     options: TOptions;
@@ -71,14 +60,14 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
 
     }
     static instanceCounter = 0;
+    static isOrganicBoxTester = (el: JSX.Element) =>
+        (el.type) && (el.type as any).isOrganicBox instanceof Function &&
+        (el.type as any).isOrganicBox();
     static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>) {
         const element = Utils.skinDeepRender(componentType, {});
         let { organicBox } = componentType as any;
         if (organicBox) return organicBox;
-        organicBox = Utils.queryElement(element, (el: JSX.Element) =>
-            (el.type) && (el.type as any).isOrganicBox   instanceof Function &&
-            (el.type as any).isOrganicBox()
-        );
+        organicBox = Utils.queryElement(element, this.isOrganicBoxTester);
         Object.assign(element.type, { organicBox });
         return organicBox;
     }
@@ -88,35 +77,35 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
         this.devPortId = Utils.accquireDevPortId();
         const stableState = localStorage.getItem('stableState')
         const counter = OrganicBox.instanceCounter++;
-
-        if (stableState && counter == 0) {
-            // localStorage.removeItem('stableState');
-            const state = JSON.parse(stableState)
-
-            setTimeout(() => this.setState(state), 100);
-
-
-            const willReload = +localStorage.getItem('will-reload');
-            if (!!willReload) {
-                localStorage.removeItem('will-reload');
-                localStorage.setItem('stableState', JSON.stringify(this.state));
-
-                this.showDevBoard('forced reloading... ');
-
-                location.reload();
-
-            }
-        }
-        if (isDevelopmentEnv() && counter == 0) {
-            try {
-                this.webSocket = new WebSocket(`ws://${location.host}/watch`);
-                this.webSocket.onmessage = ({ data }) => {
-                    data = JSON.parse(data);
-
-                    (data == 'reloadAllTargetedItems' && this.reloadAllTargetedItems()) ||
-                        (data == 'serverChanged' && this.serverChanged())
-                };
-            } catch (exc) { }
-        }
+        /*
+                if (stableState && counter == 0) {
+                    // localStorage.removeItem('stableState');
+                    const state = JSON.parse(stableState)
+        
+                    setTimeout(() => this.setState(state), 100);
+        
+        
+                    const willReload = +localStorage.getItem('will-reload');
+                    if (!!willReload) {
+                        localStorage.removeItem('will-reload');
+                        localStorage.setItem('stableState', JSON.stringify(this.state));
+        
+                        this.showDevBoard('forced reloading... ');
+        
+                        location.reload();
+        
+                    }
+                }
+                if (isDevelopmentEnv() && counter == 0 && false) {
+                    try {
+                        this.webSocket = new WebSocket(`ws://${location.host}/watch`);
+                        this.webSocket.onmessage = ({ data }) => {
+                            data = JSON.parse(data);
+        
+                            (data == 'reloadAllTargetedItems' && this.reloadAllTargetedItems()) ||
+                                (data == 'serverChanged' && this.serverChanged())
+                        };
+                    } catch (exc) { }
+                } */
     }
 }

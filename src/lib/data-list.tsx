@@ -1,12 +1,12 @@
 /// <reference path="../dts/globals.d.ts" />   
 import { BaseComponent } from './base-component';
 import { icon, i18n } from './shared-vars';
-import { registryFactory } from './registry-factory';
+import { openRegistry } from './registry';
 import { funcAsComponentClass } from './functional-component';
 import { Spinner } from './spinner';
-import { Utils ,changeCase} from './utils';
+import { Utils, changeCase } from './utils';
 import { DeveloperBar } from '../organicUI';
- 
+
 import { Cache } from 'lru-cache';
 import { Field } from './data';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
@@ -90,7 +90,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         root, content: HTMLElement;
         detailList: DetailsList;
     }
-    static Templates = registryFactory<Function>()
+    static Templates = openRegistry<Function>()
     devPortId: number;
     detailList: JSX.Element;
 
@@ -128,9 +128,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
 
         const s = this.state, p = this.props;
         if (!p.loader) return null;
-        if (p.paginationMode == 'paged') this.items = null;
+        this.items = null;
         let fetchableRowCount = (this.rowCount || 10) * 4;
-
         if (s.isLoading) return;
         resetCache && this.cache.reset();
         Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
@@ -153,7 +152,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                 else
                     listData.rows.forEach((row, idx) => this.cache.set(idx, row));
             }
-            this.state.isLoading = false;
+            this.detailList = null;
+        
             this.repatch({
                 loadingPageIndex
                 , listData, isLoading: false, currentPageIndex
@@ -214,8 +214,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
         const length = this.rowCount || 10;
 
-        let items = this.items =
-            (s.noPaging ? s.listData.rows :
+        let items =  
+            (s.noPaging ? s.listData && s.listData.rows :
                 Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx))) || [];
 
         if (!items) items = [];
