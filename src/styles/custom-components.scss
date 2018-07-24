@@ -44,7 +44,6 @@
 
 .data-panel {
     margin-bottom: 5px;
- 
     * {
         outline: none;
     }
@@ -76,7 +75,6 @@
 }
 
 .field {
-    
     .control {
         flex: 1;
         display: flex;
@@ -84,15 +82,14 @@
         position: relative;
     }
     .label {
-       
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    a.op{
-        width:100%;
-        order:100;
-        font-size:70%;
+    a.op {
+        width: 100%;
+        order: 100;
+        font-size: 70%;
     }
 }
 
@@ -164,14 +161,13 @@ a.close {
 
 .field {
     flex-wrap: wrap;
- 
     .messages {
         background: lightyellow;
         margin: 0px !important;
         text-align: right;
-        z-index: 20000; 
+        z-index: 20000;
         min-height: 20px;
-        width:100%;
+        width: 100%;
         order: 100;
     }
     .fa-exclamation-triangle {
@@ -252,9 +248,14 @@ a.close {
 .critical-content {
     display: contents;
 }
- 
-.filter-panel .MuiPaper-root{
+
+.filter-panel .MuiPaper-root {
     flex-direction: column;
     display: flex;
-    padding:5px;
+    padding: 5px;
+}
+
+.ms-Dialog-main {
+    overflow: visible !important;
+    overflow-y: visible !important;
 }

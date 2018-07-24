@@ -4,6 +4,7 @@ import { BaseComponent } from './base-component';
 import { Event } from './decorators';
 import { loadPersian } from "moment-jalaali";
 import *  as moment from "moment-jalaali";
+import *  as _moment from "moment";
 import { Moment, ISO_8601 } from "moment";
 import { Utils } from './utils';
 import { StatelessListView } from '@organic-ui';
@@ -40,3 +41,4 @@ export class DatePicker extends BaseComponent<any, any>{
     }
 }
 loadPersian();
+_moment['suppressDeprecationWarnings'] =true;

@@ -4,7 +4,7 @@ import { Utils } from './utils';
 const { classNames } = Utils;
 
 import { isDevelopmentEnv } from './developer-features';
- 
+
 import { ListViewBox } from './list-view-box';
 import { Spinner } from './spinner';
 import { Event } from './decorators';
@@ -310,15 +310,19 @@ class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     componentWillMount() {
         super.componentWillMount && super.componentWillMount();
         const p = this.props;
-        const cacheId = this.getListViewName() + p.value;
+        if (p.value) {
+            const cacheId = this.getListViewName() + p.value;
 
-        this.state.result = DataLookupCell.cache[cacheId] || (p.value &&
-            p.actions.read(this.props.value)
-                .then(dto => p.actions.getText(dto))
-                .then(result => DataLookupCell.cache[cacheId] = result)
-                .then(result => this.repatch({ result })));
+            this.state.result = DataLookupCell.cache[cacheId] || (p.value &&
+                p.actions.read(this.props.value)
+                    .then(dto => p.actions.getText(dto))
+                    .then(result => DataLookupCell.cache[cacheId] = result)
+                    .then(result => this.repatch({ result })));
+        }
     }
     render() {
+        !(this.state.result instanceof Promise) && this.state.result && (console.log(this.state.result));
+        if(!this.state.result) return <span />
         return this.state.result instanceof Promise ? <Spinner /> : this.state.result;
     }
 }

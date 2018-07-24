@@ -283,7 +283,8 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         <DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
         !p.customBar && !p.avoidDelete &&
         <DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
-        this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
+        !!this.dataList && <hr style={{margin:'4px 0'}} />,
+        !!this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
         !!p.children && s.isOpen &&
         React.createElement((DataListPanel.formModes[p.formMode] || Callout) as any, {
             className: "data-list-panel-fields",
