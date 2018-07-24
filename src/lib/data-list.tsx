@@ -153,7 +153,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                     listData.rows.forEach((row, idx) => this.cache.set(idx, row));
             }
             this.detailList = null;
-        
+
             this.repatch({
                 loadingPageIndex
                 , listData, isLoading: false, currentPageIndex
@@ -214,7 +214,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
         const length = this.rowCount || 10;
 
-        let items =  
+        let items = this.items =
             (s.noPaging ? s.listData && s.listData.rows :
                 Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx))) || [];
 
