@@ -12,6 +12,10 @@
             min-width: 200px;
         }
     }
+    .singleview-back-btn {
+        background: #fff;
+        min-width: 150px;
+    }
 }
 
 .list-view {
@@ -23,12 +27,12 @@
     .search-field {
         justify-self: flex-end;
         position: absolute;
-        top:2px;
+        top: 2px;
         left: 10px;
         svg {
             position: absolute;
             left: 0px;
-            top:-5px;
+            top: -5px;
             width: 32px !important;
             height: 32px !important;
         }

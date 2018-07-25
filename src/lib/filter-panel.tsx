@@ -21,6 +21,7 @@ interface IFilterPanelState {
 export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelState> implements IDeveloperFeatures {
     devPortId: any;
     dataForm: any;
+    children: any;
     constructor(p) {
         super(p);
         this.dataForm = this.props.dataForm || {};
@@ -43,12 +44,12 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
         return <section ref="root" className="filter-panel  developer-features">
 
             <Paper className=""  >
-                
+
                 <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm[key]} onFieldWrite={(key, value) => {
                     this.dataForm[key] = value
                 }
                 } >
-                    {React.Children.map(this.props.children, child => {
+                    {this.children = this.children || React.Children.map(this.props.children, child => {
                         if (child && child['type'] == Field)
                             return React.cloneElement(child as any, { operators: this.props.operators } as IFieldProps)
                         return child;
@@ -57,11 +58,17 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                 </DataForm>
                 <footer>
                     <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
-                    <Button onClick={() => (this.dataForm = {}, this.repatch({}))}>{i18n('clear')}</Button>
+                    <Button onClick={this.handleClear.bind(this)}>{i18n('clear')}</Button>
 
                 </footer>
             </Paper>
         </section>
+    }
+    handleClear() {
+        this.dataForm = {};
+        this.children = null;
+        this.repatch({});
+
     }
 }
 const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'].map(op => ({ Id: op, Name: i18n.get(`operator-${op}`) }))

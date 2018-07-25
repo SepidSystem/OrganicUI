@@ -8,7 +8,7 @@ import { ReactNode } from "react";
 import { DataForm } from "./data-form";
 import { AppUtils } from "./app-utils";
 import { ComboBox } from "./combo-box";
-import { IComponentRefer,   IFieldProps } from "@organic-ui";
+import { IComponentRefer, IFieldProps } from "@organic-ui";
 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
@@ -92,7 +92,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const accessorPath: string[] = getters.slice(0, idxForNearestReadFieldFunc).reverse() as any;
         const nearestReadFieldFunc = getters[idxForNearestReadFieldFunc] as Function;
         let value: any = nearestReadFieldFunc(accessorPath.shift());
-       
+
         while (accessorPath.length) {
             value = value[accessorPath.shift()];
             if (!(value instanceof Object)) break;
@@ -139,12 +139,19 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
         return { value };
     }
-    getInputElement() {
+    clear() {
+        this.inputElement = null;
+        this.extractedValue = null;
+        this.repatch({});
+    }
+    getInputElement(): JSX.Element {
+        if (this.inputElement) return this.inputElement;
         let inputElement = this.props.children as React.ReactElement<any>;
         if (!inputElement)
             inputElement = editorByAccessor(changeCase.camelCase(this.props.accessor));
         if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
-
+        if (this instanceof Field)
+            this.inputElement = inputElement;
         return inputElement;
     }
     getCurrentOp() {
@@ -224,7 +231,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         if (p.onlyInput) return inputElement;
-        return <div ref="root" key="root" className={Utils.classNames( "field-accessor",classNameForField)} style={this.clientWidthNoErrorMode &&
+        return <div ref="root" key="root" className={Utils.classNames("field-accessor", classNameForField)} style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
         } >
             <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, this.extractedValue !== undefined && 'has-value', p.className)}>
@@ -315,7 +322,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         return message && Utils.i18nFormat(message, changeCase.paramCase(p.accessor));
 
     }
-    revalidate({customInvalidItems}={customInvalidItems:null}) {
+    revalidate({ customInvalidItems } = { customInvalidItems: null }) {
         const s = this.state, p = this.props;
 
         const message = this.getErrorMessage();
@@ -331,7 +338,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const inputElement = Field.prototype.getInputElement.apply(this);
         const type = inputElement && inputElement.type;
         const textReader = (type && type.textReader);
-         return textReader && (val => textReader(this, children && children.props, val));
+        return textReader && (val => textReader(this, children && children.props, val));
     }
 }
 const defaultTextReader = (fld, props, s) => s;
@@ -386,6 +393,6 @@ interface IUserFieldProps {
     extraFields?: any;
 }
 
-export function bind(fakeFn:()=>any){
-     
+export function bind(fakeFn: () => any) {
+
 }

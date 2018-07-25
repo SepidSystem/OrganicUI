@@ -28,7 +28,7 @@ interface DataLookupState {
     isOpen?: boolean;
     isActive?: boolean;
     isHidden?: boolean;
-    value?: any;
+    value?: any | any[];
 }
 function closeAllPopup(activeDataLookup?) {
     const query = () => Array.from(document.querySelectorAll('.closable-element'))
@@ -41,7 +41,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         iconCode: 'fa-search',
         minHeightForPopup: '300px'
     }
-    static classNameForField="data-lookup-field"; 
+    static classNameForField = "data-lookup-field";
     static textReader = (fld, prop: DataLookupProps, value) => {
         const { source } = prop as any;
         if (!source.listViewActions) {
@@ -51,6 +51,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
                 source.listViewOptions = listView.props.options;
             }
         }
+
         return <DataLookupCell actions={source.listViewActions} options={source.listViewOptions} value={value} />
     }
     listViewElement: React.ReactElement<OrganicUi.IListViewParams>;
@@ -230,6 +231,15 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.props.onChange instanceof Function && this.props.onChange(value);
 
     }
+    handleRemoveClick(e: React.MouseEvent<HTMLElement>) {
+        e.preventDefault();
+        const target = e.target as HTMLElement;
+        const idx = target.getAttribute('data-idx');
+        const { value } = this.state;
+        if (!this.props.multiple) this.handleSetValue(null);
+        else if (value instanceof Array) this.handleSetValue((value || []).filter((_, i) => idx != idx));
+
+    }
     render() {
         const p = this.props, s = this.state;
 
@@ -263,12 +273,12 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
                 <div className="inner-text" ref="innerText">
                     <div className="text " >
                         <span ref="innerTextSpan" className="selected-items" style={{ maxWidth: maxWidthForTextOverflow + "px" }}>
-                            {p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) : innerText.map(title => (
+                            {p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) : innerText.map((title, idx) => (
                                 <span className="selected-item">
                                     <span >
                                         {title}
                                     </span>
-                                    <a href="#" className="remove-btn"><i className="fa fa-times"> </i></a>
+                                    <a href="#" data-idx={idx} onClick={this.handleRemoveClick} className="remove-btn"><i className="fa fa-times"> </i></a>
                                 </span>))}</span></div>
 
                     {Utils.showIcon(this.props.iconCode, 'activate-focused-only')}
@@ -309,22 +319,36 @@ class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     getListViewName() {
         return this.props.options.singularName || this.props.options.pluralName;
     }
-    componentWillMount() {
-        super.componentWillMount && super.componentWillMount();
-        const p = this.props;
-        if (p.value) {
-            const cacheId = this.getListViewName() + p.value;
+    static cellsByCacheId: { [key: string]: DataLookupCell[] } = {};
+    static cellRefsByCacheId: { [key: string]: Object } = {};
+    static repatchAllByCacheId(cacheId, delta) {
+        const cells = DataLookupCell.cellsByCacheId[cacheId];
 
-            this.state.result = DataLookupCell.cache[cacheId] || (p.value &&
-                p.actions.read(this.props.value)
-                    .then(dto => p.actions.getText(dto))
-                    .then(result => DataLookupCell.cache[cacheId] = result)
-                    .then(result => this.repatch({ result })));
-        }
+        if (cells instanceof Array)
+            cells.forEach(cell => cell.repatch(delta));
     }
     render() {
-        if (!this.state.result) return <span />
-        return this.state.result instanceof Promise ? <Spinner /> : this.state.result;
+        //if (!this.state.result) return <span />
+        const p = this.props;
+
+        if (p.value) {
+            const cacheId = this.getListViewName() + p.value;
+            DataLookupCell.cellRefsByCacheId[cacheId] = DataLookupCell.cellRefsByCacheId[cacheId] || {};
+            if (!DataLookupCell.cellRefsByCacheId[cacheId][this.refId]) {
+                DataLookupCell.cellsByCacheId[cacheId] = DataLookupCell.cellsByCacheId[cacheId] || [];
+                DataLookupCell.cellsByCacheId[cacheId].push(this);
+            }
+            Object.assign(DataLookupCell.cellRefsByCacheId[cacheId], { [this.refId]: 1 });
+            if (this.state.result === undefined)
+                this.state.result = DataLookupCell.cache[cacheId] = DataLookupCell.cache[cacheId] || (p.value &&
+                    p.actions.read(this.props.value)
+                        .then(dto => p.actions.getText(dto))
+                        .then(result => DataLookupCell.cache[cacheId] = result)
+                        .then(result => DataLookupCell.repatchAllByCacheId(cacheId, { result })));
+        }
+        return <span className="data-lookup-cell" data-value={JSON.stringify(this.props.value)}
+            data-singularName={this.props.options.singularName} >
+            {this.state.result instanceof Promise ? <Spinner /> : (this.state.result || '')}</span>;
     }
 }
 
@@ -341,3 +365,4 @@ document.body.addEventListener('click', e => {
     closeAllPopup(componentRef);
 
 })
+Object.assign(window, { DataLookup, DataLookupCell });

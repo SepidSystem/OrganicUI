@@ -44,7 +44,10 @@ export class ArrayDataView<T> extends BaseComponent<OrganicUi.IArrayDataViewProp
         }
         const { handlers } = this;
         const p = this.props;
-        const elements = value.map((item, index) => contentFunc(Object.assign({ handlers, index, itemNo: index + 1, isFirst: index == 0, isLast: (value.length - 1) == index },(item || {} as any)));
+        const elements = value.map((item, index) => {
+            const arg = Object.assign({ handlers, index, itemNo: index + 1, isFirst: index == 0, isLast: (value.length - 1) == index }, (item || {} as any));
+            return contentFunc(arg);
+        });
         return <div style={p.style} className={Utils.classNames("array-data-view", p.className)}>{elements}</div>;
     }
 

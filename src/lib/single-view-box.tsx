@@ -160,11 +160,11 @@ export class SingleViewBox<T> extends OrganicBox<
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         return <section className="single-view developer-features" ref="root">
             <h1 className="title is-3 columns" style={{ margin: '0' }}>
-                <div className="column is-11">
+                <div className="column is-10">
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>
                 <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
-                    <Button variant="outlined" onClick={this.navigateToBack}   >
+                    <Button variant="raised"  className="singleview-back-btn button-icon-ux" onClick={this.navigateToBack}   >
                         {' '}
                         {i18n('back')}
                         {' '}

@@ -1,5 +1,5 @@
-import {Select} from "./inspired-components";
-import MenuItem from "@material-ui/core/MenuItem/MenuItem";
+import {Select,MenuItem} from "./inspired-components";
+ 
 import { i18n } from "./shared-vars";
 import { Field } from "./data";
 interface ComboBoxProps {
@@ -8,7 +8,7 @@ interface ComboBoxProps {
     items: { Id, Name }[];
 }
 export const ComboBox = (p: ComboBoxProps) => (
-    <Select value={p.value} onChange={p.onChange}>
+      <Select value={p.value} onChange={p.onChange}>
         {p.items.map(item => <MenuItem key={item.Id} value={item.Id}>{i18n(item.Name)}</MenuItem>)}
     </Select>);
 function textReader(field: Field, props: ComboBoxProps, id) {
