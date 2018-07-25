@@ -273,7 +273,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                 this.targetItem = {};
                 //    this.repatch({ selectedItem: null });
             }
-
+ 
             this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });
         }
 

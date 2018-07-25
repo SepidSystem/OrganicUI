@@ -21,6 +21,7 @@ import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { Button, Paper, TextField } from './inspired-components';
 import { SnackBar } from './snack-bar';
+import { DeveloperBar } from './developer-features';
 
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
@@ -162,6 +163,7 @@ export class ListViewBox<T> extends
         }
     }
     makeDevElementForDiag(error) {
+        if(!DeveloperBar.developerFriendlyEnabled) return null;
         const now = +new Date();
         this.error = error;
         this.repatch({});

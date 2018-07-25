@@ -200,6 +200,7 @@ export const Utils = {
 		return numbers.reduce((a, b) => a + b, 0);
 	},
 	clone<T>(x: T): T {
+		if(x===undefined) return undefined;
 		return JSON.parse(JSON.stringify(x))
 	},
 	uniqueArray<T>(array: T[]): T[] {
@@ -246,8 +247,14 @@ export const Utils = {
 
 		}
 	},
-	varDump(data){
+	varDump(data) {
 		return JSON.stringify(data);
+	},
+	map<T>(array: T[], outputMode: 'array' | 'scaler' | 'object', pickedFields: OrganicUi.PartialForcedType<T, true> | OrganicUi.PartialForcedType<T, 1>) {
+ 
+	},
+	devLog(...args){
+		!OrganicUi.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
 	}
 
 }

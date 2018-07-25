@@ -6,6 +6,9 @@ declare namespace OrganicUi {
     export interface ResultSet<T> {
         results: T[];
     }
+    type PartialForcedType<T, FT> = {
+        [P in keyof T]?: FT;
+    };
     export interface IDataFormAccessorMsg {
         accessor: string;
         message: any;
@@ -19,14 +22,23 @@ declare namespace OrganicUi {
     export interface IListData<TRow=any> {
         totalRows: number;
         rows: TRow[];
-
     }
+    interface IContentArgExtends<HT> {
+        itemNo: number;
+        index: number;
+        isLast: boolean;
+        isFirst: boolean;
+        handlers: HT;
+    }
+    export type IContentFunction<T, HT> = ((item: T & IContentArgExtends<HT>) => JSX.Element);
+
     export interface IBindableElement {
         tryToBinding();
     }
     export interface IComponentRefer<T=any> {
         componentRef: T;
     }
+    export const Version: string;
     export class BaseComponent<P, S=any> extends React.Component<P, S>{
         props: P;
         state: S;
@@ -62,7 +74,19 @@ declare namespace OrganicUi {
         children?: any;
         className?: string;
     }
-
+    export interface HandlersForIArrayDataView {
+        remove: Function;
+        append: Function;
+    }
+    export interface IArrayDataViewProps<T> {
+        value: T[];
+        onChange?: (value: T[]) => void;
+        children: IContentFunction<T, HandlersForIArrayDataView>;
+        defaultItem?: T | (() => T);
+        minCount?: number;
+        className?: string;
+        style?: React.CSSProperties;
+    }
     export interface IAdvSectionProps extends React.HTMLAttributes<any> {
 
         errorMessage: any;
@@ -117,6 +141,7 @@ declare namespace OrganicUi {
         revalidate();
         getTextReader();
     }
+
     export interface IRegistry<T=any> {
         data: any;
         secondaryValues: any;
@@ -167,7 +192,7 @@ declare namespace OrganicUi {
     export interface UiModuleProps {
         modName: string;
     }
-    export const UiModule:React.SFC<UiModuleProps>;
+    export const UiModule: React.SFC<UiModuleProps>;
     export interface OrganicBoxProps<TActions, TOptions, TParams> {
         actions: TActions;
         options: TOptions;
@@ -175,6 +200,22 @@ declare namespace OrganicUi {
         customActions?: Partial<TActions>;
         children?: React.ReactNode;
     }
+    interface IActions {
+        actions?: any[];
+    }
+    export interface IPanelProps extends IActions {
+        header?: any;
+        tabs?: string[];
+        blocks?: any[];
+        hasSearch?: boolean;
+        selectedTab?: string;
+        selectedBlock?: number | string;
+        onSelectBlock?: (index: number) => void
+        children: any;
+        classNamePerChild?: string;
+        onActionExecute?: (s: string) => void;
+    }
+    export const Panel: React.SFC<IPanelProps>;
     class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
         devPortId: number;
         actions: TActions;
@@ -318,6 +359,11 @@ declare namespace OrganicUi {
     }
     export type ErrorCodeForFieldValidation = string;
     export type onErrorCodeResult = (data: any) => OrganicUi.IDataFormAccessorMsg[];
+    export class ArrayDataView<T> extends BaseComponent<IArrayDataViewProps<T>, never>{
+        getValue(): T[];
+        fireAppend();
+        fireRemove(idx, length?);
+    }
     export interface IDataFormProps<T=any> extends IFieldReaderWriter {
         validate?: boolean;
         onErrorCode?: onErrorCodeResult;
@@ -456,6 +502,10 @@ declare namespace OrganicUi {
         onChange?: React.ChangeEventHandler<HTMLInputElement>;
     }
     export const AppUtils: AppUtilsIntf;
+    export namespace Icons {
+        export const AddIcon: React.SFC<any>;
+        export const DeleteIcon: React.SFC<any>;
+    }
 }
 
 declare module '@organic-ui' {
@@ -470,6 +520,7 @@ declare module '@organic-ui' {
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps;
     export const Field: typeof OrganicUi.Field;
+
     export type IAppModel = OrganicUi.IAppModel;
     export const startApp: typeof OrganicUi.startApp;
 
@@ -505,9 +556,10 @@ declare module '@organic-ui' {
     interface IBindableElement {
         tryToBinding();
     }
+    export const Version: string;
     export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
     export class BaseComponent<P, S> extends OrganicUi.BaseComponent<P, S>{ }
-    export const UiModule : typeof OrganicUi.UiModule;
+    export const UiModule: typeof OrganicUi.UiModule;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export type SingleViewBox<T=any> = OrganicUi.SingleViewBox<T>;
@@ -521,7 +573,9 @@ declare module '@organic-ui' {
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
+    export const Panel: typeof OrganicUi.Panel;
     export const DataForm: React.SFC<OrganicUi.IDataFormProps>;
+    export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export const DataList: typeof OrganicUi.DataList;
     export const DataPanel: typeof OrganicUi.DataPanel;
     export const DataListPanel: typeof OrganicUi.DataListPanel;
@@ -560,9 +614,9 @@ declare module '@organic-ui' {
     // decorators
     function decoSubRender(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>)
     export function SubRender(): typeof decoSubRender;
-
+    export const Icons: typeof OrganicUi.Icons;
     //   Inspired Components;
-    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Tabs, Tab, Radio } from '@material-ui/core';
+    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
     export { Callout } from 'office-ui-fabric-react';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 }

@@ -41,6 +41,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         iconCode: 'fa-search',
         minHeightForPopup: '300px'
     }
+    static classNameForField="data-lookup-field"; 
     static textReader = (fld, prop: DataLookupProps, value) => {
         const { source } = prop as any;
         if (!source.listViewActions) {
@@ -301,6 +302,7 @@ interface DataLookupCellProps {
 }
 class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     static cache = {};
+
     state: {
         result: any;
     }
@@ -321,8 +323,7 @@ class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
         }
     }
     render() {
-        !(this.state.result instanceof Promise) && this.state.result && (console.log(this.state.result));
-        if(!this.state.result) return <span />
+        if (!this.state.result) return <span />
         return this.state.result instanceof Promise ? <Spinner /> : this.state.result;
     }
 }

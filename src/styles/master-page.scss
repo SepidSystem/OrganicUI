@@ -18,6 +18,7 @@ main.main-container {
 }
 
 .main-content {
+    padding:4px 10px; 
     * {
         font-size: 16px !important;
     }
@@ -74,6 +75,9 @@ span {
 .master-page {
     display: flex;
     min-height: 100%;
+    a,span{
+        font-size:16px;
+    }
     >footer {
         background: rgb(210, 210, 201);
         position: fixed;
@@ -94,13 +98,13 @@ span {
         min-height: 48px;
         display: flex;
         a,
-        i {
+        .icon {
             padding: 15px 15px;
         }
         a {
             display: block;
             width: 100%;
-            font-size: 16px;
+            font-size: 15px;
         }
     }
     aside {

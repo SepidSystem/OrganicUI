@@ -160,23 +160,10 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
     }
 }
 
-interface IActions {
-    actions?: any[];
-}
 
-export interface IPanelProps extends IActions {
-    header?: any;
-    tabs?: string[];
-    blocks?: any[];
-    hasSearch?: boolean;
-    selectedTab?: string;
-    selectedBlock?: number | string;
-    onSelectBlock?: (index: number) => void
-    children: any;
-    classNamePerChild?: string;
-    onActionExecute?: (s: string) => void;
-}
-function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
+
+
+function panel(p: OrganicUi.IPanelProps, s: OrganicUi.IPanelProps, repatch: Function) {
     const changeBlock = (selectedTab: string) => repatch({ selectedTab });
     const handleSelect = e => {
         const target: HTMLElement = e.target as HTMLElement;
@@ -237,7 +224,7 @@ function panel(p: IPanelProps, s: IPanelProps, repatch: Function) {
     </div>
     );
 }
-export const Panel = funcAsComponentClass<IPanelProps, IPanelProps>(panel);
+export const Panel = funcAsComponentClass<OrganicUi.IPanelProps, OrganicUi.IPanelProps>(panel);
 
 export function Placeholder(p: { for, children }) {
     return <span className="placeholder-item" data-for={p.for} style={{ display: 'none' }}>{p && p.children}</span>;

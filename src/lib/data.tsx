@@ -198,7 +198,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData(inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
-
+        const classNameForField = inputElement && inputElement.type && inputElement.type['classNameForField'];
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
                 onChange: this.changeEvent,
@@ -224,7 +224,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         if (p.onlyInput) return inputElement;
-        return <div ref="root" key="root" className="field-accessor" style={this.clientWidthNoErrorMode &&
+        return <div ref="root" key="root" className={Utils.classNames( "field-accessor",classNameForField)} style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
         } >
             <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, this.extractedValue !== undefined && 'has-value', p.className)}>
@@ -386,3 +386,6 @@ interface IUserFieldProps {
     extraFields?: any;
 }
 
+export function bind(fakeFn:()=>any){
+     
+}

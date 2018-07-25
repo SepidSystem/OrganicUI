@@ -21,7 +21,7 @@ export { SubRender, Action, Event } from './lib/decorators';
 export { Field, ObjectField } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';
-export { AdvButton, DropDownButton, IPanelProps, Panel, Placeholder, SearchInput } from './lib/ui-kit';
+export { AdvButton, DropDownButton,   Panel, Placeholder, SearchInput } from './lib/ui-kit';
 export { default as SimpleTable } from './lib/simple-table';
 export { DataList } from './lib/data-list';
 export { DataForm, DataPanel, DataListPanel } from './lib/data-form';
@@ -47,11 +47,13 @@ export { default as JssProvider } from 'react-jss/lib/JssProvider';
 export { createGenerateClassName } from '@material-ui/core/styles';
 
 export { MenuIcon, ExpandMoreIcon } from './lib/icons';
+import * as  _Icons from './lib/icons';
+export const Icons = _Icons;
 export { loadDevScript } from './lib/load-dev-script';
 export { UiModule } from './lib/ui-mod'
 export { default as Collapsible } from 'react-collapsible';
 export { SnackBar } from './lib/snack-bar';
 export { TimeSlot } from './lib/time-slot';
-export { default as version } from './version';
-
+export { default as Version } from './version';
+export { ArrayDataView } from './lib/array-data-view';
 import './ui-mod/ui-mod';
