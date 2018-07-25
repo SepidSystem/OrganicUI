@@ -1,1 +1,1 @@
-export default ['0.0.1',BUILD_DATE].join('-');
+export default ['0.0.1',BUILD_DATE,BUILD_NUMBER].join('-');
