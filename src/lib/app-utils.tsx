@@ -9,6 +9,7 @@ interface IDialogProps {
     title?, content?: any;
     actions?: { [key: string]: Function }
     defaultValues?: any;
+    noClose?: boolean;
 }
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
@@ -61,12 +62,12 @@ export class AppUtils extends BaseComponent<any, any>{
         AppUtils.Instance = this;
         const { dialogInstance } = AppUtils;
         return <section className="app-utils" >
-            {dialogInstance && <Dialog  open={true} onClose={this.handleClose}  >
+            {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
                 {dialogInstance.title && <DialogTitle> {i18n(dialogInstance.title)}</DialogTitle>}
-                <a href="#" className="close-dialog" onClick={e => {
+                {!dialogInstance.noClose && <a href="#" className="close-dialog" onClick={e => {
                     e.preventDefault();
                     AppUtils.showDialog(null);
-                }}><i className="fa fa-times" /></a>
+                }}><i className="fa fa-times" /></a>}
                 <DialogContent style={{ overflowX: 'hidden' }}>
                     {dialogInstance.content}
                 </DialogContent>
