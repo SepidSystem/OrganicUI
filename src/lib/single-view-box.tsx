@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
- 
+
 import { icon, i18n } from './shared-vars';
 import { Utils } from './utils';
 import { Field } from './data';
@@ -12,8 +12,9 @@ import { AdvButton, Placeholder } from './ui-kit';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 import { createClientForREST } from './rest-api';
- 
+
 import { Icon, Paper, Button } from './inspired-components';
+import { DeveloperBar } from './developer-features';
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
@@ -21,6 +22,12 @@ export class SingleViewBox<T> extends OrganicBox<
     undefinedFields: Object;
     objectCreation: number;
     static fetchFail: Function;
+    static monitorFunc: Function;
+    static getMonitorFunc(): Function {
+        const { monitorFunc } = SingleViewBox;
+        return !!DeveloperBar.developerFriendlyEnabled && monitorFunc;
+    }
+
     constructor(p) {
         super(p);
         this.navigateToBack = this.navigateToBack.bind(this);
@@ -44,14 +51,16 @@ export class SingleViewBox<T> extends OrganicBox<
     }
     componentWillMount() {
         const { actions, params } = this.props;
-
+        const monitorFunc = SingleViewBox.getMonitorFunc();
         this.state.formData = params.id > 0
-            ? actions.read(params.id).then(
-                formData => this.repatch({ formData: this.mapFormData(formData) })
-                , error => {
-
-                    this.devElement = this.makeDevElementForDiag(error), this.repatch({})
-                })
+            ? actions.read(params.id)
+                .then(data => monitorFunc instanceof Function ? monitorFunc('readData', data) : data)
+                .then(formData => (formData = this.mapFormData(formData), this.repatch({ formData }), formData)
+                    , error => {
+                        this.devElement = this.makeDevElementForDiag(error);
+                        this.repatch({})
+                    }
+                ).then(formData => this.actions.mapFormData ? monitorFunc('mapFormData', formData) : formData)
 
             : this.mapFormData({});
     }
@@ -76,7 +85,8 @@ export class SingleViewBox<T> extends OrganicBox<
         const { dataForm } = this.refs;
         console.assert(!!dataForm, 'dataForm is null @ handleSave');
         let formData = JSON.parse(JSON.stringify(s.formData));
-        console.assert(!!this.actions.beforeSave || this.actions.beforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.beforeSave);
+        if (!!this.actions.beforeSave)
+            console.assert(this.actions.beforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.beforeSave);
 
         if (this.actions.beforeSave instanceof Function)
             [formData] = await Promise.all([this.actions.beforeSave(formData)]);
@@ -88,7 +98,8 @@ export class SingleViewBox<T> extends OrganicBox<
         let updateResult: Promise<any>;
         let { id } = p.params;
         if (id == 'new') id = 0;
-
+        const monitorFunc = SingleViewBox.getMonitorFunc();
+        const debugResult = await Promise.all([!!monitorFunc && monitorFunc('beforeSave', formData)]);
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
             updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
@@ -99,28 +110,30 @@ export class SingleViewBox<T> extends OrganicBox<
             </div>);
         }
 
-        return updateResult.then(
-            () => {
-                const { title, desc } = this.getSuccess();
-                if (navigateToListView)
-                    setTimeout(this.navigateToBack, 10);
-                else
-                    setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
-                return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
-                    <header className="columns">
-                        <div className="column" style={{ maxWidth: "70px" }}>
-                            <span className="animated tada">
-                                <Icon iconName="SkypeCircleCheck" className="ms-font-su" />
-                            </span>
-                        </div>
-                        <div className="column" style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="title is-3">{title}</div>
-                        </div>
-                    </header>
+        return updateResult
+            .then(data => monitorFunc instanceof Function ? monitorFunc('afterSave', formData, id, this.actions) : data)
+            .then(
+                () => {
+                    const { title, desc } = this.getSuccess();
+                    if (navigateToListView)
+                        setTimeout(this.navigateToBack, 10);
+                    else
+                        setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
+                    return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
+                        <header className="columns">
+                            <div className="column" style={{ maxWidth: "70px" }}>
+                                <span className="animated tada">
+                                    <Icon iconName="SkypeCircleCheck" className="ms-font-su" />
+                                </span>
+                            </div>
+                            <div className="column" style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className="title is-3">{title}</div>
+                            </div>
+                        </header>
 
 
-                </div>;
-            }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
+                    </div>;
+                }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
 
 
 
@@ -160,14 +173,13 @@ export class SingleViewBox<T> extends OrganicBox<
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
         return <section className="single-view developer-features" ref="root">
             <h1 className="title is-3 columns" style={{ margin: '0' }}>
-                <div className="column is-10">
+                <div className="column  " style={{ flex: '10' }}>
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>
-                <div className="column" style={{ minWidth: '150px', direction: 'rtl' }}>
-                    <Button variant="raised"  className="singleview-back-btn button-icon-ux" onClick={this.navigateToBack}   >
+                <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
+                    <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.navigateToBack}   >
                         {' '}
                         {i18n('back')}
-                        {' '}
                         <Icon iconName="Back" />
                     </Button >
                 </div>
@@ -185,16 +197,11 @@ export class SingleViewBox<T> extends OrganicBox<
                     validate={s.validated}
                     onErrorCode={this.actions.validate}
                     data={s.formData}>
-
                     {this.props.children}
                 </DataForm>
                 <footer className="buttons  single-view-buttons">
-
-
                     <AdvButton onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
                     <AdvButton onClick={() => this.handleSave(true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
-                    <AdvButton onClick={this.navigateToBack}    > {i18n('cancel')}</AdvButton>
-
                 </footer>
             </Paper>
 
