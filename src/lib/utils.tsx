@@ -1,11 +1,9 @@
 import { mountViewToRoot } from "./bootstrapper";
 import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
+import { diff } from 'rus-diff';
 let devPortIdCounter = 0;
 export const Utils = {
-
-
-
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
 	},
@@ -200,7 +198,7 @@ export const Utils = {
 		return numbers.reduce((a, b) => a + b, 0);
 	},
 	clone<T>(x: T): T {
-		if(x===undefined) return undefined;
+		if (x === undefined) return undefined;
 		return JSON.parse(JSON.stringify(x))
 	},
 	uniqueArray<T>(array: T[]): T[] {
@@ -251,10 +249,13 @@ export const Utils = {
 		return JSON.stringify(data);
 	},
 	map<T>(array: T[], outputMode: 'array' | 'scaler' | 'object', pickedFields: OrganicUi.PartialForcedType<T, true> | OrganicUi.PartialForcedType<T, 1>) {
- 
+
 	},
-	devLog(...args){
+	devLog(...args) {
 		!OrganicUi.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
+	},
+	diff(...args) {
+		return diff.apply(this, args)
 	}
 
 }

@@ -132,6 +132,7 @@ declare namespace OrganicUi {
         assignDefaultValues<T>(data: T, defaultValues: Partial<T>)
         skinDeepRender<T>(type: React.ComponentType<T>, params: T): JSX.Element;
         scanElement(element: React.ReactElement<any>, tester: (element) => boolean): JSX.Element;
+        diff(a,b):any;
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -479,6 +480,7 @@ declare namespace OrganicUi {
         title?, content?: any;
         actions?: { [key: string]: Function }
         defaultValues?: any;
+        noClose?:boolean;
     }
     interface AppUtilsIntf {
         (p: any): JSX.Element;
