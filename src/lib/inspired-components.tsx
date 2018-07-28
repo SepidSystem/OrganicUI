@@ -68,5 +68,5 @@ export { Icon } from 'office-ui-fabric-react/lib/Icon';
 export { DetailsList } from 'office-ui-fabric-react/lib/DetailsList';
 export { MessageBar } from 'office-ui-fabric-react/lib/MessageBar';
 export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
-
-
+export { Modal } from 'office-ui-fabric-react/lib/Modal';
+ 

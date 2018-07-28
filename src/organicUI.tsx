@@ -1,9 +1,5 @@
 import { assignVendors } from './imported-vendors';
 assignVendors();
-
-
-
-
 export { NotFoundView } from './lib/404';
 export { openRegistry } from './lib/registry';
 export { editorByAccessor, i18n, icon, menuBar, i18nAttr } from './lib/shared-vars';
@@ -21,14 +17,15 @@ export { SubRender, Action, Event } from './lib/decorators';
 export { Field, ObjectField } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';
-export { AdvButton, DropDownButton,   Panel, Placeholder, SearchInput } from './lib/ui-kit';
+export { AdvButton, DropDownButton, Panel, Placeholder, SearchInput } from './lib/ui-kit';
 export { default as SimpleTable } from './lib/simple-table';
 export { DataList } from './lib/data-list';
-export { DataForm, DataPanel, DataListPanel } from './lib/data-form';
+export { DataForm } from './lib/data-form';
+export {DataPanel} from './lib/data-panel';
+export { DataListPanel } from './lib/data-list-panel';
 export { AppUtils } from './lib/app-utils';
 export { SingleViewBox } from './lib/single-view-box';
 export { ViewBox } from './lib/view-box';
-
 export { DashboardBox } from './lib/dashboard-box';
 export { ReportViewBox } from './lib/report-view-box';
 export { ListViewBox } from './lib/list-view-box';
