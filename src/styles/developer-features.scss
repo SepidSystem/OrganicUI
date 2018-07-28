@@ -49,3 +49,11 @@
 #dev-server-board.active {
     display: flex;
 }
+.self-test-fail{
+    .json-inspector__search{
+        display: none;
+    }
+    hr{
+        margin:2px 0;
+    }
+}
