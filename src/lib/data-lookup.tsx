@@ -38,7 +38,7 @@ function closeAllPopup(activeDataLookup?) {
 }
 export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
     static defaultProps = {
-        iconCode: 'fa-search',
+        //iconCode: 'fa-search',
         minHeightForPopup: '300px'
     }
     static classNameForField = "data-lookup-field";
