@@ -8,6 +8,7 @@ import *  as _moment from "moment";
 import { Moment, ISO_8601 } from "moment";
 import { Utils } from './utils';
 import { StatelessListView } from '@organic-ui';
+import { Field } from './data';
 
 const DatePickerContent: StatelessListView = (p) => {
     const v = p.getValue();
@@ -27,18 +28,20 @@ export class DatePicker extends BaseComponent<any, any>{
         dataLookup: DataLookup;
     }
 
-    @Event()
-    handleDisplayText(value) {
+    static handleDisplayText(value) {
         const m = value && moment(value);
-         return !!m && <span>{m.isValid() && m.format('jYYYY/jMM/jDD')}</span>
+        return !!m && <span>{m.isValid() && m.format('jYYYY/jMM/jDD')}</span>
     }
     render() {
         const p = this.props;
         return <DataLookup ref="dataLookup" iconCode='fa-calendar'
-            onDisplayText={this.handleDisplayText} minHeightForPopup="350px"
+            onDisplayText={DatePicker.handleDisplayText} minHeightForPopup="350px"
             {...this.props} className={Utils.classNames("date-picker", p.className)}
             source={DatePickerContent} />
     }
 }
+
+Object.assign(DatePicker, { textReader: DatePicker.handleDisplayText });
 loadPersian();
-_moment['suppressDeprecationWarnings'] =true;
+
+_moment['suppressDeprecationWarnings'] = true;
