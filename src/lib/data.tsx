@@ -236,8 +236,6 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
-        this.log && (console.log({ inputElement }));
-
         if (p.onlyInput) return inputElement;
         const hasValue=!!this.extractedValue || (typeof this.extractedValue =='number')
         return <div ref="root" key="root" className={Utils.classNames("field-accessor", classNameForField)} style={this.clientWidthNoErrorMode &&
