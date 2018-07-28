@@ -20,7 +20,6 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
     static showResponse: boolean;
     componentWillMount() {
         Object.assign(this.state, this.props);
-
         this.state.showResponse = RestInspector.showResponse;
 
     }

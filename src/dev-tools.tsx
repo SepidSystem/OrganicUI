@@ -1,6 +1,7 @@
 /// <reference path="./dts/globals.d.ts" />
 import './dev-tools/devtools-data-form';
-import './dev-tools/devtools-boxes';
+import './dev-tools/devtools-list-view-box';
+import './dev-tools/devtools-single-view-box';
 import './dev-tools/devtools-rest';
 import { TextField } from './lib/inspired-components';
 import { IComponentRefer, IDeveloperFeatures, AppUtils, DataForm, Field } from '@organic-ui';
