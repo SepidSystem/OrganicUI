@@ -39,6 +39,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         root: HTMLElement;
         container: HTMLElement;
     }
+    log: number;
     constructor(p) {
         super(p);
         this.handleSetData = this.handleSetData.bind(this);
@@ -140,7 +141,12 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         return { value };
     }
     clear() {
-        this.inputElement = null;
+        const orginInputElement = this.inputElement;
+        this.inputElement = <NotConnectedInput />;
+        setTimeout(() => {
+            this.inputElement = orginInputElement;
+            this.repatch({});
+        }, 1);
         this.extractedValue = null;
         this.repatch({});
     }
@@ -191,7 +197,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             cb(...arguments);
         }.bind(this);
     }
-    render() {
+    renderContent() {
 
         const p = this.props, s = this.state;
         s.messages = s.messages || p.messages || [];
@@ -230,11 +236,15 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
 
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
+        this.log && (console.log({ inputElement }));
+
         if (p.onlyInput) return inputElement;
+        const hasValue=!!this.extractedValue || (typeof this.extractedValue =='number')
         return <div ref="root" key="root" className={Utils.classNames("field-accessor", classNameForField)} style={this.clientWidthNoErrorMode &&
             { maxWidth: `${this.clientWidthNoErrorMode}px`, width: `${this.clientWidthNoErrorMode}px`, minWidth: `${this.clientWidthNoErrorMode}px` }
         } >
-            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, this.extractedValue !== undefined && 'has-value', p.className)}>
+            
+            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType,hasValue && 'has-value', p.className)}>
 
                 <label key="label" className="label">{label}</label>
                 <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
@@ -395,4 +405,7 @@ interface IUserFieldProps {
 
 export function bind(fakeFn: () => any) {
 
+}
+function NotConnectedInput(p) {
+    return  <input style={{visibility:'hidden'}} /> 
 }

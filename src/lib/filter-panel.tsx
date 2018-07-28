@@ -49,7 +49,8 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                     this.dataForm[key] = value
                 }
                 } >
-                    {this.children = this.children || React.Children.map(this.props.children, child => {
+
+                    {React.Children.map(this.props.children, child => {
                         if (child && child['type'] == Field)
                             return React.cloneElement(child as any, { operators: this.props.operators } as IFieldProps)
                         return child;
@@ -67,6 +68,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
     handleClear() {
         this.dataForm = {};
         this.children = null;
+        this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.clear());
         this.repatch({});
 
     }
