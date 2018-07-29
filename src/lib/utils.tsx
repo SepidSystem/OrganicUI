@@ -252,12 +252,19 @@ export const Utils = {
 
 	},
 	devLog(...args) {
-		!OrganicUi.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
+		!OrganicUI.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
 	},
 	diff(...args) {
 		return diff.apply(this, args)
+	},
+	toPromise<T>(value: (T | Promise<T>)): Promise<T> {
+		return Promise.all([value]).then(([result]) => result);
+	},
+	enumToIdNames(enumType: any): ({ Id, Name }[]) {
+		return Object.keys(enumType)
+			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
+			.map(Name => ({ Id: enumType[Name], Name }))
 	}
-
 }
 import * as changeCaseObject from 'change-case-object'
 import { IDeveloperFeatures, TMethods } from "@organic-ui";

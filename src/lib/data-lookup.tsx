@@ -18,6 +18,7 @@ interface DataLookupProps {
     className?: string;
     onChange?: (value) => void;
     onFocus?: () => void;
+    onBlur?:Function;
     onDisplayText?: (value) => React.ReactNode;
     multiple?: boolean;
     value?: any;
@@ -248,7 +249,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         if (s.isOpen && !listViewContainer)
             setTimeout(() => this.forceUpdate(), 10);
         const textField = !(innerText instanceof Promise) &&
-            <TextField onFocus={p.onFocus} itemRef="textField"
+            <TextField onBlur={p.onBlur as any} onFocus={p.onFocus} itemRef="textField"
 
             />;
         this.adjustEditorPadding();

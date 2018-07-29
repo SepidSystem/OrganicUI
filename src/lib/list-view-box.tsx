@@ -8,7 +8,7 @@ import { FilterPanel } from './filter-panel';
 import { DataList } from './data-list';
 import { Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
 
-import { AdvButton, Placeholder } from './ui-kit';
+import { AdvButton, Placeholder } from './ui-elements';
 
 
 import OrganicBox from './organic-box';

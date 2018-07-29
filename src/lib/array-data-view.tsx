@@ -5,20 +5,27 @@ export class ArrayDataView<T> extends BaseComponent<OrganicUi.IArrayDataViewProp
     getValue(): T[] {
         return this.state.value;
     }
+    doChange() {
+        this.props.onChange instanceof Function &&
+            this.props.onChange(this.state.value);
+    }
     fireAppend() {
         this.state.value.push(this.getDefaultItem());
         this.repatch({});
+        this.doChange();
     }
     fireRemove(idx, length = 1) {
         this.state.value.splice(idx, length);
         this.repatch({});
+        this.doChange();
     }
-    handlers: { append: Function; remove: Function };
+    actions: { append: Function; remove: Function };
 
     componentWillMount() {
-        this.handlers = {
+        this.actions = {
             append: this.fireAppend.bind(this),
             remove: this.fireRemove.bind(this)
+            
         }
     }
     getDefaultItem() {
@@ -42,13 +49,16 @@ export class ArrayDataView<T> extends BaseComponent<OrganicUi.IArrayDataViewProp
             console.log('ArrayDataView.value>>>>', value);
             return this.renderErrorMode('value is invalid', '');
         }
-        const { handlers } = this;
+        const { actions } = this;
         const p = this.props;
         const elements = value.map((item, index) => {
-            const arg = Object.assign({ handlers, index, itemNo: index + 1, isFirst: index == 0, isLast: (value.length - 1) == index }, (item || {} as any));
-            return contentFunc(arg);
+            const alt = {
+                index, itemNo: index + 1,
+                isFirst: index == 0, isLast: (value.length - 1) == index
+            };
+            return contentFunc({ actions, item, alt } as any);
         });
-        return <div style={p.style} className={Utils.classNames("array-data-view", p.className)}>{elements}</div>;
+        return <div style={p.style} className={Utils.classNames("array-data-view", p.className)} > {elements}</div >;
     }
 
 }

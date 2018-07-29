@@ -75,9 +75,9 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
         super(p);
         this.actions = Object.assign({}, p.actions, p.customActions || {});
         this.devPortId = Utils.accquireDevPortId();
-        const stableState = localStorage.getItem('stableState')
+        /*const stableState = localStorage.getItem('stableState')
         const counter = OrganicBox.instanceCounter++;
-        /*
+        
                 if (stableState && counter == 0) {
                     // localStorage.removeItem('stableState');
                     const state = JSON.parse(stableState)

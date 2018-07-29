@@ -9,20 +9,26 @@ import { Moment, ISO_8601 } from "moment";
 import { Utils } from './utils';
 import { StatelessListView } from '@organic-ui';
 import { Field } from './data';
+import { Button } from './inspired-components';
+import { i18n } from './shared-vars';
 
-const DatePickerContent: StatelessListView = (p) => {
-    const v = p.getValue();
-    const m = v && moment(v);
-    const dataLookup = p.dataLookup as DataLookup;
-    return <Calendar onSelect={(value: Moment) => {
+class DatePickerContent extends BaseComponent<any, any> {
+    render() {
+        const p = this.props;
+        const v = p.getValue();
+        const m = v && moment(v);
+        const dataLookup = p.dataLookup as DataLookup;
+        return <div> <Calendar onSelect={(value: Moment) => {
 
-        p.setValue(['YYYY-MM-DD', 'hh:mm:ss'].map(format => value.format(format)).join('T'));
-        dataLookup.closePopup()
+            p.setValue(['YYYY-MM-DD', 'hh:mm:ss'].map(format => value.format(format)).join('T'));
+            dataLookup.closePopup()
 
-    }} selectedDay={m}
-    />
+        }} selectedDay={m}
+        />
+
+        </div >
+    }
 }
-
 export class DatePicker extends BaseComponent<any, any>{
     refs: {
         dataLookup: DataLookup;
@@ -40,8 +46,8 @@ export class DatePicker extends BaseComponent<any, any>{
             source={DatePickerContent} />
     }
 }
-
-Object.assign(DatePicker, { textReader: DatePicker.handleDisplayText });
+DatePicker['classNameForField'] = 'data-picker-field';
+Object.assign(DatePicker, { textReader: (fieldProps, props, value) => DatePicker.handleDisplayText(value) });
 loadPersian();
 
 _moment['suppressDeprecationWarnings'] = true;

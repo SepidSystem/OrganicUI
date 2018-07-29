@@ -8,7 +8,7 @@ import { listViews } from './shared-vars';
 import { ReactElement, isValidElement } from 'react';
 import { DataForm } from './data-form';
 import { Spinner } from './spinner';
-import { AdvButton, Placeholder } from './ui-kit';
+import { AdvButton, Placeholder } from './ui-elements';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 import { createClientForREST } from './rest-api';
@@ -30,6 +30,8 @@ export class SingleViewBox<T> extends OrganicBox<
 
     constructor(p) {
         super(p);
+        this.handleFieldRead = this.handleFieldRead.bind(this);
+        this.handleFieldWrite = this.handleFieldWrite.bind(this);
         this.navigateToBack = this.navigateToBack.bind(this);
         this.navigateToNewItem = this.navigateToNewItem.bind(this);
         this.handleSave = this.handleSave.bind(this);
@@ -164,6 +166,18 @@ export class SingleViewBox<T> extends OrganicBox<
     isFresh() {
         return (+new Date()) - this.objectCreation < 2500;
     }
+    handleFieldWrite(accessor, value) {
+        this.state.formData[accessor] = value;
+        this.actions.onFieldWrite instanceof Function &&
+            this.actions.onFieldWrite(accessor, value, this.state.formData);
+    }
+    handleFieldRead(accessor) {
+        const val = this.state.formData[accessor];
+        if (val === undefined && accessor) this.undefinedFields[accessor] = 1;
+        if (this.isFresh() && val && accessor) delete this.undefinedFields[accessor];
+        return val;
+
+    }
     renderContent(p = this.props) {
 
         const { options } = this.props;
@@ -178,22 +192,14 @@ export class SingleViewBox<T> extends OrganicBox<
                 </div>
                 <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
                     <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.navigateToBack}   >
-                        {' '}
                         {i18n('back')}
                         <Icon iconName="Back" />
                     </Button >
                 </div>
             </h1>
             <Paper className="main-content">
-                <DataForm ref="dataForm" onFieldRead={accessor => {
-                    const val = s.formData[accessor];
-                    if (val === undefined && accessor) this.undefinedFields[accessor] = 1;
-                    if (this.isFresh() && val && accessor) delete this.undefinedFields[accessor];
-                    return val;
-                }}
-                    onFieldWrite={(accessor, value) => {
-                        s.formData[accessor] = value;
-                    }}
+                <DataForm ref="dataForm" onFieldRead={this.handleFieldRead}
+                    onFieldWrite={this.handleFieldWrite}
                     validate={s.validated}
                     onErrorCode={this.actions.validate}
                     data={s.formData}>

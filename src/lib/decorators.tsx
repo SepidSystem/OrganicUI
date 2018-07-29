@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Spinner } from "./spinner";
 import { BaseComponent } from "./base-component";
+import { isProdMode } from "./developer-features";
 
 const noThisMessage = 'cannot use this(target) in Templated Function , see MVT section in document '
 
@@ -75,6 +76,27 @@ export function ChildrenMapper({ cached }) {
 
 export function Event() {
     return function (target: BaseComponent<any, any>, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
-        target[propertyName] = descriptor.value.bind(target);
+        descriptor.value = descriptor.value.bind(target);
+    }
+}
+export function Log(title) {
+    return function (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
+        if (isProdMode()) return;
+        const orginMethod = descriptor.value as Function;
+
+        function loggedFunction() {
+            const inputs = Array.from(arguments);
+            function showLog(result) {
+                console.groupCollapsed(`${title} on method ${orginMethod.name}`);
+                console.log('arguments>>>', inputs);
+                console.log('result>>>>', result);
+                console.groupEnd();
+            }
+            const result = orginMethod.apply(this, inputs);
+            return (result instanceof Promise) ? result.then(showLog) : showLog(result);
+        }
+        descriptor.value = loggedFunction.bind(target);
+
+
     }
 }

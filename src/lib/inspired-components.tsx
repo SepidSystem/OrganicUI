@@ -8,8 +8,6 @@ export const TextField: React.SFC<TextFieldProps> = _TextField as any;
 import { default as _Button, ButtonProps } from '@material-ui/core/Button';
 export const Button: React.SFC<ButtonProps> = _Button as any;
 
-
-
 import { default as _Checkbox, CheckboxProps } from '@material-ui/core/Checkbox';
 export const Checkbox: React.SFC<CheckboxProps> = _Checkbox as any;
 

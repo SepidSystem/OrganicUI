@@ -23,15 +23,17 @@ declare namespace OrganicUi {
         totalRows: number;
         rows: TRow[];
     }
-    interface IContentArgExtends<HT> {
-        itemNo: number;
-        index: number;
-        isLast: boolean;
-        isFirst: boolean;
-        handlers: HT;
+    interface IContentItem<T, TActions> {
+        alt: {
+            itemNo: number;
+            index: number;
+            isLast: boolean;
+            isFirst: boolean;
+        };
+        item: T;
+        actions: TActions;
     }
-    export type IContentFunction<T, HT> = ((item: T & IContentArgExtends<HT>) => JSX.Element);
-
+    export type IContentFunction<T, TActions> = (item: IContentItem<T, TActions>) => JSX.Element;
     export interface IBindableElement {
         tryToBinding();
     }
@@ -60,7 +62,8 @@ declare namespace OrganicUi {
     }
     export interface IFieldProps {
         accessor?: string;
-        operators?: any[];
+        showOpeartors?: boolean;
+        operators?: string[];
         onGet?, onSet?: Function;
         onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
         onRenderCell?: (item?: any, index?: number, column?: any) => any;
@@ -73,15 +76,18 @@ declare namespace OrganicUi {
         getInfoMessage?: () => string;
         children?: any;
         className?: string;
+        defaultOperand?:string;
+        renderMode?:string;
     }
-    export interface HandlersForIArrayDataView {
+    export interface ActionsForIArrayDataViewItem {
         remove: Function;
         append: Function;
+        select: Function;
     }
     export interface IArrayDataViewProps<T> {
         value: T[];
         onChange?: (value: T[]) => void;
-        children: IContentFunction<T, HandlersForIArrayDataView>;
+        children: IContentFunction<T, ActionsForIArrayDataViewItem>;
         defaultItem?: T | (() => T);
         minCount?: number;
         className?: string;
@@ -132,7 +138,8 @@ declare namespace OrganicUi {
         assignDefaultValues<T>(data: T, defaultValues: Partial<T>)
         skinDeepRender<T>(type: React.ComponentType<T>, params: T): JSX.Element;
         scanElement(element: React.ReactElement<any>, tester: (element) => boolean): JSX.Element;
-        diff(a,b):any;
+        diff(a, b): any;
+        enumToIdNames(enumType: any): ({ Id, Name }[]);
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -182,7 +189,6 @@ declare namespace OrganicUi {
     export const icon: IRegistry<any>;
     export const editorByAccessor: IRegistry<React.ReactElement<any>>;
     export const menuBar: IRegistry<string | Function>;
-    // export const appModules = IRegistry<IAppModule>();
 
     //--- for businness application & admin panels
 
@@ -190,10 +196,10 @@ declare namespace OrganicUi {
     export const reports: IRegistry<any>;
     export const dashboardBlocks: IRegistry<any>;
     export const acl: IRegistry<boolean>;
-    export interface UiModuleProps {
-        modName: string;
+    export interface UiKitProps {
+        id: string;
     }
-    export const UiModule: React.SFC<UiModuleProps>;
+    export const UiKit: React.SFC<UiKitProps>;
     export interface OrganicBoxProps<TActions, TOptions, TParams> {
         actions: TActions;
         options: TOptions;
@@ -230,6 +236,12 @@ declare namespace OrganicUi {
         setFieldValue(fieldName: string, value);
     }
     export function ListViewBox<T>(p: OrganicBoxProps<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams>): JSX.Element;
+
+    export type ReportReadMethod = (params: IAdvancedQueryFilters) => PromisedResultSet<any>;
+    interface IActionsForReport {
+        //     read: ReportReadMethod;
+    }
+    export function ReportViewBox(p: OrganicBoxProps<IActionsForReport, any, any>): JSX.Element;
     interface ComboBoxProps {
         value?: any;
         onChange?: any;
@@ -272,7 +284,6 @@ declare namespace OrganicUi {
         mapFormData?: (dto: TDto) => TDto;
         beforeSave?: (dto: TDto) => TDto;
         create: (dto: TDto) => Promise<any>;
-
         update: (id: any, dto: TDto) => Promise<any>;
         deleteList: (hid: any[]) => Promise<any>;
         read: (id: any) => Promise<TDto>;
@@ -283,6 +294,7 @@ declare namespace OrganicUi {
         getText?: (dto: TDto) => string;
         getId?: (dto: TDto) => any;
         getPageTitle?: (dto: TDto) => string;
+        onFieldWrite?: (key: string, value, dto: TDto) => void
     }
     type PartialFunction<T> = {
         [P in keyof T]?: ((value: T[P]) => any);
@@ -311,11 +323,15 @@ declare namespace OrganicUi {
     export interface ISingleViewParams { id }
     export type StatelessListView = React.SFC<IListViewParams>;
     export type StatelessSingleView = React.SFC<ISingleViewParams>;
-
-    export interface IAppModule {
-        getIcon?: () => React.ReactNode;
-        getText?: () => React.ReactNode;
-        link?: Function | string;
+    export interface IModuleManager {
+        baseUrl: string;
+        _loadingModules: ({ moduleId, resolve })[];
+        load(moduleId: string, src?: string): Promise<IModule>;
+        register(moduleId: string, mod: IModule);
+    }
+    export const moduleManager: IModuleManager;
+    export interface IModule {
+        setup(opts);
     }
     export interface ITreeListNode {
         text, key, parentKey, isLeaf?, type, extraValue?;
@@ -370,6 +386,11 @@ declare namespace OrganicUi {
         onErrorCode?: onErrorCodeResult;
         data?: T;
         className?: string;
+    }
+    interface IFilterPanelProps {
+        dataForm?: any;
+        operators?: any[];
+        onApplyClick?: () => any;
     }
     export type TMethods = Function[] | { [key: string]: Function }
     export interface IMenu {
@@ -437,7 +458,7 @@ declare namespace OrganicUi {
         style?: React.CSSProperties;
     }
     export const DataListPanel: React.SFC<DataListPanelProps>;
-
+    export const FilterPanel: React.SFC<IFilterPanelProps>;
     interface DataLookupProps {
         source: StatelessListView;
         className?: string;
@@ -480,7 +501,7 @@ declare namespace OrganicUi {
         title?, content?: any;
         actions?: { [key: string]: Function }
         defaultValues?: any;
-        noClose?:boolean;
+        noClose?: boolean;
     }
     interface AppUtilsIntf {
         (p: any): JSX.Element;
@@ -535,7 +556,6 @@ declare module '@organic-ui' {
     import { AnchorHTMLAttributes, CSSProperties } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
-
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
     export type StatelessListView = OrganicUi.StatelessListView;
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
@@ -561,7 +581,9 @@ declare module '@organic-ui' {
     export const Version: string;
     export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
     export class BaseComponent<P, S> extends OrganicUi.BaseComponent<P, S>{ }
-    export const UiModule: typeof OrganicUi.UiModule;
+    export const moduleManager: typeof OrganicUi.moduleManager;
+    export type IModule = OrganicUi.IModule;
+    export const UiKit: typeof OrganicUi.UiKit;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export type SingleViewBox<T=any> = OrganicUi.SingleViewBox<T>;
@@ -569,7 +591,7 @@ declare module '@organic-ui' {
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
-    export const ReportViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
+    export const ReportViewBox: typeof OrganicUi.ReportViewBox;
     export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
     export const DatePicker: React.SFC<any>;
     export const ComboBox: typeof OrganicUi.ComboBox;
@@ -581,6 +603,7 @@ declare module '@organic-ui' {
     export const DataList: typeof OrganicUi.DataList;
     export const DataPanel: typeof OrganicUi.DataPanel;
     export const DataListPanel: typeof OrganicUi.DataListPanel;
+    export const FilterPanel: typeof OrganicUi.FilterPanel;
     export const i18nAttr: typeof OrganicUi.i18nAttr;
     export const icon: typeof OrganicUi.icon;
     export const editorByAccessor: typeof OrganicUi.editorByAccessor;
@@ -605,7 +628,6 @@ declare module '@organic-ui' {
     // SepidSystem
     export type ITimeSlotRange = OrganicUi.ITimeSlotRange;
     export const TimeSlot: typeof OrganicUi.TimeSlot;
-    // export const appModules = IRegistry<IAppModule>();
 
     //--- for businness application & admin panels
 

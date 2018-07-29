@@ -87,7 +87,9 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         paginationMode: 'paged'
     }
     refs: {
-        root, content: HTMLElement;
+        root: HTMLElement;
+        parent: HTMLElement;
+        content: HTMLElement;
         detailList: DetailsList;
     }
     static Templates = openRegistry<Function>()
@@ -100,9 +102,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         const s = this.state;
         this.cache.reset();
         this.items = [];
-        const listData = this.loadDataIfNeeded(+s.startFrom) as any;
-        listData instanceof Promise && listData.then(listData => this.repatch({ listData }));
-        return listData;
+
+        return Utils.toPromise(this.loadDataIfNeeded(+s.startFrom));
     }
     constructor(p: OrganicUi.IDataListProps) {
         super(p);
@@ -194,6 +195,14 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
     handleDoubleClick(e: React.MouseEvent<any>) {
         this.props.onDoubleClick && this.props.onDoubleClick();
     }
+    scrollToIndex(index) {
+        this.refs.detailList.scrollToIndex(index);
+        const { root, parent } = this.refs;
+        const detailsRow = root.querySelector('.ms-DetailsRow');
+
+        if (detailsRow)
+            parent.scrollTop = (detailsRow.clientHeight * index);
+    }
     renderContent() {
         this.calcRowCount();
         const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
@@ -246,7 +255,10 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         return (
             <div ref="root" onDoubleClick={this.handleDoubleClick} className="data-list">
 
-                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null} className={Utils.classNames("developer-features", "data-list", p.paginationMode)} style={{ minHeight: (p.height + 'px') }} >
+                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
+                    ref="parent"
+                    className={Utils.classNames("developer-features", "data-list", p.paginationMode)}
+                    style={{ minHeight: (p.height + 'px') }} >
                     <div className="data-list-content" ref="content"
 
                         style={{ minHeight: p.paginationMode == 'scrolled' ? parseInt('' + (s.listData.totalRows * itemHeight)) + 'px' : 'auto' }}>

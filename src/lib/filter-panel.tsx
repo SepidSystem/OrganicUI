@@ -5,20 +5,16 @@ import { Field, FilterItem } from "./data";
 import { Utils } from "./utils";
 import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
 import { Paper, Button } from "./inspired-components";
-import { AdvButton } from "./ui-kit";
+import { AdvButton } from "./ui-elements";
 
-interface IFilterPanelProps {
-    dataForm?: any;
-    operators?: any[];
-    onApplyClick: () => any;
-}
+
 interface IFilterPanelState {
     selectedTab?: number;
 
 }
 
 
-export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelState> implements IDeveloperFeatures {
+export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFilterPanelState> implements IDeveloperFeatures {
     devPortId: any;
     dataForm: any;
     children: any;
@@ -26,7 +22,6 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
         super(p);
         this.dataForm = this.props.dataForm || {};
         this.devPortId = Utils.accquireDevPortId();
-
     }
 
     getDevButton() {
@@ -51,8 +46,9 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
                 } >
 
                     {React.Children.map(this.props.children, child => {
+                        const { props } = child as any;
                         if (child && child['type'] == Field)
-                            return React.cloneElement(child as any, { operators: this.props.operators } as IFieldProps)
+                            return React.cloneElement(child as any, { renderMode:'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
                         return child;
                     })
                     }
@@ -70,12 +66,7 @@ export class FilterPanel extends BaseComponent<IFilterPanelProps, IFilterPanelSt
         this.children = null;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.clear());
         this.repatch({});
-
     }
 }
-const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'].map(op => ({ Id: op, Name: i18n.get(`operator-${op}`) }))
 
-const defaultProps = {
-    operators: defaultOperators
-}
-Object.assign(FilterPanel, { defaultProps });
+ 

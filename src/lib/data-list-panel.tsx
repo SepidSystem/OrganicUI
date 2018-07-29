@@ -3,10 +3,10 @@ import { DataList } from "./data-list";
 import { DataForm } from "./data-form";
 import { Callout, Dialog, Modal, DefaultButton, MessageBar } from "./inspired-components";
 import { Utils } from "./utils";
-import { IDetailsListProps, DetailsListLayoutMode } from "office-ui-fabric-react/lib/DetailsList";
+import { IDetailsListProps, DetailsListLayoutMode, Selection, SelectionMode } from "office-ui-fabric-react/lib/DetailsList";
 import { i18n } from "./shared-vars";
 import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
-import { AdvButton } from "./ui-kit";
+import { AdvButton } from "./ui-elements";
 import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 import { DataPanel } from './data-panel';
 interface IState {
@@ -20,10 +20,12 @@ interface IState {
 }
 export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, IState>
     implements OrganicUi.IBindableElement {
-    targetItem: any;
+    private targetItem: any;
+
+
     items: any[];
     lastMod: number;
-
+    selection: Selection;
     refs: {
         root: HTMLElement;
         dataForm: DataForm;
@@ -51,6 +53,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
     getItems() {
         if (this.items) return this.items;
         const { root } = this.refs;
+
         if (!root) return;
         let parent = root.parentElement;
         let getters: (string | Function)[] = [];
@@ -85,8 +88,13 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
             }
         })
     }
+    afterActiveItemChanged(selectedItem, selectedItemIndex) {
+        this.targetItem = JSON.parse(JSON.stringify(selectedItem));
+        this.repatch({ selectedItem, selectedItemIndex })
+    }
 
     render(p = this.props, s = this.state) {
+        this.selection = this.selection || new Selection({ selectionMode: SelectionMode.single });
         const header =
             p.header === undefined ? (p.pluralName && Utils.i18nFormat('header-for-data-list-panel', p.pluralName)) : p.header;
         this.targetItem = this.targetItem || {};
@@ -95,11 +103,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         const extraPropsOfDetailList: Partial<IDetailsListProps> = {
             items,
 
-            onActiveItemChanged: (selectedItem, selectedItemIndex) => {
-                this.targetItem = JSON.parse(JSON.stringify(selectedItem));
-                this.repatch({ selectedItem, selectedItemIndex })
-            }
-
+            onActiveItemChanged: this.afterActiveItemChanged.bind(this)
         };
         if (!items) {
             setTimeout(() => this.tryToBinding(), 20);
@@ -108,12 +112,12 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         this.dataListProps = this.dataListProps || Object.assign({} as OrganicUi.IDataListProps,
             {
                 ref: 'datalist',
+                selection: this.selection,
                 loader: () => {
 
-                    if (window['loaderDebug']) {
-                        alert('dfgdfg');
+                    if (window['loaderDebug'])
                         debugger;
-                    }
+
                     return Promise.resolve(this.items);
                 }, height: p.dataListHeight,
                 paginationMode: 'scrolled'
@@ -131,7 +135,6 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
 
         const targetClick = (targetSelector: string) => () => {
-
             if (targetSelector && targetSelector.includes('add')) {
                 this.targetItem = {};
                 //    this.repatch({ selectedItem: null });
@@ -206,9 +209,18 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                         this.items = this.getItems();
                                         this.items.push(this.targetItem);
                                         this.lastMod = +new Date();
-                                        this.refs.datalist.reload();
-                                        this.repatch({ isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: MessageBarType.success } });
-                                        this.targetItem = {};
+                                        this.refs.datalist.reload().then(() => {
+                                            this.repatch({ isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: MessageBarType.success } });
+
+                                            setTimeout(() => {
+                                                this.refs.datalist.scrollToIndex(this.items.length - 1);
+                                            }, 200);
+                                            setTimeout(() => {
+                                                this.items.forEach((_, idx) => this.selection.setIndexSelected(idx, idx == this.items.length - 1, false));
+                                                this.afterActiveItemChanged(this.targetItem, this.items.length - 1);
+                                            }, 500);
+
+                                        });
 
                                     });
                                 }}
@@ -228,8 +240,15 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                     typeof s.selectedItemIndex == 'number') {
                                     this.items.splice(s.selectedItemIndex, 1);
                                 }
-                                this.refs.datalist && this.refs.datalist.reload();
-                                this.repatch({ validated: true, isOpen: false, targetSelector: null, message: null });
+                                this.refs.datalist && this.refs.datalist.reload().then(() => {
+                                    this.repatch({ validated: true, isOpen: false, targetSelector: null, message: null });
+                                    let selectedItemIndex = s.selectedItemIndex;
+                                    if (selectedItemIndex >= this.items.length) selectedItemIndex = this.items.length - 1;
+                                    setTimeout(() => {
+                                        this.items.forEach((_, idx) => this.selection.setIndexSelected(idx, idx == selectedItemIndex, false));
+                                    }, 500);
+
+                                });
 
                             }}
                             primary={!!s.selectedItem}

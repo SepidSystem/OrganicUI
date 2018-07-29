@@ -6,7 +6,7 @@ import { Callout, DefaultButton, Icon, MessageBar } from './inspired-components'
 import { BaseComponent } from './base-component';
 import { Utils, changeCase } from './utils';
 import { Field } from "./data";
-import { Panel } from './ui-kit';
+import { Panel } from './ui-elements';
 interface IState {
     message?: { type, text };
     selectedItem: any;
