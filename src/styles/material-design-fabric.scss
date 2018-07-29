@@ -9,13 +9,13 @@
         pointer-events: none;
         padding-left: 0.125rem;
         z-index: 1;
-        font-size: 1rem;
+        font-size: 1rem !important;
         font-weight: normal;
         white-space: nowrap;
         overflow: visible;
         text-overflow: ellipsis;
         height: 0;
-        margin: 0 !important;
+        margin: 0;
         min-width: auto !important;
         max-width: auto !important;
         color: #a6a6a6;
