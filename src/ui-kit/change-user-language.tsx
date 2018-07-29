@@ -1,7 +1,8 @@
-import { UiModule } from "../lib/ui-mod";
-import { getCurrentUserLangauge, changeUserLanguage } from "../lib/bootstrapper";
 
-function Component() {
+import { getCurrentUserLangauge, changeUserLanguage } from "../lib/bootstrapper";
+import { uiKits } from "../lib/shared-vars";
+
+function Kit() {
     return <a className="ui-mod change-lanauge" onClick={handleClick}>
 
         {getCurrentUserLangauge()}
@@ -15,4 +16,4 @@ function handleClick(e: React.MouseEvent<any>) {
     changeUserLanguage(lang);
 
 }
-UiModule.registeredModules('change-user-language', Component);
+uiKits('change-user-language', Kit);
