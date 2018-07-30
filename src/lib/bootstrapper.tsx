@@ -15,31 +15,36 @@ import { IAppModel, ITreeListNode } from "@organic-ui";
 import { NotFoundView } from "./404";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import theme from '../styles/theme';
+import { openRegistry } from "./registry";
+import OrganicBox from "./organic-box";
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {
     appModel?: IAppModel
 
 } = {};
-export function mountViewToRoot(selector?, url?) {
-    selector = selector || '#root';
-    const root = typeof selector == 'string' ? document.querySelector(selector) : selector as HTMLElement;
+interface IMountViewToRootParams {
+    selector?;
+    url?;
+    clearLinks?: boolean;
+    callback?: Function;
+}
+export function mountViewToRoot(p?: IMountViewToRootParams) {
+    p = p || {};
+    p.selector = p.selector || '#root';
+    const root: HTMLElement = typeof p.selector == 'string' ? document.querySelector(p.selector) : p.selector as HTMLElement;
     const params = {};
-
-    const viewType: typeof React.Component = route(url || location.pathname, params) || NotFoundView as any;
+    if (p.clearLinks) snapLink.clear();
+    const viewType: typeof React.Component = route(p.url || location.pathname, params) || NotFoundView as any;
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
-    const view = React.createElement(viewType, params, );
-
+    const view = React.createElement(viewType, params);
     const masterPage = (viewType['masterPage']) || appData.appModel.defaultMasterPage();
     const vdom = React.createElement(masterPage, {}, view);;
-    if (root.childElementCount)
+    if (ReactDOM.unmountComponentAtNode instanceof Function && root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
-    ReactDOM.render(theme ?
-        <MuiThemeProvider theme={theme} >
-            {vdom}
-        </MuiThemeProvider>
-        : vdom, root);
+
+    ReactDOM.render(vdom, root, () => p.callback instanceof Function && p.callback());
 
 
 }
@@ -47,7 +52,7 @@ export function mountViewToRoot(selector?, url?) {
 
 
 export function renderViewToComplete(url, selector: any = '#root2') {
-    mountViewToRoot(selector, url);
+    mountViewToRoot({ selector, url, clearLinks: true });
     return new Promise(resolve => {
         const element = typeof selector == 'string' ? document.querySelector(selector) : selector;
         function check() {
@@ -58,7 +63,7 @@ export function renderViewToComplete(url, selector: any = '#root2') {
         check();
     })
 }
-export const getCurrentUserLangauge = () => localStorage.getItem('lang') || 'FA_IR';  
+export const getCurrentUserLangauge = () => localStorage.getItem('lang') || 'FA_IR';
 function loadLocalizationResource(userLang?) {
     const scripts = Array.from(document.querySelectorAll('script'));
     const domainScript = scripts.filter(({ src }) => src.includes('/domain.js'))[0];
@@ -119,3 +124,12 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
         });
     });
 }
+
+export const snapLink = openRegistry();
+
+snapLink.set = (key, value) => {
+     snapLink.register({ [key]: value });
+    OrganicBox.saveStates();
+    OrganicBox.OrganicBoxCounter=0;
+    mountViewToRoot({ callback: () => OrganicBox.restoreStates() });
+};

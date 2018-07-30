@@ -18,7 +18,7 @@ interface DataLookupProps {
     className?: string;
     onChange?: (value) => void;
     onFocus?: () => void;
-    onBlur?:Function;
+    onBlur?: Function;
     onDisplayText?: (value) => React.ReactNode;
     multiple?: boolean;
     value?: any;
@@ -42,7 +42,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         //iconCode: 'fa-search',
         minHeightForPopup: '300px'
     }
-    static classNameForField = "data-lookup-field";
+    static classNameForField = "data-lookup-field control-field-single-line";
     static textReader = (fld, prop: DataLookupProps, value) => {
         const { source } = prop as any;
         if (!source.listViewActions) {
@@ -75,6 +75,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         this.handleClick = this.handleClick.bind(this);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
         this.listViewBoxNotFoundCounter = 2;
+        this.handleSetValue = this.handleSetValue.bind(this);
     }
     getListViewBox(): ListViewBox<any> {
         const { listViewContainer } = this.refs;
@@ -116,28 +117,15 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
     }
     handleSelectionChanged(indices: number[], index) {
-
         const listViewBox = this.getListViewBox();
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
-        if (!items) return;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (accum[idx] = true, accum), {});
         const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
-        if (this.props.multiple) {
-
-            this.repatch({ value: ids });
-
-        }
-        else {
-
-            this.repatch({ value: ids[0] });
-            if (ids.length) {
-                closeAllPopup();
-
-            }
-
-        }
-
+        const value = this.props.multiple ? ids : ids[0];
+        this.repatch({ value });
+        if (!this.props.multiple && ids.length)
+            closeAllPopup();
         this.props.onChange instanceof Function && this.props.onChange(
             this.props.multiple ? ids : ids[0]
         );
@@ -145,13 +133,18 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
     }
     repatch(delta: Partial<DataLookupState>, target?) {
-        if ('isOpen' in delta && !delta.isOpen && this.state.isOpen && this.openRequestTime) {
-            const { listViewContainer } = this.refs;
-            if (listViewContainer) {
-                const rows = Array.from(listViewContainer.querySelectorAll(".ms-DetailsRow")).map(r => Array.from(r.classList));
+        if ('isOpen' in delta && !delta.isOpen) {
+            this.listViewBox = null;
+            if (this.state.isOpen && this.openRequestTime) {
+                const { listViewContainer } = this.refs;
 
+                if (listViewContainer) {
+                    const rows = Array.from(listViewContainer.querySelectorAll(".ms-DetailsRow")).map(r => Array.from(r.classList));
+
+                }
             }
         }
+
         super.repatch(delta, target);
     }
     tryToActionsForListViewBox: number;
@@ -224,6 +217,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
         return valueArray.map(value => (<DataLookupCell
             actions={this.actionsForListViewBox as any}
             options={this.optionsForListViewBox as any}
+            key={value}
             value={value} />));
     }
     @Event()
@@ -253,7 +247,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
 
             />;
         this.adjustEditorPadding();
-        this.listViewElement = this.listViewElement || (listViewContainer && React.createElement(p.source, {
+        this.listViewElement = this.listViewElement || (listViewContainer && p.source && React.createElement(p.source, {
             forDataLookup: true,
             defaultSelectedValues: () => Utils.toArray([s.value, p.value].filter(v => v !== undefined)[0]),
             getValue: () => [s.value, p.value].filter(v => v !== undefined)[0],
@@ -262,7 +256,7 @@ export class DataLookup extends BaseComponent<DataLookupProps, DataLookupState>{
             corner: p.multiple && this.getCorner(),
             height: listViewContainer.clientHeight - 3,
             onSelectionChanged: this.handleSelectionChanged,
-            setValue: this.handleSetValue.bind(this)
+            setValue: this.handleSetValue
         } as Partial<OrganicUi.IListViewParams>));
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
         return <div ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
@@ -324,7 +318,7 @@ class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     static cellRefsByCacheId: { [key: string]: Object } = {};
     static repatchAllByCacheId(cacheId, delta) {
         const cells = DataLookupCell.cellsByCacheId[cacheId];
-
+        console.log({ cells });
         if (cells instanceof Array)
             cells.forEach(cell => cell.repatch(delta));
     }

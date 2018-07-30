@@ -1,15 +1,5 @@
 /// <reference path="../dts/globals.d.ts" />
 
-import { BaseComponent } from './base-component';
-import { icon, i18n } from './shared-vars';
-import { Utils } from './utils';
-import { Field } from './data';
-import { listViews } from './shared-vars';
-import { ReactElement, isValidElement } from 'react';
-
-import { DataForm } from './data-form';
-import { Spinner } from './spinner';
-import { AdvButton, Placeholder } from './ui-elements';
 
 import OrganicBox from './organic-box';
 import { Paper } from './inspired-components';
@@ -27,9 +17,9 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
         datalist: DataList;
     }
     handleApplyClick() {
-        const { datalist } = this.refs;
+         const { datalist } = this.refs;
 
-        datalist.reload();
+        return datalist.reload();
     }
     renderContent(p = this.props) {
         const children = React.Children.toArray(this.props.children) as React.ClassicElement<any>[];
@@ -39,15 +29,15 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
             { onApplyClick: handleApplyClick, ref: "filterPanel" } as Partial<OrganicUi.IFilterPanelProps>);
         let dataListElement = children.filter(child => child.type == DataList)[0];
         dataListElement = dataListElement && React.cloneElement(dataListElement,
-            { loader: this.actions.read,height:200 } as Partial<OrganicUi.IDataListProps>);
+            { loader: this.actions.read, height: 200, ref: "datalist", startWithEmptyList: true } as Partial<OrganicUi.IDataListProps>);
 
         return <section>
             <h1 className="title is-2">Report</h1>
-            {filterPanelElement} <br />     
+            {filterPanelElement} <br />
             <Paper className="main-content">
-           
+
                 {dataListElement}
-               <br /><br /> </Paper>
+                <br /><br /> </Paper>
         </section>
 
     }

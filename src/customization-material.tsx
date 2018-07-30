@@ -5,9 +5,10 @@ import { Checkbox, TextField, FormControlLabel } from "./lib/inspired-components
 import { ComboBox } from "./lib/combo-box";
 import { Utils } from "./lib/utils";
 import { i18n } from "./lib/shared-vars";
+import { IFieldProps } from "@organic-ui";
 
 
-Checkbox['field-className'] = 'reversed-label no-material gray-color check-field';
+
 Checkbox['dataType'] = 'boolean';
 Checkbox['textReader'] = function (field: Field, props: any, value) {
     return <FormControlLabel label={null} disabled control={<Checkbox defaultChecked={value} value={value} />} />;
@@ -27,14 +28,17 @@ function checkBoxStatusToBoolean(v: CheckBoxStatus) {
         return null;
     return !!parseInt(v);
 }
-console.log(Utils.enumToIdNames(CheckBoxStatus));
-Checkbox['field-renderMode-filterPanel'] = (p) => (
+
+Checkbox['field-renderMode-filterPanel'] = (fieldProps: IFieldProps) => (p) => (
     <ComboBox
-        items={Utils.enumToIdNames(CheckBoxStatus)}
+        items={Utils.enumToIdNames(CheckBoxStatus,
+             { 'checked': fieldProps.trueDisplayText, 'unchecked': fieldProps.falseDisplayText })}
         placeholder={i18n('none') as any}
         onChange={({ target }) => p.onChange(checkBoxStatusToBoolean(target.value))}
         value={toCheckBoxStatus(p.value)} />
 )
-Checkbox['filterOperators']=['eq','neq'];
-Checkbox['field-renderMode-filterPanel']['filterOperators']=Checkbox['filterOperators'];
-TextField['field-className'] = ''; 
+Checkbox['filterOperators'] = ['eq', 'neq'];
+Checkbox['field-renderMode-filterPanel']['filterOperators'] = Checkbox['filterOperators'];
+Checkbox['classNameForField'] = 'checkbox-field';
+Checkbox['field-className'] = 'reversed-label no-material  check-field';
+TextField['field-className'] = 'textfield-field';

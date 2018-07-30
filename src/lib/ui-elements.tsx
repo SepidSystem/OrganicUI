@@ -86,6 +86,7 @@ export function SearchInput(p: { className?: string }) {
 interface IAdvButtonProps {
     children?: any;
     isLoading?: boolean;
+    isError?:boolean;
     callout?: any;
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
@@ -119,7 +120,9 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
 
                         resultAsync.catch(error => {
                             console.log('Advanced Button Error>>>>>', error);
-                            repatch({ isLoading: false, callout: null });
+                            repatch({ isLoading: false, callout: null,isError:true });
+                            repatch({  isError:false },null,2000);
+                            
                             return error;
                         })
                         Promise.all([resultAsync])
@@ -136,8 +139,10 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
             }
             }
         >
-            {!s.isLoading && !s.callout && p.children}
+            {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
+        
+            {!!s.isError &&     <i className="fa fa-exclamation-triangle"></i>}
             {s.isLoading && <Spinner />}
         </Button>;
         React.createElement(p.buttonComponent || Button,

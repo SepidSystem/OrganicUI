@@ -149,20 +149,21 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.repatch({});
     }
     getInputElement(): JSX.Element {
-        if (this.inputElement) return this.inputElement;
-        const {accessor}=this.props;
+        if (!this.props.children && this.inputElement) return this.inputElement;
         let inputElement = this.props.children as React.ReactElement<any>;
         if (!inputElement)
             inputElement = editorByAccessor(changeCase.camelCase(this.props.accessor));
         const customRenderer = (inputElement.type && inputElement.type[`field-renderMode-${this.props.renderMode}`]);
-        console.log({customRenderer,inputElement,accessor,type:inputElement.type});
-        if (customRenderer)
-            inputElement = customRenderer;
-
-        if (inputElement instanceof Function) inputElement = React.createElement(inputElement as any, {});
-        if (this instanceof Field)
-            this.inputElement = inputElement;
-        return inputElement;
+        if (customRenderer){ 
+            this.operators= this.operators || customRenderer['filterOperators'];
+            inputElement = customRenderer(this.props);
+        }
+        if (inputElement instanceof Function) {
+            inputElement = React.createElement(inputElement as any, {});
+            if (this instanceof Field)
+                this.inputElement = inputElement;
+        }
+         return inputElement;
     }
     getCurrentOp() {
         return this.state.currentOp || (this.operators[0]);
@@ -211,9 +212,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
         const iconForStatus: string = hasError && '';// 'fa-exclamation-triangle';
         let inputElement = this.getInputElement();
-        const inputElementType = inputElement && inputElement.type;
-        const classNameFromInputType = inputElementType && inputElementType['field-className'];
-        const filterFromInputType: Function = inputElementType && inputElementType['field-filter'];
+        const inputElementType: any = (inputElement && inputElement.type) || {};
+        const classNameFromInputType = inputElementType['field-className'];
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData(inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
@@ -227,15 +227,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 className: Utils.classNames(inputElement.props && inputElement.props.className)
             }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.extractedValue)
         );
-        console.assert(filterFromInputType === undefined || filterFromInputType instanceof Function, 'filterFromInputType is not function', filterFromInputType);
         const label = Field.getLabel(p.accessor, p.label);
-        filterFromInputType && filterFromInputType(propsOfInputElement, this, label);
         const { root } = this.refs;
         if (!root && s.messages && s.messages[0])
             setTimeout(() => this.repatch({}), 100);
 
         if (root && (!s.messages || !s.messages[0]))
             this.clientWidthNoErrorMode = root.clientWidth;
+        if (s.messages && s.messages[0]) this.clientWidthNoErrorMode = undefined;
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
         if (p.onlyInput) return inputElement;
         const hasValue = (this.extractedValue !== undefined) && (this.extractedValue !== null);

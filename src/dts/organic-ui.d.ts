@@ -76,8 +76,16 @@ declare namespace OrganicUi {
         getInfoMessage?: () => string;
         children?: any;
         className?: string;
-        defaultOperand?:string;
-        renderMode?:string;
+        defaultOperand?: string;
+        renderMode?: string;
+        trueDisplayText?: string;
+        falseDisplayText?: string;
+    }
+    interface IStatefulComponentChainful<S> {
+        defineWatcher(stateId, callback: (view: BaseComponent<any, S>) => any): IStatefulComponentChainful<S>;
+        defineAction(actionId, callback): IStatefulComponentChainful<S>;
+        defineSubRenderer(actionId, callback): IStatefulComponentChainful<S>;
+        assignToRouteTable(pattern: string): IStatefulComponentChainful<S>;
     }
     export interface ActionsForIArrayDataViewItem {
         remove: Function;
@@ -189,6 +197,7 @@ declare namespace OrganicUi {
     export const icon: IRegistry<any>;
     export const editorByAccessor: IRegistry<React.ReactElement<any>>;
     export const menuBar: IRegistry<string | Function>;
+    export const snapLink: IRegistry;
 
     //--- for businness application & admin panels
 
@@ -239,7 +248,7 @@ declare namespace OrganicUi {
 
     export type ReportReadMethod = (params: IAdvancedQueryFilters) => PromisedResultSet<any>;
     interface IActionsForReport {
-        //     read: ReportReadMethod;
+        read: ReportReadMethod;
     }
     export function ReportViewBox(p: OrganicBoxProps<IActionsForReport, any, any>): JSX.Element;
     interface ComboBoxProps {
@@ -254,6 +263,7 @@ declare namespace OrganicUi {
         itemHeight?: number;
         onLoadRequestParams?: Function;
         loader?: (req: IDataListLoadReq) => Promise<IListData>;
+        startWithEmptyList?: boolean;
         onDoubleClick?: () => void;
         onCurrentRowChanged?: (row: any) => any;
         rowCount?: number;
@@ -355,6 +365,15 @@ declare namespace OrganicUi {
         get(key: string): string;
         customTester(v: CustomTesterForRegistry, value: T);
     }
+    export function openRegistry<T>(): IRegistry<T>;
+    export interface IStatefulRenderer<S> {
+        props;
+        state: S;
+        repatch(delta: Partial<S>): void;
+        subrender(rendererId:string,params);
+        exec(actionName, actionParams): Promise<any>
+    }
+    export function StatefulView<S, THelpers={}>(renderFunc: (args: IStatefulRenderer<S & THelpers>) => JSX.Element): IStatefulComponentChainful<S>;
     export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
     export interface IDeveloperFeatures {
         devElement: any;
@@ -543,7 +562,7 @@ declare module '@organic-ui' {
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps;
     export const Field: typeof OrganicUi.Field;
-
+    export const snapLink: typeof OrganicUi.snapLink;
     export type IAppModel = OrganicUi.IAppModel;
     export const startApp: typeof OrganicUi.startApp;
 
@@ -573,6 +592,7 @@ declare module '@organic-ui' {
     export type ErrorCodeForFieldValidation = OrganicUi.ErrorCodeForFieldValidation;
     export type IDataFormAccessorMsg = OrganicUi.IDataFormAccessorMsg;
     export type PromisedResultSet<T> = OrganicUi.PromisedResultSet<T>;
+    export type ReportReadMethod = OrganicUi.ReportReadMethod;
     export type ActionResult = Promise<any>;
     export type IListData<TRow=any> = OrganicUi.IListData;
     interface IBindableElement {
@@ -638,6 +658,9 @@ declare module '@organic-ui' {
     // decorators
     function decoSubRender(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>)
     export function SubRender(): typeof decoSubRender;
+    function decoHelper(target: typeof BaseComponent)
+    export function Helper(helperId): typeof decoHelper;
+
     export const Icons: typeof OrganicUi.Icons;
     //   Inspired Components;
     export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';

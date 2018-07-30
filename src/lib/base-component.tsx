@@ -41,7 +41,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
             } catch{
                 return null;
             }
-        }).filter(x => !!x).filter(([key, value]) => this._autoUpdateState[key] !== value);
+        }).filter(x => !!x).filter(([key, value]) => JSON.stringify(  this._autoUpdateState[key]) !== JSON.stringify(value));
 
         if (newState.length) {
             this._autoUpdateState = Object.assign({}, this.state || {}) as S;
@@ -73,7 +73,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
         this.tryCountLimits = {};
-
+      
     }
     tryCountLimits: { [key: string]: number };
 
@@ -100,6 +100,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     componentDidMount() {
         const { root } = this.refs;
         root && Object.assign(root, { componentRef: this });
+          
     }
     defaultState(delta: Partial<S>) {
         Utils.assignDefaultValues(this.state, delta);

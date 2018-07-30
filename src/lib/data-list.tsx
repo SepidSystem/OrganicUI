@@ -137,10 +137,10 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         this.lastDataLoading = new Date();
         if (fetchableRowCount < 0) fetchableRowCount = 0;
         const params = { startFrom, rowCount: fetchableRowCount, };
-        const promise = this.props.loader(
+        const promise = Utils.toPromise(this.props.loader(
             this.props.onLoadRequestParams instanceof Function ? this.props.onLoadRequestParams(params)
                 : params
-        );
+        ));
 
         return promise instanceof Promise && promise.then(listData => {
             if (listData instanceof Array) {
@@ -160,30 +160,32 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                 , listData, isLoading: false, currentPageIndex
             });
             return listData;
-        });
+        }, (error) => (this.repatch({ isLoading: false }),Promise.reject(error)));
     }
     scrollTimer: any;
     getDevButton() {
         return Utils.renderDevButton('DataList', this);
     }
     adjustScroll() {
-        this.scrollTimer && clearTimeout(this.scrollTimer);
-        this.scrollTimer = null;
-        const { content, root } = this.refs;
-        const { listData } = this.state;
-        const ratio = listData ? (root.scrollTop / content.clientHeight) : 0;
-        const diffRatio = (ratio - this.state.ratio) * 100;
-        let { startFrom } = this.state;
-        if (root.scrollTop == 0) startFrom = 0;
-        const { itemHeight, height } = this.props;
-        let times = Math.abs(Math.floor(diffRatio / 0.001));
-        if (times < 1) times = 1
-        if (times > 2)
-            startFrom += this.rowCount * times * (Math.sign(diffRatio));
-        else
-            startFrom = ratio * listData.totalRows;
-        if (startFrom < 0) startFrom = 0;
-        this.repatch({ startFrom, listData: null, ratio });
+        if (this.props.paginationMode == 'scrolled') {
+            this.scrollTimer && clearTimeout(this.scrollTimer);
+            this.scrollTimer = null;
+            const { content, root } = this.refs;
+            const { listData } = this.state;
+            const ratio = listData ? (root.scrollTop / content.clientHeight) : 0;
+            const diffRatio = (ratio - this.state.ratio) * 100;
+            let { startFrom } = this.state;
+            if (root.scrollTop == 0) startFrom = 0;
+            const { itemHeight, height } = this.props;
+            let times = Math.abs(Math.floor(diffRatio / 0.001));
+            if (times < 1) times = 1
+            if (times > 2)
+                startFrom += this.rowCount * times * (Math.sign(diffRatio));
+            else
+                startFrom = ratio * listData.totalRows;
+            if (startFrom < 0) startFrom = 0;
+            this.repatch({ startFrom, listData: null, ratio });
+        }
 
     }
     handleScroll() {
@@ -220,7 +222,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
 
         const { listData, startFrom } = this.state;
         const p = this.props, s: IDataListState = this.state;
-        s.listData = s.listData || this.loadDataIfNeeded(+s.startFrom) as any;
+        s.listData = s.listData || (!p.startWithEmptyList && this.loadDataIfNeeded(+s.startFrom)) as any;
         const length = this.rowCount || 10;
 
         let items = this.items =

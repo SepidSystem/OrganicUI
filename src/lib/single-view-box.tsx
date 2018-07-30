@@ -80,6 +80,7 @@ export class SingleViewBox<T> extends OrganicBox<
         const formData = this.getFormData();
         formData && (formData[fieldName] = value);
     }
+    
     async handleSave(navigateToListView?) {
         const p = this.props, s = this.state;
         this.repatch({ validated: true });
@@ -91,7 +92,7 @@ export class SingleViewBox<T> extends OrganicBox<
             console.assert(this.actions.beforeSave instanceof Function, 'this.actions.beforeSave is not function', this.actions.beforeSave);
 
         if (this.actions.beforeSave instanceof Function)
-            [formData] = await Promise.all([this.actions.beforeSave(formData)]);
+            formData = await Utils.toPromise(this.actions.beforeSave(formData));
         const [invalidItems] = await Promise.all([dataForm.revalidateAllFields(formData)]);
         if (invalidItems && invalidItems[0]) {
             dataForm.setFocusByAcccesor(invalidItems[0].accessor);
@@ -101,7 +102,8 @@ export class SingleViewBox<T> extends OrganicBox<
         let { id } = p.params;
         if (id == 'new') id = 0;
         const monitorFunc = SingleViewBox.getMonitorFunc();
-        const debugResult = await Promise.all([!!monitorFunc && monitorFunc('beforeSave', formData)]);
+        const debugResult = await Utils.toPromise(!!monitorFunc && monitorFunc('beforeSave', formData));
+        console.assert(debugResult === -1, 'debugResult>>>>', { debugResult });
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
             updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
@@ -185,7 +187,8 @@ export class SingleViewBox<T> extends OrganicBox<
         if (s.formData instanceof Promise) return <Spinner />;
 
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
-        return <section className="single-view developer-features" ref="root">
+ 
+        return <section className="organic-box single-view developer-features" ref="root">
             <h1 className="title is-3 columns" style={{ margin: '0' }}>
                 <div className="column  " style={{ flex: '10' }}>
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}

@@ -221,7 +221,7 @@ class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
         return ranges instanceof Array && ranges.map((range, index) => (
             <DataForm key={index} className={Utils.classNames(invalids && invalids[index] && 'invalid', 'data-form-row', `range${index}`)}
                 onFieldRead={key => range[key]}
-                onFieldWrite={(key, value) => (range[key] = value,console.log(range,key), this.repatch({ invalids: Utils.excl(invalids, index) }, undefined, 100))}>
+                onFieldWrite={(key, value) => (range[key] = value, this.repatch({ invalids: Utils.excl(invalids, index) }, undefined, 100))}>
                 <Field key="from" accessor="from">
                     <TimeEdit />
                 </Field>

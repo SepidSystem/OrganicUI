@@ -3,6 +3,7 @@ import * as React from "react";
 import { Spinner } from "./spinner";
 import { BaseComponent } from "./base-component";
 import { isProdMode } from "./developer-features";
+import { helpers } from "./shared-vars";
 
 const noThisMessage = 'cannot use this(target) in Templated Function , see MVT section in document '
 
@@ -96,7 +97,14 @@ export function Log(title) {
             return (result instanceof Promise) ? result.then(showLog) : showLog(result);
         }
         descriptor.value = loggedFunction.bind(target);
+    }
+}
 
-
+export function Helper(helperId) {
+    const helper = helperId instanceof Function ? helperId : helpers(helperId);
+    return (target: any) => {
+        target['helpers'] = target['helpers'] || [];
+        target['helpers'].push(helperId);
+        helper && helper(target);
     }
 }

@@ -1,4 +1,3 @@
-import { mountViewToRoot } from "./bootstrapper";
 import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 import { diff } from 'rus-diff';
@@ -13,7 +12,7 @@ export const Utils = {
 	navigate(url) {
 
 		history.pushState(null, null, url);
-		mountViewToRoot();
+		OrganicUI['mountViewToRoot']();
 		return Promise.resolve(true);
 	},
 	debounce(func, wait, immediate?) {
@@ -260,10 +259,23 @@ export const Utils = {
 	toPromise<T>(value: (T | Promise<T>)): Promise<T> {
 		return Promise.all([value]).then(([result]) => result);
 	},
-	enumToIdNames(enumType: any): ({ Id, Name }[]) {
+	enumToIdNames(enumType: any, customCaptions?: Object): ({ Id, Name }[]) {
+		customCaptions = customCaptions || {};
 		return Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
-			.map(Name => ({ Id: enumType[Name], Name }))
+			.map(Name => ({ Id: enumType[Name], Name: customCaptions[Name] || Name }))
+	},
+	equals(left, right) {
+		const result = left == right;
+		try {
+			if (JSON.stringify(left) == JSON.stringify(right)) return true;
+		}
+		catch (exc) {
+
+		}
+		return result;
+
+
 	}
 }
 import * as changeCaseObject from 'change-case-object'
