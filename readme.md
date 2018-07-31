@@ -1,35 +1,13 @@
-# Organic Framework
-It is a framework for making Proven Business Application with edge of new features.     
-
-## Preface
-
-before creating computers ,means of `web` was the classic circular form spider's web.
-- pros :  flexural , compressional ,tensional
-- cons : unclear,dirty,unsafe,non-structural
-
-after become internet these properties inspired in WEB(W3C).
-
-primary web programming for web browser is javascript . it is similar to classic circular form spider's web . 
-- pros: Speed,Simplicity,Versatility,light for Server Load
-- cons : low-security,dirty-code,reliance on End User. 
- 
- after 17 years from raise javascript , introduce  typescript by microsoft , typescript is more realiable , fixed many cons of JS , also it is compile(transpire) to high-qulity-js  
-`TypeScript = C# + Java + JS + JS + (0.3*Pascal) `
-  
-we decide for better and simpler code use "View Only" approach for frontend-section,
-in "view only" frontend developer focus on render functions with functional programming paradigm. According many research best framework for functional frontend was react, react has not DSL language for view , it is use ES6Feaures(New Version of JS) for preparing & rendering. It is strong milestone for many developer. also we need to application development for structural Lanaguge , we choice TypeScript language. It is more clear,developer-friendly and fun.
-
-
-every view in our project is a tsx(typescript+xml) file, for example /view/dashboard route to dashboard.tsx, 
-**In others words  we select with all powers react+typescript** .
+# Organic Framework [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://github.com/bit-foundation/bit-framework/blob/master/LICENSE)
+Organic Framework is a full stack multi-purpose **RAPID Application Development Framework** for modern web-based database-driven applciations. Its frontend is based on [React](https://facebook.github.io/react/). Organic Framework is intended to support multiple back-end languages, currently including [C\#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp) and [Node.js](https://nodejs.org/en/) samples.
 
 ## Features
 
 Features of Frontend 
-- Functional View
-- Improved Build System(less one second )
-- Hot Module Loader With State Saver
-- Developer Panel with many features(tracking request,debug templates)
+* Functional View
+* Improved Build System (less than one second )
+* Hot Module Loader and State Saver
+* Developer Panel with many features (tracking request, debugging templates, ...)
 - Two way binding 
 - Dashboard Designer 
 - Search engine
