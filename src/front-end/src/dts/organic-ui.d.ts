@@ -1,7 +1,6 @@
 
 /// <reference path="../dts/globals.d.ts" />
 /// <reference path="./open.d.ts" />
-
 declare namespace OrganicUi {
     export interface ResultSet<T> {
         results: T[];
@@ -97,7 +96,6 @@ declare namespace OrganicUi {
         style?: React.CSSProperties;
     }
     export interface IAdvSectionProps extends React.HTMLAttributes<any> {
-
         errorMessage: any;
         onActionExecute?: (actionName: string) => void;
         onCloseMessage: () => void
@@ -130,7 +128,6 @@ declare namespace OrganicUi {
         renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function });
         reduceEntriesToObject(data: any): any;
         limitValue(value: number, opts: { min?, max?}): number;
-
         simulateClick(elem);
         merge<T>(...args: Partial<T>[]): T;
         toArray(arg): any[];
@@ -361,14 +358,8 @@ declare namespace OrganicUi {
         customTester(v: CustomTesterForRegistry, value: T);
     }
     export function openRegistry<T>(): IRegistry<T>;
-    export interface IStatefulRenderer<S> {
-        props;
-        state: S;
-        repatch(delta: Partial<S>): void;
-        subrender(rendererId: string, params);
-        exec(actionName, actionParams): Promise<any>
-    }
-    export function StatefulView<S>(): IStatefulComponentChainful<S>;
+ 
+    export function StatefulView<S>(): IBaseFrontEndChainful<S>;
     export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
     export interface IDeveloperFeatures {
         devElement: any;

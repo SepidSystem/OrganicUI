@@ -5,8 +5,8 @@ import { Utils } from './utils';
 
 
 export interface OrganicBoxProps<TActions, TOptions, TParams> {
-    actions: TActions;
-    options: TOptions;
+    actions?: TActions;
+    options?: TOptions;
     params: TParams;
     customActions?: Partial<TActions>;
     children?: React.ReactNode;
