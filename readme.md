@@ -4,10 +4,10 @@ Organic Framework is a full stack multi-purpose **RAPID Application Development 
 ## Features
 
 Features of Frontend 
-* Functional View
-* Improved Build System (less than one second )
-* Hot Module Loader and State Saver
-* Developer Panel with many features (tracking request, debugging templates, ...)
+- Functional View
+- Improved Build System (less than one second )
+- Hot Module Loader and State Saver
+- Developer Panel with many features (tracking request, debugging templates, ...)
 - Two way binding 
 - Dashboard Designer 
 - Search engine
@@ -19,4 +19,19 @@ Features of Frontend
     - Take Screenshot from issue 
 - Easy Deploy
 - Localize i18n
-- Suitable Workbreakdown on team & balanced workload cross members of team
+
+Features of C# Backend
+- Owin Self Hosted REST and HTTP Server
+- EF 6 CodeFirst Data Layer
+- Modular
+- App Zero for basic operations like Authentication, Identities Management, ...
+- Fully REST JSON Server
+
+Features of NodeJS Backend
+- NodeJS server (cross-platform,ES6,ES7,ES8)
+- use sql,js,json,typescript,etc for api routes 
+- Live reload od module s
+- Show Executed SQL Codes on Frontend
+- Support mysql & ms-sql
+- Speedy Server
+- Fully REST JSON Server
