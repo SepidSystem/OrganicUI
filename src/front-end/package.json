@@ -9,11 +9,11 @@
     "url": "https://taheri24.ir"
   },
   "scripts": {
-    "start": "webpack --watch --mode  development --config config/webpack.js ",
-    "build": "webpack --mode  production --config config/webpack.js",
-    "profile": "webpack  --config config/webpack.js --profile   --json ",
-    "build:watch": "webpack --watch --mode  development --config config/webpack.js ",
-    "build:dev": "webpack --mode development  --config config/webpack.js",
+    "start": "webpack --watch --mode  development --config webpack/webpack.js ",
+    "build": "webpack --mode  production --config webpack/webpack.js",
+    "profile": "webpack  --config webpack/webpack.js --profile   --json ",
+    "build:watch": "webpack --watch --mode  development --config webpack/webpack.js ",
+    "build:dev": "webpack --mode development  --config webpack/webpack.js",
     "build:sass": "gulp sass",
     "build:sass:watch": "gulp sass:watch",
     "gzip": "gulp gzip"
