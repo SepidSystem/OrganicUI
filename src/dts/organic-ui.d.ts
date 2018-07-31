@@ -1,6 +1,6 @@
 
 /// <reference path="../dts/globals.d.ts" />
-
+/// <reference path="./open.d.ts" />
 
 declare namespace OrganicUi {
     export interface ResultSet<T> {
@@ -81,12 +81,7 @@ declare namespace OrganicUi {
         trueDisplayText?: string;
         falseDisplayText?: string;
     }
-    interface IStatefulComponentChainful<S> {
-        defineWatcher(stateId, callback: (view: BaseComponent<any, S>) => any): IStatefulComponentChainful<S>;
-        defineAction(actionId, callback): IStatefulComponentChainful<S>;
-        defineSubRenderer(actionId, callback): IStatefulComponentChainful<S>;
-        assignToRouteTable(pattern: string): IStatefulComponentChainful<S>;
-    }
+    
     export interface ActionsForIArrayDataViewItem {
         remove: Function;
         append: Function;
@@ -370,10 +365,10 @@ declare namespace OrganicUi {
         props;
         state: S;
         repatch(delta: Partial<S>): void;
-        subrender(rendererId:string,params);
+        subrender(rendererId: string, params);
         exec(actionName, actionParams): Promise<any>
     }
-    export function StatefulView<S, THelpers={}>(renderFunc: (args: IStatefulRenderer<S & THelpers>) => JSX.Element): IStatefulComponentChainful<S>;
+    export function StatefulView<S>(): IStatefulComponentChainful<S>;
     export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
     export interface IDeveloperFeatures {
         devElement: any;

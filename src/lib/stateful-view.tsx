@@ -5,11 +5,12 @@ const proxyHandler: ProxyHandler<BaseComponent<any, any>> = {
     get: (target, key) => target.state[key],
     set: (target, key, value) => (!Utils.equals(target[key], value) && target.repatch({ [key]: value })) as any
 }
-export function StatefulView<S>(renderFunc: (p: OrganicUi.IStatefulRenderer<S>) => JSX.Element) {
+export function StatefulView<S>() {
     class StatefulComponent extends BaseComponent<any, S>{
         private static _watchedStates = [];
         private static _actions = [];
         private static helpers = [];
+        private static renderFunc;
         devPortId: any;
         proxiedState: S;
         constructor(p) {
@@ -22,6 +23,9 @@ export function StatefulView<S>(renderFunc: (p: OrganicUi.IStatefulRenderer<S>) 
         }
         private static getMonitor(): Function {
             return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && StatefulComponent['monitor'];
+        }
+        static renderer(renderFunc){
+            StatefulComponent.renderFunc = renderFunc;
         }
         async exec(actionName: string, actionParams) {
             const monitor = StatefulComponent.getMonitor();
@@ -53,7 +57,7 @@ export function StatefulView<S>(renderFunc: (p: OrganicUi.IStatefulRenderer<S>) 
                 subrender: this.subrender.bind(this)
             };
             return <div className="developer-features stateful-view">
-                {renderFunc(renderParams)}
+                {StatefulComponent.renderFunc(renderParams)}
             </div>
         }
         getDevButton() {
