@@ -6,4 +6,4 @@ const FabricConfig = {
 };
 Object.assign(window, { FabricConfig });
 
-OrganicUI.open['prefix']='frontend';
+OrganicUI.reinvent['prefix']='frontend';

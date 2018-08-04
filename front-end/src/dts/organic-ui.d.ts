@@ -1,6 +1,6 @@
 
 /// <reference path="../dts/globals.d.ts" />
-/// <reference path="./chainful.d.ts" />
+/// <reference path="./reinvent.d.ts" />
 declare namespace OrganicUi {
     export interface ResultSet<T> {
         results: T[];
@@ -537,7 +537,7 @@ declare namespace OrganicUi {
 }
 
 declare module '@organic-ui' {
-    export const open: OrganicUi.open;
+    export const reinvent: OrganicUi.reinvent;
     export type TMethods = OrganicUi.TMethods;
 
     export const Utils: typeof OrganicUi.Utils;

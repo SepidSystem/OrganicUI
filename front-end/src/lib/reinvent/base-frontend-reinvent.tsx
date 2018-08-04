@@ -1,60 +1,71 @@
-import { BaseComponent } from "./base-component";
-import { Utils } from "./utils";
-import { AppUtils } from './app-utils';
-import { routeTable } from "./router";
-import { chainFactoryTable } from "./shared-vars";
+import { reinvent } from "./reinvent";
+import { openBindingSource } from './binding-source';
+// from organic-ui framework
+import { BaseComponent } from "../base-component";
+import { Utils } from "../utils";
+import { AppUtils } from '../app-utils';
+import { routeTable } from "../router";
+
 const proxyHandler: ProxyHandler<BaseComponent<any, any>> = {
     get: (target, key) => target.state[key],
     set: (target, key, value) => (!Utils.equals(target[key], value) && target.repatch({ [key]: value })) as any
 }
-export function StatefulView<S>({ chainMethods, className }) {
-    class StatefulComponent extends BaseComponent<any, S>{
-        private static _watchedStates = [];
+function baseClassFactory<S>({ chainMethods, className }) {
+    class ReinventComponent extends BaseComponent<any, S>{
         static _hooks = {};
+        static _hookArray = [];
         private static renderFunc;
         private static className = className;
         static afterConsturct: Function;
         devPortId: any;
         proxiedState: S;
+        bindingSource: any;
         constructor(p) {
             super(p);
             this.devPortId = Utils.accquireDevPortId();
             this.autoUpdateState =
-                StatefulComponent._watchedStates.reduce((a, { stateId, callback }) => Object.assign(a, { [stateId]: callback }), {})
+                ReinventComponent.
+                    _hookArray
+                    .filter(h => h.type == 'watcher')
+                    .reduce((a, { hookName, callback }) => Object.assign(a, { [hookName]: callback }), {})
             this.proxiedState = (new Proxy(this, proxyHandler) as any) as S;
-            if (StatefulComponent.afterConsturct instanceof Function)
-                StatefulComponent.afterConsturct.apply(this, [p]);
+            if (ReinventComponent.afterConsturct instanceof Function)
+                ReinventComponent.afterConsturct.apply(this, [p]);
+            this.bindingSource = openBindingSource();
         }
         static queryChains(callerName: string, callbackFn: Function, ...args) {
-            const items = Array.from(StatefulComponent[`_${callerName}Array`] || []) as Function[];
+            const items = Array.from(ReinventComponent[`_${callerName}Array`] || []) as Function[];
             return items.map(item => callbackFn(item, ...args));
         }
         static applyChains(callerName: string, ...args) {
-            return StatefulComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
+            return ReinventComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
         }
         static queryChain(callerName: string, callbackFn: Function, ...args) {
-            const items = Array.from(StatefulComponent[`_${callerName}Array`] || []) as Function[];
+            const items = Array.from(ReinventComponent[`_${callerName}Array`] || []) as Function[];
             console.assert(items.length < 2, `queryChain fail for ${callerName}`);
             return callbackFn(items[0], ...args);
         }
 
         static applyChain(callerName: string, ...args) {
-            return StatefulComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
+            return ReinventComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
         }
         private static getHookMonitor(): Function {
-            return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && StatefulComponent['hookMonitor'];
+            return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && ReinventComponent['hookMonitor'];
         }
         callHook(hookName, ...args) {
-            const { method } = (StatefulComponent._hooks[hookName] || {}) as any;
+            const { method } = (ReinventComponent._hooks[hookName] || {}) as any;
             if (method instanceof Function)
                 return method.apply(this, args);
         }
         hook(type: string, hookName: string, method: Function) {
-            StatefulComponent._hooks[hookName] = ({ type, hookName, method });
+            const item = ({ type, hookName, method });
+            ReinventComponent._hooks[hookName] = item;
+            ReinventComponent._hookArray.push(item);
+            return ReinventComponent;
         }
         static renderer(renderFunc) {
-            StatefulComponent.renderFunc = renderFunc;
-            return StatefulComponent;
+            ReinventComponent.renderFunc = renderFunc;
+            return ReinventComponent;
         }
         showModal(hookName, ...args) {
             const result = this.callHook(hookName, ...args);
@@ -74,10 +85,11 @@ export function StatefulView<S>({ chainMethods, className }) {
                 throw `invalid subrender"${hookName}" `;
             return content;
         }
-        static getRenderParams(target: StatefulComponent): any {
+        static getRenderParams(target: ReinventComponent): any {
             return {
                 props: target.props,
                 state: target.proxiedState,
+                binding: target.bindingSource,
                 repatch: target.repatch.bind(this),
                 runAction: target.runAction.bind(this),
                 subrender: target.subrender.bind(this),
@@ -85,10 +97,10 @@ export function StatefulView<S>({ chainMethods, className }) {
             };
         }
         renderContent() {
-            const { renderFunc, getRenderParams } = StatefulComponent;
+            const { renderFunc, getRenderParams } = ReinventComponent;
             try {
                 const content = renderFunc.apply(this, [getRenderParams(this)]);
-                return <div className={Utils.classNames("developer-features", StatefulComponent.className)} ref="root">
+                return <div className={Utils.classNames("developer-features", "reinvent-component", ReinventComponent.className)} ref="root">
                     {content}
                 </div>
             }
@@ -98,33 +110,38 @@ export function StatefulView<S>({ chainMethods, className }) {
         }
 
         getDevButton() {
-            return Utils.renderDevButton({ prefix: "ChainView", targetText: <i className="fa fa-info" /> }, this);
+            return Utils.renderDevButton({ prefix: "Reinvent", targetText: <i className="fa fa-info" /> }, this);
         }
         done() {
+            if (doneCheckerTimeOut) clearTimeout(doneCheckerTimeOut);
 
         }
-        static watcher(stateId: keyof S, callback: (view: BaseComponent<any, S>) => any) {
-            StatefulComponent._watchedStates.push({ stateId, callback });
-            return StatefulComponent;
-        }
-         
+
+
 
         static assignRoute(pattern: string) {
-            routeTable(pattern, StatefulComponent);
+            routeTable(pattern, ReinventComponent);
         }
     }
     Array.from(chainMethods || [])
         .forEach(key => {
-            StatefulComponent[`_${key}Array`] = [];
-            StatefulComponent[`${key}`] =
-                (...args) => (StatefulComponent[`_${key}Arrayّ`].push(args.length == 1 ? args[0] : args), StatefulComponent);
+            ReinventComponent[`_${key}Array`] = [];
+            ReinventComponent[`${key}`] =
+                (...args) => {
+                    const array = ReinventComponent[`_${key}Array`];
+                    array.push(args.length == 1 ? args[0] : args)
+                    return ReinventComponent;
+                };
 
 
         });
 
-    return StatefulComponent;
+    const doneCheckerTimeOut = !Utils.isProdMode() && setTimeout(function () {
+        alert('undone reinvert');
+    }, 100);
+    return ReinventComponent;
 }
-
-chainFactoryTable('frontend', function () {
-    return StatefulView({ className: 'frontend', chainMethods: [] });
-});
+Object.assign(reinvent, { baseClassFactory });
+reinvent.factoryTable['frontend'] = function () {
+    return baseClassFactory({ className: 'frontend', chainMethods: [] });
+};

@@ -15,5 +15,4 @@ export const acl = openRegistry<boolean>((result, key) => !!this.data.isAdmin ||
 export const listViews = openRegistry<string>();
 export const businnessRules = openRegistry<(args) => Promise<any>>();
 export const uiKits = openRegistry();
-export const chainFactoryTable = openRegistry<Function>();
 export const helpers = openRegistry<Function>();

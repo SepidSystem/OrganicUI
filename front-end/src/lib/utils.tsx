@@ -253,6 +253,7 @@ export const Utils = {
 	devLog(...args) {
 		!OrganicUI.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
 	},
+	isProdMode:() => OrganicUI.isProdMode(),
 	diff(...args) {
 		return diff.apply(this, args)
 	},

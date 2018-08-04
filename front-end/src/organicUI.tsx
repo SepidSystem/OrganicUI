@@ -48,7 +48,7 @@ export { MenuIcon, ExpandMoreIcon } from './lib/icons';
 import * as  _Icons from './lib/icons';
 export const Icons = _Icons;
 export { loadDevScript } from './lib/load-dev-script';
-export { open } from './lib/open';
+export { reinvent } from './lib/reinvent/reinvent';
 export { default as Collapsible } from 'react-collapsible';
 export { SnackBar } from './lib/snack-bar';
 export { TimeSlot } from './lib/time-slot';
@@ -57,5 +57,7 @@ export { ArrayDataView } from './lib/array-data-view';
 export { UiKit } from './ui-kit/ui-kit';
 export { moduleManager } from './lib/module-manager';
 export  {default as C3Chart} from 'react-c3js';
- 
-import './lib/chain-factory/dashboard-chain';
+// reinvent system
+import './lib/reinvent/reinvent';
+import './lib/reinvent/base-frontend-reinvent';
+import './lib/reinvent/dashboard-reinvent';

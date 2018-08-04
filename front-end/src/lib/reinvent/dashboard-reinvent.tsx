@@ -1,18 +1,15 @@
-import { chainFactoryTable } from "../shared-vars";
-import { StatefulView } from "../stateful-view";
-import { BaseComponent } from "../base-component";
+import { reinvent } from "./reinvent";
 import { Utils } from "../utils";
 import { Spinner } from '../spinner';
-function chainFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOptions):
-    OrganicUi.IDashboardWidgetChain<TData, TState> {
+function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOptions):
+    OrganicUi.IDashboardWidgetReinvent<TData, TState> {
     const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer'];
-    const AClass = StatefulView({ chainMethods, className: '' });
+    const AClass = reinvent.baseClassFactory({ chainMethods, className: 'dashboard-widget' });
 
     AClass.afterConsturct = function () {
-        const self = this as BaseComponent<any, any>;
         const param = AClass.applyChain('paramInitializer');
         const loader = Utils.toPromise(AClass.applyChain('dataLoader', param))
-            .then(data => self.repatch({ data }));
+            .then(data => this.repatch({ data }));
         Object.assign(this.state, { data: loader, param });
     };
     function getRenderParams(target) {
@@ -36,4 +33,4 @@ function chainFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOpti
     );
     return Object.assign(AClass, { options, getRenderParams }) as any;
 }
-chainFactoryTable('frontend:dashboard:block', chainFactory);
+reinvent.factoryTable['frontend:dashboard:widget'] = classFactory;
