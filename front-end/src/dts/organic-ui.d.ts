@@ -1,6 +1,6 @@
 
 /// <reference path="../dts/globals.d.ts" />
-/// <reference path="./open.d.ts" />
+/// <reference path="./chainful.d.ts" />
 declare namespace OrganicUi {
     export interface ResultSet<T> {
         results: T[];
@@ -79,8 +79,10 @@ declare namespace OrganicUi {
         renderMode?: string;
         trueDisplayText?: string;
         falseDisplayText?: string;
+        filterData?: { fieldType,op };
+        defaultOperator?:string;
     }
-    
+
     export interface ActionsForIArrayDataViewItem {
         remove: Function;
         append: Function;
@@ -189,8 +191,7 @@ declare namespace OrganicUi {
     export const icon: IRegistry<any>;
     export const editorByAccessor: IRegistry<React.ReactElement<any>>;
     export const menuBar: IRegistry<string | Function>;
-    export const snapLink: IRegistry;
-
+    
     //--- for businness application & admin panels
 
     export const tags: IRegistry<any>;
@@ -358,8 +359,7 @@ declare namespace OrganicUi {
         customTester(v: CustomTesterForRegistry, value: T);
     }
     export function openRegistry<T>(): IRegistry<T>;
- 
-    export function StatefulView<S>(): IBaseFrontEndChainful<S>;
+
     export type CustomTesterForRegistry = (key: string) => boolean | string | RegExp;
     export interface IDeveloperFeatures {
         devElement: any;
@@ -537,7 +537,7 @@ declare namespace OrganicUi {
 }
 
 declare module '@organic-ui' {
-
+    export const open: OrganicUi.open;
     export type TMethods = OrganicUi.TMethods;
 
     export const Utils: typeof OrganicUi.Utils;
@@ -548,10 +548,8 @@ declare module '@organic-ui' {
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps;
     export const Field: typeof OrganicUi.Field;
-    export const snapLink: typeof OrganicUi.snapLink;
     export type IAppModel = OrganicUi.IAppModel;
     export const startApp: typeof OrganicUi.startApp;
-
     export type Menu = OrganicUi.Menu;
     export const Menu: typeof OrganicUi.Menu;
     export type IActionsForCRUD<TDto> = OrganicUi.IActionsForCRUD<TDto>;
@@ -652,4 +650,6 @@ declare module '@organic-ui' {
     export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
     export { Callout } from 'office-ui-fabric-react';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
+    import { ChartConfiguration } from 'c3'
+    export const C3Chart: React.SFC<ChartConfiguration>;
 }

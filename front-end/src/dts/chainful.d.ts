@@ -5,26 +5,30 @@ declare namespace OrganicUi {
         state: S;
         repatch(delta: Partial<S>): void;
         subrender(rendererId: string, params);
-
-        exec(actionName, actionParams): Promise<any>
+        callAction(actionName: string, actionParams): Promise<any>
     }
     type TRenderFunc<S, THelpers={}> = (args: S extends never ? never : IRendererArg<S> & THelpers) => JSX.Element;
 
-    interface IBaseFrontEndChain<S> {
-        defineWatcher(stateId, callback: (view: OrganicUi.BaseComponent<any, S>) => any): IBaseFrontEndChain<S>;
-        defineAction(actionId, callback): IBaseFrontEndChain<S>;
-        defineSubRenderer(actionId, callback): IBaseFrontEndChain<S>;
-        assignToRouteTable(pattern: string): IBaseFrontEndChain<S>;
-        renderer(renderFunc: TRenderFunc<S>);
+    interface IBaseFrontEndChain<S, THookFuncParam=OrganicUi.BaseComponent<any, S>> {
+        assignRoute(pattern: string): IBaseFrontEndChain<S>;
+        hook(type: 'action', hookName: string, renderFunc: (p: THookFuncParam) => Promise<any>): IBaseFrontEndChain<S>;
+        hook(type: 'block', hookName: string, renderFunc: (p: THookFuncParam) => JSX.Element): IBaseFrontEndChain<S>;
+        hook(type: 'dialog', hookName: string, renderFunc: (p: THookFuncParam) => JSX.Element): IBaseFrontEndChain<S>;
+        hook(type: 'validate', hookName: string, renderFunc: (p: THookFuncParam) => boolean): IBaseFrontEndChain<S>;
+        hook(type: 'watcher', hookName: string, renderFunc: (p: THookFuncParam) => boolean): IBaseFrontEndChain<S>;
+        renderer(renderFunc: TRenderFunc<S>): IBaseFrontEndChain<S>;
+     
         done(): void;
     }
-    export function open<TState>(type: 'frontend:page'): IBaseFrontEndChain<TState>;
-    interface IRenderFuncExtForSingleView<T> {
+
+    interface IRenderFuncExtForSingleView<T, TLoadParam> {
         data: T;
-        autoBind: T;
+        bindingSource: T;
+        param: TLoadParam;
+        reload: (param: TLoadParam) => Promise<any>;
     }
     interface ICRUDChain<TDto> extends IBaseFrontEndChain<never> {
-        singleView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto>>): ICRUDChain<TDto>;
+        singleView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): ICRUDChain<TDto>;
         beforeSave(callback: (dto: TDto) => (TDto | Promise<TDto>)): ICRUDChain<TDto>;
         afterMapResponse(callback: (dto: TDto) => TDto): ICRUDChain<TDto>;
         afterSave(callback: (dto: TDto) => any): ICRUDChain<TDto>;
@@ -32,19 +36,25 @@ declare namespace OrganicUi {
         listView(renderFunc: TRenderFunc<never>): ICRUDChain<TDto>;
         beforeReadList(pattern: string): ICRUDChain<TDto>;
         afterReadList(pattern: string): ICRUDChain<TDto>;
-        frameView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto>>): ICRUDChain<TDto>;
+        frameView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): ICRUDChain<TDto>;
+    }
+
+    interface IDashboardWidgetChain<TLoadParam, TData> {
+        paramInitializer(loaderFunc: () => TLoadParam): IDashboardWidgetChain<TLoadParam, TData>;
+        dataLoader(callback: (param: TLoadParam) => (TData | Promise<TData>)): IDashboardWidgetChain<TLoadParam, TData>;
+        dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForSingleView<TData, TLoadParam>>);
 
     }
-    export function open<TDto>(type: 'frontend:crud', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDChain<TDto>;
-    export function open<TDto>(type: 'frontend:report', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDChain<TDto>;
-
-    interface IDashboardBlockChain<TData, TState=any> {
-        paramInitializer: () => TState
-        loader(renderer: (state: TState) => (TData | Promise<TData>));
-        renderer(renderFunc: TRenderFunc<TState,IRenderFuncExtForSingleView<TData>>);
+    interface IDashboardWidgetOptions {
 
     }
-    export function open<TData>(type: 'frontend:dashboard:block'): IDashboardBlockChain<TData>;
+    export interface open {
+        <TLoadParam, TData>(type: 'frontend:dashboard:block', options: IDashboardWidgetOptions): IDashboardWidgetChain<TLoadParam, TData>;
+        <TDto>(type: 'frontend:crud', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDChain<TDto>;
+        <TDto>(type: 'frontend:report', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDChain<TDto>;
+        <TState>(type: 'frontend'): IBaseFrontEndChain<TState>;
+        query(selector): any[];
 
+    }
 }
 

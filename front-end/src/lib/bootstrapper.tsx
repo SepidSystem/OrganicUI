@@ -34,8 +34,9 @@ export function mountViewToRoot(p?: IMountViewToRootParams) {
     p.selector = p.selector || '#root';
     const root: HTMLElement = typeof p.selector == 'string' ? document.querySelector(p.selector) : p.selector as HTMLElement;
     const params = {};
-    if (p.clearLinks) snapLink.clear();
-    const viewType: typeof React.Component = route(p.url || location.pathname, params) || NotFoundView as any;
+    let viewType: typeof React.Component = route(p.url || location.pathname, params) || NotFoundView as any;
+    if (viewType['classGetter']) viewType = (viewType as Function)(params);
+
     const secondaryValue = route['lastSecondaryValue'];
     secondaryValue && Object.assign(params, secondaryValue);
     const view = React.createElement(viewType, params);
@@ -125,11 +126,4 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
     });
 }
 
-export const snapLink = openRegistry();
-
-snapLink.set = (key, value) => {
-     snapLink.register({ [key]: value });
-    OrganicBox.saveStates();
-    OrganicBox.OrganicBoxCounter=0;
-    mountViewToRoot({ callback: () => OrganicBox.restoreStates() });
-};
+ 

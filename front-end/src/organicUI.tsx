@@ -12,7 +12,7 @@ export { Utils, changeCase } from './lib/utils';
 export { /*remoteApiProxy, remoteApi, refetch,*/ createClientForREST } from './lib/rest-api';
 export { Anchor } from './lib/anchor';
 export { IStateListener, StateListener } from './lib/state-listener';
-export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission, snapLink } from './lib/bootstrapper';
+export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
 export { SubRender, Action, Event, Helper } from './lib/decorators';
 export { Field } from './lib/data';
 export { Spinner } from './lib/spinner';
