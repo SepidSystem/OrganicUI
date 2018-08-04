@@ -63,4 +63,4 @@ typings/
 package-lock.json
 assets/*.js
 database.json
-config/build-num.json
+webpack/build-num.json
