@@ -1,84 +1,130 @@
 import { BaseComponent } from "./base-component";
 import { Utils } from "./utils";
+import { AppUtils } from './app-utils';
 import { routeTable } from "./router";
+import { chainFactoryTable } from "./shared-vars";
 const proxyHandler: ProxyHandler<BaseComponent<any, any>> = {
     get: (target, key) => target.state[key],
     set: (target, key, value) => (!Utils.equals(target[key], value) && target.repatch({ [key]: value })) as any
 }
-export function StatefulView<S>() {
+export function StatefulView<S>({ chainMethods, className }) {
     class StatefulComponent extends BaseComponent<any, S>{
         private static _watchedStates = [];
-        private static _actions = [];
-        private static helpers = [];
+        static _hooks = {};
         private static renderFunc;
+        private static className = className;
+        static afterConsturct: Function;
         devPortId: any;
         proxiedState: S;
         constructor(p) {
             super(p);
             this.devPortId = Utils.accquireDevPortId();
             this.autoUpdateState =
-                StatefulComponent._watchedStates.reduce(({ stateId, callback }) => Object.assign({ [stateId]: callback }, {}))
+                StatefulComponent._watchedStates.reduce((a, { stateId, callback }) => Object.assign(a, { [stateId]: callback }), {})
             this.proxiedState = (new Proxy(this, proxyHandler) as any) as S;
-            this.exec = this.exec.bind(this);
+            if (StatefulComponent.afterConsturct instanceof Function)
+                StatefulComponent.afterConsturct.apply(this, [p]);
         }
-        private static getMonitor(): Function {
-            return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && StatefulComponent['monitor'];
+        static queryChains(callerName: string, callbackFn: Function, ...args) {
+            const items = Array.from(StatefulComponent[`_${callerName}Array`] || []) as Function[];
+            return items.map(item => callbackFn(item, ...args));
         }
-        static renderer(renderFunc){
+        static applyChains(callerName: string, ...args) {
+            return StatefulComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
+        }
+        static queryChain(callerName: string, callbackFn: Function, ...args) {
+            const items = Array.from(StatefulComponent[`_${callerName}Array`] || []) as Function[];
+            console.assert(items.length < 2, `queryChain fail for ${callerName}`);
+            return callbackFn(items[0], ...args);
+        }
+
+        static applyChain(callerName: string, ...args) {
+            return StatefulComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
+        }
+        private static getHookMonitor(): Function {
+            return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && StatefulComponent['hookMonitor'];
+        }
+        callHook(hookName, ...args) {
+            const { method } = (StatefulComponent._hooks[hookName] || {}) as any;
+            if (method instanceof Function)
+                return method.apply(this, args);
+        }
+        hook(type: string, hookName: string, method: Function) {
+            StatefulComponent._hooks[hookName] = ({ type, hookName, method });
+        }
+        static renderer(renderFunc) {
             StatefulComponent.renderFunc = renderFunc;
+            return StatefulComponent;
         }
-        async exec(actionName: string, actionParams) {
-            const monitor = StatefulComponent.getMonitor();
-            const actionFunc = StatefulComponent._actions.filter(({ actionId }) => actionId == actionName)[0];
-            try {
-                if (!actionFunc) throw `action "${actionName}" not found`;
-                const result = actionFunc.apply(this, [this, actionParams]);
-                const monitorResult = await Utils.toPromise((monitor instanceof Function) && monitor('execute-action', actionName, actionParams, result));
-                console.assert(monitorResult != -100, 'optimization can be evil');
+        showModal(hookName, ...args) {
+            const result = this.callHook(hookName, ...args);
+            if (result)
+                return AppUtils.showDialog(result)
+        }
+        runAction(hookName, ...args) {
+            const result = this.callHook(hookName, ...args);
+            if (result instanceof Promise)
                 return result;
-
-            } catch (error) {
-                const monitorResult = await Utils.toPromise((monitor instanceof Function) && monitor('fail-action', actionName, actionParams, error));
-                console.assert(monitorResult != -100, 'optimization can be evil');
-                return Promise.reject(error);
-            }
-
-
+            else
+                throw `runAction ${hookName}, result is not promise`;
         }
-        subrender(id, params) {
-
+        subrender(hookName, ...params) {
+            const content = this.callHook(hookName, ...params);
+            if (content && !React.isValidElement(content))
+                throw `invalid subrender"${hookName}" `;
+            return content;
+        }
+        static getRenderParams(target: StatefulComponent): any {
+            return {
+                props: target.props,
+                state: target.proxiedState,
+                repatch: target.repatch.bind(this),
+                runAction: target.runAction.bind(this),
+                subrender: target.subrender.bind(this),
+                showModal: target.showModal.bind(this)
+            };
         }
         renderContent() {
-            const renderParams: OrganicUi.IStatefulRenderer<S> = {
-                props: this.props,
-                state: this.proxiedState,
-                repatch: this.repatch.bind(this),
-                exec: this.exec,
-                subrender: this.subrender.bind(this)
-            };
-            return <div className="developer-features stateful-view">
-                {StatefulComponent.renderFunc(renderParams)}
-            </div>
+            const { renderFunc, getRenderParams } = StatefulComponent;
+            try {
+                const content = renderFunc.apply(this, [getRenderParams(this)]);
+                return <div className={Utils.classNames("developer-features", StatefulComponent.className)} ref="root">
+                    {content}
+                </div>
+            }
+            catch (exc) {
+                return this.renderErrorMode(`problem in renderMode`, exc.toString());
+            }
         }
+
         getDevButton() {
-            return Utils.renderDevButton("StatefulView", this);
+            return Utils.renderDevButton({ prefix: "ChainView", targetText: <i className="fa fa-info" /> }, this);
         }
-        static defineWatcher(stateId: keyof S, callback: (view: BaseComponent<any, S>) => any) {
+        done() {
+
+        }
+        static watcher(stateId: keyof S, callback: (view: BaseComponent<any, S>) => any) {
             StatefulComponent._watchedStates.push({ stateId, callback });
             return StatefulComponent;
         }
-        static defineAction(actionId: string, callback) {
-            StatefulComponent._actions.push({ actionId, callback });
-            return StatefulComponent;
-        }
-        static useHelper(helper) {
-            StatefulComponent.helpers.push(helper);
-        }
-        static assignToRouteTable(pattern: string) {
+         
+
+        static assignRoute(pattern: string) {
             routeTable(pattern, StatefulComponent);
         }
-
     }
-    return StatefulComponent;
+    Array.from(chainMethods || [])
+        .forEach(key => {
+            StatefulComponent[`_${key}Array`] = [];
+            StatefulComponent[`${key}`] =
+                (...args) => (StatefulComponent[`_${key}Arrayّ`].push(args.length == 1 ? args[0] : args), StatefulComponent);
 
+
+        });
+
+    return StatefulComponent;
 }
+
+chainFactoryTable('frontend', function () {
+    return StatefulView({ className: 'frontend', chainMethods: [] });
+});
