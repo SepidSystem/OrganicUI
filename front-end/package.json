@@ -29,6 +29,7 @@
     "body-parser": "^1.18.2",
     "bulma": "^0.6.1",
     "bulma-extensions": "^0.7.18",
+    "c3": "^0.6.6",
     "change-case-object": "^2.0.0",
     "cool-checkboxes-for-bulma.io": "^1.1.0",
     "curl-cmd": "0.0.1",
@@ -39,6 +40,7 @@
     "fs-extra": "^5.0.0",
     "glyphicons": "^0.2.0",
     "glyphicons-css": "^1.1.0",
+    "highcharts": "^6.1.1",
     "jsondiffpatch-for-react": "^1.0.3",
     "material-icons": "^0.1.0",
     "moment": "^2.22.2",
@@ -49,6 +51,7 @@
     "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-accessible-accordion": "^2.4.1",
+    "react-c3js": "^0.1.20",
     "react-collapsible": "^2.2.0",
     "react-dom": "^16.4.0",
     "react-json-inspector": "^7.1.1",
@@ -69,6 +72,7 @@
     "yargs": "^10.0.3"
   },
   "devDependencies": {
+    "@types/c3": "^0.6.0",
     "@types/lru-cache": "^4.1.0",
     "@types/moment": "^2.13.0",
     "@types/moment-jalaali": "^0.7.4",
