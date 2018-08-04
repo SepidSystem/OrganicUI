@@ -131,7 +131,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         if (!p.loader) return null;
         this.items = null;
         let fetchableRowCount = (this.rowCount || 10) * 4;
-        if (s.isLoading) return;
+        //if (s.isLoading) return;
         resetCache && this.cache.reset();
         Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {});
         this.lastDataLoading = new Date();

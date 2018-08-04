@@ -46,9 +46,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     }
     getFilterItem(): FilterItem {
         let value = this.extractedValue;
-        const op = this.state.currentOp || 'LIKE';
-
-        return { fieldName: this.props.accessor, value, op };
+        const op = (this.state.currentOp || 'LIKE').toLowerCase();
+        const p = this.props;
+        return Object.assign({}, { fieldName: p.accessor, value, op: (operatorsForServerSideMap[op] || op) }, p.filterData || {});
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(accessor))
     extractedValue: any;
@@ -154,8 +154,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (!inputElement)
             inputElement = editorByAccessor(changeCase.camelCase(this.props.accessor));
         const customRenderer = (inputElement.type && inputElement.type[`field-renderMode-${this.props.renderMode}`]);
-        if (customRenderer){ 
-            this.operators= this.operators || customRenderer['filterOperators'];
+        if (customRenderer) {
+            this.operators = this.operators || customRenderer['filterOperators'];
             inputElement = customRenderer(this.props);
         }
         if (inputElement instanceof Function) {
@@ -163,7 +163,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             if (this instanceof Field)
                 this.inputElement = inputElement;
         }
-         return inputElement;
+        return inputElement;
+    }
+    componentWillMount(){
+                 this.state.currentOp =  this.props.defaultOperator || this.state.currentOp ;
     }
     getCurrentOp() {
         return this.state.currentOp || (this.operators[0]);
@@ -434,3 +437,14 @@ export function bind(fakeFn: () => any) {
 function NotConnectedInput(p) {
     return <input style={{ visibility: 'hidden' }} />
 }
+
+const operatorsForServerSideMap = {
+    like: 'LIKE',
+    eq: '=',
+    neq: '<>',
+    lt: '<',
+    lte: '<=',
+    gt: '>',
+    gte: '>=',
+    between: 'BETWEEN'
+} 

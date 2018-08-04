@@ -17,9 +17,15 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
         datalist: DataList;
     }
     handleApplyClick() {
-         const { datalist } = this.refs;
+        const { datalist } = this.refs;
 
         return datalist.reload();
+    }
+    handleLoadRequestParams(params: OrganicUi.IAdvancedQueryFilters) {
+        const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
+        if (filterPanel)
+            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
+        return params;
     }
     renderContent(p = this.props) {
         const children = React.Children.toArray(this.props.children) as React.ClassicElement<any>[];
@@ -29,9 +35,15 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
             { onApplyClick: handleApplyClick, ref: "filterPanel" } as Partial<OrganicUi.IFilterPanelProps>);
         let dataListElement = children.filter(child => child.type == DataList)[0];
         dataListElement = dataListElement && React.cloneElement(dataListElement,
-            { loader: this.actions.read, height: 200, ref: "datalist", startWithEmptyList: true } as Partial<OrganicUi.IDataListProps>);
+            {
+                loader: this.actions.read,
+                height: 200,
+                ref: "datalist",
+                onLoadRequestParams: this.handleLoadRequestParams.bind(this),
+                startWithEmptyList: true
+            } as Partial<OrganicUi.IDataListProps>);
 
-        return <section>
+        return <section ref="root">
             <h1 className="title is-2">Report</h1>
             {filterPanelElement} <br />
             <Paper className="main-content">
