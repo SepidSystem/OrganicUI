@@ -16,7 +16,7 @@ export class AppUtils extends BaseComponent<any, any>{
     static dialogInstance: IDialogProps;
     static showDialog(content, opts?: IDialogProps) {
         AppUtils.dialogInstance = content && Object.assign({ content }, opts || {});
-        AppUtils.Instance.forceUpdate();
+        AppUtils.Instance && AppUtils.Instance.forceUpdate();
     }
     static confrim(content, opts?: IDialogProps) {
         opts = opts || {} as any;
