@@ -1,12 +1,13 @@
 /// <reference path="../dts/organic-ui.d.ts" />
 
 
-import { icon, i18n } from "./shared-vars";
-import { Callout, DefaultButton, Icon, MessageBar } from './inspired-components';
+import { i18n } from "./shared-vars";
+import { Icon } from './inspired-components';
 import { BaseComponent } from './base-component';
 import { Utils, changeCase } from './utils';
 import { Field } from "./data";
-import { Panel } from './ui-elements';
+import { IDataFormAccessorMsg } from "@organic-ui";
+
 interface IState {
     message?: { type, text };
     selectedItem: any;
@@ -28,18 +29,20 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
             fld.refs.root.classList.add('field-targeted');
             Utils.scrollTo(document.body, fld.refs.root.clientTop, 100);
             fld.refs.root.querySelector('input').focus();
+            fld.focus && fld.focus();
             setTimeout(() => fld.refs.root.classList.remove('field-targeted'), 1500);
         })
     }
-    getErrorCard(): React.ReactNode {
-        return this.invalidItems && !!this.invalidItems.length && (<div className="error-card"   >
+    showInvalidItems(invalidItems = this.invalidItems): JSX.Element {
+        if (!invalidItems || !invalidItems.length) return undefined;
+        return (<div className="error-card"   >
             <div className="title is-5 animated fadeIn">
                 <Icon iconName="StatusErrorFull" />{'  '}
                 {i18n('error')}</div>
             <div className="animated fadeInDown">
-                {i18n('description-rejected-validation')}
+                {/*i18n('description-rejected-validation')*/}
                 <ul className="invalid-items">
-                    {this.invalidItems
+                    {invalidItems
                         .filter(invalidItem => !!invalidItem)
                         .map(invalidItem => (<li className="invalid-item">
                             <a href="#" onClick={e => {
@@ -54,6 +57,12 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
                 </ul>
             </div>
         </div>);
+    }
+    async getFieldErrorsAsElement(): Promise<JSX.Element> {
+        const messages: IDataFormAccessorMsg[] = await this.revalidateAllFields();
+        if (messages && messages[0])
+            this.setFocusByAcccesor(messages[0].accessor);
+        return this.showInvalidItems(messages);
     }
     static DataFormCount = 0;
     invalidItems: any[];
@@ -73,14 +82,14 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         return this.querySelectorAll<Field>('*')
             .filter(componentRef => !!componentRef && componentRef.props && componentRef.props.accessor && componentRef.getErrorMessage instanceof Function)
             .map(componentRef => ({ accessor: componentRef.props.accessor, error: componentRef.getErrorMessage() }))
-            .filter(item => !!item.error);
-
+            .filter(({ error }) => !!error);
     }
 
     renderContent() {
         const p = this.props;
+
         return (
-            <div className={Utils.classNames("data-form", "developer-features", p.className)} ref="root">
+            <div className={Utils.classNames("data-form", "developer-features", p.className)} ref="root" style={p.style}>
                 {this.props.children}
             </div>
         );
@@ -99,7 +108,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
 
 
     }
-    revalidateAllFields(formData?):Promise<any[]> {
+    revalidateAllFields(formData?): Promise<any[]> {
         this.invalidItems = [];
         return new Promise(resolve => {
             const done = () => {

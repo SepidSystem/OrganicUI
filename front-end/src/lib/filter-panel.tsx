@@ -40,7 +40,7 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
 
             <Paper className=""  >
 
-                <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm[key]} onFieldWrite={(key, value) => {
+                <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm && this.dataForm[key]} onFieldWrite={(key, value) => {
                     this.dataForm[key] = value
                 }
                 } >

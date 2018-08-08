@@ -6,11 +6,12 @@ import { Paper } from './inspired-components';
 import { FilterPanel } from './filter-panel';
 
 import { DataList } from './data-list';
+import { i18n } from './shared-vars';
 interface ReportViewBoxProps {
 
 };
 interface ReportViewBoxState { formData: any; validated: boolean; }
-export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState> {
+export class ReportViewBox extends OrganicBox<any, OrganicUi.IOptionsForReportViewBox, any, ReportViewBoxState> {
 
     refs: {
         filterPanel: FilterPanel;
@@ -37,14 +38,14 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
         dataListElement = dataListElement && React.cloneElement(dataListElement,
             {
                 loader: this.actions.read,
-                height: 200,
+                height: 700,
                 ref: "datalist",
                 onLoadRequestParams: this.handleLoadRequestParams.bind(this),
                 startWithEmptyList: true
             } as Partial<OrganicUi.IDataListProps>);
 
         return <section ref="root">
-            <h1 className="title is-2">Report</h1>
+            <h1 className="title is-2">{i18n((p.options && p.options.title )|| 'report')}</h1>
             {filterPanelElement} <br />
             <Paper className="main-content">
 

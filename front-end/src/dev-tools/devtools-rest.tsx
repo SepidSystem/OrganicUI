@@ -59,12 +59,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                         value={baseURL} style={{ border: 'none', outline: 'none', margin: '3px' }} />
                 </span>}
 
-                {this.props.mode != 2 && <AdvButton variant="outlined" className="set-base-url-buttton" color="default"
-                    onClick={() => {
-                        const baseURL = prompt('baseURL', localStorage.getItem('baseURL') || '');
-                        baseURL && localStorage.setItem('baseURL', baseURL);
-                    }}
-                >Set Base URL</AdvButton>}
+                
                 {this.props.mode == 2 && response && <div style={{ margin: '0px 8px' }} >
                     <b>Response Status : </b>{response.status}{' '}{response.statusText}
                 </div>}
@@ -78,7 +73,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
             (mode == 1 && opts.headers) ||
             (mode == 2 && (error || this.state.result || this.props.data));
 
-   
+
         return <section dir='ltr' style={{ direction: 'ltr' }} className={Utils.classNames("rest-confrim", error && 'server-side-error')}>
             {!error && this.props.mode != 2 && <div className="title is-4">
                 <i className="fa fa-cloud-upload"></i>
@@ -170,8 +165,12 @@ function restInspector(p) {
         Object.assign({ resolve }, p))));
 }
 OrganicUI.devTools.set('REST|Set Base URL', target => {
-    const baseURL = prompt('baseURL', localStorage.getItem('baseURL') || '');
-    baseURL && localStorage.setItem('baseURL', baseURL);
+    let { options } = target as any;
+    options = options instanceof Function ? options() : options;
+    const baseURL = prompt('baseURL',options.baseURL || '');
+     
+    baseURL &&  options.setBaseURL( baseURL);
+
 });
 OrganicUI.devTools.set('REST|Enable/Disable Inspector', target => {
     const isEnabled = target['confrim'] == restInspector;

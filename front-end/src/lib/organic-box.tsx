@@ -12,6 +12,7 @@ export interface OrganicBoxProps<TActions, TOptions, TParams> {
     children?: React.ReactNode;
 
 }
+ 
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
     static isOrganicBox() {
         return true;

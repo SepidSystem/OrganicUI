@@ -13,7 +13,7 @@ export { /*remoteApiProxy, remoteApi, refetch,*/ createClientForREST } from './l
 export { Anchor } from './lib/anchor';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
-export { SubRender, Action, Event, Helper } from './lib/decorators';
+export { SubRender, Action,  Helper } from './lib/decorators';
 export { Field } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';

@@ -30,7 +30,12 @@ function _reinvent(factoryName: string) {
     }
     return quietChain;
 }
-const query = chainType => all.filter(item => item.chainType == chainType);
+const query = factoryName =>{
+     
+    return all.filter(item => item.factoryName == factoryName);
+
+} 
+console.log({all});
 const factoryTable = {};
 
 export const reinvent: typeof _reinvent & {

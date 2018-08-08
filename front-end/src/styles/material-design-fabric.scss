@@ -234,12 +234,12 @@
     }
     &:nth-child(odd) {
         div {
-            background: rgb(218, 218, 218) !important;
+            background: rgb(218, 218, 218) ;
         }
     }
     &:nth-child(even) {
         div {
-            background: rgb(241, 241, 241) !important;
+            background: rgb(241, 241, 241);
         }
     }
     .ms-DetailsRow-check {

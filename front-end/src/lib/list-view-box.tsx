@@ -34,7 +34,12 @@ const debounce = cb => {
 }
 
 
-interface ListViewBoxState<T> { dataFormForFilterPanel: any; currentRow: T; deleteDialogIsOpen?: boolean; };
+interface ListViewBoxState<T> {
+    dataFormForFilterPanel: any;
+    currentRow: T;
+    deleteDialogIsOpen?: boolean;
+    quickFilter: boolean;
+};
 
 export class ListViewBox<T> extends
     OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
@@ -49,6 +54,7 @@ export class ListViewBox<T> extends
 
     getFilterPanel() {
         this.columns = this.columns || this.getColumns();
+        if (this.props && this.props.options && this.props.options.avoidAutoFilter) return undefined;
         return <FilterPanel onApplyClick={() => this.refs.dataList.reload()} dataForm={this.state.dataFormForFilterPanel}>
             {this.columns.map(col => (<Field  {...col} />))}
         </FilterPanel>
@@ -74,6 +80,7 @@ export class ListViewBox<T> extends
         this.handleEdit = this.handleEdit.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
         this.handleLoadRequestParams = this.handleLoadRequestParams.bind(this);
+        this.state.quickFilter = true;
     }
     getColumns(): IFieldProps[] {
         const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
@@ -163,7 +170,7 @@ export class ListViewBox<T> extends
         }
     }
     makeDevElementForDiag(error) {
-        if(!DeveloperBar.developerFriendlyEnabled) return null;
+        if (!DeveloperBar.developerFriendlyEnabled) return null;
         const now = +new Date();
         this.error = error;
         this.repatch({});
@@ -232,6 +239,13 @@ export class ListViewBox<T> extends
             params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
         return params;
     }
+    renderQuickFilter() {
+        return [
+            <i className="fa fa-search"></i>,
+            <TextField fullWidth />,
+            <i className="fa fa-bars" onClick={() => this.repatch({ quickFilter: false })}></i>,
+        ]
+    }
     renderContent() {
 
         if ((React.Children.map(this.props.children || [], child => child) || [])
@@ -253,10 +267,11 @@ export class ListViewBox<T> extends
         const children = !!root && React.Children.map(this.props.children || [], (child: any) => {
             if (child.type == FilterPanel) return null;
             if (child.type == DataList && !child.props.loader) {
-                return React.cloneElement(child, Object.assign(
+                const dataItemsElement = root.querySelector('.data-items');
+                 return React.cloneElement(child, Object.assign(
                     {}, child.props, {
                         ref: "dataList",
-                        height: params.height || 500,
+                        height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
                         onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
                         onLoadRequestParams: this.handleLoadRequestParams,
                         loader: this.readList,
@@ -277,10 +292,29 @@ export class ListViewBox<T> extends
 
         if (!root) setTimeout(() => (this.repatch({})), 10);
         if (params.forDataLookup)
-            return <section className="developer-features list-view-data-lookup"
-                style={{ maxHeight: (params.height ? params.height + 'px' : 'auto'), overflowY: 'scroll' }} ref="root"  > {children}</section>;
+            return <section className={Utils.classNames(`developer-features list-view-data-lookup `)}
+                data-parent-id={params.parentRefId}
+                style={{
+                    minHeight: (params.height ? params.height + 'px' : 'auto'),
+                    maxHeight: (params.height ? params.height + 'px' : 'auto'),
 
-        return <section className="list-view developer-features" ref="root"   >
+                    overflowY: 'hidden'
+                }} ref="root"  >
+                <div className="  title is-6">
+                    {Utils.showIcon(options.iconCode)}
+
+                    {i18n(options.pluralName)}</div>
+                <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
+                    {filterPanel}
+                </div>
+                <div className="   data-lookup__quick-filter" style={{ display: !this.state.quickFilter ? 'none' : 'flex' }}>
+                    {this.renderQuickFilter()}
+                </div>
+                <div className="data-items">
+                    {children}
+                </div>
+            </section>;
+         return <section className="list-view developer-features" ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
             {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
@@ -289,13 +323,12 @@ export class ListViewBox<T> extends
             </div>
             <header className="  static-height list-view-header"  >
                 {filterPanel}
-
                 <CriticalContent permissionKey="create-permission">
                     <AdvButton color="primary" variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
                         <i className="fa fa-plus flag" key="flag" />
                         <div className="content" key="content">
-                            {[!!options.iconCode && <i key="iconCode" className={Utils.classNames(options.iconCode.split('-')[0], options.iconCode)} />,
-                            <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>].filter(x => !!x)}
+                            {Utils.showIcon(options.iconCode, "iconCode")}
+                            <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>
 
 
                         </div>
@@ -333,8 +366,9 @@ export class ListViewBox<T> extends
                         <TextField />
                     </div>
                 </header>
-                {!!this.refs.root && children}
-
+                <div className="data-items">
+                    {!!this.refs.root && children}
+                </div>
             </Paper>
 
 
@@ -353,3 +387,4 @@ export class ListViewBox<T> extends
     }
 
 }
+

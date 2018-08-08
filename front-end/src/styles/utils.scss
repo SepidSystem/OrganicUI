@@ -97,6 +97,26 @@ break {
     height: 0px;
     overflow: hidden;
 }
-.zIndexOneMillon{
+
+.zIndexOneMillon {
     z-index: 1000000 !important;
 }
+
+.center-text {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+hr{
+    width:100%;
+    min-width:100%;
+}
+.message-dialog {
+    padding: 6px 4px;
+    &.is-fail {
+        color: red;
+    }
+}
+.overflowY-hidden{
+    overflow-y: hidden !important;
+}  

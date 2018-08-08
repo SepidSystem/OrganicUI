@@ -14,6 +14,9 @@ interface IDialogProps {
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
     static dialogInstance: IDialogProps;
+    static closeDialog(){
+        AppUtils.showDialog(null);
+    }
     static showDialog(content, opts?: IDialogProps) {
         AppUtils.dialogInstance = content && Object.assign({ content }, opts || {});
         AppUtils.Instance && AppUtils.Instance.forceUpdate();
@@ -63,12 +66,19 @@ export class AppUtils extends BaseComponent<any, any>{
         const { dialogInstance } = AppUtils;
         return <section className="app-utils" >
             {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
-                {dialogInstance.title && <DialogTitle> {i18n(dialogInstance.title)}</DialogTitle>}
-                {!dialogInstance.noClose && <a href="#" className="close-dialog" onClick={e => {
-                    e.preventDefault();
-                    AppUtils.showDialog(null);
-                }}><i className="fa fa-times" /></a>}
-                <DialogContent style={{ overflowX: 'hidden' }}>
+                {dialogInstance.title && <DialogTitle>
+                    <div style={{ display: 'flex' }}>
+                        <div style={{ flex: '10' }}>
+                            {i18n(dialogInstance.title)}
+                        </div>
+                        {!dialogInstance.noClose && <a href="#" className="close-dialog" onClick={e => {
+                            e.preventDefault();
+                            AppUtils.showDialog(null);
+                        }}><i className="fa fa-times" /></a>}
+                    </div>
+                </DialogTitle>}
+
+                <DialogContent style={{ overflow: 'hidden' }}>
                     {dialogInstance.content}
                 </DialogContent>
                 {dialogInstance.actions && <DialogActions>

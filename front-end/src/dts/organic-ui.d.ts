@@ -79,8 +79,9 @@ declare namespace OrganicUi {
         renderMode?: string;
         trueDisplayText?: string;
         falseDisplayText?: string;
-        filterData?: { fieldType,op };
-        defaultOperator?:string;
+        filterData?: { fieldType };
+        defaultOperator?: string;
+        disableFixedWidth?: boolean;
     }
 
     export interface ActionsForIArrayDataViewItem {
@@ -191,7 +192,7 @@ declare namespace OrganicUi {
     export const icon: IRegistry<any>;
     export const editorByAccessor: IRegistry<React.ReactElement<any>>;
     export const menuBar: IRegistry<string | Function>;
-    
+
     //--- for businness application & admin panels
 
     export const tags: IRegistry<any>;
@@ -243,7 +244,10 @@ declare namespace OrganicUi {
     interface IActionsForReport {
         read: ReportReadMethod;
     }
-    export function ReportViewBox(p: OrganicBoxProps<IActionsForReport, any, any>): JSX.Element;
+    interface IOptionsForReportViewBox {
+        title: string;
+    }
+    export function ReportViewBox(p: OrganicBoxProps<IActionsForReport, IOptionsForReportViewBox, any>): JSX.Element;
     interface ComboBoxProps {
         value?: any;
         onChange?: any;
@@ -303,6 +307,7 @@ declare namespace OrganicUi {
         [P in keyof T]?: ((value: T[P]) => any);
     };
     export interface IOptionsForCRUD {
+        avoidAutoFilter?:boolean;
         insertButtonContent?: any;
         singularName: string;
         routeForSingleView: string;
@@ -313,6 +318,8 @@ declare namespace OrganicUi {
     interface IListViewParams {
         forDataLookup?: boolean;
         multipleDataLookup?: boolean;
+        parentRefId?:number;
+        isHidden?:boolean;
         height?: number;
         selectedId?: any;
         corner?: any;
@@ -391,6 +398,8 @@ declare namespace OrganicUi {
         onErrorCode?: onErrorCodeResult;
         data?: T;
         className?: string;
+        style?: React.CSSProperties;
+        children: any;
     }
     interface IFilterPanelProps {
         dataForm?: any;
@@ -483,7 +492,7 @@ declare namespace OrganicUi {
         isLoading?: boolean;
         callout?: any;
         primary?: boolean;
-
+        style?: React.CSSProperties;
         onClick?: () => any;
         fixedWidth?: boolean;
         className?: string;
@@ -511,6 +520,7 @@ declare namespace OrganicUi {
     interface AppUtilsIntf {
         (p: any): JSX.Element;
         showDialog(content, opts?: IDialogProps): void;
+        closeDialog();
         confrim(content, opts?: IDialogProps): Promise<any>;
         confrimActionByUser(p: { actionName: string, actionData }): Promise<never>;
         showDataDialog<T>(content: React.ReactElement<Partial<IDataFormProps<T>>>, opts?: IDialogProps): Promise<T>;
@@ -564,6 +574,7 @@ declare module '@organic-ui' {
     export type IAdvancedQueryFilters = OrganicUi.IAdvancedQueryFilters;
     export interface OptForRESTClient extends Partial<AxiosRequestConfig> {
         title: string;
+        setBaseURL?: (baseUrl: string) => void;
     }
     export const appData: {
         appModel?: IAppModel
@@ -602,7 +613,11 @@ declare module '@organic-ui' {
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
     export const Panel: typeof OrganicUi.Panel;
-    export const DataForm: React.SFC<OrganicUi.IDataFormProps>;
+    export class DataForm extends BaseComponent<Partial<OrganicUi.IDataFormProps>, any> {
+        revalidateAllFields(): Promise< IDataFormAccessorMsg[]>;
+        showInvalidItems(invalidItems?: IDataFormAccessorMsg[]): JSX.Element;
+        getFieldErrorsAsElement(): Promise<JSX.Element>
+    }
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export const DataList: typeof OrganicUi.DataList;
     export const DataPanel: typeof OrganicUi.DataPanel;
@@ -648,8 +663,12 @@ declare module '@organic-ui' {
     export const Icons: typeof OrganicUi.Icons;
     //   Inspired Components;
     export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
+    export {GridList,GridListTile} from '@material-ui/core'
     export { Callout } from 'office-ui-fabric-react';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
     import { ChartConfiguration } from 'c3'
     export const C3Chart: React.SFC<ChartConfiguration>;
 }
+declare module '*.jpg';
+declare module '*.png';
+declare module '*.jpeg';

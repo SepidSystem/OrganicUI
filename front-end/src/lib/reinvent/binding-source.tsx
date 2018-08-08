@@ -7,3 +7,7 @@ const proxyHandlerForBinding: ProxyHandler<{ __name }> = {
 export function openBindingSource<T>(): T {
     return new Proxy({}, proxyHandlerForBinding) as T;
 }
+const _globalBindingSource = openBindingSource();
+export function globalBindingSource<T>() {
+    return _globalBindingSource as T;
+}

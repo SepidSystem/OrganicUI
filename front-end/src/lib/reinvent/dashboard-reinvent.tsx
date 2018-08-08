@@ -19,7 +19,8 @@ function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOpti
             state,
             param, data,
             repatch: target.repatch.bind(target),
-            exec: target.exec.bind(target),
+            runAction: target.runAction.bind(this),
+            
             subrender: target.subrender.bind(target),
             showModal: target.showModal.bind(target)
         };

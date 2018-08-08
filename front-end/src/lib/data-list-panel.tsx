@@ -9,6 +9,7 @@ import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
 import { AdvButton } from "./ui-elements";
 import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 import { DataPanel } from './data-panel';
+import { Field } from "./data";
 interface IState {
     message?: { type, text };
     selectedItem: any;
@@ -57,6 +58,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (!root) return;
         let parent = root.parentElement;
         let getters: (string | Function)[] = [];
+        const accessor = Field.getAccessorName(this.props.accessor);
         while (parent) {
             const { componentRef } = parent as any;
             const onFieldRead = componentRef && componentRef.props && (componentRef.props as OrganicUi.IFieldReaderWriter).onFieldRead;
@@ -64,10 +66,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             if (onFieldRead instanceof Function && onFieldWrite instanceof Function) {
 
-                let items = onFieldRead(this.props.accessor);
+                let items = onFieldRead(accessor);
                 if (!items) {
-                    onFieldWrite(this.props.accessor, []);
-                    items = onFieldRead(this.props.accessor);
+                    onFieldWrite(accessor, []);
+                    items = onFieldRead(accessor);
                 }
                 this.items = items;
                 return items;
@@ -77,22 +79,28 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         }
     }
     getCustomBar(customBar = this.props.customBar) {
+        const callback = (promise: Promise<any>, key) => {
+            if (promise instanceof Promise)
+                promise.then(value => {
+                    const items = this.getItems() || [];
+                    items.push(value);
+                    if (value['renew'])
+                        callback(this.props.customBar[key](), key);
+                    this.refs.datalist && this.refs.datalist.reload();
+                    this.forceUpdate();
+                });
+        }
         return Utils.renderButtons(customBar, {
-            callback: (promise: Promise<any>) => {
-                if (promise instanceof Promise)
-                    promise.then(value => {
-                        const items = this.getItems() || [];
-                        items.push(value);
-                        this.forceUpdate();
-                    });
-            }
+            callback
         })
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));
         this.repatch({ selectedItem, selectedItemIndex })
     }
-
+    doAction(actionId: 'add' | 'edit' | 'delete') {
+        this.repatch({ targetSelector: `.${actionId}Button` });
+    }
     render(p = this.props, s = this.state) {
         this.selection = this.selection || new Selection({ selectionMode: SelectionMode.single });
         const header =
@@ -137,7 +145,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         const targetClick = (targetSelector: string) => () => {
             if (targetSelector && targetSelector.includes('add')) {
                 this.targetItem = {};
-                //    this.repatch({ selectedItem: null });
+
             }
 
             this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });

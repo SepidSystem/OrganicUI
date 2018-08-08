@@ -80,7 +80,7 @@
         display: flex;
         padding: 0;
         position: relative;
-        max-height:30px;
+        max-height: 30px;
     }
     .label {
         text-align: left;
@@ -89,13 +89,13 @@
     }
     a.op {
         width: auto;
-        right:0;
+        right: 0;
         order: 100;
         margin-top: 1px;
         line-height: 13px;
         padding: 0;
         position: absolute;
-        bottom: 0;  
+        bottom: 0;
         span {
             font-size: 70% !important;
         }
@@ -187,8 +187,9 @@ a.close {
             order: 1;
             margin: 0;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
+            display: flex;
         }
         .control {
             order: 0;
@@ -201,6 +202,7 @@ a.close {
             flex-direction: column;
             align-items: flex-start;
             justify-content: center;
+            display: flex;
         }
         .control {
             order: 0;
@@ -232,6 +234,15 @@ a.close {
 .invalid-control {
     padding: 0px;
     z-index: 20000;
+}
+
+.data-list,
+.data-list-c1,
+.data-list-content,
+.data-list-wrapper {
+    flex: 1;
+    flex-direction: column;
+    display: flex;
 }
 
 .data-list {
@@ -268,6 +279,14 @@ a.close {
     overflow: visible !important;
     overflow-y: visible !important;
 }
-.c3{
+
+.c3 {
     direction: ltr;
+}
+
+.MuiModal-root {
+    z-index: 100000000 !important;
+    .MuiPaper-root {
+        max-width: 1000px !important;
+    }
 }

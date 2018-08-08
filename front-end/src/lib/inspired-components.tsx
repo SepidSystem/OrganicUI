@@ -12,13 +12,13 @@ import { default as _Checkbox, CheckboxProps } from '@material-ui/core/Checkbox'
 export const Checkbox: React.SFC<CheckboxProps> = _Checkbox as any;
 
 import { default as _Select, SelectProps } from '@material-ui/core/Select';
-export const Select: React.SFC<SelectProps> = _Select as any;
+export const Select: React.SFC<SelectProps & { ref }> = _Select as any;
 
 import { default as _Radio, RadioProps } from '@material-ui/core/Radio';
 export const Radio: React.SFC<RadioProps> = _Radio as any;
 
 import { default as _RadioGroup, RadioGroupProps } from '@material-ui/core/RadioGroup';
-export const RadioGroup: React.SFC<RadioGroupProps> = _RadioGroup as any;
+export const RadioGroup: React.SFC<RadioGroupProps & { ref }> = _RadioGroup as any;
 
 import { default as _Tab, TabProps } from '@material-ui/core/Tab';
 export const Tab: React.SFC<TabProps> = _Tab as any;
@@ -54,7 +54,13 @@ export const Menu: React.SFC<MenuProps> = _Menu as any;
 import _MenuItem, { MenuItemProps } from '@material-ui/core/MenuItem';
 export const MenuItem: React.SFC<MenuItemProps> = _MenuItem as any;
 
+import _Popover, { PopoverProps } from '@material-ui/core/Popover';
+export const Popover: React.SFC<PopoverProps> = _Popover as any;
 
+import _GridList, { GridListProps } from '@material-ui/core/GridList';
+export const GridList: React.SFC<GridListProps> = _GridList as any;
+import _GridListTile, { GridListTileProps } from '@material-ui/core/GridListTile';
+export const GridListTile: React.SFC<GridListTileProps> = _GridListTile as any;
 
 //----------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------
@@ -67,4 +73,4 @@ export { DetailsList } from 'office-ui-fabric-react/lib/DetailsList';
 export { MessageBar } from 'office-ui-fabric-react/lib/MessageBar';
 export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 export { Modal } from 'office-ui-fabric-react/lib/Modal';
- 
+export { FocusZone } from 'office-ui-fabric-react/lib/FocusZone';

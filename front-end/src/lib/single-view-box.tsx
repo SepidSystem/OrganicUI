@@ -80,7 +80,7 @@ export class SingleViewBox<T> extends OrganicBox<
         const formData = this.getFormData();
         formData && (formData[fieldName] = value);
     }
-    
+
     async handleSave(navigateToListView?) {
         const p = this.props, s = this.state;
         this.repatch({ validated: true });
@@ -93,10 +93,10 @@ export class SingleViewBox<T> extends OrganicBox<
 
         if (this.actions.beforeSave instanceof Function)
             formData = await Utils.toPromise(this.actions.beforeSave(formData));
-        const [invalidItems] = await Promise.all([dataForm.revalidateAllFields(formData)]);
+        const invalidItems = await Utils.toPromise(dataForm.revalidateAllFields(formData));
         if (invalidItems && invalidItems[0]) {
             dataForm.setFocusByAcccesor(invalidItems[0].accessor);
-            return dataForm.getErrorCard();
+            return dataForm.showInvalidItems(invalidItems);
         }
         let updateResult: Promise<any>;
         let { id } = p.params;
@@ -116,8 +116,15 @@ export class SingleViewBox<T> extends OrganicBox<
 
         return updateResult
             .then(data => monitorFunc instanceof Function ? monitorFunc('afterSave', formData, id, this.actions) : data)
+            .catch(error => {
+                error = error.message || error;
+                return Promise.resolve({ error })
+            })
             .then(
-                () => {
+                res => {
+                    if (res.error) return <div className="server-side-error">
+                        <i className="fa fa-exclamation-triangle"></i>
+                        {res.error}</div>;
                     const { title, desc } = this.getSuccess();
                     if (navigateToListView)
                         setTimeout(this.navigateToBack, 10);
@@ -187,7 +194,7 @@ export class SingleViewBox<T> extends OrganicBox<
         if (s.formData instanceof Promise) return <Spinner />;
 
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
- 
+
         return <section className="organic-box single-view developer-features" ref="root">
             <h1 className="title is-3 columns" style={{ margin: '0' }}>
                 <div className="column  " style={{ flex: '10' }}>

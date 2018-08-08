@@ -2,12 +2,12 @@
 import { BaseComponent } from './base-component';
 import { funcAsComponentClass } from './functional-component';
 import { Utils } from './utils';
- 
+
 import { ButtonProps } from '@material-ui/core/Button';
 
 import { i18n, icon } from './shared-vars';
 import { Spinner } from './spinner';
-import {Callout, Button} from './inspired-components';
+import { Callout, Button } from './inspired-components';
 import { DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
@@ -86,7 +86,7 @@ export function SearchInput(p: { className?: string }) {
 interface IAdvButtonProps {
     children?: any;
     isLoading?: boolean;
-    isError?:boolean;
+    isError?: boolean;
     callout?: any;
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
@@ -120,9 +120,9 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
 
                         resultAsync.catch(error => {
                             console.log('Advanced Button Error>>>>>', error);
-                            repatch({ isLoading: false, callout: null,isError:true });
-                            repatch({  isError:false },null,2000);
-                            
+                            repatch({ isLoading: false, callout: null, isError: true });
+                            repatch({ isError: false }, null, 2000);
+
                             return error;
                         })
                         Promise.all([resultAsync])
@@ -135,14 +135,14 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                             });
                     }
                 }
-                asyncClick();
+                !s.isLoading && asyncClick();
             }
             }
         >
             {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
-        
-            {!!s.isError &&     <i className="fa fa-exclamation-triangle"></i>}
+
+            {!!s.isError && <i className="fa fa-exclamation-triangle"></i>}
             {s.isLoading && <Spinner />}
         </Button>;
         React.createElement(p.buttonComponent || Button,

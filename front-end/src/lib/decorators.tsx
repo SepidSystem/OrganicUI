@@ -74,12 +74,7 @@ export function ChildrenMapper({ cached }) {
 
     }
 }
-
-export function Event() {
-    return function (target: BaseComponent<any, any>, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
-        descriptor.value = descriptor.value.bind(target);
-    }
-}
+ 
 export function Log(title) {
     return function (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
         if (isProdMode()) return;

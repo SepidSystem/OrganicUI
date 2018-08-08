@@ -1,5 +1,5 @@
 import { reinvent } from "./reinvent";
-import { openBindingSource } from './binding-source';
+import { openBindingSource, globalBindingSource } from './binding-source';
 // from organic-ui framework
 import { BaseComponent } from "../base-component";
 import { Utils } from "../utils";
@@ -31,7 +31,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
             this.proxiedState = (new Proxy(this, proxyHandler) as any) as S;
             if (ReinventComponent.afterConsturct instanceof Function)
                 ReinventComponent.afterConsturct.apply(this, [p]);
-            this.bindingSource = openBindingSource();
+            this.bindingSource = globalBindingSource();
         }
         static queryChains(callerName: string, callbackFn: Function, ...args) {
             const items = Array.from(ReinventComponent[`_${callerName}Array`] || []) as Function[];
@@ -69,15 +69,16 @@ function baseClassFactory<S>({ chainMethods, className }) {
         }
         showModal(hookName, ...args) {
             const result = this.callHook(hookName, ...args);
-            if (result)
+            if (React.isValidElement(result))
                 return AppUtils.showDialog(result)
+            else console.warn('invalid element in showModal ', result);
         }
         runAction(hookName, ...args) {
             const result = this.callHook(hookName, ...args);
             if (result instanceof Promise)
                 return result;
             else
-                throw `runAction ${hookName}, result is not promise`;
+                throw `runAction ${hookName} failed, result is not promise`;
         }
         subrender(hookName, ...params) {
             const content = this.callHook(hookName, ...params);
@@ -86,7 +87,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
             return content;
         }
         static getRenderParams(target: ReinventComponent): any {
-            return {
+             return {
                 props: target.props,
                 state: target.proxiedState,
                 binding: target.bindingSource,
@@ -105,6 +106,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
                 </div>
             }
             catch (exc) {
+                console.log({exc});
                 return this.renderErrorMode(`problem in renderMode`, exc.toString());
             }
         }

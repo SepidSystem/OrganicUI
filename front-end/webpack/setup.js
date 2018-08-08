@@ -17,7 +17,7 @@ function getBuildNum() {
 	buildNum.counter = buildNum.counter || 0;
 	if (buildNum.masterKey != masterKey) {
 		buildNum.counter = 0;
-		buildNum.masterKey;
+		buildNum.masterKey=masterKey;
 	}
 	buildNum.counter++;
 	fs.writeFileSync(buildNumFile, JSON.stringify(buildNum), { encoding: 'utf-8' });

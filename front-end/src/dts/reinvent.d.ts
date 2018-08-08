@@ -15,28 +15,29 @@ declare namespace OrganicUi {
         hook(type: 'block', hookName: string, renderFunc: (p: THookFuncParam) => JSX.Element): IBaseFrontEndReinvent<S>;
         hook(type: 'dialog', hookName: string, renderFunc: (p: THookFuncParam) => JSX.Element): IBaseFrontEndReinvent<S>;
         hook(type: 'validate', hookName: string, renderFunc: (p: THookFuncParam) => boolean): IBaseFrontEndReinvent<S>;
-        hook(type: 'watcher', hookName: string, renderFunc: (p: THookFuncParam) => boolean): IBaseFrontEndReinvent<S>;
+        hook(type: 'watcher', hookName: string, renderFunc: (p: THookFuncParam) => any): IBaseFrontEndReinvent<S>;
         renderer(renderFunc: TRenderFunc<S>): IBaseFrontEndReinvent<S>;
-     
+
         done(): void;
     }
 
     interface IRenderFuncExtForSingleView<T, TLoadParam> {
         data: T;
-        bindingSource: T;
+        binding: T;
         param: TLoadParam;
         reload: (param: TLoadParam) => Promise<any>;
     }
-    interface ICRUDReinvent<TDto> extends IBaseFrontEndReinvent<never> {
-        singleView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): ICRUDReinvent<TDto>;
-        beforeSave(callback: (dto: TDto) => (TDto | Promise<TDto>)): ICRUDReinvent<TDto>;
-        afterMapResponse(callback: (dto: TDto) => TDto): ICRUDReinvent<TDto>;
-        afterSave(callback: (dto: TDto) => any): ICRUDReinvent<TDto>;
-        afterSingleRead(pattern: string): ICRUDReinvent<TDto>;
-        listView(renderFunc: TRenderFunc<never>): ICRUDReinvent<TDto>;
-        beforeReadList(pattern: string): ICRUDReinvent<TDto>;
-        afterReadList(pattern: string): ICRUDReinvent<TDto>;
-        frameView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): ICRUDReinvent<TDto>;
+    interface IReinventForCRUD<TDto> extends IBaseFrontEndReinvent<never> {
+        singleView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): IReinventForCRUD<TDto>;
+        beforeSave(callback: (dto: TDto) => (TDto | Promise<TDto>)): IReinventForCRUD<TDto>;
+        afterMapResponse(callback: (dto: TDto) => TDto): IReinventForCRUD<TDto>;
+        afterSave(callback: (dto: TDto) => any): IReinventForCRUD<TDto>;
+        afterSingleRead(pattern: string): IReinventForCRUD<TDto>;
+        listView(renderFunc: TRenderFunc<never>): IReinventForCRUD<TDto>;
+        beforeReadList(pattern: string): IReinventForCRUD<TDto>;
+        afterReadList(pattern: string): IReinventForCRUD<TDto>;
+        configureFields(renderFunc: ({ binding: TDto }) => (any[] | { [key: string]: (any[]) })): IReinventForCRUD<TDto>;
+
     }
 
     interface IDashboardWidgetReinvent<TLoadParam, TData> {
@@ -49,9 +50,9 @@ declare namespace OrganicUi {
 
     }
     export interface reinvent {
-        <TLoadParam, TData>(type: 'frontend:dashboard:block', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
-        <TDto>(type: 'frontend:crud', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDReinvent<TDto>;
-        <TDto>(type: 'frontend:report', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): ICRUDReinvent<TDto>;
+        <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
+        <TDto>(type: 'frontend:crud', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): IReinventForCRUD<TDto>;
+        <TDto>(type: 'frontend:report', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): IReinventForCRUD<TDto>;
         <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
         query(selector): any[];
 
