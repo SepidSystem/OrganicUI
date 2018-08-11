@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>ic_error</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Error-Handling" transform="translate(-492.000000, -480.000000)">
+            <g id="Error" transform="translate(300.000000, 441.000000)">
+                <g id="ic_error" transform="translate(192.000000, 39.000000)">
+                    <g id="Error" fill="#B00020">
+                        <circle id="Oval" cx="32" cy="32" r="32"></circle>
+                    </g>
+                    <g id="Group-3" transform="translate(29.000000, 13.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                        <path d="M3.219375,27.685625 L3.219375,34.12425 C4.99775,34.12425 6.43875,32.68325 6.43875,30.904875 C6.43875,29.126625 4.99775,27.685625 3.219375,27.685625 Z" id="Shape"></path>
+                        <path d="M3.219375,27.685625 C3.57475,27.685625 3.86325,29.126625 3.86325,30.905 C3.86325,32.683375 3.57475,34.124375 3.219375,34.124375 C1.441,34.124375 0,32.683375 0,30.905 C0,29.126625 1.441,27.685625 3.219375,27.685625 Z" id="Shape"></path>
+                        <path d="M3.219375,0 L3.219375,23.823 C4.99775,23.823 6.43875,22.38075 6.43875,20.603625 L6.43875,3.219375 C6.43875,1.441 4.99775,0 3.219375,0 Z" id="Shape"></path>
+                        <path d="M3.219375,0 C3.57475,0 3.86325,1.441 3.86325,3.219375 L3.86325,20.603625 C3.86325,22.380625 3.57475,23.823 3.219375,23.823 C1.441,23.823 0,22.38075 0,20.603625 L0,3.219375 C0,1.441 1.441,0 3.219375,0 Z" id="Shape"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

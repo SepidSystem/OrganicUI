@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>checked</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Personel" transform="translate(-212.000000, -622.000000)" fill="#6AC259" fill-rule="nonzero">
+            <g id="checked" transform="translate(212.000000, 622.000000)">
+                <path d="M24,0 C10.7457918,0 0,10.7453418 0,24 C0,37.2546582 10.7457918,48 24,48 C37.2556707,48 48,37.2546582 48,24 C48,10.7453418 37.2552207,0 24,0 Z M19.5974181,36.3283318 L9.02971411,25.7610778 L12.5519821,22.2388097 L19.5974181,29.2837958 L35.4480179,13.432746 L38.9702859,16.955014 L19.5974181,36.3283318 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

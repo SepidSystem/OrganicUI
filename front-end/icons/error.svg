@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>error</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Personel" transform="translate(-212.000000, -772.000000)">
+            <g id="error" transform="translate(212.000000, 772.000000)">
+                <circle id="Oval" fill="#D75A4A" fill-rule="nonzero" cx="24" cy="24" r="24"></circle>
+                <polyline id="Shape" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" points="15.36 32.64 24 24 32.64 15.36"></polyline>
+                <polyline id="Shape" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" points="15.36 15.36 24 24 32.64 32.64"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

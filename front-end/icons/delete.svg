@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="31px" viewBox="0 0 24 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>delete</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Departments" transform="translate(-1336.000000, -338.000000)" fill="#BCBCBC">
+            <g id="Additions" transform="translate(85.000000, 308.000000)">
+                <g id="delete" transform="translate(1251.000000, 30.000000)">
+                    <path d="M1.71428571,27.5555556 C1.71428571,29.45 3.25714286,31 5.14285714,31 L18.8571429,31 C20.7428571,31 22.2857143,29.45 22.2857143,27.5555556 L22.2857143,6.88888889 L1.71428571,6.88888889 L1.71428571,27.5555556 L1.71428571,27.5555556 Z M24,1.72222222 L18,1.72222222 L16.2857143,0 L7.71428571,0 L6,1.72222222 L0,1.72222222 L0,5.16666667 L24,5.16666667 L24,1.72222222 L24,1.72222222 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

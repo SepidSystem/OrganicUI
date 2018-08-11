@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>account-circle</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Traffic---History" transform="translate(-1827.000000, -99.000000)" fill="#FFFFFF">
+            <g id="account-circle" transform="translate(1827.000000, 99.000000)">
+                <path d="M25,0 C11.25,0 0,11.25 0,25 C0,38.75 11.25,50 25,50 C38.75,50 50,38.75 50,25 C50,11.25 38.75,0 25,0 L25,0 Z M25,7.5 C29.25,7.5 32.5,10.75 32.5,15 C32.5,19.25 29.25,22.5 25,22.5 C20.75,22.5 17.5,19.25 17.5,15 C17.5,10.75 20.75,7.5 25,7.5 L25,7.5 Z M25,43 C18.75,43 13.25,39.75 10,35 C10,30 20,27.25 25,27.25 C30,27.25 40,30 40,35 C36.75,39.75 31.25,43 25,43 L25,43 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>
