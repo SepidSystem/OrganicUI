@@ -32,7 +32,7 @@ function computeComponentInstanceHash(instance: BaseComponent<any, any>) {
     let counter = 0;
     const childs: any[] = [];
     const refIds = {};
-    const sum0 = instance.refId;
+    const sum0 = instance.state.refId;
     function sumRefId(sum, inst) {
         const result = refIds[inst.refId] ? sum : ((inst.state && inst.state.refId) || 0) + sum;
         refIds[inst.refId] = true;

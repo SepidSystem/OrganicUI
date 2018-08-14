@@ -9,7 +9,6 @@ export class BaseComponent<P, S> extends Component<P, S>{
     issues: { [key: string]: Date };
     _autoUpdateState: S;
     devElement: any;
-    refId: number;
     nodes: any;
     autoUpdateTimer: number;
     renderContent(): any {
@@ -19,11 +18,10 @@ export class BaseComponent<P, S> extends Component<P, S>{
         return true;
     }
     processAutoUpdateState() {
-
         if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length == 0) {
             clearInterval(this.autoUpdateTimer);
         }
-        const newState = Object.keys(this.autoUpdateState).map(key => {
+         const newState = Object.keys(this.autoUpdateState).map(key => {
             const method = this.autoUpdateState[key];
             try {
                 const result = method(key);
@@ -41,16 +39,22 @@ export class BaseComponent<P, S> extends Component<P, S>{
             } catch{
                 return null;
             }
-        }).filter(x => !!x).filter(([key, value]) => JSON.stringify(  this._autoUpdateState[key]) !== JSON.stringify(value));
+        }).filter(x => !!x)
+            .filter(([key, value]) => {
+                if (value === this.state[key]) return false;
+                try {
+                    return JSON.stringify(value) !== JSON.stringify(this.state[key])
+                } catch (xc) { }
+                return !(value == this.state[key]);
+            });
 
         if (newState.length) {
-            this._autoUpdateState = Object.assign({}, this.state || {}) as S;
-            this.repatch(Utils.reduceEntriesToObject(newState) as S);
+             this.repatch(Utils.reduceEntriesToObject(newState) as S);
         }
 
     }
     componentWillMount() {
-        if (this.autoUpdateState) {
+        if (this.autoUpdateState && Object.keys(this.autoUpdateState).length) {
             this._autoUpdateState = Object.assign({}, this.state || {}) as S;
             this.processAutoUpdateState();
             this.autoUpdateTimer = setInterval(this.processAutoUpdateState.bind(this), 100);
@@ -72,8 +76,9 @@ export class BaseComponent<P, S> extends Component<P, S>{
             .map(child => (child as any).props);
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
+         
         this.tryCountLimits = {};
-      
+
     }
     tryCountLimits: { [key: string]: number };
 
@@ -100,7 +105,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     componentDidMount() {
         const { root } = this.refs;
         root && Object.assign(root, { componentRef: this });
-          
+
     }
     defaultState(delta: Partial<S>) {
         Utils.assignDefaultValues(this.state, delta);
@@ -182,7 +187,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
                 console.warn('layoutIsComplete warn>>>>', this);
 
         }
-        else this.layoutCompleteLimit=BaseComponent.DefaultOfLayoutCompleteLimit;
+        else this.layoutCompleteLimit = BaseComponent.DefaultOfLayoutCompleteLimit;
         return this.renderContent();
     }
     renderErrorMode(title, subtitle) {
