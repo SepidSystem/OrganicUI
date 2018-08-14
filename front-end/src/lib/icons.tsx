@@ -12,8 +12,8 @@ export const AddIcon: any = _AddIcon;
 import _SearchIcon from '@material-ui/icons/Search';
 export const SearchIcon: any = _SearchIcon;
 
-import _DeleteIcon from '@material-ui/icons/Delete';
-export const DeleteIcon: any = _DeleteIcon;
+import * as _DeleteIcon from '../../icons/delete.svg';
+export const DeleteIcon: any = () => <span className="svg-icon" dangerouslySetInnerHTML={{__html:_DeleteIcon}}></span >;
 
 import _CheckCircleIcon from '@material-ui/icons/CheckCircle';
 export const CheckCircleIcon: any = _CheckCircleIcon;

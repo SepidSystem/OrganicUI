@@ -45,6 +45,10 @@ const rules = [
 
 	},
 	{
+		test: /\.svg$/,
+		loader: 'svg-inline-loader'
+	},
+	{
 		test: /\.(scss|sass)$/,
 		use: [
 			'css-loader',
