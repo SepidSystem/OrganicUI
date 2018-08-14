@@ -11,7 +11,7 @@ declare global {
   export const React: typeof ReactMod;
   export const ReactDOM: typeof ReactDomMod;
   export const OrganicUI: typeof OrganicUIMod;
-  export const LRU: any;
+  export const LRU: typeof LRU_mod;
   export const BUILD_DATE:string;
   export const BUILD_NUMBER:string;
 }

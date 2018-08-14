@@ -13,7 +13,7 @@ export { /*remoteApiProxy, remoteApi, refetch,*/ createClientForREST } from './l
 export { Anchor } from './lib/anchor';
 export { IStateListener, StateListener } from './lib/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData, scanAllPermission } from './lib/bootstrapper';
-export { SubRender, Action,  Helper } from './lib/decorators';
+export { SubRender, Action, Helper } from './lib/decorators';
 export { Field } from './lib/data';
 export { Spinner } from './lib/spinner';
 export { Menu } from './lib/models';
@@ -31,15 +31,16 @@ export { DashboardBox } from './lib/dashboard-box';
 export { ReportViewBox } from './lib/report-view-box';
 export { ListViewBox } from './lib/list-view-box';
 export { devTools, JsonInspector, DeveloperBar, isProdMode } from './lib/developer-features';
-export { DataLookup } from './lib/data-lookup';
+export { DataLookup } from './lib/data-lookup/data-lookup';
 export { TreeList } from './lib/tree-list';
 export { ComboBox } from './lib/combo-box'
 export { FilterPanel } from './lib/filter-panel';
 import "./customization-material";
 
-export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio } from './lib/inspired-components';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio,Switch } from './lib/inspired-components';
+export { GridList, GridListTile } from './lib/inspired-components';
 export let currentView: any
-export { DatePicker } from './lib/date-picker';
+export { DatePicker } from './lib/data-lookup/date-picker';
 
 export { default as JssProvider } from 'react-jss/lib/JssProvider';
 export { createGenerateClassName } from '@material-ui/core/styles';
@@ -56,7 +57,7 @@ export { default as Version } from './version';
 export { ArrayDataView } from './lib/array-data-view';
 export { UiKit } from './ui-kit/ui-kit';
 export { moduleManager } from './lib/module-manager';
-export  {default as C3Chart} from 'react-c3js';
+export { default as C3Chart } from 'react-c3js';
 // reinvent system
 import './lib/reinvent/reinvent';
 import './lib/reinvent/base-frontend-reinvent';

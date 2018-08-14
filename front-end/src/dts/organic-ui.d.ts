@@ -64,6 +64,7 @@ declare namespace OrganicUi {
         showOpeartors?: boolean;
         operators?: string[];
         onGet?, onSet?: Function;
+        onChange?: (value) => void;
         onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
         onRenderCell?: (item?: any, index?: number, column?: any) => any;
         label?: any;
@@ -238,7 +239,9 @@ declare namespace OrganicUi {
         getFormData(): T;
         setFieldValue(fieldName: string, value);
     }
-    export function ListViewBox<T>(p: OrganicBoxProps<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams>): JSX.Element;
+    export class ListViewBox<T> extends OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, never>  {
+        static fromArray<T>(items: T[], options?: { keyField, fields }): StatelessListView
+    }
 
     export type ReportReadMethod = (params: IAdvancedQueryFilters) => PromisedResultSet<any>;
     interface IActionsForReport {
@@ -267,6 +270,7 @@ declare namespace OrganicUi {
         paginationMode?: 'paged' | 'scrolled';
         template?: string;
         height?: number;
+        flexMode?: boolean;
         minWidth?: number;
         popupForActions?: React.ReactNode | Function;
         onRowClick?: (rowIdx: number, row: any) => void;
@@ -307,7 +311,7 @@ declare namespace OrganicUi {
         [P in keyof T]?: ((value: T[P]) => any);
     };
     export interface IOptionsForCRUD {
-        avoidAutoFilter?:boolean;
+        avoidAutoFilter?: boolean;
         insertButtonContent?: any;
         singularName: string;
         routeForSingleView: string;
@@ -318,9 +322,10 @@ declare namespace OrganicUi {
     interface IListViewParams {
         forDataLookup?: boolean;
         multipleDataLookup?: boolean;
-        parentRefId?:number;
-        isHidden?:boolean;
+        parentRefId?: number;
+        isHidden?: boolean;
         height?: number;
+        width?: number;
         selectedId?: any;
         corner?: any;
         onSelectionChanged?: Function;
@@ -328,7 +333,8 @@ declare namespace OrganicUi {
         getValue?: () => any;
         setValue?: (value) => void;
         dataLookup?: any;
-
+        filterMode?: 'quick' | 'advanced';
+        noTitle?: boolean;
     }
     export interface ISingleViewParams { id }
     export type StatelessListView = React.SFC<IListViewParams>;
@@ -474,17 +480,34 @@ declare namespace OrganicUi {
     export const DataListPanel: React.SFC<DataListPanelProps>;
     export const FilterPanel: React.SFC<IFilterPanelProps>;
     interface DataLookupProps {
-        source: StatelessListView;
+        source: React.ComponentType<IListViewParams>;
         className?: string;
         onChange?: (value) => void;
         onFocus?: () => void;
+        onBlur?: () => void;
         onDisplayText?: (value) => React.ReactNode;
         multiple?: boolean;
         value?: any;
         iconCode?: string;
         minHeightForPopup?: string;
+        popupMode?: DataLookupPopupMode;
+        bellowList?: boolean;
+        appendMode?: boolean;
     }
-    export const DataLookup: React.SFC<DataLookupProps>;
+    export interface IDataLookupPopupModeProps {
+        isOpen: boolean;
+        target: HTMLElement;
+        onClose: Function;
+        onApply: Function;
+        onAppend: Function;
+        dataLookupProps: DataLookupProps;
+    }
+    export type DataLookupPopupMode = React.ComponentClass<IDataLookupPopupModeProps> & { inlineMode: boolean, renderButtons: (p, onClick) => JSX.Element };
+    export class DataLookup extends BaseComponent<DataLookupProps, never>{
+        static PopOver: DataLookupPopupMode;
+        static Modal: DataLookupPopupMode;
+
+    }
     export class TreeList extends BaseComponent<ITreeListProps, any>{ }
 
     interface IAdvButtonProps {
@@ -614,7 +637,7 @@ declare module '@organic-ui' {
     export const AdvButton: typeof OrganicUi.AdvButton;
     export const Panel: typeof OrganicUi.Panel;
     export class DataForm extends BaseComponent<Partial<OrganicUi.IDataFormProps>, any> {
-        revalidateAllFields(): Promise< IDataFormAccessorMsg[]>;
+        revalidateAllFields(): Promise<IDataFormAccessorMsg[]>;
         showInvalidItems(invalidItems?: IDataFormAccessorMsg[]): JSX.Element;
         getFieldErrorsAsElement(): Promise<JSX.Element>
     }
@@ -662,13 +685,16 @@ declare module '@organic-ui' {
 
     export const Icons: typeof OrganicUi.Icons;
     //   Inspired Components;
-    export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
-    export {GridList,GridListTile} from '@material-ui/core'
+    export { TextField, Switch, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
+    export { GridList, GridListTile } from '@material-ui/core'
     export { Callout } from 'office-ui-fabric-react';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
     import { ChartConfiguration } from 'c3'
     export const C3Chart: React.SFC<ChartConfiguration>;
 }
+
 declare module '*.jpg';
 declare module '*.png';
 declare module '*.jpeg';
+declare module '*.svg';
+

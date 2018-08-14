@@ -11,6 +11,10 @@ export const Button: React.SFC<ButtonProps> = _Button as any;
 import { default as _Checkbox, CheckboxProps } from '@material-ui/core/Checkbox';
 export const Checkbox: React.SFC<CheckboxProps> = _Checkbox as any;
 
+import { default as _Switch, SwitchProps } from '@material-ui/core/Switch';
+export const Switch: React.SFC<SwitchProps> = _Switch as any;
+
+
 import { default as _Select, SelectProps } from '@material-ui/core/Select';
 export const Select: React.SFC<SelectProps & { ref }> = _Select as any;
 
