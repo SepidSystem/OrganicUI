@@ -5,7 +5,8 @@ declare namespace OrganicUi {
         state: S;
         repatch(delta: Partial<S>): void;
         subrender(rendererId: string, params);
-        callAction(actionName: string, actionParams): Promise<any>
+        callAction(actionName: string, actionParams): Promise<any>;
+            root:HTMLElement;
     }
     type TRenderFunc<S, THelpers={}> = (args: S extends never ? never : IRendererArg<S> & THelpers) => JSX.Element;
 
@@ -44,10 +45,10 @@ declare namespace OrganicUi {
         paramInitializer(loaderFunc: () => TLoadParam): IDashboardWidgetReinvent<TLoadParam, TData>;
         dataLoader(callback: (param: TLoadParam) => (TData | Promise<TData>)): IDashboardWidgetReinvent<TLoadParam, TData>;
         dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForSingleView<TData, TLoadParam>>);
-
+         
     }
     interface IDashboardWidgetOptions {
-
+        cols?:number;
     }
     export interface reinvent {
         <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;

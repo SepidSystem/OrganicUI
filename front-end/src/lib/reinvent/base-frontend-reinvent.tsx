@@ -16,6 +16,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
         static _hookArray = [];
         private static renderFunc;
         private static className = className;
+        static StaticValues: any = {};
         static afterConsturct: Function;
         devPortId: any;
         proxiedState: S;
@@ -87,26 +88,27 @@ function baseClassFactory<S>({ chainMethods, className }) {
             return content;
         }
         static getRenderParams(target: ReinventComponent): any {
-             return {
+            return {
                 props: target.props,
                 state: target.proxiedState,
                 binding: target.bindingSource,
                 repatch: target.repatch.bind(this),
                 runAction: target.runAction.bind(this),
                 subrender: target.subrender.bind(this),
-                showModal: target.showModal.bind(this)
+                showModal: target.showModal.bind(this),
+                root:target.refs.root 
             };
         }
         renderContent() {
             const { renderFunc, getRenderParams } = ReinventComponent;
             try {
-                const content = renderFunc.apply(this, [getRenderParams(this)]);
+                 const content = renderFunc.apply(this, [getRenderParams(this)]);
                 return <div className={Utils.classNames("developer-features", "reinvent-component", ReinventComponent.className)} ref="root">
                     {content}
                 </div>
             }
             catch (exc) {
-                console.log({exc});
+
                 return this.renderErrorMode(`problem in renderMode`, exc.toString());
             }
         }
@@ -128,10 +130,12 @@ function baseClassFactory<S>({ chainMethods, className }) {
     Array.from(chainMethods || [])
         .forEach(key => {
             ReinventComponent[`_${key}Array`] = [];
+
             ReinventComponent[`${key}`] =
                 (...args) => {
                     const array = ReinventComponent[`_${key}Array`];
-                    array.push(args.length == 1 ? args[0] : args)
+                    array.push(args.length == 1 ? args[0] : args);
+                    ReinventComponent.StaticValues[key as string] = args.length == 1 ? args[0] : args;
                     return ReinventComponent;
                 };
 

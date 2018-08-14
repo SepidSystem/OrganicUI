@@ -35,7 +35,7 @@ const query = factoryName =>{
     return all.filter(item => item.factoryName == factoryName);
 
 } 
-console.log({all});
+ 
 const factoryTable = {};
 
 export const reinvent: typeof _reinvent & {
