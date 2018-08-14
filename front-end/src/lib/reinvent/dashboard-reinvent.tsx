@@ -3,7 +3,7 @@ import { Utils } from "../utils";
 import { Spinner } from '../spinner';
 function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOptions):
     OrganicUi.IDashboardWidgetReinvent<TData, TState> {
-    const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer'];
+    const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer', 'size'];
     const AClass = reinvent.baseClassFactory({ chainMethods, className: 'dashboard-widget' });
 
     AClass.afterConsturct = function () {
@@ -20,14 +20,17 @@ function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOpti
             param, data,
             repatch: target.repatch.bind(target),
             runAction: target.runAction.bind(this),
-            
+            root:target.refs.root ,
             subrender: target.subrender.bind(target),
             showModal: target.showModal.bind(target)
         };
 
     }
     AClass.renderer(p => {
-        if (p.state.data instanceof Promise) return <Spinner />;
+        if (p.state.data instanceof Promise) return <div ref="root" className="flex-center flex-full-center">
+
+            <Spinner />
+        </div>;
 
         return AClass.applyChain('dataRenderer', p)
     }
