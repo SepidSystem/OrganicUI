@@ -42,8 +42,13 @@
     }
 }
 
+.data-list-panel-wrapper{
+    width:100%;
+
+}
 .data-panel {
     margin-bottom: 5px;
+    width:100%;
     * {
         outline: none;
     }
@@ -80,7 +85,7 @@
         display: flex;
         padding: 0;
         position: relative;
-        max-height: 30px;
+  
     }
     .label {
         text-align: left;
@@ -252,7 +257,13 @@ a.close {
         border: none !important;
     }
 }
-
+.data-form{
+    display: flex;
+    flex-wrap: wrap;
+    .footer{
+        flex:1;
+    }
+}
 .single-view-callout {
     .column.desc {
         min-width: 300px;
@@ -285,8 +296,13 @@ a.close {
 }
 
 .MuiModal-root {
-    z-index: 100000000 !important;
+    z-index: 1000000 !important;
     .MuiPaper-root {
         max-width: 1000px !important;
     }
+}
+
+/// reinvent
+.dashboard-widget{
+    min-height: 100%;
 }

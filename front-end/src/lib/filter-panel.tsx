@@ -48,16 +48,16 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
                     {React.Children.map(this.props.children, child => {
                         const { props } = child as any;
                         if (child && child['type'] == Field)
-                            return React.cloneElement(child as any, { renderMode:'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
+                            return React.cloneElement(child as any, { renderMode: 'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
                         return child;
                     })
-                    }
-                </DataForm>
-                <footer>
-                    <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
-                    <Button onClick={this.handleClear.bind(this)}>{i18n('clear')}</Button>
+                    }   <footer style={{minWidth:'170px',padding:'0 20px'}}>
+                        <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
+                        <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear')}</AdvButton>
 
-                </footer>
+                    </footer>
+                </DataForm>
+
             </Paper>
         </section>
     }
@@ -69,4 +69,3 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
     }
 }
 
- 

@@ -29,6 +29,7 @@ $breakpointMed: 767px;
 
 //The link which when clicked opens the collapsable area
 .Collapsible__trigger {
+    
     .icon {
         visibility: hidden;
     }
@@ -39,7 +40,7 @@ $breakpointMed: 767px;
     color: $grey;
     position: relative;
     padding: 10px;
-  
+  font-size:16px    ;
     color: white;
     &:after {
         font-family: 'FontAwesome';

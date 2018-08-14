@@ -26,7 +26,7 @@ export class NotFoundView extends React.Component<any, any> {
                     <hr />
                     <ul className="items">
                         {Object.keys(routeTable.data).map(r => <li key={r} className="item">{r}</li>)}
-                    </ul>1
+                    </ul>
                 </div>
             </div>
 
