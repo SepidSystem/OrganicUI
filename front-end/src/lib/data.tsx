@@ -120,6 +120,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const value: any = [dataType == 'boolean' ?
             e && e.target && e.target.checked : undefined, e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
         const p = this.props;
+        p.onChange instanceof Function && p.onChange(value);
         if (p.onSet instanceof Function) return p.onSet(value);
         const { root } = this.refs;
         if (!root) return;
@@ -238,7 +239,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         return inputElement.type;
     }
     renderContent() {
-         const p = this.props, s = this.state;
+        const p = this.props, s = this.state;
         s.messages = s.messages || p.messages || [];
         const { currentOp } = this.state;
         const dataForm = this.getDataForm(true);
@@ -250,7 +251,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData('default', inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
-        const classNameForField = inputElement && inputElement.type && inputElement.type['classNameForField'];
+        let classNameForField = inputElement && inputElement.type && inputElement.type['classNameForField'];
+        if (classNameForField instanceof Function) classNameForField = classNameForField(inputElement.props);
         const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
             {
                 onChange: this.changeEvent,
@@ -318,7 +320,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                         <p style={{ width: `${this.fixedClientWidth}px`, maxWidth: `${this.fixedClientWidth}px` }} className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
                 </div>}
-                {!!p.showOpeartors && <a href="#" ref="op"
+                {!!p.showOpeartors && <a tabIndex={-1}  ref="op"
 
 
                     className="op" style={{ width: !!s.operatorsMenuIsOpen ? '100%' : 'auto', display: 'flex', alignItems: 'center' }} onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
@@ -374,6 +376,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.repatch({ operatorsMenuIsOpen: true });
     }
     processDOM() {
+        this.refs.op && (this.refs.op.tabIndex = -1 );
         ['default', 'alt'].forEach(key => {
             let value = this.handleGetData(key);
             if (value instanceof Promise) {
@@ -413,7 +416,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     componentDidUpdate() {
         this.processDOM();
     }
-    static getAccessorName(accessor ) {
+    static getAccessorName(accessor) {
         accessor = accessor || '';
         return accessor['__name'] || accessor;
     }
