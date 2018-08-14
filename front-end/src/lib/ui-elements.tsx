@@ -216,7 +216,8 @@ function panel(p: OrganicUi.IPanelProps, s: OrganicUi.IPanelProps, repatch: Func
             </div>}
             <div key="content" className="  panel-content">
                 {children && children.map(c => {
-                    const props = Object.assign({}, c.props);
+                    if(!c) return ;
+                    const props = Object.assign({}, c.props || {}) || {};
                     if (p.classNamePerChild) {
                         Object.assign(props, { className: p.classNamePerChild });
                         return Object.assign({}, c, { props });

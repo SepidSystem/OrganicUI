@@ -54,8 +54,8 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
     static isOrganicBoxTester = (el: JSX.Element) =>
         (el.type) && (el.type as any).isOrganicBox instanceof Function &&
         (el.type as any).isOrganicBox();
-    static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>) {
-        const element = Utils.skinDeepRender(componentType, {});
+    static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>):T {
+        const element = Utils.skinDeepRender(componentType, {isHidden:true});
         let { organicBox } = componentType as any;
         if (organicBox) return organicBox;
         organicBox = Utils.queryElement(element, this.isOrganicBoxTester);
