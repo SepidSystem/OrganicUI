@@ -35,15 +35,16 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
         return this.getFields().map(fld => Field.prototype.getFilterItem.apply(fld));
     }
     render() {
-        const s = this.state;
         return <section ref="root" className="filter-panel  developer-features">
 
             <Paper className=""  >
 
-                <DataForm className="medium-fields" data={this.dataForm} onFieldRead={key => this.dataForm && this.dataForm[key]} onFieldWrite={(key, value) => {
-                    this.dataForm[key] = value
-                }
-                } >
+                <DataForm className="medium-fields" data={this.dataForm}
+                    onFieldRead={key => this.dataForm && this.dataForm[key]}
+                    onFieldWrite={(key, value) => {
+                        this.dataForm[key] = value
+                    }
+                    } >
 
                     {React.Children.map(this.props.children, child => {
                         const { props } = child as any;
@@ -51,7 +52,7 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
                             return React.cloneElement(child as any, { renderMode: 'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
                         return child;
                     })
-                    }   <footer style={{minWidth:'170px',padding:'0 20px'}}>
+                    }   <footer style={{ minWidth: '170px', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
                         <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
                         <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear')}</AdvButton>
 

@@ -14,6 +14,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
     class ReinventComponent extends BaseComponent<any, S>{
         static _hooks = {};
         static _hookArray = [];
+        static doneFunc: Function;
         private static renderFunc;
         private static className = className;
         static StaticValues: any = {};
@@ -96,13 +97,13 @@ function baseClassFactory<S>({ chainMethods, className }) {
                 runAction: target.runAction.bind(this),
                 subrender: target.subrender.bind(this),
                 showModal: target.showModal.bind(this),
-                root:target.refs.root 
+                root: target.refs.root
             };
         }
         renderContent() {
             const { renderFunc, getRenderParams } = ReinventComponent;
             try {
-                 const content = renderFunc.apply(this, [getRenderParams(this)]);
+                const content = renderFunc.apply(this, [getRenderParams(this)]);
                 return <div className={Utils.classNames("developer-features", "reinvent-component", ReinventComponent.className)} ref="root">
                     {content}
                 </div>
@@ -118,6 +119,8 @@ function baseClassFactory<S>({ chainMethods, className }) {
         }
         done() {
             if (doneCheckerTimeOut) clearTimeout(doneCheckerTimeOut);
+            if (ReinventComponent.doneFunc instanceof Function)
+                ReinventComponent.doneFunc();
 
         }
 
@@ -144,6 +147,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
 
     const doneCheckerTimeOut = !Utils.isProdMode() && setTimeout(function () {
         alert('undone reinvert');
+        console.log('undone reinvert >>>', ReinventComponent);
     }, 100);
     return ReinventComponent;
 }

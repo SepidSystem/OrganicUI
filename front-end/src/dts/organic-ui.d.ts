@@ -12,6 +12,11 @@ declare namespace OrganicUi {
         accessor: string;
         message: any;
     }
+    export interface BindingPoint {
+        __name: string;
+    }
+ 
+    
     export interface PromisedResultSet<T> extends Promise<IListData<T>> {
 
     }
@@ -60,7 +65,7 @@ declare namespace OrganicUi {
         by?: string;
     }
     export interface IFieldProps {
-        accessor?: string;
+        accessor?: string|BindingPoint;
         showOpeartors?: boolean;
         operators?: string[];
         onGet?, onSet?: Function;
@@ -329,7 +334,7 @@ declare namespace OrganicUi {
         selectedId?: any;
         corner?: any;
         onSelectionChanged?: Function;
-        defaultSelectedValues?: () => any[];
+        defaultSelectedValues?: () =>{[key:number]:true};
         getValue?: () => any;
         setValue?: (value) => void;
         dataLookup?: any;

@@ -14,7 +14,7 @@ interface IDialogProps {
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
     static dialogInstance: IDialogProps;
-    static closeDialog(){
+    static closeDialog() {
         AppUtils.showDialog(null);
     }
     static showDialog(content, opts?: IDialogProps) {
@@ -65,25 +65,25 @@ export class AppUtils extends BaseComponent<any, any>{
         AppUtils.Instance = this;
         const { dialogInstance } = AppUtils;
         return <section className="app-utils" >
-            {dialogInstance && <Dialog open={true} onClose={this.handleClose}  >
-                {dialogInstance.title && <DialogTitle>
+            {<Dialog open={!!dialogInstance} onClose={this.handleClose}  >
+                <DialogTitle>
                     <div style={{ display: 'flex' }}>
                         <div style={{ flex: '10' }}>
-                            {i18n(dialogInstance.title)}
+                            {i18n((dialogInstance && dialogInstance.title)  || 'd') }
                         </div>
-                        {!dialogInstance.noClose && <a href="#" className="close-dialog" onClick={e => {
+                        {!(dialogInstance && dialogInstance.noClose) && <a href="#" className="close-dialog" onClick={e => {
                             e.preventDefault();
                             AppUtils.showDialog(null);
                         }}><i className="fa fa-times" /></a>}
                     </div>
-                </DialogTitle>}
+                </DialogTitle>
 
                 <DialogContent style={{ overflow: 'hidden' }}>
-                    {dialogInstance.content}
+                    {dialogInstance && dialogInstance.content}
                 </DialogContent>
-                {dialogInstance.actions && <DialogActions>
-                    {Utils.renderButtons(dialogInstance.actions)}
-                </DialogActions>}
+                <DialogActions>
+                    {dialogInstance && dialogInstance.actions && Utils.renderButtons(dialogInstance.actions)}
+                </DialogActions>
             </Dialog>}
         </section>
     }

@@ -36,3 +36,4 @@ export class ComboBox extends BaseComponent<ComboBoxProps, any> {
     }
 }
 
+ComboBox['filterOperators'] = ['eq', 'neq'];

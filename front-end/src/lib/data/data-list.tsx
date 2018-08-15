@@ -10,7 +10,7 @@ import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { DetailsList, FocusZone } from '../controls/inspired-components';
 import { IColumn, ConstrainMode, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
- 
+
 
 interface IPaginationProps {
     currentPageIndex: number;
@@ -21,9 +21,10 @@ interface IPaginationProps {
 }
 const defaultNormalPageCount = 3;
 const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
+
     const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
-    return   <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
+    return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
         <button className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</button>
         <button className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</button>
 
@@ -36,7 +37,15 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                         n == p.totalPages - 1 && ((p.totalPages - targetPageIndex) >= (defaultNormalPageCount * 2) - 1)
                         && ellipsis,
                         <li key={n} className="">
-                            <a onClick={e => (e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n))} className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}  >{n + 1}</a>
+                            <a
+                                className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}
+                                onClick={e => {
+                                    if (p.loadingPageIndex>0) return;
+                                    e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n);
+                                }
+
+                                }
+                            >{n + 1}</a>
                         </li>,
                         n == 0 && (targetPageIndex >= (defaultNormalPageCount * 2) - 1) && ellipsis
                     ]
@@ -116,9 +125,9 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         this.handleScroll = this.handleScroll.bind(this);
         this.adjustScroll = this.adjustScroll.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-      
+
     }
-    
+
     cache: Cache<number, any>;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
@@ -203,7 +212,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
             parent.scrollTop = (detailsRow.clientHeight * index);
     }
     renderContent() {
-          const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+        const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const textReaders = columnArray.filter(col => col && (col.type == Field)).map(fld => Field.prototype.getTextReader.apply(fld))
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
@@ -252,12 +261,12 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                 }} />;
 
         return (
-        <div ref="root" onDoubleClick={this.handleDoubleClick}
+            <div ref="root" onDoubleClick={this.handleDoubleClick}
                 data-height={p.height} style={p.flexMode ? {} : { minHeight: p.height + 'px' }}
                 className="data-list-wrapper developer-features">
                 {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
                     ref="parent"
-                    className={Utils.classNames("data-list",p.flexMode && 'flex-mode'   , p.paginationMode)}
+                    className={Utils.classNames("data-list", p.flexMode && 'flex-mode', p.paginationMode)}
                 >
 
                     {!!this.refs.root && items &&
@@ -267,8 +276,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                             }} >
                                 {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
                             </div>
-                            {!s.noPaging  &&(totalPages>1) && !!pagination && this && <div style={{padding:'0 4px', maxHeight: '60px', minHeight: '60px' }}  >
-                                 {pagination} 
+                            {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ padding: '0 4px', maxHeight: '60px', minHeight: '60px' }}  >
+                                {pagination}
 
                             </div>}
                         </div>}

@@ -10,13 +10,11 @@ export function loadScript(src, onload?) {
     document.head.appendChild(script);
     return script;
 }
-import { IOptionsForViewBox } from "../box/view-box";
 import { IAppModel, ITreeListNode } from "@organic-ui";
 import { NotFoundView } from "./404";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import theme from '../../styles/theme';
-import { openRegistry } from "./registry";
-import OrganicBox from "../box/organic-box";
+ 
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {

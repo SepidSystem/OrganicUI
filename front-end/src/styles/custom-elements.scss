@@ -127,9 +127,7 @@
         background: linear-gradient(left, #fff, #e4e4e4);
         border: 1px solid #aaa;
     }
-    &::-webkit-scrollbar-thumb:hover {
-        background: #fff;
-    }
+  
     &::-webkit-scrollbar-thumb:active {
         background: linear-gradient(left, #22ADD4, #1E98BA);
     }
@@ -151,9 +149,7 @@ div::-webkit-scrollbar-thumb {
     background: linear-gradient(left, #fff, #e4e4e4);
     border: 1px solid #aaa;
 }
-div::-webkit-scrollbar-thumb:hover {
-    background: #fff;
-}
+ 
 div::-webkit-scrollbar-thumb:active {
     background: linear-gradient(left, #22ADD4, #1E98BA);
 }

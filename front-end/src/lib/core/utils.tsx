@@ -278,6 +278,11 @@ export const Utils = {
 	},
 	joinElements(items: JSX.Element[], glue) {
 		return items.map((item, idx) => ([!!idx && glue, item]));
+	},
+	safeNumber(s){
+		const result = +s;
+		if(Number.isNaN(result)) return s;
+		return result;
 	}
 }
 import * as changeCaseObject from 'change-case-object'

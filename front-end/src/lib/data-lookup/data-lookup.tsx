@@ -58,6 +58,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         innerText: HTMLElement;
     }
     openRequestTime: number;
+    savedScrollTop: number;
     constructor(p: OrganicUi.DataLookupProps) {
         super(p);
         this.cache = {};
@@ -66,7 +67,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.listViewBoxNotFoundCounter = 2;
         this.handleSetValue = this.handleSetValue.bind(this);
         this.applySource(p.source);
-        if (p.multiple) this.state.selectedValueDic = p.value ? Utils.toArray(p.value).filter(id=>id!==undefined && id!==null).reduce((accum, id) => Object.assign(accum, { [id]: true }), {}) : {};
+        this.state.selectedValueDic = p.value ? Utils.toArray(p.value).filter(id => id !== undefined && id !== null).reduce((accum, id) => Object.assign(accum, { [id]: true }), {}) : {};
     }
     getListViewBox(): ListViewBox<any> {
         const { refId } = this.state as any;
@@ -105,9 +106,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
         const isOpen = !s.isOpen;
         closeAllPopup(this);
-        if (s.isOpen)
+        if (s.isOpen) {
+            this.savedScrollTop = document.documentElement.scrollTop;
             document.documentElement.classList.add('overflowY-hidden');
-
+        }
         this.repatch({ isOpen, isHidden: false, isActive: true })
     }
     adjustEditorPadding() {
@@ -125,21 +127,30 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
     handleSelectionChanged(indices: number[], index) {
         const listViewBox = this.getListViewBox();
+        if (listViewBox.state.readingList) return;
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
-        const { selectedValueDic } = this.state;
+        let { selectedValueDic } = this.state;
         const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
-        if (selectedValueDic)
-            items.map(item => listViewBox.getId(item)).filter(id => id !== undefined && id !== null).forEach(id => selectedValueDic[id] = ids.includes(id))
-        const value = this.props.multiple ? ids : ids[0];
+        if (!this.props.multiple) selectedValueDic = ids.length ? { [ids[0]]: true } as any : {};
+
+        else if (selectedValueDic)
+            items.map(item => listViewBox.getId(item)).filter(id => id !== undefined && id !== null)
+                .filter(id => (!!selectedValueDic[id]) !== ids.includes(id)).forEach(id => {
+                    if (ids.includes(id))
+                        selectedValueDic[id] = true;
+                    else
+                        delete selectedValueDic[id];
+                });
+        this.state.selectedValueDic = selectedValueDic;
+        const value = this.props.multiple ? Object.keys(selectedValueDic).filter(id => Utils.safeNumber(id)) : ids[0];
         this.repatch({ value });
         if (!this.props.multiple && ids.length)
             closeAllPopup();
         this.props.onChange instanceof Function && this.props.onChange(
             this.props.multiple ? ids : ids[0]
         );
-
 
 
     }
@@ -222,8 +233,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             value={value} />));
     }
     handleSetValue(value) {
+        const selectedValueDic = Utils.toArray(value).reduce((accum, id) => Object.assign(accum, { [id]: true }), {});
+        this.repatch({ value, selectedValueDic });
 
-        this.repatch({ value });
         this.props && this.props.onChange instanceof Function && this.props.onChange(value);
 
     }
@@ -244,10 +256,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     }
     handleApply() {
         const listViewBox = this.getListViewBox();
-        const indices = listViewBox.selection.getSelectedIndices();
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
-        const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
         const { selectedValueDic } = this.state;
         if (!selectedValueDic) throw 'selectedValueDic=null';
         const ids = Object.keys(selectedValueDic).filter(id => id !== undefined && id !== null).filter(id => selectedValueDic[id]);
@@ -265,6 +275,16 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.handleSetValue(ids.concat(this.state.value));
         this.repatch({ isOpen: false });
     }
+    repatch(delta) {
+        if ('isOpen' in delta && (!!delta.isOpen) != (!!this.state.isOpen)) {
+            if (delta.isOpen) this.savedScrollTop = document.documentElement.scrollTop;
+            else setTimeout(scrollTop =>{
+                 document.documentElement.scrollTop = scrollTop;
+            } , 300, this.savedScrollTop);
+
+        }
+        super.repatch(delta);
+    }
     renderPopOver() {
         const p = this.props, s = this.state;
         const { isOpen } = this.state;
@@ -273,7 +293,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             forDataLookup: true,
             width: root && root.clientWidth,
             parentRefId: this.state.refId,
-            defaultSelectedValues: () => Utils.toArray([s.value, p.value].filter(v => v !== undefined)[0]),
+            defaultSelectedValues: () => this.state.selectedValueDic,
             getValue: () => [s.value, p.value].filter(v => v !== undefined)[0],
             dataLookup: this,
             multipleDataLookup: p.multiple,
@@ -282,7 +302,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             setValue: this.handleSetValue.bind(this)
         } as Partial<OrganicUi.IListViewParams>);
 
-        const onClose = () => this.repatch({ isOpen: false });
+        const onClose = () => {
+            this.repatch({ isOpen: false });
+
+        }
         const target = this.refs.root;
         const popupElement = React.createElement<OrganicUi.IDataLookupPopupModeProps>(p.popupMode, {
             isOpen, onClose, target,

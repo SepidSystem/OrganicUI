@@ -34,6 +34,7 @@ const debounce = cb => {
 interface ListViewBoxState<T> {
     dataFormForFilterPanel: any;
     currentRow: T;
+    readingList: boolean;
     deleteDialogIsOpen?: boolean;
     quickFilter: boolean;
 };
@@ -43,9 +44,7 @@ export class ListViewBox<T> extends
     implements IDeveloperFeatures {
     devElement: any;
     devPortId: any;
-    forceUpdate(): void {
-        throw new Error("Method not implemented.");
-    }
+
 
     columns: IFieldProps[];
     error: any;
@@ -147,7 +146,7 @@ export class ListViewBox<T> extends
                     this.denyHandleSelectionChanged = 0;
                 }
 
-                this.adjustSelectedRow();
+                //this.adjustSelectedRows();
 
             }, 20);
         //this.repatch({});
@@ -157,14 +156,17 @@ export class ListViewBox<T> extends
     requestIsFail: boolean;
     readList(params) {
         if (!ListViewBox.fakeLoad() && !this.requestIsFail) {
+            this.state.readingList = true;
             return this.actions.readList(params).then(r => {
-                setTimeout(() => this.adjustSelectedRow(), 200);
+                setTimeout(() => {
+                    this.adjustSelectedRows();
+                    this.state.readingList = false;
+                }, 200);
                 return r;
             }, error => {
                 this.requestIsFail = true;
                 this.devElement = this.makeDevElementForDiag(error);
-                this.repatch({})
-
+                this.repatch({});
             });
         }
         else {
@@ -195,7 +197,7 @@ export class ListViewBox<T> extends
         }
         tryToAnimate();
     }
-    adjustSelectedRow() {
+    adjustSelectedRows() {
 
         const { params } = this.props;
 
@@ -204,28 +206,19 @@ export class ListViewBox<T> extends
         if (selectedId || params.defaultSelectedValues) {
             const defaultSelectedValues =
                 params.defaultSelectedValues instanceof Function ?
-                    params.defaultSelectedValues() : [];
-            const tryToSelect = () => {
-                const items = this.selection.getItems();
-                let foundIndex = -1;
-                items.forEach((item, idx) => {
-                    if (!item) return;
-                    const id = this.getId(item);
-                    if (id == selectedId)
-                        foundIndex = idx;
-                    if (defaultSelectedValues.includes(id))
-                        foundIndex = idx;
-                    (foundIndex >= 0) && setTimeout(foundIndex => {
-                        this.denyHandleSelectionChanged = +new Date();
-
-                        this.selection.setIndexSelected(foundIndex, true, false);
-                        this.denyHandleSelectionChanged = 0;
-                    }, 100, foundIndex);
+                    params.defaultSelectedValues() : (params.defaultSelectedValues || {});
+            const items = this.selection.getItems();
+            const selectedIds = items.map((item, index) => ({ index, id: this.getId(item) }))
+                .filter(({ id }) => !!defaultSelectedValues[id]);
+            setTimeout(() => {
+                selectedIds.forEach(({ index }) => {
+                    this.denyHandleSelectionChanged = +new Date();
+                    this.selection.setIndexSelected(index, true, false);
+                    this.denyHandleSelectionChanged = 0;
                 });
-                if ((foundIndex < 0) && --limitTry > 0) setTimeout(() => tryToSelect(), 200);
+            }, 100);
 
-            }
-            tryToSelect();
+
         }
 
     }
