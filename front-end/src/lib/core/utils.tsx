@@ -103,7 +103,7 @@ export const Utils = {
 		return format(text, args);
 	},
 	showIcon(icon: string, className?: string) {
-		return !!icon && <i key={icon} className={Utils.classNames(   className || "icon", icon.split('-')[0], icon)} />;
+		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
 	},
 	defaultGetId: ({ id }) => id,
 	setNoWarn(v) {
@@ -165,7 +165,7 @@ export const Utils = {
 		const callback = opts.callback || function () { };
 		return Object.keys(methods).map(
 			key => React.createElement(opts.componentClass || Button,
-				{ onClick: () => callback(methods[key](),key) } as any,
+				{ onClick: () => callback(methods[key](), key) } as any,
 				i18n(changeCase.paramCase(key)))
 		);
 	},
@@ -253,7 +253,7 @@ export const Utils = {
 	devLog(...args) {
 		!OrganicUI.isProdMode() && console.log('DEVELOPER-ONLY-LOG>>>>', ...args);
 	},
-	isProdMode:() => OrganicUI.isProdMode(),
+	isProdMode: () => OrganicUI.isProdMode(),
 	diff(...args) {
 		return diff.apply(this, args)
 	},
@@ -262,7 +262,7 @@ export const Utils = {
 	},
 	enumToIdNames(enumType: any, customCaptions?: Object): ({ Id, Name }[]) {
 		customCaptions = customCaptions || {};
-		return [{Id:undefined,Name:''}].concat(  Object.keys(enumType)
+		return [{ Id: undefined, Name: '' }].concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
 			.map(Name => ({ Id: enumType[Name], Name: customCaptions[Name] || Name })))
 	},
@@ -275,8 +275,9 @@ export const Utils = {
 
 		}
 		return result;
-
-
+	},
+	joinElements(items: JSX.Element[], glue) {
+		return items.map((item, idx) => ([!!idx && glue, item]));
 	}
 }
 import * as changeCaseObject from 'change-case-object'

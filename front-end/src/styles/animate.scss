@@ -1018,7 +1018,7 @@
   animation-name: bounceInRight;
 }
 
-@-webkit-keyframes bounceInUp {
+@-webkit-keyframes fadeInUp {
   from,
   60%,
   75%,
@@ -1056,7 +1056,7 @@
   }
 }
 
-@keyframes bounceInUp {
+@keyframes fadeInUp {
   from,
   60%,
   75%,
@@ -1094,9 +1094,9 @@
   }
 }
 
-.bounceInUp {
-  -webkit-animation-name: bounceInUp;
-  animation-name: bounceInUp;
+.fadeInUp {
+  -webkit-animation-name: fadeInUp;
+  animation-name: fadeInUp;
 }
 
 @-webkit-keyframes bounceOut {

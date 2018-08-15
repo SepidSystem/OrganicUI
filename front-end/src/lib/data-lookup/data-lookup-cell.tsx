@@ -1,6 +1,6 @@
-import { BaseComponent } from "../base-component";
+import { BaseComponent } from "../core/base-component";
 import { IActionsForCRUD, IOptionsForCRUD } from "@organic-ui";
-import { Spinner } from "../spinner";
+import { Spinner } from "../core/spinner";
 
 interface DataLookupCellProps {
     actions: IActionsForCRUD<any>;

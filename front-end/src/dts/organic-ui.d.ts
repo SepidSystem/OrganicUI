@@ -333,7 +333,7 @@ declare namespace OrganicUi {
         getValue?: () => any;
         setValue?: (value) => void;
         dataLookup?: any;
-        filterMode?: 'quick' | 'advanced';
+        filterMode?: 'quick' | 'advanced' | 'none';
         noTitle?: boolean;
     }
     export interface ISingleViewParams { id }

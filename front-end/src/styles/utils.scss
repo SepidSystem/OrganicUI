@@ -120,3 +120,21 @@ hr{
 .overflowY-hidden{
     overflow-y: hidden !important;
 }  
+.flex-center,.flex-full-center{
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+}
+.flex-full-center{ 
+    height:100%;
+}
+.image-128{
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content:center;
+    svg{
+        width:128px;
+    }
+}

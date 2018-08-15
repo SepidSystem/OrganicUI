@@ -1,3 +1,4 @@
+$below-list-height:200;
 .data-lookup {
     min-height: 30px;
     margin: 2px;
@@ -63,6 +64,42 @@
         align-content: center;
         align-items: center;
     }
+    .below-list {
+        position: absolute;
+        top: 35px;
+        left: 0;
+        right: 0;
+        bottom: 3px;
+        text-align: right;
+        min-height: $below-list-height*1px;
+        max-height: $below-list-height*1px;
+        overflow-y: scroll;
+        li {
+            display: flex;
+            width: 100%; 
+            align-items: center;
+            i {
+                border-radius: 5px;
+                max-width: 24px;
+                min-width: 24px;
+                cursor: pointer;
+                max-height: 24px;
+                min-height: 24px;
+                display: flex;
+                justify-items: center;
+                align-items: center;
+                justify-content: center;
+                &:hover {
+                    background: #ddd;
+                }
+            }
+            .data-lookup-cell {
+                flex: 1;
+                align-items: center;
+                align-content: center;
+            }
+        }
+    }
     .spinner-container {
         width: 30px;
         height: 35px;
@@ -99,9 +136,6 @@
         svg {
             position: static;
         }
-    }
-    &__filter-panel {
-        max-width: 500px;
     }
 }
 
@@ -159,5 +193,15 @@
     }
     .ms-DetailsRow-cell {
         background: transparent !important;
+    }
+}
+
+.data-lookup-field {
+    .control {
+        max-height: 30px;
+    }
+    &.has-bellow-list {
+        max-height: ($below-list-height+30)*1px !important;
+        min-height: ($below-list-height+30)*1px !important;
     }
 }

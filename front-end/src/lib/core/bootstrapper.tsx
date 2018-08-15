@@ -44,8 +44,8 @@ export function mountViewToRoot(p?: IMountViewToRootParams) {
     const vdom = React.createElement(masterPage, {}, view);;
     if (ReactDOM.unmountComponentAtNode instanceof Function && root.childElementCount)
         ReactDOM.unmountComponentAtNode(root);
-
-    ReactDOM.render(vdom, root, () => p.callback instanceof Function && p.callback());
+    const virtualElement = !!theme ? <MuiThemeProvider theme={theme}>{vdom}</MuiThemeProvider> : vdom;
+    ReactDOM.render(virtualElement, root, () => p.callback instanceof Function && p.callback());
 
 
 }
@@ -126,4 +126,3 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
     });
 }
 
- 

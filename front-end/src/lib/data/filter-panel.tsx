@@ -1,11 +1,11 @@
-import { BaseComponent } from "./base-component";
-import { DataForm } from "./data-form";
-import { i18n } from './shared-vars';
-import { Field, FilterItem } from "./data";
-import { Utils } from "./utils";
+import { BaseComponent } from "../core/base-component";
+import { DataForm } from "../data/data-form";
+import { i18n } from '../core/shared-vars';
+import { Field, FilterItem } from "../data/field";
+import { Utils } from "../core/utils";
 import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
-import { Paper, Button } from "./inspired-components";
-import { AdvButton } from "./ui-elements";
+import { Paper, Button } from "../controls/inspired-components";
+import { AdvButton } from "../core/ui-elements";
 
 
 interface IFilterPanelState {

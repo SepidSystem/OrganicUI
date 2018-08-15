@@ -1,7 +1,7 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
-import { BaseComponent } from './base-component';
-import { Utils } from './utils';
+import { BaseComponent } from '../core/base-component';
+import { Utils } from '../core/utils';
 
 
 export interface OrganicBoxProps<TActions, TOptions, TParams> {

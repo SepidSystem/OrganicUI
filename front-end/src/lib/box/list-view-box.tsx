@@ -1,28 +1,25 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
-import { BaseComponent, CriticalContent } from './base-component';
-import { icon, i18n } from './shared-vars';
-import { Utils, changeCase } from './utils';
-import { FilterPanel } from './filter-panel';
-
-import { DataList } from './data-list';
+import { BaseComponent, CriticalContent } from '../core/base-component';
+import { icon, i18n } from '../core/shared-vars';
+import { Utils, changeCase } from '../core/utils';
+import { FilterPanel } from '../data/filter-panel';
+import { DataList } from '../data/data-list';
 import { Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
-
-import { AdvButton, Placeholder } from './ui-elements';
+import { AdvButton, Placeholder } from '../core/ui-elements';
 
 
 import OrganicBox from './organic-box';
-import { Field } from './data';
+import { Field } from '../data/field';
 
-import { AppUtils } from './app-utils';
-import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps } from '@organic-ui';
-import { createClientForREST } from './rest-api';
-import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from './icons';
+import { AppUtils } from '../core/app-utils';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView } from '@organic-ui';
+import { createClientForREST } from '../core/rest-api';
+import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from '../controls/icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
-import { Button, Paper, TextField } from './inspired-components';
-import { SnackBar } from './snack-bar';
-import { DeveloperBar } from './developer-features';
-
+import { Button, Paper, TextField } from '../controls/inspired-components';
+import { SnackBar } from '../controls/snack-bar';
+import { DeveloperBar } from '../core/developer-features';
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -44,6 +41,11 @@ interface ListViewBoxState<T> {
 export class ListViewBox<T> extends
     OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
     implements IDeveloperFeatures {
+    devElement: any;
+    devPortId: any;
+    forceUpdate(): void {
+        throw new Error("Method not implemented.");
+    }
 
     columns: IFieldProps[];
     error: any;
@@ -80,7 +82,7 @@ export class ListViewBox<T> extends
         this.handleEdit = this.handleEdit.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
         this.handleLoadRequestParams = this.handleLoadRequestParams.bind(this);
-        this.state.quickFilter = true;
+        this.state.quickFilter = (this.props.params.filterMode != 'advanced');
     }
     getColumns(): IFieldProps[] {
         const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
@@ -243,7 +245,7 @@ export class ListViewBox<T> extends
         return [
             <i className="fa fa-search"></i>,
             <TextField fullWidth />,
-            <i className="fa fa-bars" onClick={() => this.repatch({ quickFilter: false })}></i>,
+            //  <i className="fa fa-bars" onClick={() => this.repatch({ quickFilter: false })}></i>,
         ]
     }
     renderContent() {
@@ -262,19 +264,20 @@ export class ListViewBox<T> extends
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
         const { root } = this.refs;
-        const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => child.type == FilterPanel && child).filter(x => !!x)[0]) || this.getFilterPanel();
+        const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0]) || this.getFilterPanel();
         const multiple = this.getMultiple();
         const children = !!root && React.Children.map(this.props.children || [], (child: any) => {
-            if (child.type == FilterPanel) return null;
-            if (child.type == DataList && !child.props.loader) {
+            if (child && (child.type == FilterPanel)) return null;
+            if (child && (child.type == DataList && !child.props.loader)) {
                 const dataItemsElement = root.querySelector('.data-items');
-                 return React.cloneElement(child, Object.assign(
+                return React.cloneElement(child, Object.assign(
                     {}, child.props, {
                         ref: "dataList",
                         height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
                         onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
                         onLoadRequestParams: this.handleLoadRequestParams,
                         loader: this.readList,
+                        flexMode: true,
                         paginationMode: child.props.paginationMode || 'paged',
                         selection: this.selection,
 
@@ -291,34 +294,35 @@ export class ListViewBox<T> extends
         });
 
         if (!root) setTimeout(() => (this.repatch({})), 10);
+        const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
             return <section className={Utils.classNames(`developer-features list-view-data-lookup `)}
                 data-parent-id={params.parentRefId}
                 style={{
                     minHeight: (params.height ? params.height + 'px' : 'auto'),
                     maxHeight: (params.height ? params.height + 'px' : 'auto'),
-
-                    overflowY: 'hidden'
+                    minWidth: (minWidth ? minWidth + 'px' : 'auto'),
+                    overflow: 'hidden'
                 }} ref="root"  >
-                <div className="  title is-6">
+                {!params.noTitle && <div className="animated fadeInUp title is-6">
                     {Utils.showIcon(options.iconCode)}
 
-                    {i18n(options.pluralName)}</div>
-                <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
+                    {i18n(options.pluralName)}</div>}
+                {(params.filterMode != 'none') && <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
                     {filterPanel}
-                </div>
-                <div className="   data-lookup__quick-filter" style={{ display: !this.state.quickFilter ? 'none' : 'flex' }}>
+                </div>}
+                {(params.filterMode != 'none') && <div className="   data-lookup__quick-filter" style={{ display: !this.state.quickFilter ? 'none' : 'flex' }}>
                     {this.renderQuickFilter()}
-                </div>
+                </div>}
                 <div className="data-items">
                     {children}
                 </div>
             </section>;
-         return <section className="list-view developer-features" ref="root"   >
+        return <section className="list-view developer-features" ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
             {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
             </Card>*/}
-            <div className="title is-3">
+            <div className="title is-3 animated fadeInUp">
                 {Utils.i18nFormat('list-view-title-fmt', this.props.options.pluralName)}
             </div>
             <header className="  static-height list-view-header"  >
@@ -352,19 +356,13 @@ export class ListViewBox<T> extends
             <Paper className="  main-content column  "   >
 
                 <header className="navigator">
-                    <Button onClick={this.handleEdit} >
-                        <EditIcon />
-                        {i18n('edit')}
-                    </Button>
+
                     <Button onClick={this.handleRemove}   >
                         <DeleteIcon />
                         {i18n('delete-items')}
 
                     </Button>
-                    <div className="search-field">
-                        <SearchIcon width="64px" height="64px" />
-                        <TextField />
-                    </div>
+
                 </header>
                 <div className="data-items">
                     {!!this.refs.root && children}
@@ -385,6 +383,29 @@ export class ListViewBox<T> extends
 
         </section >;
     }
+    static fromArray<T>(items: T[], { keyField = 'Id', fields = ['Name'], title, iconCode } = { keyField: 'Id', fields: ['Name'], title: '', iconCode: '' }): StatelessListView {
+        const actions: IActionsForCRUD<T> = {
+            create: () => Promise.resolve(true),
+            update: () => Promise.resolve(true),
+            deleteList: () => Promise.resolve(true),
+            readList: () => Promise.resolve(items.filter(item => !!item[keyField])) as any,
+            read: id => Promise.resolve(items.filter(item => (item[keyField]) == id)[0]),
+            getText: dto => dto[fields[0]],
+            getId: dto => dto[keyField]
+        };
+        const options: Partial<IOptionsForCRUD> = {
+            singularName: 'local' + (+new Date()) + 'data'
+        }
+        return p => (<ListViewBox actions={actions} options={options as any} params={Object.assign({}, p, { filterMode: 'none' })}>
+            {!!title && <div className="animated fadeInUp  title is-6">
+                {Utils.showIcon(iconCode)}
 
+                {i18n(title)}</div>}
+            <DataList>
+                {fields.map(fieldName => (<Field accessor={fieldName} />))}
+            </DataList>
+        </ListViewBox>);
+
+    }
 }
 

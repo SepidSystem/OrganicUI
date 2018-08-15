@@ -1,10 +1,10 @@
 /// <reference path="./dts/globals.d.ts" />
 
-import { Field } from "./lib/data";
-import { Checkbox, TextField, FormControlLabel, Switch, Select } from "./lib/inspired-components";
-import { ComboBox } from "./lib/combo-box";
-import { Utils } from "./lib/utils";
-import { i18n } from "./lib/shared-vars";
+import { Field } from "./lib/data/field";
+import { Checkbox, TextField, FormControlLabel, Switch, Select } from "./lib/controls/inspired-components";
+import { ComboBox } from "./lib/core/combo-box";
+import { Utils } from "./lib/core/utils";
+import { i18n } from "./lib/core/shared-vars";
 import { IFieldProps } from "@organic-ui";
 
 

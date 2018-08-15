@@ -1,7 +1,7 @@
 import { BaseComponent } from "./base-component";
 import { DataList } from "./data-list";
 import { DataForm } from "./data-form";
-import { Callout, Dialog, Modal, DefaultButton, MessageBar } from "./inspired-components";
+import { Callout, Dialog, Modal, DefaultButton, MessageBar, Button } from "./inspired-components";
 import { Utils } from "./utils";
 import { IDetailsListProps, DetailsListLayoutMode, Selection, SelectionMode } from "office-ui-fabric-react/lib/DetailsList";
 import { i18n } from "./shared-vars";
@@ -90,9 +90,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     this.forceUpdate();
                 });
         }
-        return Utils.renderButtons(customBar, {
+        return [Utils.renderButtons(customBar, {
             callback
-        })
+        })].concat([<Button 
+            className="delete-button" disabled={!this.state.selectedItem} onClick={()=>this.doAction('delete')}     >{i18n('delete')}</Button>,])
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));

@@ -107,7 +107,7 @@ export class SingleViewBox<T> extends OrganicBox<
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
             updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
-            return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-3 animated fadeIn">{i18n('error')}</div>
+            return (<div className="error-callback" style={{ padding: '10px' }}><div className="title is-3 animated fadeInUp ">{i18n('error')}</div>
                 <div className="animated fadeInDown">
                     {i18n('not impl update & create')}
                 </div>
@@ -196,7 +196,7 @@ export class SingleViewBox<T> extends OrganicBox<
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
 
         return <section className="organic-box single-view developer-features" ref="root">
-            <h1 className="title is-3 columns" style={{ margin: '0' }}>
+            <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0' }}>
                 <div className="column  " style={{ flex: '10' }}>
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>

@@ -1,11 +1,11 @@
-/// <reference path="../dts/organic-ui.d.ts" />
+/// <reference path="../../dts/organic-ui.d.ts" />
 
 
-import { i18n } from "./shared-vars";
-import { Icon } from './inspired-components';
-import { BaseComponent } from './base-component';
-import { Utils, changeCase } from './utils';
-import { Field } from "./data";
+import { i18n } from "../core/shared-vars";
+import { Icon } from '../controls/inspired-components';
+import { BaseComponent } from '../core/base-component';
+import { Utils, changeCase } from '../core/utils';
+import { Field } from "../data/field";
 import { IDataFormAccessorMsg } from "@organic-ui";
 
 interface IState {

@@ -1,9 +1,9 @@
-import { i18n, icon, editorByAccessor } from "./shared-vars";
-import { BaseComponent } from './base-component';
-import { changeCase, Utils } from './utils';
-import { DataForm } from "./data-form";
+import { i18n, icon, editorByAccessor } from "../core/shared-vars";
+import { BaseComponent } from '../core/base-component';
+import { changeCase, Utils } from '../core/utils';
+import { DataForm } from "../data/data-form";
 import { IComponentRefer, IFieldProps } from "@organic-ui";
-import { Menu, MenuItem } from "./inspired-components";
+import { Menu, MenuItem } from "../controls/inspired-components";
 
 //--------------------------------------------------------------------------------
 interface IFieldMessage {

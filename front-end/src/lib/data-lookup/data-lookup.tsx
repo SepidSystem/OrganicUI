@@ -1,16 +1,17 @@
-import { BaseComponent } from '../base-component';
-import { icon, i18n } from '../shared-vars';
-import { Utils } from '../utils';
+/// <reference path="../../dts/organic-ui.d.ts" />
+
+import { BaseComponent } from '../core/base-component';
+import { icon, i18n } from '../core/shared-vars';
+import { Utils } from '../core/utils';
 const { classNames } = Utils;
 import { DataLookupPopOver } from './data-lookup-popover';
 import { DataLookupCell } from './data-lookup-cell';
-import { ListViewBox } from '../list-view-box';
-import { Spinner } from '../spinner';
-
+import { ListViewBox } from '../box/list-view-box';
+import { Spinner } from '../core/spinner';
 import { IOptionsForCRUD, IActionsForCRUD } from '@organic-ui';
-import OrganicBox from '../organic-box';
+import OrganicBox from '../box/organic-box';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
-import { TextField } from '../inspired-components';
+import { TextField } from '../controls/inspired-components';
 import { DataLookupModal } from './data-lookup-modal';
 
 
@@ -22,6 +23,7 @@ interface DataLookupState {
     value?: any | any[];
     refId: number;
     appliedSource: any;
+    selectedValueDic: any[];
 }
 function closeAllPopup(activeDataLookup?) {
     const query = () => Array.from(document.querySelectorAll('.closable-element'))
@@ -56,7 +58,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         innerText: HTMLElement;
     }
     openRequestTime: number;
-    constructor(p) {
+    constructor(p: OrganicUi.DataLookupProps) {
         super(p);
         this.cache = {};
         this.handleClick = this.handleClick.bind(this);
@@ -64,6 +66,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.listViewBoxNotFoundCounter = 2;
         this.handleSetValue = this.handleSetValue.bind(this);
         this.applySource(p.source);
+        if (p.multiple) this.state.selectedValueDic = p.value ? Utils.toArray(p.value).filter(id=>id!==undefined && id!==null).reduce((accum, id) => Object.assign(accum, { [id]: true }), {}) : {};
     }
     getListViewBox(): ListViewBox<any> {
         const { refId } = this.state as any;
@@ -75,7 +78,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     closePopup(delta?: Partial<DataLookupState>) {
         if (this.openRequestTime && ((+ new Date() - this.openRequestTime) < 200))
             return;
-      
+
         this.repatch(Object.assign({ isOpen: false, isHidden: false, isActive: false }, delta || {}));
 
     }
@@ -119,21 +122,24 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
 
     }
+
     handleSelectionChanged(indices: number[], index) {
-        if (this.props.popupMode.inlineMode) {
-            const listViewBox = this.getListViewBox();
-            const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
-            console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
-            const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
-            const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
-            const value = this.props.multiple ? ids : ids[0];
-            this.repatch({ value });
-            if (!this.props.multiple && ids.length)
-                closeAllPopup();
-            this.props.onChange instanceof Function && this.props.onChange(
-                this.props.multiple ? ids : ids[0]
-            );
-        }
+        const listViewBox = this.getListViewBox();
+        const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
+        console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
+        const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
+        const { selectedValueDic } = this.state;
+        const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
+        if (selectedValueDic)
+            items.map(item => listViewBox.getId(item)).filter(id => id !== undefined && id !== null).forEach(id => selectedValueDic[id] = ids.includes(id))
+        const value = this.props.multiple ? ids : ids[0];
+        this.repatch({ value });
+        if (!this.props.multiple && ids.length)
+            closeAllPopup();
+        this.props.onChange instanceof Function && this.props.onChange(
+            this.props.multiple ? ids : ids[0]
+        );
+
 
 
     }
@@ -242,7 +248,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
-        const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
+        const { selectedValueDic } = this.state;
+        if (!selectedValueDic) throw 'selectedValueDic=null';
+        const ids = Object.keys(selectedValueDic).filter(id => id !== undefined && id !== null).filter(id => selectedValueDic[id]);
+
         this.handleSetValue(ids)
         this.repatch({ isOpen: false });
     }
@@ -287,7 +296,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     renderBelowList(): JSX.Element {
         const { options, actions } = this.getSourceAttributes();
         const value = this.getValue();
-        const valueArray = (value instanceof Array ? (value || []) as any[] : [value]).filter(x => x !== undefined);
+        const valueArray = (value instanceof Array ? (value || []) as any[] : [value]).filter(x => x !== undefined).filter(x => x !== null);
         return actions && <div className="below-list"><ul   >
             {options && valueArray.map((value, idx) => (<li><DataLookupCell
                 actions={actions}

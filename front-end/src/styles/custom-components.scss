@@ -4,6 +4,10 @@
 
 .pagination {
     margin-top: 5px;
+    list-style: none;
+    li {
+        list-style: none;
+    }
 }
 
 .full-cell {
@@ -42,13 +46,13 @@
     }
 }
 
-.data-list-panel-wrapper{
-    width:100%;
-
+.data-list-panel-wrapper {
+    width: 100%;
 }
+
 .data-panel {
     margin-bottom: 5px;
-    width:100%;
+    width: 100%;
     * {
         outline: none;
     }
@@ -85,7 +89,6 @@
         display: flex;
         padding: 0;
         position: relative;
-  
     }
     .label {
         text-align: left;
@@ -257,13 +260,15 @@ a.close {
         border: none !important;
     }
 }
-.data-form{
+
+.data-form {
     display: flex;
     flex-wrap: wrap;
-    .footer{
-        flex:1;
+    .footer {
+        flex: 1;
     }
 }
+
 .single-view-callout {
     .column.desc {
         min-width: 300px;
@@ -303,6 +308,6 @@ a.close {
 }
 
 /// reinvent
-.dashboard-widget{
+.dashboard-widget {
     min-height: 100%;
 }

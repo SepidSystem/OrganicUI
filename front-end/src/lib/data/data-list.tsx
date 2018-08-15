@@ -1,19 +1,16 @@
-/// <reference path="../dts/globals.d.ts" />   
-import { BaseComponent } from './base-component';
-import { icon, i18n } from './shared-vars';
-import { openRegistry } from './registry';
-import { funcAsComponentClass } from './functional-component';
-import { Spinner } from './spinner';
-import { Utils, changeCase } from './utils';
-import { DeveloperBar } from '../organicUI';
-
+/// <reference path="../../dts/globals.d.ts" />   
+import { BaseComponent } from '../core/base-component';
+import { icon, i18n } from '../core/shared-vars';
+import { openRegistry } from '../core/registry';
+import { funcAsComponentClass } from '../core/functional-component';
+import { Spinner } from '../core/spinner';
+import { Utils, changeCase } from '../core/utils';
 import { Cache } from 'lru-cache';
-import { Field } from './data';
+import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
-import { DetailsList, FocusZone } from './inspired-components';
+import { DetailsList, FocusZone } from '../controls/inspired-components';
 import { IColumn, ConstrainMode, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
-import { FocusZoneDirection } from '../../node_modules/office-ui-fabric-react/lib/FocusZone';
-
+ 
 
 interface IPaginationProps {
     currentPageIndex: number;
@@ -26,7 +23,7 @@ const defaultNormalPageCount = 3;
 const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
     const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
-    return (p.totalPages > 1) && <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
+    return   <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
         <button className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</button>
         <button className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</button>
 
@@ -119,13 +116,9 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         this.handleScroll = this.handleScroll.bind(this);
         this.adjustScroll = this.adjustScroll.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-        this.calcRowCount();
+      
     }
-    calcRowCount() {
-        if (this.props.height)
-            this.rowCount = Math.floor(this.props.height / this.props.itemHeight) - 1;
-        else this.rowCount = 10;
-    }
+    
     cache: Cache<number, any>;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
@@ -176,7 +169,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
             this.scrollTimer = null;
             const { content, root } = this.refs;
             const { listData } = this.state;
-            const ratio = listData ? (root.scrollTop / content.clientHeight) : 0;
+            const ratio = listData ? (root.scrollTop / (content && content.clientHeight)) : 0;
             const diffRatio = (ratio - this.state.ratio) * 100;
             let { startFrom } = this.state;
             if (root.scrollTop == 0) startFrom = 0;
@@ -210,8 +203,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
             parent.scrollTop = (detailsRow.clientHeight * index);
     }
     renderContent() {
-        this.calcRowCount();
-        const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
+          const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const textReaders = columnArray.filter(col => col && (col.type == Field)).map(fld => Field.prototype.getTextReader.apply(fld))
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
@@ -260,23 +252,23 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                 }} />;
 
         return (
-            <div ref="root" onDoubleClick={this.handleDoubleClick} 
-            data-height={p.height}
-            className="data-list-wrapper developer-features">
+        <div ref="root" onDoubleClick={this.handleDoubleClick}
+                data-height={p.height} style={p.flexMode ? {} : { minHeight: p.height + 'px' }}
+                className="data-list-wrapper developer-features">
                 {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
                     ref="parent"
-                    className={Utils.classNames("data-list", p.paginationMode)}
+                    className={Utils.classNames("data-list",p.flexMode && 'flex-mode'   , p.paginationMode)}
                 >
 
                     {!!this.refs.root && items &&
-                        <div className="data-list-content">
+                        <div className="data-list-content" ref="content">
                             <div className="data-list-c1" style={{
-                                overflowY: 'scroll', flex: '1'
+                                overflowY: p.flexMode ? 'scroll' : null, flex: '1'
                             }} >
                                 {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
                             </div>
-                            {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ maxHeight: '30px', minHeight: '30px' }}  >
-                                <div className="  pagination">{pagination}</div>
+                            {!s.noPaging  &&(totalPages>1) && !!pagination && this && <div style={{padding:'0 4px', maxHeight: '60px', minHeight: '60px' }}  >
+                                 {pagination} 
 
                             </div>}
                         </div>}

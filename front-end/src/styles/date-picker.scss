@@ -9,7 +9,7 @@
 .date-picker {
     max-width: 350px;
     min-width: 300px;
-    .activate-focused-only{
+    .activate-focused-only {
         visibility: visible !important;
     }
     .inner-text {
@@ -17,28 +17,27 @@
         .text {
             order: 1;
             padding: 0px 5px;
-        } 
+        }
         .icon {
             order: 0;
             display: flex;
             align-items: center;
-            justify-content: center;
-           // visibility: visible;
-          
+            justify-content: center; // visibility: visible;
         }
     }
-    .list-view-container{
+    .list-view-container {
         max-width: 300px;
         min-width: 300px;
-        width:300px;
+        width: 300px;
     }
 }
- 
- 
-.date-picker-field{
-    label{
-        margin-left:30px !important;
-        margin-right:30px !important;
-        
+
+.date-picker-field {
+    .control {
+        max-height: 30px;
+    }
+    label {
+        margin-left: 30px !important;
+        margin-right: 30px !important;
     }
 }
