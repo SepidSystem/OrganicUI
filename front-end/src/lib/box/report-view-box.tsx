@@ -1,12 +1,12 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
 
 import OrganicBox from './organic-box';
-import { Paper } from './inspired-components';
-import { FilterPanel } from './filter-panel';
+import { Paper } from '../controls/inspired-components';
+import { FilterPanel } from '../data/filter-panel';
 
-import { DataList } from './data-list';
-import { i18n } from './shared-vars';
+import { DataList } from '../data/data-list';
+import { i18n } from '../core/shared-vars';
 interface ReportViewBoxProps {
 
 };

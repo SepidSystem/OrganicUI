@@ -1,20 +1,19 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
 
-import { icon, i18n } from './shared-vars';
-import { Utils } from './utils';
-import { Field } from './data';
-import { listViews } from './shared-vars';
+import { icon, i18n } from '../core/shared-vars';
+import { Utils } from '../core/utils';
+import { Field } from '../data/field';
+import { listViews } from '../core/shared-vars';
 import { ReactElement, isValidElement } from 'react';
-import { DataForm } from './data-form';
-import { Spinner } from './spinner';
-import { AdvButton, Placeholder } from './ui-elements';
+import { DataForm } from '../data/data-form';
+import { Spinner } from '../core/spinner';
+import { AdvButton, Placeholder } from '../core/ui-elements';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
-import { createClientForREST } from './rest-api';
-
-import { Icon, Paper, Button } from './inspired-components';
-import { DeveloperBar } from './developer-features';
+import { createClientForREST } from '../core/rest-api';
+import { DeveloperBar } from '../core/developer-features';
+import { Icon, Paper, Button } from '../controls/inspired-components';
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<

@@ -1,13 +1,13 @@
 import { DataLookup } from './data-lookup';
 import { Calendar } from 'react-persian-datepicker';
-import { BaseComponent } from '../base-component';
 import { loadPersian } from "moment-jalaali";
 import *  as moment from "moment-jalaali";
 import *  as _moment from "moment";
-import { Moment, ISO_8601 } from "moment";
-import { Utils } from '../utils';
-import { Button } from '../inspired-components';
-import { i18n } from '../shared-vars';
+import { Moment } from "moment";
+import { BaseComponent } from '../core/base-component';
+import { Utils } from '../core/utils';
+import { Button } from '../controls/inspired-components';
+import { i18n } from '../core/shared-vars';
 
 class DatePickerContent extends BaseComponent<any, any> {
     handleToday() {

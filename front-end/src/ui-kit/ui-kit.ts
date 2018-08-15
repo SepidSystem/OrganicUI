@@ -1,5 +1,4 @@
-import { BaseComponent } from "../lib/base-component";
-import { openRegistry } from '../lib/registry';
+import { BaseComponent } from "../lib/core/base-component";
 interface IState {
 
 }
@@ -17,4 +16,4 @@ export class UiKit extends BaseComponent<OrganicUi.UiKitProps, IState>{
 }
 
 import './change-user-language';
-import { uiKits } from "../lib/shared-vars";
+import { uiKits } from "../lib/core/shared-vars";

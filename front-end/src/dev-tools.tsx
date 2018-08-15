@@ -5,7 +5,7 @@ import './dev-tools/devtools-single-view-box';
 import './dev-tools/devtools-rest';
 import './dev-tools/devtools-reinvent';
 
-import { TextField } from './lib/inspired-components';
+import { TextField } from './lib/controls/inspired-components';
 import { IComponentRefer, IDeveloperFeatures, AppUtils, DataForm, Field } from '@organic-ui';
 OrganicUI.devTools.set('Translate', (dev) => {
     AppUtils.showDataDialog(<DataForm>

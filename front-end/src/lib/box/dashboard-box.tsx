@@ -1,7 +1,7 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
-import { i18n } from './shared-vars';
-import { DataForm } from './data-form';
+import { i18n } from '../core/shared-vars';
+import { DataForm } from '../data/data-form';
 import OrganicBox from './organic-box';
  
 interface DashboardBoxProps {

@@ -7,7 +7,7 @@ import { ButtonProps } from '@material-ui/core/Button';
 
 import { i18n, icon } from './shared-vars';
 import { Spinner } from './spinner';
-import { Callout, Button } from './inspired-components';
+import { Callout, Button } from '../controls/inspired-components';
 import { DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';

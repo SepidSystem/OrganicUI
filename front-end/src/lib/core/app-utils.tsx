@@ -1,7 +1,7 @@
 import { BaseComponent } from "./base-component";
 import { i18n } from "./shared-vars";
 import { Utils } from "./utils";
-import { Dialog, DialogTitle, DialogContent, DialogActions } from './inspired-components';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '../controls/inspired-components';
 
 import { ReactElement, cloneElement } from "react";
 

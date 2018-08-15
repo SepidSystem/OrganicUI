@@ -1,10 +1,10 @@
 import { reinvent } from "./reinvent";
 import { openBindingSource, globalBindingSource } from './binding-source';
 // from organic-ui framework
-import { BaseComponent } from "../base-component";
-import { Utils } from "../utils";
-import { AppUtils } from '../app-utils';
-import { routeTable } from "../router";
+import { BaseComponent } from "../core/base-component";
+import { Utils } from "../core/utils";
+import { AppUtils } from '../core/app-utils';
+import { routeTable } from "../core/router";
 
 const proxyHandler: ProxyHandler<BaseComponent<any, any>> = {
     get: (target, key) => target.state[key],

@@ -1,8 +1,7 @@
-import { Select, MenuItem } from "./inspired-components";
-
-import { i18n } from "./shared-vars";
-import { Field } from "./data";
-import { BaseComponent } from "./base-component";
+import { Select, MenuItem } from "../controls/inspired-components";
+import { i18n } from "../core/shared-vars";
+import { Field } from "../data/field";
+import { BaseComponent } from "../core/base-component";
 
 interface ComboBoxProps {
     value?: any;

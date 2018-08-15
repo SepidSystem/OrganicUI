@@ -1,5 +1,5 @@
 import OrganicBox from './organic-box';
-import { Utils } from './utils';
+import { Utils } from '../core/utils';
 
 
 interface ViewBoxState { formData: any; validated: boolean; }

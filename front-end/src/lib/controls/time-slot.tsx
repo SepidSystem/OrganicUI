@@ -1,15 +1,14 @@
 
-import { Utils } from './utils';
-import { AppUtils } from './app-utils';
-import { DataForm } from './data-form';
-import { Field } from './data';
-import { i18n } from './shared-vars';
-import { BaseComponent } from './base-component';
-import { ITimeSlotRange,  Callout } from '@organic-ui';
-
-import { AdvSection } from './advanced-section';
+import { Utils } from '../core/utils';
+import { AppUtils } from '../core/app-utils';
+import { i18n } from '../core/shared-vars';
+import { BaseComponent } from '../core/base-component';
+import { Field } from '../data/field';
+import { DataForm } from '../data/data-form';
+import { ITimeSlotRange } from '@organic-ui';
+import { AdvSection } from '../controls/advanced-section';
 import { TimeEdit } from './time-edit';
-import { Button } from './inspired-components';
+import {Callout, Button } from './inspired-components';
  
 const hourCount = 24;
 function handleEdit() {

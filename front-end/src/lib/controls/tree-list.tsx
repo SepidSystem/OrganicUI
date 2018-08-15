@@ -1,9 +1,9 @@
-/// <reference path="../dts/globals.d.ts" />
+/// <reference path="../../dts/globals.d.ts" />
 
-import { BaseComponent } from './base-component';
-import { Utils } from './utils';
+import { BaseComponent } from '../core/base-component';
+import { Utils } from '../core/utils';
  
-import { Spinner } from './spinner';
+import { Spinner } from '../core/spinner';
 import { ITreeListNode, ITreeListProps } from '@organic-ui';
 import { Checkbox } from './inspired-components';
 

@@ -1,5 +1,5 @@
-import { BaseComponent } from "./base-component";
-import {i18n} from './shared-vars';
+import { BaseComponent } from "../core/base-component";
+import {i18n} from '../core/shared-vars';
 declare const React: any;
  
  

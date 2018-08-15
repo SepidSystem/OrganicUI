@@ -1,5 +1,5 @@
  
-import { BaseComponent } from './base-component';
+import { BaseComponent } from '../core/base-component';
 import { ITimeEditProps } from '@organic-ui';
 import { ChangeEventHandler } from 'react';
 import { TextField } from './inspired-components';

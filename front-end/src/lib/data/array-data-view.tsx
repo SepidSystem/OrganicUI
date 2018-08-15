@@ -1,5 +1,5 @@
-import { BaseComponent } from "./base-component";
-import { Utils } from "./utils";
+import { BaseComponent } from "../core/base-component";
+import { Utils } from "../core/utils";
 
 export class ArrayDataView<T> extends BaseComponent<OrganicUi.IArrayDataViewProps<T>, OrganicUi.IArrayDataViewProps<T>>{
     getValue(): T[] {

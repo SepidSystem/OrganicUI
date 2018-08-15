@@ -1,5 +1,5 @@
-import { TextField, Popover } from '../inspired-components';
-import { BaseComponent } from '../base-component';
+import { TextField, Popover } from '../controls/inspired-components';
+import { BaseComponent } from '../core/base-component';
 
 export class DataLookupPopOver extends BaseComponent<OrganicUi.IDataLookupPopupModeProps, any>  {
     render() {

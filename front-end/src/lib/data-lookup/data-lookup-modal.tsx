@@ -1,8 +1,8 @@
-import { TextField, Dialog, DialogActions, Button, DialogTitle } from '../inspired-components';
-import { BaseComponent } from '../base-component';
-import { DialogContent } from '../../../node_modules/@material-ui/core';
-import { Utils } from '../utils';
-import { i18n } from '../shared-vars';
+import { TextField, Dialog, DialogActions, Button, DialogTitle } from '../controls/inspired-components';
+import { BaseComponent } from '../core/base-component';
+import DialogContent from '@material-ui/core/DialogContent';
+import { Utils } from '../core/utils';
+import { i18n } from '../core/shared-vars';
 
 export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupModeProps, any>  {
     render() {

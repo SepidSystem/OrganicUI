@@ -1,6 +1,6 @@
 import { reinvent } from "./reinvent";
-import { Utils } from "../utils";
-import { Spinner } from '../spinner';
+import { Utils } from "../core/utils";
+import { Spinner } from '../core/spinner';
 function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOptions):
     OrganicUi.IDashboardWidgetReinvent<TData, TState> {
     const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer', 'size'];

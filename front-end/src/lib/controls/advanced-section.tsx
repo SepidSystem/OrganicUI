@@ -1,8 +1,8 @@
 import { SnackBar } from './snack-bar';
-import { BaseComponent } from './base-component';
-import { i18n } from './shared-vars';
+import { BaseComponent } from '../core/base-component';
+import { i18n } from '../core/shared-vars';
 import { IAdvSectionProps } from '@organic-ui';
-import { Utils } from './utils';
+import { Utils } from '../core/utils';
 export class AdvSection extends BaseComponent<IAdvSectionProps, any>{
     render() {
         const p = this.props;

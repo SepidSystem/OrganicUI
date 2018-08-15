@@ -1,6 +1,6 @@
 
-import { getCurrentUserLangauge, changeUserLanguage } from "../lib/bootstrapper";
-import { uiKits } from "../lib/shared-vars";
+import { getCurrentUserLangauge, changeUserLanguage } from "../lib/core/bootstrapper";
+import { uiKits } from "../lib/core/shared-vars";
 
 function Kit() {
     return <a className="ui-mod change-lanauge" onClick={handleClick}>

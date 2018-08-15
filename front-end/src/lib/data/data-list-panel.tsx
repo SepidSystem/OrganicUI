@@ -1,15 +1,15 @@
-import { BaseComponent } from "./base-component";
+import { BaseComponent } from "../core/base-component";
 import { DataList } from "./data-list";
 import { DataForm } from "./data-form";
-import { Callout, Dialog, Modal, DefaultButton, MessageBar, Button } from "./inspired-components";
-import { Utils } from "./utils";
+import { Callout, Dialog, Modal, DefaultButton, MessageBar, Button } from "../controls/inspired-components";
+import { Utils } from "../core/utils";
 import { IDetailsListProps, DetailsListLayoutMode, Selection, SelectionMode } from "office-ui-fabric-react/lib/DetailsList";
-import { i18n } from "./shared-vars";
+import { i18n } from "../core/shared-vars";
 import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
-import { AdvButton } from "./ui-elements";
+import { AdvButton } from "../core/ui-elements";
 import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 import { DataPanel } from './data-panel';
-import { Field } from "./data";
+import { Field } from "../data/field";
 interface IState {
     message?: { type, text };
     selectedItem: any;
@@ -92,8 +92,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         }
         return [Utils.renderButtons(customBar, {
             callback
-        })].concat([<Button 
-            className="delete-button" disabled={!this.state.selectedItem} onClick={()=>this.doAction('delete')}     >{i18n('delete')}</Button>,])
+        })].concat([<Button
+
+            className="delete-button" disabled={!this.state.selectedItem} onClick={() => this.doAction('delete')}>{i18n('delete')}</Button>])
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));

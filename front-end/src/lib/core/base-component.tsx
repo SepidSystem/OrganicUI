@@ -1,7 +1,6 @@
-/// <reference path="../dts/organic-ui.d.ts" />
+/// <reference path="../../dts/organic-ui.d.ts" />
 import { IStateListener, StateListener } from "./state-listener";
 import { Component } from 'react';
-import { createMayBeObject } from './may-be';
 import { IComponentRefer } from "@organic-ui";
 import { Utils } from "./utils";
 export class BaseComponent<P, S> extends Component<P, S>{
@@ -82,26 +81,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     }
     tryCountLimits: { [key: string]: number };
 
-    nodeByRef<T = any>(refName: string): T {
-        const result = this.refs[refName];
-        this.tryCountLimits[refName] = this.tryCountLimits[refName] === undefined ? 5 :
-            this.tryCountLimits[refName];
-        if (result)
-            delete this.tryCountLimits[refName];
-        else setTimeout(nodeRefTick, 10, this, refName);
-        return createMayBeObject(result);
-    }
-    evaluate<T>(args: string | { refId?, defaultValue?}, cb: (ref: T) => any) {
-        if (typeof args == 'string') args = { refId: args };
-        const ref = this.nodeByRef<T>(args.refId);
-        try {
-            const finalResult = ref && cb(ref);
-            return finalResult || args.defaultValue;
-        }
-        catch (exc) {
-            return args.defaultValue;
-        }
-    }
+   
     componentDidMount() {
         const { root } = this.refs;
         root && Object.assign(root, { componentRef: this });

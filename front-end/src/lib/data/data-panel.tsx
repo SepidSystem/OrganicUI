@@ -1,7 +1,7 @@
-import { BaseComponent } from "./base-component";
-import { i18n, icon } from "./shared-vars";
-import { Utils } from "./utils";
-import { Panel } from "./ui-elements";
+import { BaseComponent } from "../core/base-component";
+import { i18n, icon } from "../core/shared-vars";
+import { Utils } from "../core/utils";
+import { Panel } from "../core/ui-elements";
 
 interface IDataPanelProps {
     header: any;

@@ -1,5 +1,5 @@
 
-import { Utils } from './utils'
+import { Utils } from '../core/utils'
 import { IMessageBarProps } from '@organic-ui';
 import { Button,SnackbarContent, IconButton } from './inspired-components';
 import { CheckCircleIcon, WarningIcon, ErrorIcon, InfoIcon, CloseIcon } from './icons';
