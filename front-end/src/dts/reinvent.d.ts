@@ -10,7 +10,7 @@ declare namespace OrganicUi {
     }
     type TRenderFunc<S, THelpers={}> = (args: S extends never ? never : IRendererArg<S> & THelpers) => JSX.Element;
 
-    interface IBaseFrontEndReinvent<S, THookFuncParam=OrganicUi.BaseComponent<any, S>> {
+    interface IBaseFrontEndReinvent<S, THookFuncParam=OrganicUi.BaseComponent<any, S>> extends React.ComponentClass {
         assignRoute(pattern: string): IBaseFrontEndReinvent<S>;
         hook(type: 'action', hookName: string, renderFunc: (p: THookFuncParam) => Promise<any>): IBaseFrontEndReinvent<S>;
         hook(type: 'block', hookName: string, renderFunc: (p: THookFuncParam) => JSX.Element): IBaseFrontEndReinvent<S>;
@@ -18,49 +18,74 @@ declare namespace OrganicUi {
         hook(type: 'validate', hookName: string, renderFunc: (p: THookFuncParam) => boolean): IBaseFrontEndReinvent<S>;
         hook(type: 'watcher', hookName: string, renderFunc: (p: THookFuncParam) => any): IBaseFrontEndReinvent<S>;
         renderer(renderFunc: TRenderFunc<S>): IBaseFrontEndReinvent<S>;
-
-        done(): void;
+        done({ moduleId: string }): IBaseFrontEndReinvent<S, THookFuncParam>;
     }
 
     interface IRenderFuncExtForSingleView<T, TLoadParam> {
         data: T;
-        binding: TMappedBindingSource<T>;
+        binding: BindingHub<T>;
         param: TLoadParam;
         reload: (param: TLoadParam) => Promise<any>;
     }
+    interface IReinventForCRUDParams<TDto, TState> {
+        data: TDto;
+        binding: OrganicUi.BindingHub<TDto>;
+        props;
+        state: TState;
+        repatch(delta: Partial<TState>): void;
+        subrender(rendererId: string, params);
+        callAction(actionName: string, actionParams): Promise<any>;
+        root: HTMLElement;
+    }
     interface IReinventForCRUD<TDto> extends IBaseFrontEndReinvent<never> {
-        singleView(renderFunc: TRenderFunc<never, IRenderFuncExtForSingleView<TDto, { id }>>): IReinventForCRUD<TDto>;
+        singleView<TState=never>(renderFunc: (p: IReinventForCRUDParams<TDto, TState>) => JSX.Element): IReinventForCRUD<TDto>;
         beforeSave(callback: (dto: TDto) => (TDto | Promise<TDto>)): IReinventForCRUD<TDto>;
         afterMapResponse(callback: (dto: TDto) => TDto): IReinventForCRUD<TDto>;
         afterSave(callback: (dto: TDto) => any): IReinventForCRUD<TDto>;
         afterSingleRead(pattern: string): IReinventForCRUD<TDto>;
-        listView(renderFunc: TRenderFunc<never>): IReinventForCRUD<TDto>;
+        listView<TState=never>(renderFunc: (p: IReinventForCRUDParams<TDto, TState>) => JSX.Element): IReinventForCRUD<TDto>;
         beforeReadList(pattern: string): IReinventForCRUD<TDto>;
         afterReadList(pattern: string): IReinventForCRUD<TDto>;
         configureFields(renderFunc: ({ binding: TDto }) => (any[] | { [key: string]: (any[]) })): IReinventForCRUD<TDto>;
 
     }
 
-    interface IDashboardWidgetReinvent<TLoadParam, TData> {
+    export interface IDashboardWidgetReinvent<TLoadParam, TData> extends IBaseFrontEndReinvent<never> {
         paramInitializer(loaderFunc: () => TLoadParam): IDashboardWidgetReinvent<TLoadParam, TData>;
         dataLoader(callback: (param: TLoadParam) => (TData | Promise<TData>)): IDashboardWidgetReinvent<TLoadParam, TData>;
-        dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForSingleView<TData, TLoadParam>>);
+        dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForSingleView<TData, TLoadParam>>): IDashboardWidgetReinvent<TLoadParam, TData>;
     }
-    
+
     interface IDashboardWidgetOptions {
         cols?: number;
     }
-    export interface reinvent {
-        <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
-        <TDto>(type: 'frontend:crud', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): IReinventForCRUD<TDto>;
-        <TDto>(type: 'frontend:report', actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD): IReinventForCRUD<TDto>;
-        <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
-        query(selector): any[];
-
+    interface IEditorReinvent {
+        editor(fieldName: string, element: React.ReactElement<any>): IEditorReinvent;
+        editor(tester: (fieldName: string) => boolean, element: React.ReactElement<any>): IEditorReinvent;
+        fragment(element: React.ReactElement<React.ReactFragment>): IEditorReinvent;
     }
-    export type TMappedBindingSource<T> = {
-        [P in keyof T]?: T[P] extends (object | object[]) ? TMappedBindingSource<T[P]> :
+    export interface reinvent {
+
+        <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
+        <TDto>(type: 'frontend:crud', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD }): IReinventForCRUD<TDto>;
+        <TDto>(type: 'frontend:report', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD }): IReinventForCRUD<TDto>;
+        <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
+        (type: 'frontend:editor'): IEditorReinvent;
+        query(selector): any[];
+        utils: {
+            listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): StatelessListView;
+        }
+        templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: IActionsForCRUD<T>, options: IOptionsForCRUD, ref?: string, customActions?: Partial<IActionsForCRUD<T>> }): MethodDecorator;
+        openBindingHub<T>(): BindingHub<T>;
+    }
+    export interface BindingPoint {
+        __name: string;
+    }
+
+    export type BindingHub<T=any> = {
+        [P in keyof T]?: T[P] extends (object | object[]) ? BindingHub<T[P]> :
         BindingPoint;
     };
 }
+
 
