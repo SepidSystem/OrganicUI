@@ -163,6 +163,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     }
     getSourceAttributes() {
         const { source } = this.props;
+        if (!source) return {};
         return { actions: source['dataLookupActions'], options: source['dataLookupOptions'] };
     }
     static applySource(source) {
@@ -219,7 +220,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     getInnerText(): JSX.Element[] {
         const value = this.getValue();
         const { actions, options } = this.getSourceAttributes();
-        if (!actions) {
+        if (!actions && value) {
             setTimeout(() => this.repatch({}), 300);
             return value && Promise.resolve('wait') as any;
         }
@@ -278,9 +279,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     repatch(delta) {
         if ('isOpen' in delta && (!!delta.isOpen) != (!!this.state.isOpen)) {
             if (delta.isOpen) this.savedScrollTop = document.documentElement.scrollTop;
-            else setTimeout(scrollTop =>{
-                 document.documentElement.scrollTop = scrollTop;
-            } , 300, this.savedScrollTop);
+            else setTimeout(scrollTop => {
+                document.documentElement.scrollTop = scrollTop;
+            }, 300, this.savedScrollTop);
 
         }
         super.repatch(delta);
@@ -307,7 +308,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
         }
         const target = this.refs.root;
-        const popupElement = React.createElement<OrganicUi.IDataLookupPopupModeProps>(p.popupMode, {
+        const popupElement = listViewElement && React.createElement<OrganicUi.IDataLookupPopupModeProps>(p.popupMode, {
             isOpen, onClose, target,
             onAppend: this.handleAppend.bind(this),
             onApply: this.handleApply.bind(this),
