@@ -20,6 +20,8 @@ import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { Button, Paper, TextField } from '../controls/inspired-components';
 import { SnackBar } from '../controls/snack-bar';
 import { DeveloperBar } from '../core/developer-features';
+import { reinvent } from '../reinvent/reinvent';
+import * as printerIcon from '../../../icons/printer.svg';
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -285,7 +287,6 @@ export class ListViewBox<T> extends
             }
             return child;
         });
-
         if (!root) setTimeout(() => (this.repatch({})), 10);
         const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
@@ -297,7 +298,7 @@ export class ListViewBox<T> extends
                     minWidth: (minWidth ? minWidth + 'px' : 'auto'),
                     overflow: 'hidden'
                 }} ref="root"  >
-                {!params.noTitle && <div className="animated fadeInUp title is-6">
+                {!params.noTitle && <div className="animated fadeInUp title " style={{fontSize:'1.71rem'}}>
                     {Utils.showIcon(options.iconCode)}
 
                     {i18n(options.pluralName)}</div>}
@@ -313,11 +314,7 @@ export class ListViewBox<T> extends
             </section>;
         return <section className="list-view developer-features" ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
-            {/*!!s.toggleButtons.showFilter && <Card header={"data-filter"} actions={['clear']}>
-            </Card>*/}
-            <div className="title is-3 animated fadeInUp">
-                {Utils.i18nFormat('list-view-title-fmt', this.props.options.pluralName)}
-            </div>
+           
             <header className="  static-height list-view-header"  >
                 {filterPanel}
                 <CriticalContent permissionKey="create-permission">
@@ -339,7 +336,7 @@ export class ListViewBox<T> extends
                 <CriticalContent permissionKey="trash-permission" />
                 <div className="buttons"  >
                     <Button   >
-                        <PrintIcon />
+                        <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '4.3rem' ,margin:'0.5rem 1rem'}} />
                         {i18n('export')}
                     </Button>
 
@@ -361,9 +358,6 @@ export class ListViewBox<T> extends
                     {!!this.refs.root && children}
                 </div>
             </Paper>
-
-
-            <br />
 
             <footer style={{ display: 'none', position: 'fixed', bottom: '40px', right: '340px' }}>
                 <Button variant="fab" color="secondary" >
@@ -392,7 +386,6 @@ export class ListViewBox<T> extends
         return p => (<ListViewBox actions={actions} options={options as any} params={Object.assign({}, p, { filterMode: 'none' })}>
             {!!title && <div className="animated fadeInUp  title is-6">
                 {Utils.showIcon(iconCode)}
-
                 {i18n(title)}</div>}
             <DataList>
                 {fields.map(fieldName => (<Field accessor={fieldName} />))}
@@ -401,4 +394,5 @@ export class ListViewBox<T> extends
 
     }
 }
-
+Object.assign(reinvent.templates, { listView: ListViewBox });
+Object.assign(reinvent.utils, { listViewFromArray: ListViewBox.fromArray })
