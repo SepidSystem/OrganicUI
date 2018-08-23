@@ -19,7 +19,7 @@ $breakpointMed: 767px;
     border-top: 0;
     p {
         margin-bottom: 10px;
-        font-size: 14px;
+        font-size: 1.79rem;
         line-height: 20px;
         &:last-child {
             margin-bottom: 0;
@@ -40,7 +40,7 @@ $breakpointMed: 767px;
     color: $grey;
     position: relative;
     padding: 10px;
-  font-size:16px    ;
+  font-size:1.79rem    ;
     color: white;
     &:after {
         font-family: 'FontAwesome';
@@ -74,7 +74,7 @@ $breakpointMed: 767px;
 
 .Collapsible__custom-sibling {
     padding: 5px;
-    font-size: 12px;
+    font-size:1.79rem;
     background-color: #CBB700;
     color: black;
 }

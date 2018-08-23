@@ -50,6 +50,10 @@
     width: 100%;
 }
 
+.panel-wrapper {
+    width: 100%;
+}
+
 .data-panel {
     margin-bottom: 5px;
     width: 100%;
@@ -104,8 +108,9 @@
         padding: 0;
         position: absolute;
         bottom: 0;
+        font-size: 1.14rem !important;
         span {
-            font-size: 70% !important;
+            font-size: 1.14rem !important;
         }
     }
 }
@@ -137,10 +142,10 @@
         display: flex;
         align-items: center;
     }
-    .pagination-list{
-        margin:0;
+    .pagination-list {
+        margin: 0;
     }
-} 
+}
 
 .data-list-panel-fields {
     footer {
@@ -254,6 +259,18 @@ a.close {
     flex: 1;
     flex-direction: column;
     display: flex;
+    .ms-DetailsHeader {
+        height: 5.4rem;
+    }
+    &.is-large {
+        .ms-DetailsHeader {
+            line-height: 45px;
+            padding: 20px 2px;
+            * {
+                font-size: 32px !important;
+            }
+        }
+    }
 }
 
 .data-list {
@@ -306,8 +323,16 @@ a.close {
 .MuiModal-root {
     z-index: 1000000 !important;
     .MuiPaper-root {
-        max-width: 1000px !important;
+        max-width: initial !important;
     }
+}
+
+.MuiPaper-root {
+    max-width: initial !important;
+}
+
+.MuiDialogContent-root {
+    overflow-y: hidden !important;
 }
 
 /// reinvent

@@ -1,6 +1,6 @@
-import { TextField, Dialog, DialogActions, Button, DialogTitle } from '../controls/inspired-components';
+import { TextField, Dialog, DialogActions, Button, DialogTitle,DialogContent } from '../controls/inspired-components';
 import { BaseComponent } from '../core/base-component';
-import DialogContent from '@material-ui/core/DialogContent';
+
 import { Utils } from '../core/utils';
 import { i18n } from '../core/shared-vars';
 
@@ -16,7 +16,7 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
 
         >
             {options && <DialogTitle>
-                <div className="  title is-6">
+                <div className="  title is-2">
                     {Utils.showIcon(options.iconCode)}
 
                     {i18n(options.pluralName)}</div>

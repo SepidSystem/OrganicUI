@@ -6,16 +6,10 @@ import { ComboBox } from "./lib/core/combo-box";
 import { Utils } from "./lib/core/utils";
 import { i18n } from "./lib/core/shared-vars";
 import { IFieldProps } from "@organic-ui";
-
-
-
-Checkbox['dataType'] = 'boolean';
 import * as CheckedImage from '../icons/checked.svg';
 import * as ErrorImage from '../icons/error.svg';
-Checkbox['textReader'] = function (field: Field, props: any, value) {
-    return <div className="checkbox-cell" dangerouslySetInnerHTML={{ __html: value ? CheckedImage : ErrorImage }} />;
-    //   return <FormControlLabel label={null} disabled control={<Checkbox defaultChecked={value} value={value} />} />;
-} 
+
+ 
 enum CheckBoxStatus {
     none = "",
     checked = "1",
@@ -31,7 +25,12 @@ function checkBoxStatusToBoolean(v: CheckBoxStatus) {
         return null;
     return !!parseInt(v);
 }
-
+[Checkbox,Switch].forEach(Checkbox=>{ 
+    Checkbox['dataType'] = 'boolean';
+Checkbox['textReader'] = function (field: Field, props: any, value) {
+    return <div className="checkbox-cell" dangerouslySetInnerHTML={{ __html: value ? CheckedImage : ErrorImage }} />;
+    //   return <FormControlLabel label={null} disabled control={<Checkbox defaultChecked={value} value={value} />} />;
+}
 Checkbox['field-renderMode-filterPanel'] = (fieldProps: IFieldProps) => (p) => (
     <ComboBox
         items={Utils.enumToIdNames(CheckBoxStatus,
@@ -42,6 +41,7 @@ Checkbox['field-renderMode-filterPanel'] = (fieldProps: IFieldProps) => (p) => (
 )
 Checkbox['filterOperators'] = ['eq', 'neq'];
 Checkbox['field-renderMode-filterPanel']['filterOperators'] = Checkbox['filterOperators'];
+});
 Checkbox['classNameForField'] = 'checkbox-field';
 Checkbox['field-className'] = 'reversed-label no-material  check-field';
 TextField['field-className'] = 'textfield-field';

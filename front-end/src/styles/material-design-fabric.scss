@@ -9,7 +9,7 @@
         pointer-events: none;
         padding-left: 0.125rem;
         z-index: 1;
-        font-size: 1rem !important;
+        font-size: 1.7rem !important;
         font-weight: normal;
         white-space: nowrap;
         overflow: visible;
@@ -75,7 +75,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         margin: 0;
-        color:#3F3F3F 100%;
+        color: #3F3F3F 100%;
         transform: translateY(-50%);
         transform-origin: left center;
         transition: transform 0.28s ease, color 0.28s linear, opacity 0.28s linear;
@@ -155,7 +155,6 @@
 
 .field.focused:not(.no-material) .label,
 .field.has-value:not(.no-material) .label {
- 
     top: -0.5rem;
     line-height: 1rem;
     font-size: 0.8rem;
@@ -216,10 +215,28 @@
 .ms-DetailsHeader {
     padding: 6px 0;
     background: rgb(74, 171, 213) !important;
+    min-height: 5.4rem;
+    .ms-DetailsHeader-cell {
+        display: inline-flex;
+        align-items: center;
+        min-height: 100%;
+        align-content: center;
+        span {
+            display: flex;
+            align-items: center;
+            font-size: 2rem !important;
+        }
+    }
     * {
         background: rgb(74, 171, 213) !important;
         color: white !important;
     }
+}
+
+.ms-DetailsRow-cell {
+    color: #000 !important;
+    min-height: 5.4rem !important;
+    font-size: 1.8rem !important;
 }
 
 .ms-List-cell {
@@ -259,7 +276,7 @@
 .MuiModal-root {
     footer {
         display: flex;
-        justify-content:flex-end;
+        justify-content: flex-end;
     }
 }
 
@@ -285,8 +302,35 @@
 
 .MuiGridListTile-tile {
     .MuiPaper-root {
-border-radius: 15px;
-overflow:hidden;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+}
 
+.MuiPaper-root {
+    border-radius: 0.7rem;
+    box-shadow: none !important;
+}
+
+.medium-fields {
+    .field-accessor {
+        min-width: 15.21rem;
+       
+    }
+}
+.date-picker{
+    min-width: 15.21rem !important;
+    max-width: 15.21rem !important;
+    
+}
+
+.single-view {
+    .field-accessor {
+        * {
+            font-size: 1.71rem;
+        }
+    }
+    .MuiPaper-root{
+        padding:0;
     }
 }

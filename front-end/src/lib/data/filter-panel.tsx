@@ -52,9 +52,9 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
                             return React.cloneElement(child as any, { renderMode: 'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
                         return child;
                     })
-                    }   <footer style={{ minWidth: '170px', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
-                        <AdvButton variant="raised" color="secondary" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
-                        <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear')}</AdvButton>
+                    }   <footer  >
+                        <AdvButton variant="raised" color="secondary" className="apply-button" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>
+                        <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear-filter')}</AdvButton>
 
                     </footer>
                 </DataForm>

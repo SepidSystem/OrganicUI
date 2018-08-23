@@ -6,8 +6,8 @@ html {
 
 main.main-container {
     text-align: right;
-    padding-right: 40px;
-    padding-left: 40px;
+    padding-right: 6.1rem;
+    padding-left: 6.1rem;
     padding-bottom: 40px;
     padding-top: 10px;
     display: flex;
@@ -27,7 +27,7 @@ main.main-container {
 }
 
 .main-content {
-    padding: 4px 10px;
+    padding: 4px 4rem;
     * {
         font-size: 16px !important;
     }
@@ -84,17 +84,14 @@ main.main-container {
 label,
 input,
 button,
-span {
+span,aside {
     font-family: Yekan;
 }
 
 .master-page {
     display: flex;
     min-height: 100%;
-    a,
-    .i18n {
-        font-size: 16px;
-    }
+     
     >footer {
         background: rgb(210, 210, 201);
         position: fixed;
@@ -122,7 +119,7 @@ span {
         a {
             display: block;
             width: 100%;
-            font-size: 15px;
+            font-size:1.79rem;
         }
     }
     aside {
@@ -155,9 +152,10 @@ span {
             }
             .logo {
                 display: flex;
+
                 justify-content: center;
                 * {
-                    font-size: 30px !important;
+                    font-size: 3.43rem !important;
                 }
                 span {
                     margin: 2px;

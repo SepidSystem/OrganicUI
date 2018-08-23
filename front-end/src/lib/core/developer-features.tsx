@@ -48,7 +48,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
     }
     componentWillMount() {
         this.scanDevPorts();
-        this.timerId = setInterval(this.scanDevPorts.bind(this), 800);
+       this.timerId = setInterval(this.scanDevPorts.bind(this), 800);
     }
     componentWillUnmount() {
         clearInterval(this.timerId);
