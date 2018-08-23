@@ -40,7 +40,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                             <a
                                 className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}
                                 onClick={e => {
-                                    if (p.loadingPageIndex>0) return;
+                                    if (p.loadingPageIndex > 0) return;
                                     e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n);
                                 }
 
@@ -76,7 +76,7 @@ export interface IDataListState {
 }
 let randomStrings = {};
 
-function defaultEmptyResult(p: OrganicUi.IDataListProps) {
+function defaultEmptyResult(p: OrganicUi.IDataListProps<any>) {
     return <div className="">no-result</div>;
 }
 /*
@@ -86,7 +86,7 @@ const rowRenderer = p => (
         <Spinner />
     </div >);
     */
-export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListState> implements IDeveloperFeatures {
+export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IDataListState> implements IDeveloperFeatures {
     items: any[];
     rowCount: number;
     static defaultProps = {
@@ -112,7 +112,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
 
         return Utils.toPromise(this.loadDataIfNeeded(+s.startFrom));
     }
-    constructor(p: OrganicUi.IDataListProps) {
+    constructor(p: OrganicUi.IDataListProps<any>) {
         super(p);
         this.devPortId = Utils.accquireDevPortId();
 
@@ -217,13 +217,15 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
                 .map((col, idx) => Object.assign({}, col.props || {}, {
-                    key: Field.getAccessorName(col.props.accessor), name: i18n(col.props.label || changeCase.paramCase(col.props.accessor))
-                    , maxWidth: 300, onRender: (item?: any, index?: number, column?: IColumn) => {
+                    key: Field.getAccessorName(col.props.accessor),
+                    name: Field.getLabel(col.props.accessor, col.props.label),
+
+                    maxWidth: (col.props.columnProps && col.props.columnProps.maxWidth) || 300, onRender: (item?: any, index?: number, column?: IColumn) => {
                         const textReader = textReaders[idx];
                         const displayText = textReader instanceof Function ? textReader(item[column.key]) : item[column.key];
                         return col.props.onRenderCell instanceof Function ? col.props.onRenderCell(item, index, column) : displayText;
                     }
-                } as Partial<IColumn>) as IColumn)
+                } as Partial<IColumn>, col.props.columnProps || {}) as IColumn)
 
         const { listData, startFrom } = this.state;
         const p = this.props, s: IDataListState = this.state;
@@ -243,9 +245,9 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                 ? (!!listData ? listData.totalRows : length)
                 : (!!listData && length)),
             minHeight: p.height,
-            constrainMode: ConstrainMode.unconstrained,
+            //    constrainMode: ConstrainMode.unconstrained,
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
-        } as Partial<IDetailsListProps>) as any;
+        } as Partial<IDetailsListProps>, p.detailsListProps ? p.detailsListProps : {}) as any;
         const { itemHeight } = this.props;
         const totalPages = listData && Math.ceil(listData.totalRows / (length || 10)) || 0;
         const pagination = p.paginationMode != 'scrolled' && !!listData
@@ -263,8 +265,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
         return (
             <div ref="root" onDoubleClick={this.handleDoubleClick}
                 data-height={p.height} style={p.flexMode ? {} : { minHeight: p.height + 'px' }}
-                className="data-list-wrapper developer-features">
-                {!!p.height && <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
+                className={Utils.classNames("data-list-wrapper developer-features", p.className)} data-flex-mode={p.flexMode}>
+                <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
                     ref="parent"
                     className={Utils.classNames("data-list", p.flexMode && 'flex-mode', p.paginationMode)}
                 >
@@ -282,7 +284,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps, IDataListS
                             </div>}
                         </div>}
 
-                </div>}
+                </div>
 
             </div>
         );

@@ -63,7 +63,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             this.extractedValues['alt'] !== undefined ? { value2: this.extractedValues['alt'] } : {});
 
     }
-    static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(accessor))
+    static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(Field.getAccessorName(accessor)))
     static getLabelText = (accessor, label?) => i18n.get(label || changeCase.paramCase(accessor))
     extractedValues: { default?, alt?} = {};
     getDataForm(avoidAssertion?) {
@@ -91,7 +91,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             const { componentRef } = parent as any;
             const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props) {
-                const value = props.onFieldRead || props.accessor;
+                const value = props.onFieldRead ||  Field.getAccessorName(  props.accessor);
                 value && getters.push(value);
             }
             parent = parent.parentElement;
@@ -153,7 +153,6 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     }
 
     getValueProps(dataType, value) {
-
         if (dataType == 'boolean') {
             if (value === undefined) return {};
             return { defaultChecked: value, checked: value };
@@ -176,7 +175,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (!this.props.children && this.inputElements && this.inputElements[prefix]) return this.inputElements[prefix];
         let inputElement = this.props.children as React.ReactElement<any>;
         if (!inputElement)
-            inputElement = editorByAccessor(changeCase.camelCase(this.props.accessor));
+            inputElement = editorByAccessor(changeCase.camelCase(Field.getAccessorName(this.props.accessor)));
         if (inputElement) {
             const customRenderer = (inputElement.type && inputElement.type[`field-renderMode-${this.props.renderMode}`]);
             if (customRenderer) {
@@ -248,6 +247,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         let inputElement = this.getInputElement('default');
         const inputElementType: any = (inputElement && inputElement.type) || {};
         const classNameFromInputType = inputElementType['field-className'];
+        if (inputElement && !inputElement.props) debugger;
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData('default', inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
@@ -320,7 +320,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                         <p style={{ width: `${this.fixedClientWidth}px`, maxWidth: `${this.fixedClientWidth}px` }} className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
                 </div>}
-                {!!p.showOpeartors && <a tabIndex={-1}  ref="op"
+                {!!p.showOpeartors && <a tabIndex={-1} ref="op"
 
 
                     className="op" style={{ width: !!s.operatorsMenuIsOpen ? '100%' : 'auto', display: 'flex', alignItems: 'center' }} onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
@@ -376,7 +376,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.repatch({ operatorsMenuIsOpen: true });
     }
     processDOM() {
-        this.refs.op && (this.refs.op.tabIndex = -1 );
+        this.refs.op && (this.refs.op.tabIndex = -1);
         ['default', 'alt'].forEach(key => {
             let value = this.handleGetData(key);
             if (value instanceof Promise) {
