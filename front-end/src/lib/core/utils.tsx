@@ -102,7 +102,9 @@ export const Utils = {
 		const text = i18n.get(i18nCode) as any;
 		return format(text, args);
 	},
-	showIcon(icon: string, className?: string) {
+	showIcon(icon, className?: string) {
+		if (icon&&  (icon.svg))
+			return <div style={{ 'width': icon.width }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
 		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
 	},
 	defaultGetId: ({ id }) => id,
@@ -279,9 +281,9 @@ export const Utils = {
 	joinElements(items: JSX.Element[], glue) {
 		return items.map((item, idx) => ([!!idx && glue, item]));
 	},
-	safeNumber(s){
+	safeNumber(s) {
 		const result = +s;
-		if(Number.isNaN(result)) return s;
+		if (Number.isNaN(result)) return s;
 		return result;
 	}
 }
