@@ -299,8 +299,7 @@ export class ListViewBox<T> extends
                     overflow: 'hidden'
                 }} ref="root"  >
                 {!params.noTitle && <div className="animated fadeInUp title " style={{fontSize:'1.71rem'}}>
-                    {Utils.showIcon(options.iconCode)}
-
+                   
                     {i18n(options.pluralName)}</div>}
                 {(params.filterMode != 'none') && <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
                     {filterPanel}

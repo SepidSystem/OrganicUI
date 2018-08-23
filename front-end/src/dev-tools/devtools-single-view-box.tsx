@@ -68,11 +68,13 @@ function monitor(actionName: string, data, id, actions?: OrganicUi.IActionsForCR
     </section>, { noClose: true }));
 }
 OrganicUI.devTools.set('SingleView|Enable/Disable Monitoring', target => {
-
-    const monitorFunc = !!OrganicUI.SingleViewBox['monitorFunc'] ? null : monitor;
-    localStorage.setItem('SingleView-Monitoring', !!monitorFunc ? '1' : '');
-    alert(!monitorFunc ? 'single-view monitoring is dsiabled' : '✔✔✔ single-view monitoring was disabled , it is enabled ✔✔✔')
-    Object.assign(OrganicUI.SingleViewBox, { monitorFunc });
+    const { SingleViewBox } = OrganicUI as any;
+    if (SingleViewBox) {
+        const monitorFunc = !!SingleViewBox['monitorFunc'] ? null : monitor;
+        localStorage.setItem('SingleView-Monitoring', !!monitorFunc ? '1' : '');
+        alert(!monitorFunc ? 'single-view monitoring is dsiabled' : '✔✔✔ single-view monitoring was disabled , it is enabled ✔✔✔')
+        Object.assign(SingleViewBox, { monitorFunc });
+}
 
 });
 OrganicUI.devTools.set('SingleView|Logs', target => {
@@ -95,8 +97,8 @@ OrganicUI.devTools.set('SingleView|Show Undefined Fields', (target) => {
     target.forceUpdate();
 });
 setTimeout(function () {
-
-    if (localStorage.getItem('SingleView-Monitoring') == '1') {
-        OrganicUI.SingleViewBox['monitorFunc'] = monitor;
+    const { SingleViewBox } = OrganicUI as any;
+    if (SingleViewBox && localStorage.getItem('SingleView-Monitoring') == '1') {
+        SingleViewBox['monitorFunc'] = monitor;
     }
 }, 10);

@@ -134,9 +134,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props && props.onFieldWrite) {
                 if (prefix == 'default')
-                    props.onFieldWrite(p.accessor, value);
+                    props.onFieldWrite(Field.getAccessorName(  p.accessor), value);
                 else
-                    props.onFieldWrite(p.accessor + '__2', value);
+                    props.onFieldWrite(Field.getAccessorName(p.accessor) + '__2', value);
 
                 Object.assign(this.extractedValues, { [prefix]: value });
 
