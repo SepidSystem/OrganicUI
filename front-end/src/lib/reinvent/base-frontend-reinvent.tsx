@@ -117,17 +117,16 @@ function baseClassFactory<S>({ chainMethods, className }) {
         getDevButton() {
             return Utils.renderDevButton({ prefix: "Reinvent", targetText: <i className="fa fa-info" /> }, this);
         }
-        done() {
+       static  done({moduleId}) {
             if (doneCheckerTimeOut) clearTimeout(doneCheckerTimeOut);
             if (ReinventComponent.doneFunc instanceof Function)
                 ReinventComponent.doneFunc();
-
+            reinvent.modules[moduleId]=ReinventComponent;
+            return ReinventComponent;
         }
-
-
-
         static assignRoute(pattern: string) {
             routeTable(pattern, ReinventComponent);
+            return  ReinventComponent;
         }
     }
     Array.from(chainMethods || [])
@@ -155,3 +154,5 @@ Object.assign(reinvent, { baseClassFactory });
 reinvent.factoryTable['frontend'] = function () {
     return baseClassFactory({ className: 'frontend', chainMethods: [] });
 };
+
+ 
