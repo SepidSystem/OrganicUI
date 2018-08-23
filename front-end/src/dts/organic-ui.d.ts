@@ -1,6 +1,8 @@
 
 /// <reference path="../dts/globals.d.ts" />
 /// <reference path="./reinvent.d.ts" />
+
+
 declare namespace OrganicUi {
     export interface ResultSet<T> {
         results: T[];
@@ -12,11 +14,8 @@ declare namespace OrganicUi {
         accessor: string;
         message: any;
     }
-    export interface BindingPoint {
-        __name: string;
-    }
- 
-    
+
+
     export interface PromisedResultSet<T> extends Promise<IListData<T>> {
 
     }
@@ -45,7 +44,7 @@ declare namespace OrganicUi {
         componentRef: T;
     }
     export const Version: string;
-    export class BaseComponent<P, S=any> extends React.Component<P, S>{
+    export class BaseComponent<P=any, S=any> extends React.Component<P, S>{
         props: P;
         state: S;
         autoUpdateState: PartialFunction<S>;
@@ -64,8 +63,8 @@ declare namespace OrganicUi {
         message: string;
         by?: string;
     }
-    export interface IFieldProps {
-        accessor?: string|BindingPoint;
+    export interface IFieldProps<TColProps=any> {
+        accessor?: string | BindingPoint;
         showOpeartors?: boolean;
         operators?: string[];
         onGet?, onSet?: Function;
@@ -88,6 +87,7 @@ declare namespace OrganicUi {
         filterData?: { fieldType };
         defaultOperator?: string;
         disableFixedWidth?: boolean;
+        columnProps?: Partial<TColProps>;
     }
 
     export interface ActionsForIArrayDataViewItem {
@@ -152,7 +152,7 @@ declare namespace OrganicUi {
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
-    export class Field extends BaseComponent<IFieldProps, any>{
+    export class Field<T> extends BaseComponent<IFieldProps<T>, any>{
         getFilterItem(): FilterItem;
         getErrorMessage();
         revalidate();
@@ -210,9 +210,9 @@ declare namespace OrganicUi {
     }
     export const UiKit: React.SFC<UiKitProps>;
     export interface OrganicBoxProps<TActions, TOptions, TParams> {
-        actions: TActions;
-        options: TOptions;
-        params: TParams;
+        actions?: TActions;
+        options?: TOptions;
+        params?: TParams;
         customActions?: Partial<TActions>;
         children?: React.ReactNode;
     }
@@ -238,8 +238,7 @@ declare namespace OrganicUi {
 
         constructor(p: OrganicBoxProps<TActions, TOptions, TParams>);
     }
-    export class SingleViewBox<T> extends OrganicBox<
-        IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, any> {
+    export interface ISingleViewBox<T> {
         getId(row): any;
         getFormData(): T;
         setFieldValue(fieldName: string, value);
@@ -264,27 +263,8 @@ declare namespace OrganicUi {
     export const ComboBox: React.SFC<ComboBoxProps>;
     export const TimeEdit: React.SFC<ITimeEditProps>;
 
-    export interface IDataListProps {
-        itemHeight?: number;
-        onLoadRequestParams?: Function;
-        loader?: (req: IDataListLoadReq) => Promise<IListData>;
-        startWithEmptyList?: boolean;
-        onDoubleClick?: () => void;
-        onCurrentRowChanged?: (row: any) => any;
-        rowCount?: number;
-        paginationMode?: 'paged' | 'scrolled';
-        template?: string;
-        height?: number;
-        flexMode?: boolean;
-        minWidth?: number;
-        popupForActions?: React.ReactNode | Function;
-        onRowClick?: (rowIdx: number, row: any) => void;
-        rowSelection?: any;
-        templatedApplied?: boolean;
-        corner?: any;
-        children?: any | any[];
-    }
-    export const DataList: React.SFC<IDataListProps>;
+
+    export const DataList: React.SFC<OrganicUi.IDataListProps<any>>;
     interface IDataPanelProps {
         header: any;
         primary?: boolean;
@@ -322,7 +302,7 @@ declare namespace OrganicUi {
         routeForSingleView: string;
         routeForListView: string;
         pluralName: string;
-        iconCode: string;
+        iconCode;
     }
     interface IListViewParams {
         forDataLookup?: boolean;
@@ -334,7 +314,7 @@ declare namespace OrganicUi {
         selectedId?: any;
         corner?: any;
         onSelectionChanged?: Function;
-        defaultSelectedValues?: () =>{[key:number]:true};
+        defaultSelectedValues?: () => { [key: number]: true };
         getValue?: () => any;
         setValue?: (value) => void;
         dataLookup?: any;
@@ -453,7 +433,7 @@ declare namespace OrganicUi {
         rowCount: number;
 
     }
-    export interface IDataListProps {
+    export interface IDataListProps<T=any> {
         itemHeight?: number;
         onLoadRequestParams?: Function;
         loader?: (req: IDataListLoadReq) => Promise<IListData>;
@@ -470,6 +450,10 @@ declare namespace OrganicUi {
         templatedApplied?: boolean;
         corner?: any;
         children?: any | any[];
+        flexMode?: boolean;
+        startWithEmptyList?: boolean;
+        className?: string;
+        detailsListProps?: T;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
 
@@ -477,7 +461,7 @@ declare namespace OrganicUi {
         dataListHeight?: number;
         avoidAdd?, avoidDelete?, avoidEdit?: boolean;
         customBar?: TMethods;
-        accessor?: string;
+        accessor?: OrganicUi.BindingHub | string;
         onErrorCode?: onErrorCodeResult;
         singularName?, pluralName?: string;
         style?: React.CSSProperties;
@@ -568,6 +552,7 @@ declare namespace OrganicUi {
         onChange?: React.ChangeEventHandler<HTMLInputElement>;
     }
     export const AppUtils: AppUtilsIntf;
+    export const Headline: React.SFC<React.HTMLAttributes<any>>;
     export namespace Icons {
         export const AddIcon: React.SFC<any>;
         export const DeleteIcon: React.SFC<any>;
@@ -575,6 +560,7 @@ declare namespace OrganicUi {
 }
 
 declare module '@organic-ui' {
+
     export const reinvent: OrganicUi.reinvent;
     export type TMethods = OrganicUi.TMethods;
 
@@ -584,8 +570,10 @@ declare module '@organic-ui' {
     export const TreeList: typeof OrganicUi.TreeList;
     export const i18n: typeof OrganicUi.i18n;
     export const routeTable: typeof OrganicUi.routeTable;
-    export type IFieldProps = OrganicUi.IFieldProps;
-    export const Field: typeof OrganicUi.Field;
+    export type IFieldProps = OrganicUi.IFieldProps<IColumn>;
+    export class Field extends OrganicUi.Field<IColumn>{
+
+    }
     export type IAppModel = OrganicUi.IAppModel;
     export const startApp: typeof OrganicUi.startApp;
     export type Menu = OrganicUi.Menu;
@@ -594,7 +582,8 @@ declare module '@organic-ui' {
     export type IOptionsForCRUD = OrganicUi.IOptionsForCRUD;
     export { AxiosRequestConfig as RequestConfig } from 'axios';
     import { AxiosRequestConfig } from 'axios';
-    import { AnchorHTMLAttributes, CSSProperties } from 'react';
+    import { IColumn, IDetailsListProps } from 'office-ui-fabric-react';
+    import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
     export type StatelessSingleView = OrganicUi.StatelessSingleView;
@@ -623,14 +612,13 @@ declare module '@organic-ui' {
     }
     export const Version: string;
     export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
-    export class BaseComponent<P, S> extends OrganicUi.BaseComponent<P, S>{ }
+    export class BaseComponent<P=any, S=any> extends OrganicUi.BaseComponent<P, S>{ }
     export const moduleManager: typeof OrganicUi.moduleManager;
     export type IModule = OrganicUi.IModule;
     export const UiKit: typeof OrganicUi.UiKit;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
-    export type SingleViewBox<T=any> = OrganicUi.SingleViewBox<T>;
-    export const SingleViewBox: typeof OrganicUi.SingleViewBox;
+    export type ISingleViewBox<T=any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance ;
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
@@ -647,7 +635,7 @@ declare module '@organic-ui' {
         getFieldErrorsAsElement(): Promise<JSX.Element>
     }
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
-    export const DataList: typeof OrganicUi.DataList;
+    export const DataList: React.SFC<OrganicUi.IDataListProps<IDetailsListProps>>;
     export const DataPanel: typeof OrganicUi.DataPanel;
     export const DataListPanel: typeof OrganicUi.DataListPanel;
     export const FilterPanel: typeof OrganicUi.FilterPanel;
@@ -671,7 +659,7 @@ declare module '@organic-ui' {
     export const JsonInspector: typeof OrganicUi.JsonInspector;
     export const DeveloperBar: typeof OrganicUi.DeveloperBar;
 
-
+    export const Headline: typeof OrganicUi.Headline;
     // SepidSystem
     export type ITimeSlotRange = OrganicUi.ITimeSlotRange;
     export const TimeSlot: typeof OrganicUi.TimeSlot;

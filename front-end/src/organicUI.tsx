@@ -48,10 +48,11 @@ export { ListViewBox } from './lib/box/list-view-box';
 export { reinvent } from './lib/reinvent/reinvent';
 import './lib/reinvent/reinvent';
 import './lib/reinvent/base-frontend-reinvent';
+import './lib/reinvent/crud-frontend-reinvent';
 import './lib/reinvent/dashboard-reinvent';
 
 export { default as Collapsible } from 'react-collapsible';
-// Controls 
+// Controls ** Beginnner Level
 export { SnackBar } from './lib/controls/snack-bar';
 export { TimeSlot } from './lib/controls/time-slot';
 export { default as Version } from './version';
@@ -60,6 +61,7 @@ export { default as C3Chart } from 'react-c3js';
 export { TreeList } from './lib/controls/tree-list';
 export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch } from './lib/controls/inspired-components';
 export { GridList, GridListTile } from './lib/controls/inspired-components';
+export { Headline } from './lib/controls/head-line';
 export let currentView: any
 export { MenuIcon, ExpandMoreIcon } from './lib/controls/icons';
 import * as  _Icons from './lib/controls/icons';
