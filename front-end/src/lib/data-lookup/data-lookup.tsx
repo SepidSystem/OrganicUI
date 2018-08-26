@@ -13,7 +13,7 @@ import OrganicBox from '../box/organic-box';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from '../controls/inspired-components';
 import { DataLookupModal } from './data-lookup-modal';
-
+ 
 
 interface DataLookupState {
     isOpen?: boolean;
@@ -126,7 +126,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     }
 
     handleSelectionChanged(indices: number[], index) {
-        const listViewBox = this.getListViewBox();
+          const listViewBox = this.getListViewBox();
         if (listViewBox.state.readingList) return;
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
@@ -236,9 +236,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     handleSetValue(value) {
         const selectedValueDic = Utils.toArray(value).reduce((accum, id) => Object.assign(accum, { [id]: true }), {});
         this.repatch({ value, selectedValueDic });
-
         this.props && this.props.onChange instanceof Function && this.props.onChange(value);
-
+    }
+    setValue(value){
+        this.handleSetValue(value);
     }
     handleRemoveClick(e: React.MouseEvent<HTMLElement>) {
         e.preventDefault();
@@ -312,7 +313,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             isOpen, onClose, target,
             onAppend: this.handleAppend.bind(this),
             onApply: this.handleApply.bind(this),
-            dataLookupProps: this.props
+            dataLookupProps: p,
+            reversed:!!p.popOverReversed
         }, listViewElement);
         return <div className="list-view-container" ref="listViewContainer">{popupElement}</div>
 
@@ -346,11 +348,11 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.adjustEditorPadding();
 
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
-        console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
-        return <div ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
-        >
+          console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
+        return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
+   style={p.style}     >
             {innerText instanceof Promise && <span className="spinner-container"> <Spinner /></span>}
-            <div onClick={!!p.popupMode.inlineMode && this.handleClick} className="editor" ref="editorWrapper">{textField}</div>
+            <div  className="editor" ref="editorWrapper">{textField}</div>
             {(p.onDisplayText || maxWidthForTextOverflow) &&
                 (p.onDisplayText || innerText instanceof Array) &&
                 <div className="inner-text" ref="innerText">

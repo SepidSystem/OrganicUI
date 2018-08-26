@@ -8,7 +8,7 @@ import { BaseComponent } from '../core/base-component';
 import { Utils } from '../core/utils';
 import { Button } from '../controls/inspired-components';
 import { i18n } from '../core/shared-vars';
-
+import * as persian  from 'react-persian-datepicker/lib/utils/persian';
 class DatePickerContent extends BaseComponent<any, any> {
     handleToday() {
         const value = moment();
@@ -48,7 +48,10 @@ export class DatePicker extends BaseComponent<any, any>{
         return <DataLookup ref="dataLookup" iconCode='fa-calendar'
             onDisplayText={DatePicker.handleDisplayText} minHeightForPopup="350px"
             {...this.props} className={Utils.classNames("date-picker", p.className)}
-            source={DatePickerContent} />
+            source={DatePickerContent} 
+            popOverReversed={!!p.popOverReversed}
+            style={p.style}
+            />
     }
     static textReader(fieldProps, props, value) {
         return DatePicker.handleDisplayText(value);
@@ -59,3 +62,5 @@ DatePicker['classNameForField'] = 'date-picker-field';
 loadPersian();
 
 _moment['suppressDeprecationWarnings'] = true;
+const persianNumber=x=>x;
+Object.assign(persian,{persianNumber});

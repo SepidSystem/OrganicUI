@@ -15,22 +15,22 @@ export class DataLookupPopOver extends BaseComponent<OrganicUi.IDataLookupPopupM
 
             anchorOrigin={{
                 vertical: targetIsTop ? 'top' : 'bottom',
-                horizontal: 'right',
+                horizontal: p.reversed ? 'left' : 'right',
             }}
             transformOrigin={{
                 vertical: targetIsTop ? 'top' : 'bottom',
-                horizontal: 'right',
+                horizontal: p.reversed ? 'left' : 'right',
             }}
         >
             {p.children}
         </Popover>
 
     }
-    static renderButtons = (p:OrganicUi.DataLookupProps) => (<span className="caretDownWrapper  ">
+    static renderButtons = (p: OrganicUi.DataLookupProps) => (<span className="caretDownWrapper  ">
         <svg className="MuiSvgIcon-root MuiSelect-icon" width={20} focusable="false" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 10l5 5 5-5z"></path>
         </svg>
     </span>);
-    static inlineMode:boolean=true;
+    static inlineMode: boolean = true;
 
 }

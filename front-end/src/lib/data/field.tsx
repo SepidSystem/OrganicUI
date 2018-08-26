@@ -247,7 +247,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         let inputElement = this.getInputElement('default');
         const inputElementType: any = (inputElement && inputElement.type) || {};
         const classNameFromInputType = inputElementType['field-className'];
-        if (inputElement && !inputElement.props) debugger;
+        if (inputElement && !inputElement.props) return <>{p.children}</>;
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData('default', inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));

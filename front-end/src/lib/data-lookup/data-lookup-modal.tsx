@@ -1,4 +1,4 @@
-import { TextField, Dialog, DialogActions, Button, DialogTitle,DialogContent } from '../controls/inspired-components';
+import { TextField, Dialog, DialogActions, Button, DialogTitle, DialogContent } from '../controls/inspired-components';
 import { BaseComponent } from '../core/base-component';
 
 import { Utils } from '../core/utils';
@@ -17,9 +17,8 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
         >
             {options && <DialogTitle>
                 <div className="  title is-2">
-                    {Utils.showIcon(options.iconCode)}
-
-                    {i18n(options.pluralName)}</div>
+                    {i18n(options.pluralName)}
+                </div>
             </DialogTitle>}
             <DialogContent className="content" style={{ minWidth: '900px', minHeight: '470px' }} >
                 {children}
