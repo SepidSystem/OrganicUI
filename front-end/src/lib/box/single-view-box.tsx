@@ -10,7 +10,7 @@ import { DataForm } from '../data/data-form';
 import { Spinner } from '../core/spinner';
 import { AdvButton, Placeholder } from '../core/ui-elements';
 import OrganicBox from './organic-box';
-import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
+import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams, AppUtils } from '@organic-ui';
 import { createClientForREST } from '../core/rest-api';
 import { DeveloperBar } from '../core/developer-features';
 import { Icon, Paper, Button } from '../controls/inspired-components';
@@ -32,14 +32,16 @@ export class SingleViewBox<T> extends OrganicBox<
         super(p);
         this.handleFieldRead = this.handleFieldRead.bind(this);
         this.handleFieldWrite = this.handleFieldWrite.bind(this);
-        this.navigateToBack = this.navigateToBack.bind(this);
+        this.handleNavigate = this.handleNavigate.bind(this);
         this.navigateToNewItem = this.navigateToNewItem.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.undefinedFields = {};
         this.objectCreation = +new Date();
     }
-    navigateToBack(): any {
+    handleNavigate(): any {
         const id = this.getId(this.state.formData);
+        if (this.props.params && this.props.params.navigate)
+            return this.props.params.navigate(id);
         const url = [this.props.options.routeForListView, id && ('selectedId=' + id)].filter(x => !!x).join('?');
         Utils.navigate(url);
     }
@@ -128,7 +130,7 @@ export class SingleViewBox<T> extends OrganicBox<
                         {res.error}</div>;
                     const { title, desc } = this.getSuccess();
                     if (navigateToListView)
-                        setTimeout(this.navigateToBack, 10);
+                        setTimeout(this.handleNavigate, 10);
                     else
                         setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
                     return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
@@ -197,12 +199,12 @@ export class SingleViewBox<T> extends OrganicBox<
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
 
         return <section className="organic-box single-view developer-features" ref="root">
-            <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0',fontSize:'2.57rem' }}>
+            <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0', fontSize: '2.57rem' }}>
                 <div className="column  " style={{ flex: '10' }}>
                     {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
                 </div>
                 <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
-                    <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.navigateToBack}   >
+                    <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.handleNavigate}   >
                         {i18n('back')}
                         <Icon iconName="Back" />
                     </Button >
@@ -224,6 +226,12 @@ export class SingleViewBox<T> extends OrganicBox<
 
         </section>
     }
-
+    static showDialogForAddNew(componentType: React.ComponentType<ISingleViewParams>): Promise<any> {
+        return new Promise(resolve => {
+            const props: ISingleViewParams = { id: 'new', navigate: id => resolve(id) as any };
+            return AppUtils.showDialog(React.createElement(componentType, props))
+        } );
+    }
 }
 Object.assign(reinvent.templates, { singleView: SingleViewBox });
+Object.assign(reinvent.utils, { showDialogForAddNew: SingleViewBox.showDialogForAddNew })

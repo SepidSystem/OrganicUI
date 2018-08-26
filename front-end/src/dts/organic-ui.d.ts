@@ -328,7 +328,7 @@ declare namespace OrganicUi {
     }
     export interface ISingleViewParams {
         id;
-        navigate?: (id) => Promise<any>;
+        onNavigate?: (id) => Promise<any>;
     }
     export type StatelessListView = React.SFC<IListViewParams>;
     export type StatelessSingleView = React.SFC<ISingleViewParams>;
