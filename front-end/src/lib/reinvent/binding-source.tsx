@@ -1,7 +1,7 @@
 const proxyHandlerForBinding: ProxyHandler<{ __name }> = {
     get(target, key: string) {
-        if (/^[0-9]+$/.test(key.toString())) return target;
-        return target[key] = target[key] || new Proxy({ __name: key }, proxyHandlerForBinding);
+        
+        return target[key] = target[key] || new Proxy(/^[0-9]+$/.test(key.toString()) ? target : { __name: key }, proxyHandlerForBinding);
     }
 }
 export function openBindingSource<T>(): T {
