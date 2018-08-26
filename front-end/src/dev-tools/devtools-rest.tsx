@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
-import { Utils, AdvButton, AppUtils, BaseComponent, SingleViewBox, ListViewBox, FormControlLabel, Checkbox, Tabs, Tab } from "@organic-ui";
+import { Utils, AdvButton, AppUtils, BaseComponent,   ListViewBox, FormControlLabel, Checkbox, Tabs, Tab } from "@organic-ui";
 
 
 
@@ -198,5 +198,5 @@ setTimeout(function () {
     }
 }, hasClient ? 2 : 1000);
 const fetchFail = p => React.createElement(RestInspector, Object.assign({}, p, { mode: 2 }));
-Object.assign(SingleViewBox, { fetchFail });
-Object.assign(ListViewBox, { fetchFail });
+Object.assign(OrganicUI['SingleViewBox'], { fetchFail });
+Object.assign(OrganicUI['ListViewBox'], { fetchFail });
