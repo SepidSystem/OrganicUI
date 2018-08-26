@@ -91,7 +91,7 @@ interface IAdvButtonProps {
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
     size?: 'small' | 'medium' | 'large';
-    onClick?: () => any;
+    onClick?: (e:React.MouseEvent<any>) => any;
     fixedWidth?: boolean;
     className?: string;
     calloutWidth?: number;
@@ -114,7 +114,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                 e.preventDefault();
                 if (s.callout) return repatch({ callout: null });
                 const asyncClick = async () => {
-                    const resultAsync = p.onClick instanceof Function && p.onClick();
+                    const resultAsync :any=(  p.onClick instanceof Function) && p.onClick(e);
                     if (resultAsync instanceof Promise) {
                         repatch({ isLoading: true, callout: null });
 
