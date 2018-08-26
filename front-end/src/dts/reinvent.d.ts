@@ -29,7 +29,7 @@ declare namespace OrganicUi {
     }
     interface IReinventForCRUDParams<TDto, TState> {
         data: TDto;
-        binding: OrganicUi.BindingHub<TDto>;
+        binding: BindingHub<TDto>;
         props;
         state: TState;
         repatch(delta: Partial<TState>): void;
@@ -58,6 +58,8 @@ declare namespace OrganicUi {
 
     interface IDashboardWidgetOptions {
         cols?: number;
+        fragment?:boolean;
+        interval?:number;
     }
     interface IEditorReinvent {
         editor(fieldName: string, element: React.ReactElement<any>): IEditorReinvent;
@@ -67,15 +69,16 @@ declare namespace OrganicUi {
     export interface reinvent {
 
         <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
-        <TDto>(type: 'frontend:crud', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD }): IReinventForCRUD<TDto>;
-        <TDto>(type: 'frontend:report', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: IOptionsForCRUD }): IReinventForCRUD<TDto>;
+        <TDto>(type: 'frontend:crud', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: OrganicUi.IOptionsForCRUD }): IReinventForCRUD<TDto>;
+        <TDto>(type: 'frontend:report', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: OrganicUi.IOptionsForCRUD }): IReinventForCRUD<TDto>;
         <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
         (type: 'frontend:editor'): IEditorReinvent;
         query(selector): any[];
         utils: {
-            listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): StatelessListView;
+            listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
+            showDialogForAddNew(componentType: React.ComponentType<ISingleViewParams>): Promise<any>
         }
-        templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: IActionsForCRUD<T>, options: IOptionsForCRUD, ref?: string, customActions?: Partial<IActionsForCRUD<T>> }): MethodDecorator;
+        templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
         openBindingHub<T>(): BindingHub<T>;
     }
     export interface BindingPoint {

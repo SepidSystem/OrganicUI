@@ -2,6 +2,7 @@
 /// <reference path="../dts/globals.d.ts" />
 /// <reference path="./reinvent.d.ts" />
 
+ 
 
 declare namespace OrganicUi {
     export interface ResultSet<T> {
@@ -182,6 +183,8 @@ declare namespace OrganicUi {
         target: string;
         hasSubMenu: boolean;
         parentId: number;
+        selectionLink:string;
+      
         constructor(id: number,
             title: string,
             routerLink: string,
@@ -291,6 +294,7 @@ declare namespace OrganicUi {
         getId?: (dto: TDto) => any;
         getPageTitle?: (dto: TDto) => string;
         onFieldWrite?: (key: string, value, dto: TDto) => void
+
     }
     type PartialFunction<T> = {
         [P in keyof T]?: ((value: T[P]) => any);
@@ -320,8 +324,12 @@ declare namespace OrganicUi {
         dataLookup?: any;
         filterMode?: 'quick' | 'advanced' | 'none';
         noTitle?: boolean;
+
     }
-    export interface ISingleViewParams { id }
+    export interface ISingleViewParams {
+        id;
+        navigate?: (id) => Promise<any>;
+    }
     export type StatelessListView = React.SFC<IListViewParams>;
     export type StatelessSingleView = React.SFC<ISingleViewParams>;
     export interface IModuleManager {
@@ -402,6 +410,7 @@ declare namespace OrganicUi {
         id: number;
         title: string;
         routerLink: string;
+        selectionLink:string;
         href: string;
         icon: string;
         target: string;
@@ -453,6 +462,7 @@ declare namespace OrganicUi {
         flexMode?: boolean;
         startWithEmptyList?: boolean;
         className?: string;
+        
         detailsListProps?: T;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
@@ -482,19 +492,27 @@ declare namespace OrganicUi {
         popupMode?: DataLookupPopupMode;
         bellowList?: boolean;
         appendMode?: boolean;
+        popOverReversed?:boolean;
+        style?:React.CSSProperties;
     }
     export interface IDataLookupPopupModeProps {
         isOpen: boolean;
         target: HTMLElement;
+        reversed:boolean;
         onClose: Function;
         onApply: Function;
         onAppend: Function;
         dataLookupProps: DataLookupProps;
     }
+    export interface IDataLookupActionProps {
+        label: any;
+        onExecute: () => Promise<any>;
+    }
     export type DataLookupPopupMode = React.ComponentClass<IDataLookupPopupModeProps> & { inlineMode: boolean, renderButtons: (p, onClick) => JSX.Element };
     export class DataLookup extends BaseComponent<DataLookupProps, never>{
         static PopOver: DataLookupPopupMode;
         static Modal: DataLookupPopupMode;
+        static Action: React.SFC<IDataLookupActionProps>;
 
     }
     export class TreeList extends BaseComponent<ITreeListProps, any>{ }
@@ -618,13 +636,13 @@ declare module '@organic-ui' {
     export const UiKit: typeof OrganicUi.UiKit;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
-    export type ISingleViewBox<T=any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance ;
+    export type ISingleViewBox<T=any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance;
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
     export const ReportViewBox: typeof OrganicUi.ReportViewBox;
     export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
-    export const DatePicker: React.SFC<any>;
+    export const DatePicker: React.SFC<{value?,popOverReversed?,style?:CSSProperties}>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
