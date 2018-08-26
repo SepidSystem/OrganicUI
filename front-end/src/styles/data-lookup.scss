@@ -3,6 +3,12 @@ $below-list-height:200;
     min-height: 30px;
     margin: 2px;
     position: relative;
+    button{
+        padding:2px;
+        min-width: 32px !important;
+        color:#333 !important;
+        min-height:32px !important;
+    }
     .editor {
         display: flex;
         flex-direction: row;

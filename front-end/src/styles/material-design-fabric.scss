@@ -157,8 +157,13 @@
 .field.has-value:not(.no-material) .label {
     top: -0.5rem;
     line-height: 1rem;
-    color:#2098D9 !important;
-    font-size: 1rem !important;
+    * {
+        font-size: 1rem !important;
+    }
+}
+
+.field.focused:not(.no-material) .label {
+    color: #2098D9 !important;
 }
 
 .mui-right-label {
@@ -316,15 +321,12 @@
 .medium-fields {
     .field-accessor {
         min-width: 15.21rem;
-       
     }
-    .date-picker{
+    .date-picker {
         min-width: 15.21rem !important;
         max-width: 15.21rem !important;
-        
     }
 }
-
 
 .single-view {
     .field-accessor {
@@ -332,10 +334,14 @@
             font-size: 1.71rem;
         }
     }
-    .MuiPaper-root{
-        padding:0;
+    .MuiPaper-root {
+        padding: 0;
     }
 }
-.pagination-previous, .pagination-next, .pagination-link, .pagination-ellipsis{
-    font-size:1.71rem;
+
+.pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis {
+    font-size: 1.71rem;
 }
