@@ -36,6 +36,7 @@ export { FilterPanel } from './lib/data/filter-panel';
 export { ArrayDataView } from './lib/data/array-data-view';
 // DataLookup  ** Medium Level
 export { DataLookup } from './lib/data-lookup/data-lookup';
+import './lib/data-lookup/data-lookup-action';
 export { DatePicker } from './lib/data-lookup/date-picker';
 //----- Import Box Lib ** Advanced Level
 export { default as OrganicBox } from './lib/box/organic-box';

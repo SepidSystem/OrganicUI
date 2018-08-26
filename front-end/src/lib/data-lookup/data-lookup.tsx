@@ -349,7 +349,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
           console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
-        return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
+          const children:any[]=p.children && React.Children.toArray(p.children);
+           return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
    style={p.style}     >
             {innerText instanceof Promise && <span className="spinner-container"> <Spinner /></span>}
             <div  className="editor" ref="editorWrapper">{textField}</div>
@@ -371,6 +372,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
                     {Utils.showIcon(this.props.iconCode, 'icon activate-focused-only')}
                 </div>}
+                <span className="action-buttons">
+                {children instanceof Array && children.filter(c=>c.type && c.type['isDataLookupButton'])}
+                </span>
             {p.popupMode && p.popupMode.renderButtons(p, { onClick: this.handleClick })}
             {this.renderPopOver()}
             {!!p.bellowList && this.renderBelowList()}

@@ -24,8 +24,8 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         return Utils.renderDevButton('DataForm', this as any);
     }
     setFocusByAcccesor(accessor) {
-
-        this.querySelectorAll<Field>('.field-accessor').filter(fld => fld.props.accessor == accessor).forEach(fld => {
+        accessor = Field.getAccessorName(accessor);
+        this.querySelectorAll<Field>('.field-accessor').filter(fld => Field.getAccessorName(fld.props.accessor) == accessor).forEach(fld => {
             fld.refs.root.classList.add('field-targeted');
             Utils.scrollTo(document.body, fld.refs.root.clientTop, 100);
             fld.refs.root.querySelector('input').focus();

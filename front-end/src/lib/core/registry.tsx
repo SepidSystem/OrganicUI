@@ -40,7 +40,7 @@ export function openRegistry<T>(mapper?: (result: T, key: string) => T): Organic
         register({ [key]: value });
     }
 
-    const directGet = (key: string) => data[key];
+    const directGet = (key: string) => data[key] || key;
     const customTester = (tester: OrganicUi.CustomTesterForRegistry, value: T) => (testers.push(tester), resultForTesters.push(value));
     const clear = () => (data = {}, secondaryValues = {});
     return Object.assign(getter, { clear, get: directGet, register, data, set, notFounded, secondaryValues, customTester });

@@ -76,7 +76,7 @@ declare namespace OrganicUi {
         query(selector): any[];
         utils: {
             listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
-            showDialogForAddNew(componentType: React.ComponentType<ISingleViewParams>): Promise<any>
+            showDialogForAddNew(componentType): (()=>Promise<any>);
         }
         templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
         openBindingHub<T>(): BindingHub<T>;

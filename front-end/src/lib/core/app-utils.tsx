@@ -10,6 +10,7 @@ interface IDialogProps {
     actions?: { [key: string]: Function }
     defaultValues?: any;
     noClose?: boolean;
+    hasScrollBar?: boolean;
 }
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
@@ -69,7 +70,7 @@ export class AppUtils extends BaseComponent<any, any>{
                 <DialogTitle>
                     <div style={{ display: 'flex' }}>
                         <div style={{ flex: '10' }}>
-                            {i18n((dialogInstance && dialogInstance.title)  || 'd') }
+                            {i18n((dialogInstance && dialogInstance.title))}
                         </div>
                         {!(dialogInstance && dialogInstance.noClose) && <a href="#" className="close-dialog" onClick={e => {
                             e.preventDefault();
@@ -78,7 +79,7 @@ export class AppUtils extends BaseComponent<any, any>{
                     </div>
                 </DialogTitle>
 
-                <DialogContent style={{ overflow: 'hidden' }}>
+                <DialogContent style={{ overflow: dialogInstance && dialogInstance.hasScrollBar ? null : 'hidden' }}>
                     {dialogInstance && dialogInstance.content}
                 </DialogContent>
                 <DialogActions>
