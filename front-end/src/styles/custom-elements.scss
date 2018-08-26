@@ -77,11 +77,26 @@
 }
 
 .date-picker-content {
-    max-width: 300px;
-    padding: 5px;
-    button {
-        direction: ltr;
-        font-family: Arial, Helvetica, sans-serif;
+    max-width: 36.93rem;
+    min-width: 36.93rem;
+    padding: 0;
+     
+    .heading {
+        background: #4AABD5 100%;
+        * {
+            color: #fff;
+            border: none !important;
+            background: transparent !important;
+        }
+        *:hover {
+            background: transparent !important;
+        }
+    }
+    .dayWrapper {
+        button {
+            font-family: Yekan;
+            direction: ltr;
+        }
     }
 }
 
@@ -107,13 +122,6 @@
     }
 }
 
-.dayWrapper {
-    button {
-        font-family: Tahoma;
-        direction: ltr;
-    }
-}
-
 /**  STYLE 11 */
 
 .below-list {
@@ -127,7 +135,6 @@
         background: linear-gradient(left, #fff, #e4e4e4);
         border: 1px solid #aaa;
     }
-  
     &::-webkit-scrollbar-thumb:active {
         background: linear-gradient(left, #22ADD4, #1E98BA);
     }
@@ -149,7 +156,7 @@ div::-webkit-scrollbar-thumb {
     background: linear-gradient(left, #fff, #e4e4e4);
     border: 1px solid #aaa;
 }
- 
+
 div::-webkit-scrollbar-thumb:active {
     background: linear-gradient(left, #22ADD4, #1E98BA);
 }

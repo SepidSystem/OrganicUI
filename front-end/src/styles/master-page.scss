@@ -28,9 +28,7 @@ main.main-container {
 
 .main-content {
     padding: 4px 4rem;
-    * {
-        font-size: 16px !important;
-    }
+    
     footer {
         padding: 10px 2px;
     }
@@ -208,4 +206,7 @@ span,aside {
     order: -100;
     display: flex;
     flex: 10;
+}
+button,.MuiButton-root{
+    font-size: 1.71rem !important;
 }

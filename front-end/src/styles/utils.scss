@@ -4,7 +4,9 @@
         flex-wrap: wrap;
     }
     .field-accessor {
-        min-width: 220px;
+        min-width: 15.14rem;
+        max-width: 15.14rem;
+        margin: 0 1.7rem;
         float: right;
     }
 }
@@ -28,6 +30,9 @@
     .field-accessor {
         min-width: 100%;
         float: right;
+    }
+    button{
+        margin:0 0.5rem;
     }
 }
 
@@ -107,37 +112,65 @@ break {
     justify-content: center;
     align-content: center;
 }
-hr{
-    width:100%;
-    min-width:100%;
+
+hr {
+    width: 100%;
+    min-width: 100%;
 }
+
 .message-dialog {
     padding: 6px 4px;
     &.is-fail {
         color: red;
     }
 }
-.overflowY-hidden{
+
+.overflowY-hidden {
     overflow-y: hidden !important;
-}  
-.flex-center,.flex-full-center{
+}
+
+.flex-center,
+.flex-full-center {
     display: flex;
     justify-content: center;
     justify-items: center;
 }
-.flex-full-center{ 
-    height:100%;
+
+.flex-full-center {
+    height: 100%;
 }
-.image-128{
+
+.image-128 {
     display: flex;
     justify-content: center;
     justify-items: center;
     align-items: center;
-    align-content:center;
-    svg{
-        width:128px;
+    align-content: center;
+    svg {
+        width: 128px;
     }
 }
-.large-text{
+
+.large-text {
     font-size: 32px !important;
+}
+
+.content-no-border {
+    * {
+        border: none !important;
+    }
+    .caretDownWrapper {
+        visibility: hidden;
+    }
+    .MuiInput-underline:after {
+        visibility: hidden;
+    }
+    .MuiInput-underline:before {
+        visibility: hidden;
+    }
+    a {
+        align-content: center;
+        align-items: center;
+        display: flex;
+    }
 }

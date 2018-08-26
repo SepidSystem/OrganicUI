@@ -197,11 +197,20 @@ $below-list-height:200;
 }
 
 .data-lookup-field {
+    min-width: 20rem;
+   
     .control {
         max-height: 30px;
     }
     &.has-bellow-list {
         max-height: ($below-list-height+30)*1px !important;
         min-height: ($below-list-height+30)*1px !important;
+    }
+}
+.full-data-lookup{
+    .inner-text{
+        display: flex;
+        width:100%;
+        justify-content: center;
     }
 }
