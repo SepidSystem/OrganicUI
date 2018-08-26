@@ -64,7 +64,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(Field.getAccessorName(accessor)))
-    static getLabelText = (accessor, label?) => i18n.get(label || changeCase.paramCase(accessor))
+    static getLabelText = (accessor, label?) => i18n.get(label || changeCase.paramCase(Field.getAccessorName(accessor)))
     extractedValues: { default?, alt?} = {};
     getDataForm(avoidAssertion?) {
         const { root } = this.refs;
@@ -91,7 +91,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             const { componentRef } = parent as any;
             const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props) {
-                const value = props.onFieldRead ||  Field.getAccessorName(  props.accessor);
+                const value = props.onFieldRead || Field.getAccessorName(props.accessor);
                 value && getters.push(value);
             }
             parent = parent.parentElement;
@@ -134,7 +134,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
             if (props && props.onFieldWrite) {
                 if (prefix == 'default')
-                    props.onFieldWrite(Field.getAccessorName(  p.accessor), value);
+                    props.onFieldWrite(Field.getAccessorName(p.accessor), value);
                 else
                     props.onFieldWrite(Field.getAccessorName(p.accessor) + '__2', value);
 
@@ -427,8 +427,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             || (p.required && typeof val != 'number' && !val && 'error-required')
             || (p.onErrorCode instanceof Function) && p.onErrorCode(val);
-
-        return message && Utils.i18nFormat(message, Field.getLabelText(Field.getAccessorName(p.accessor), p.label));
+        const s = Field.getLabelText(p.accessor, p.label);
+        const result = message && Utils.i18nFormat(message, s);
+        console.log({ message, result, s });
+        return result;
 
     }
     revalidate({ customInvalidItems } = { customInvalidItems: null }) {
