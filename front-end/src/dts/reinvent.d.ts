@@ -1,5 +1,5 @@
 
-declare namespace OrganicUi {
+declare namespace Reinvent {
     export interface IRendererArg<S> {
         props;
         state: S;
@@ -58,15 +58,15 @@ declare namespace OrganicUi {
 
     interface IDashboardWidgetOptions {
         cols?: number;
-        fragment?:boolean;
-        interval?:number;
+        fragment?: boolean;
+        interval?: number;
     }
     interface IEditorReinvent {
         editor(fieldName: string, element: React.ReactElement<any>): IEditorReinvent;
         editor(tester: (fieldName: string) => boolean, element: React.ReactElement<any>): IEditorReinvent;
         fragment(element: React.ReactElement<React.ReactFragment>): IEditorReinvent;
     }
-    export interface reinvent {
+    export    interface reinvent {
 
         <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
         <TDto>(type: 'frontend:crud', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: OrganicUi.IOptionsForCRUD }): IReinventForCRUD<TDto>;
@@ -76,7 +76,7 @@ declare namespace OrganicUi {
         query(selector): any[];
         utils: {
             listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
-            showDialogForAddNew(componentType): (()=>Promise<any>);
+            showDialogForAddNew(componentType): (() => Promise<any>);
         }
         templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
         openBindingHub<T>(): BindingHub<T>;
@@ -89,6 +89,15 @@ declare namespace OrganicUi {
         [P in keyof T]?: T[P] extends (object | object[]) ? BindingHub<T[P]> :
         BindingPoint;
     };
+    export function  templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    export function openBindingHub<T>(): BindingHub<T>;
+    const utils: {
+        listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
+        showDialogForAddNew(componentType): (() => Promise<any>);
+    }
 }
 
 
+declare module '@reinvent' {
+    export =Reinvent;
+} 

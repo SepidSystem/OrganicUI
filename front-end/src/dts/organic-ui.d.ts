@@ -65,7 +65,7 @@ declare namespace OrganicUi {
         by?: string;
     }
     export interface IFieldProps<TColProps=any> {
-        accessor?: string | BindingPoint;
+        accessor?: string | Reinvent.BindingPoint;
         showOpeartors?: boolean;
         operators?: string[];
         onGet?, onSet?: Function;
@@ -472,7 +472,7 @@ declare namespace OrganicUi {
         dataListHeight?: number;
         avoidAdd?, avoidDelete?, avoidEdit?: boolean;
         customBar?: TMethods;
-        accessor?: OrganicUi.BindingHub | string;
+        accessor?: Reinvent.BindingHub | string;
         onErrorCode?: onErrorCodeResult;
         singularName?, pluralName?: string;
         style?: React.CSSProperties;
@@ -580,7 +580,7 @@ declare namespace OrganicUi {
 
 declare module '@organic-ui' {
 
-    export const reinvent: OrganicUi.reinvent;
+    export const reinvent: Reinvent.reinvent;
     export type TMethods = OrganicUi.TMethods;
 
     export const Utils: typeof OrganicUi.Utils;
