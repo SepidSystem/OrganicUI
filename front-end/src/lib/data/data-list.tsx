@@ -8,7 +8,7 @@ import { Utils, changeCase } from '../core/utils';
 import { Cache } from 'lru-cache';
 import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
-import { DetailsList, FocusZone } from '../controls/inspired-components';
+import { DetailsList, FocusZone, Button } from '../controls/inspired-components';
 import { IColumn, ConstrainMode, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
 
 
@@ -25,8 +25,8 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
     const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
     return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
-        <button className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</button>
-        <button className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</button>
+        <Button variant="raised" className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</Button>
+        <Button  variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</Button>
 
         <ul key="pagination-list" className="pagination-list">
 
@@ -37,7 +37,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                         n == p.totalPages - 1 && ((p.totalPages - targetPageIndex) >= (defaultNormalPageCount * 2) - 1)
                         && ellipsis,
                         <li key={n} className="">
-                            <a
+                            <Button variant="flat"
                                 className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}
                                 onClick={e => {
                                     if (p.loadingPageIndex > 0) return;
@@ -45,7 +45,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
                                 }
 
                                 }
-                            >{n + 1}</a>
+                            >{n + 1}</Button>
                         </li>,
                         n == 0 && (targetPageIndex >= (defaultNormalPageCount * 2) - 1) && ellipsis
                     ]

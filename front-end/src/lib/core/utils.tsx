@@ -1,3 +1,4 @@
+/// <reference path="../../dts/globals.d.ts" />
 import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 import { diff } from 'rus-diff';
@@ -107,7 +108,7 @@ export const Utils = {
 			return <div style={{ 'width': icon.width }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
 		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
 	},
-	defaultGetId: ({ id }) => id,
+	defaultGetId: (row) => row.id,
 	setNoWarn(v) {
 		OrganicUI.Utils['noWarn'] = v;
 	},
@@ -194,6 +195,9 @@ export const Utils = {
 		if (max !== undefined) value = Math.min(value, max);
 		if (min !== undefined) value = Math.min(value, min);
 		return value;
+	},
+	isUndefined(value){
+		return value===false || value===undefined || value===null;
 	},
 	sumValues(numbers: number[]) {
 		return numbers.reduce((a, b) => a + b, 0);

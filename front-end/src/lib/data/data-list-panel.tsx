@@ -93,15 +93,22 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         return [Utils.renderButtons(customBar, {
             callback
         })].concat([<Button
-
-            className="delete-button" disabled={!this.state.selectedItem} onClick={() => this.doAction('delete')}>{i18n('delete')}</Button>])
+            disabled={!this.state.selectedItem}
+            className="delete-button" onClick={() => this.doAction('delete')}>{i18n('delete')}</Button>])
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));
         this.repatch({ selectedItem, selectedItemIndex })
     }
-    doAction(actionId: 'add' | 'edit' | 'delete') {
-        this.repatch({ targetSelector: `.${actionId}Button` });
+    doAction(actionId: ('add' | 'edit' | 'delete')) {
+        this.doTargetClick(`.${actionId}-button`);
+    }
+    doTargetClick(targetSelector: string) {
+
+        if (targetSelector && targetSelector.includes('add')) {
+            this.targetItem = {};
+        }
+        this.repatch(this.state.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });
     }
     render(p = this.props, s = this.state) {
         this.selection = this.selection || new Selection({ selectionMode: SelectionMode.single });
@@ -144,16 +151,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
             setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataFormWrapper']), 100) as any;
 
 
-        const targetClick = (targetSelector: string) => () => {
-            if (targetSelector && targetSelector.includes('add')) {
-                this.targetItem = {};
 
-            }
-
-            this.repatch(s.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });
-        }
         s.targetSelector = s.targetSelector || '';
         if (s.targetSelector.includes('add')) s.selectedItem = null;
+        const targetClick = s => () => this.doTargetClick(s);
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
             <DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
         !p.customBar && !p.avoidEdit &&
@@ -162,20 +163,29 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         <DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
         !!this.dataList && <hr style={{ margin: '4px 0' }} />,
         !!this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
-        !!p.children && s.isOpen &&
-        React.createElement((DataListPanel.formModes[p.formMode] || Callout) as any, {
+        !!p.children && s.isOpen && this.renderCallout(callOutTarget)]
+
+            .filter(x => !!x);
+
+        return <div className={Utils.classNames("data-list-panel-wrapper bindable", p.className)} ref="root" style={p.style}>{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
+    }
+    renderCallout(target) {
+        const s = this.state, p = this.props;
+        return React.createElement((DataListPanel.formModes[p.formMode] || Callout) as any, {
             className: "data-list-panel-fields",
             ref: "panel",
             isOpen: s.isOpen, dialogDefaultMinWidth: '400px', dialogDefaultMaxWidth: '500px',
             type: PanelType.large,
             hasCloseButton: false,
             onDismiss: () => this.repatch({ isOpen: false, targetSelector: null }),
-            target: callOutTarget
+            target
         } as any, (
                 <div style={{ padding: '10px 20px' }}>
                     <div className="columns">
-                        <div className="column   is-11 ms-font-xl" style={{ display: 'flex', alignItems: 'center' }}>
-                            {Utils.i18nFormat(s.targetSelector.concat('-header-fmt').replace('.', '').replace('-button', ''), p.singularName)}
+                        <div className="column   is-11   " style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="title is-3">
+                                {Utils.i18nFormat(s.targetSelector.concat('-header-fmt').replace('.', '').replace('-button', ''), p.singularName)}
+                            </div>
                         </div>
                         <div className="column" style={{ 'flex': 1, fontSize: '15pt' }} dir="ltr" >
                             <a href="#" className="close" onClick={e => {
@@ -185,15 +195,22 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                         </div>
 
                     </div>
-                    <div ref="dataFormWrapper">
-                        {React.createElement(DataForm,
+
+                    <div ref="dataFormWrapper" className="half-column-fields">
+                        {s.targetSelector && !s.targetSelector.includes('delete') && React.createElement(DataForm,
                             {
                                 ref: "dataForm",
                                 onFieldRead: fieldName => this.targetItem[fieldName],
                                 onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value,
                                 onErrorCode: p.onErrorCode,
                                 validate: s.validated
-                            }, p.children)}
+                            },
+                            React.Children.toArray(p.children)
+                                .filter(fld => fld && fld['type'] == Field)
+                                .filter(fld =>
+                                    !Utils.isUndefined(this.targetItem[Field.getAccessorName(fld['props']['accessor'])])))
+                        }
+
                     </div>
                     <footer>
                         {!s.selectedItem
@@ -267,9 +284,6 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     </footer>
                     {!!this.state.message && <div> <MessageBar messageBarType={this.state.message.type} >{this.state.message.text} </MessageBar>
                     </div>}
-                </div>))
-        ].filter(x => !!x);
-
-        return <div className={Utils.classNames("data-list-panel-wrapper bindable", p.className)} ref="root" style={p.style}>{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
+                </div>));
     }
 }

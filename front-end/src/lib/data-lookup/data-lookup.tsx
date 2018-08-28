@@ -13,7 +13,7 @@ import OrganicBox from '../box/organic-box';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from '../controls/inspired-components';
 import { DataLookupModal } from './data-lookup-modal';
- 
+
 
 interface DataLookupState {
     isOpen?: boolean;
@@ -126,9 +126,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     }
 
     handleSelectionChanged(indices: number[], index) {
-          const listViewBox = this.getListViewBox();
+        const listViewBox = this.getListViewBox();
         if (listViewBox.state.readingList) return;
-        const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
+        const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items && listViewBox.refs.dataList.items.filter(x => !!x);
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
         let { selectedValueDic } = this.state;
@@ -238,7 +238,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.repatch({ value, selectedValueDic });
         this.props && this.props.onChange instanceof Function && this.props.onChange(value);
     }
-    setValue(value){
+    setValue(value) {
         this.handleSetValue(value);
     }
     handleRemoveClick(e: React.MouseEvent<HTMLElement>) {
@@ -314,7 +314,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             onAppend: this.handleAppend.bind(this),
             onApply: this.handleApply.bind(this),
             dataLookupProps: p,
-            reversed:!!p.popOverReversed
+            reversed: !!p.popOverReversed
         }, listViewElement);
         return <div className="list-view-container" ref="listViewContainer">{popupElement}</div>
 
@@ -348,17 +348,17 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         this.adjustEditorPadding();
 
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
-          console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
-          const children:any[]=p.children && React.Children.toArray(p.children);
-           return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
-   style={p.style}     >
+        console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
+        const children: any[] = p.children && React.Children.toArray(p.children);
+        return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
+            style={p.style}     >
             {innerText instanceof Promise && <span className="spinner-container"> <Spinner /></span>}
-            <div  className="editor" ref="editorWrapper">{textField}</div>
+            <div className="editor" ref="editorWrapper">{textField}</div>
             {(p.onDisplayText || maxWidthForTextOverflow) &&
                 (p.onDisplayText || innerText instanceof Array) &&
                 <div className="inner-text" ref="innerText">
                     <div className="text " >
-                        <span ref="innerTextSpan" className="selected-items" style={{ maxWidth: maxWidthForTextOverflow + "px" }}>
+                        <span ref="innerTextSpan" className="selected-items" style={{ maxWidth: maxWidthForTextOverflow + "px", display: p.bellowList ? 'none' : null }}>
                             {p.bellowList && (p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) :
                                 Utils.joinElements(innerText, ' ,')
                             )}
@@ -372,9 +372,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
                     {Utils.showIcon(this.props.iconCode, 'icon activate-focused-only')}
                 </div>}
-                <span className="action-buttons">
-                {children instanceof Array && children.filter(c=>c.type && c.type['isDataLookupButton'])}
-                </span>
+            <span className="action-buttons">
+                {children instanceof Array && children.filter(c => c.type && c.type['isDataLookupButton'])}
+            </span>
             {p.popupMode && p.popupMode.renderButtons(p, { onClick: this.handleClick })}
             {this.renderPopOver()}
             {!!p.bellowList && this.renderBelowList()}
