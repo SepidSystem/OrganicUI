@@ -1,8 +1,9 @@
 import { reinvent } from "./reinvent";
 import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
-function classFactory<TData, TState=any>(options: OrganicUi.IDashboardWidgetOptions):
-    OrganicUi.IDashboardWidgetReinvent<TData, TState> {
+ 
+function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptions):
+    Reinvent.IDashboardWidgetReinvent<TData, TState> {
     const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer', 'size'];
     const AClass = reinvent.baseClassFactory({ chainMethods, className: 'dashboard-widget' });
     const reactClass: typeof React.Component = AClass;
