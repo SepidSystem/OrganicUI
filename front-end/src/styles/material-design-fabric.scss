@@ -155,7 +155,7 @@
 
 .field.focused:not(.no-material) .label,
 .field.has-value:not(.no-material) .label {
-    top: -0.5rem;
+    top: -0.5rem !important;
     line-height: 1rem;
     * {
         font-size: 1rem !important;
@@ -293,7 +293,7 @@
         }
     }
     .field.has-value:not(.no-material) .label {
-        top: -0.5rem;
+        top: -0.5rem !important;
     }
 }
 
