@@ -8,7 +8,9 @@ after many years in SPA development, software companies arrive to mature approac
 
 ### **domain (or application)**
 - handle easier works
+- focus on enjoyable-code,productivity,clean-code,code-conversion  
 - specify application entities(DTO) by `interface`
+- avoid using any(directly) , specify type in local-variables,parameter
 - define modules by `reinvent` 
 - consist code for domain modules by template
 - follow Functional Programming(70%) & OOP(30%) for developing paradigm
@@ -24,7 +26,7 @@ after many years in SPA development, software companies arrive to mature approac
 MVC is common methodology to application development,The Model-View-Template (MVT) is slightly different from MVC.Template is helper for view component , In `view` you should return VDOM in Fragmented Element .
 
 ```tsx
-  import {reinvent} from '@reinvent'
+  import {reinvent} from '@reinvent' // FP* Use Pure Function
   reinvent('frontend:blank'). /* Specify Template */
     renderer(
       ()=>(<>Hello World</>)  /* Return View */
@@ -33,7 +35,7 @@ MVC is common methodology to application development,The Model-View-Template (MV
 ```
 
 ```tsx
-  import {templatedView} from '@reinvent'
+  import {templatedView} from '@reinvent' // OOP * Use Decorator for leverage templating
    class HelloWorldModel extends  React.Component<never,never>{  // Model
     @templetedView('blank')   // Template 
     render(){ // View 
@@ -51,12 +53,12 @@ reinvent is code-style for developing domain,it try to simpler system elements i
 - eaiser to develop ( use Functional-Programming for default approach) 
 - carefully overriding (avoid mistyping method identifers ) 
 - debugging feature 
-- data binding feature with intellisense fields  and compile-time error for illegal-binding
+- data binding feature with intellisense fields and compile-time error for illegal-binding
 
-*sample-module*
+**quick-sample**
 ```tsx
 import { DepartmentsController as actions } from "./sepid-rest-api";
-import { Field,  IOptionsForCRUD, StatelessSingleView, StatelessListView } from '@organic-ui';
+import { Field,  IOptionsForCRUD } from '@organic-ui';
 import {  DataList, DataPanel, i18n } from '@organic-ui';
 const options: IOptionsForCRUD = {
     routeForSingleView: '/view/admin/department/:id',
@@ -121,9 +123,17 @@ Organic-ui almost is component-set for application(domain) development, it has f
 
 ##  Framework Folders Structure
 ### **/src/dts**
+- declare module '@organic-ui' in organic-ui.d.ts
+- declare module '@reinvent' in reinvent.d.ts
+- declare React,Organic-UI globally by UMD in globals.d.ts
 ### **/src/lib/core**
+
 ### **/src/lib/box**
+- single-view template in 'single-view-box.tsx'
+- list-view template in 'single-view-box.tsx'
+- 
 ### **/src/lib/data-lookup**
+
 ### **/src/lib/dev-tools**
 ### **/src/lib/controls**
 ### **/src/styling**
