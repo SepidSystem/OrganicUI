@@ -66,20 +66,21 @@ declare namespace Reinvent {
         editor(tester: (fieldName: string) => boolean, element: React.ReactElement<any>): IEditorReinvent;
         fragment(element: React.ReactElement<React.ReactFragment>): IEditorReinvent;
     }
-    export    interface reinvent {
+    export interface reinvent {
 
         <TLoadParam, TData>(type: 'frontend:dashboard:widget', options: IDashboardWidgetOptions): IDashboardWidgetReinvent<TLoadParam, TData>;
         <TDto>(type: 'frontend:crud', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: OrganicUi.IOptionsForCRUD }): IReinventForCRUD<TDto>;
         <TDto>(type: 'frontend:report', opts: { actions: OrganicUi.IActionsForCRUD<TDto>, options: OrganicUi.IOptionsForCRUD }): IReinventForCRUD<TDto>;
         <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
+        <TState>(type: 'frontend:monitoring', { interval }): IBaseFrontEndReinvent<TState>;
         (type: 'frontend:editor'): IEditorReinvent;
+
         query(selector): any[];
         utils: {
             listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
             showDialogForAddNew(componentType): (() => Promise<any>);
         }
-        templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
-        openBindingHub<T>(): BindingHub<T>;
+          openBindingHub<T>(): BindingHub<T>;
     }
     export interface BindingPoint {
         __name: string;
@@ -89,7 +90,10 @@ declare namespace Reinvent {
         [P in keyof T]?: T[P] extends (object | object[]) ? BindingHub<T[P]> :
         BindingPoint;
     };
-    export function  templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    type TemplateName= 'singleView' | 'listView'| 'report-view';
+    export function templatedView<T>(templName: TemplateName, opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    export function templatedView<TProps>(method: React.SFC<TProps>): (templName:TemplateName, props) => React.SFC<TProps>;
+
     export function openBindingHub<T>(): BindingHub<T>;
     const utils: {
         listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;

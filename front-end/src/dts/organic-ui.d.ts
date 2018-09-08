@@ -2,7 +2,7 @@
 /// <reference path="../dts/globals.d.ts" />
 /// <reference path="./reinvent.d.ts" />
 
- 
+
 
 declare namespace OrganicUi {
     export interface ResultSet<T> {
@@ -10,7 +10,7 @@ declare namespace OrganicUi {
     }
     type PartialForcedType<T, FT> = {
         [P in keyof T]?: FT;
-    };
+    } | (keyof T)[];
     export interface IDataFormAccessorMsg {
         accessor: string;
         message: any;
@@ -49,12 +49,10 @@ declare namespace OrganicUi {
         props: P;
         state: S;
         autoUpdateState: PartialFunction<S>;
-        nodeByRef<T = any>(refName: string): T;
         repatch(delta: Partial<S> & { debug?}, target?);
         querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[];
         setPageTitle(title);
         renderErrorMode(title, subtitle);
-        evaluate<T>(args: string | { refId }, cb: (ref: T) => any);
         defaultState(delta: Partial<S>);
     }
     export function CriticalContent(p: { permissionKey: string, children?}): JSX.Element;
@@ -66,6 +64,7 @@ declare namespace OrganicUi {
     }
     export interface IFieldProps<TColProps=any> {
         accessor?: string | Reinvent.BindingPoint;
+        role?: string;
         showOpeartors?: boolean;
         operators?: string[];
         onGet?, onSet?: Function;
@@ -149,7 +148,9 @@ declare namespace OrganicUi {
         skinDeepRender<T>(type: React.ComponentType<T>, params: T): JSX.Element;
         scanElement(element: React.ReactElement<any>, tester: (element) => boolean): JSX.Element;
         diff(a, b): any;
+        getCascadeAttribute(element: HTMLElement, attributeName: string, errorRaised?: boolean): string;
         enumToIdNames(enumType: any): ({ Id, Name }[]);
+        addDays(date: Date, days: number): Date;
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -183,8 +184,8 @@ declare namespace OrganicUi {
         target: string;
         hasSubMenu: boolean;
         parentId: number;
-        selectionLink:string;
-      
+        selectionLink: string;
+
         constructor(id: number,
             title: string,
             routerLink: string,
@@ -254,10 +255,7 @@ declare namespace OrganicUi {
     interface IActionsForReport {
         read: ReportReadMethod;
     }
-    interface IOptionsForReportViewBox {
-        title: string;
-    }
-    export function ReportViewBox(p: OrganicBoxProps<IActionsForReport, IOptionsForReportViewBox, any>): JSX.Element;
+
     interface ComboBoxProps {
         value?: any;
         onChange?: any;
@@ -268,6 +266,7 @@ declare namespace OrganicUi {
 
 
     export const DataList: React.SFC<OrganicUi.IDataListProps<any>>;
+    export const DataTreeList: React.SFC<OrganicUi.IDataListProps<any> & Partial< OrganicUi.ITreeListProps>>;
     interface IDataPanelProps {
         header: any;
         primary?: boolean;
@@ -318,6 +317,8 @@ declare namespace OrganicUi {
         selectedId?: any;
         corner?: any;
         onSelectionChanged?: Function;
+        customReadList?: Function;
+        customReadListArguments?: any[];
         defaultSelectedValues?: () => { [key: number]: true };
         getValue?: () => any;
         setValue?: (value) => void;
@@ -329,7 +330,7 @@ declare namespace OrganicUi {
     export interface ISingleViewParams {
         id;
         onNavigate?: (id) => Promise<any>;
-        noTitle?:boolean;
+        noTitle?: boolean;
     }
     export type StatelessListView = React.SFC<IListViewParams>;
     export type StatelessSingleView = React.SFC<ISingleViewParams>;
@@ -343,16 +344,25 @@ declare namespace OrganicUi {
     export interface IModule {
         setup(opts);
     }
+    type TreeNodeType = number | string;
     export interface ITreeListNode {
-        text, key, parentKey, isLeaf?, type, extraValue?;
-        expaneded?: boolean
+        text: React.ReactNode;
+        key: TreeNodeType;
+        parentKey: TreeNodeType;
+        isLeaf?: boolean;
+        checkBoxStatus?, extraValue?;
     }
     export interface ITreeListProps {
         value?: ITreeListNode[];
         onChange?: (nodes) => any;
-        height: number;
+        height?: number;
         nodes: ITreeListNode[];
-
+        showCheckBoxes?: boolean;
+        getNodeClass?: (item: ITreeListNode) => string;
+        onNodeClick?: (e: React.MouseEvent<HTMLElement>) => void;
+        mapping?: { key: string, parentKey: string, text: string };
+        onGetCheckBoxStatus?:(node)=>any;
+        onChangeCheckBoxStatus?:(node,newState)=>void;
     }
     export interface IRegistry<T> {
         data: any;
@@ -411,7 +421,7 @@ declare namespace OrganicUi {
         id: number;
         title: string;
         routerLink: string;
-        selectionLink:string;
+        selectionLink: string;
         href: string;
         icon: string;
         target: string;
@@ -446,6 +456,7 @@ declare namespace OrganicUi {
     export interface IDataListProps<T=any> {
         itemHeight?: number;
         onLoadRequestParams?: Function;
+        multiple?: boolean;
         loader?: (req: IDataListLoadReq) => Promise<IListData>;
         onDoubleClick?: () => void;
         onCurrentRowChanged?: (row: any) => any;
@@ -463,8 +474,9 @@ declare namespace OrganicUi {
         flexMode?: boolean;
         startWithEmptyList?: boolean;
         className?: string;
-        
+        customDataRenderer?: (items: any[], dataList?: BaseComponent<OrganicUi.IDataListProps<any>>) => JSX.Element;
         detailsListProps?: T;
+        selection?: any;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
 
@@ -493,13 +505,15 @@ declare namespace OrganicUi {
         popupMode?: DataLookupPopupMode;
         bellowList?: boolean;
         appendMode?: boolean;
-        popOverReversed?:boolean;
-        style?:React.CSSProperties;
+        popOverReversed?: boolean;
+        style?: React.CSSProperties;
+        customReadList?: Function;
+        customReadListArguments?: any[];
     }
     export interface IDataLookupPopupModeProps {
         isOpen: boolean;
         target: HTMLElement;
-        reversed:boolean;
+        reversed: boolean;
         onClose: Function;
         onApply: Function;
         onAppend: Function;
@@ -641,9 +655,8 @@ declare module '@organic-ui' {
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
-    export const ReportViewBox: typeof OrganicUi.ReportViewBox;
     export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
-    export const DatePicker: React.SFC<{value?,popOverReversed?,style?:CSSProperties}>;
+    export const DatePicker: React.SFC<{ value?, popOverReversed?, style?: CSSProperties, onChange?}>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
@@ -655,6 +668,7 @@ declare module '@organic-ui' {
     }
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export const DataList: React.SFC<OrganicUi.IDataListProps<IDetailsListProps>>;
+    export const DataTreeList:typeof OrganicUi.DataTreeList;
     export const DataPanel: typeof OrganicUi.DataPanel;
     export const DataListPanel: typeof OrganicUi.DataListPanel;
     export const FilterPanel: typeof OrganicUi.FilterPanel;
