@@ -47,7 +47,7 @@ export class TimeEdit extends BaseComponent<ITimeEditProps, IState>{
 
         return <TextField   dir="ltr" style={{direction:'ltr'}}
             value={this.state.value} placeholder={p.keepSeconds ? '00:00:00' : '00:00'}
-            onChange={e => { this.state.value = e.target.value, p.onChange instanceof Function && p.onChange(e) as any }}
+            onChange={e => { this.state.value = e.target.value, p.onChange instanceof Function && p.onChange(e as any) as any }}
             onBlur={() => this.tryToFixValue()}
         />
     }
