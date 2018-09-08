@@ -1,5 +1,5 @@
 import { openRegistry } from "./registry";
-export const i18n = openRegistry<React.ReactNode>((registeredText, key) => (registeredText = registeredText || key, <span title={key} key={key} className="i18n" >{registeredText}</span>));
+export const i18n = openRegistry<React.ReactNode>((registeredText, key) => (registeredText = registeredText || key, <span title={key} key={key} className={"i18n" + (/[a-z]/.test(key ? key[0] : '') && registeredText == key ? ' en' : '')} >{registeredText}</span>));
 export const i18nAttr = key => i18n.get(key);
 export const extraSheets = openRegistry<() => React.ReactNode>();
 export const icon = openRegistry<any>((registeredIcon, key) => (registeredIcon = registeredIcon || 'mi-gesture', <span className="icon"><i title={key} className={[registeredIcon.split('-')[0], registeredIcon].join(' ')} /></span>));
