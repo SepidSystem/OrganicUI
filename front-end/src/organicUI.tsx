@@ -42,10 +42,9 @@ export { DataTreeList } from './lib/data/data-tree-list';
 //----- Import Box Lib ** Advanced Level
 export { default as OrganicBox } from './lib/box/organic-box';
 export { SingleViewBox } from './lib/box/single-view-box';
-import './lib/box/report-view-box';
 export { ViewBox } from './lib/box/view-box';
 export { DashboardBox } from './lib/box/dashboard-box';
-
+export { ReportViewBox } from './lib/box/report-view-box';
 export { ListViewBox } from './lib/box/list-view-box';
 //----- Import Reinvent  
 export { reinvent } from './lib/reinvent/reinvent';
