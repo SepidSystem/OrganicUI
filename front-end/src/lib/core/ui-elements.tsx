@@ -91,7 +91,7 @@ interface IAdvButtonProps {
     primary?: boolean;
     type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
     size?: 'small' | 'medium' | 'large';
-    onClick?: (e:React.MouseEvent<any>) => any;
+    onClick?: (e: React.MouseEvent<any>) => any;
     fixedWidth?: boolean;
     className?: string;
     calloutWidth?: number;
@@ -106,38 +106,40 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
     closeCallOut() {
         this.repatch({ callout: null });
     }
+    handleClick(e: React.MouseEvent<any>) {
+        const s = this.state, p = this.props, { repatch } = this;
+        e.preventDefault();
+        if (s.callout) return this.repatch({ callout: null });
+        const asyncClick = async () => {
+            const resultAsync: any = (p.onClick instanceof Function) && p.onClick(e);
+            if (resultAsync instanceof Promise) {
+                this.repatch({ isLoading: true, callout: null });
+
+                resultAsync.catch(error => {
+                    console.log('Advanced Button Error>>>>>', error);
+                    repatch({ isLoading: false, callout: null, isError: true });
+                    repatch({ isError: false }, null, 2000);
+
+                    return error;
+                })
+                Promise.all([resultAsync])
+                    .then(([result]) => {
+
+                        const lastMod = +new Date();
+                        React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
+                        React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
+                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
+                    });
+            }
+        }
+        !s.isLoading && asyncClick();
+
+    }
     render(p = this.props, s = this.state, repatch = this.repatch) {
         const className = Utils.classNames("adv-button", p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size);
         const advButton = <Button className={className}
             {...p}
-            onClick={e => {
-                e.preventDefault();
-                if (s.callout) return repatch({ callout: null });
-                const asyncClick = async () => {
-                    const resultAsync :any=(  p.onClick instanceof Function) && p.onClick(e);
-                    if (resultAsync instanceof Promise) {
-                        repatch({ isLoading: true, callout: null });
-
-                        resultAsync.catch(error => {
-                            console.log('Advanced Button Error>>>>>', error);
-                            repatch({ isLoading: false, callout: null, isError: true });
-                            repatch({ isError: false }, null, 2000);
-
-                            return error;
-                        })
-                        Promise.all([resultAsync])
-                            .then(([result]) => {
-
-                                const lastMod = +new Date();
-                                React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
-                                React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                                !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
-                            });
-                    }
-                }
-                !s.isLoading && asyncClick();
-            }
-            }
+            onClick={this.handleClick.bind(this)}
         >
             {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
@@ -216,7 +218,7 @@ function panel(p: OrganicUi.IPanelProps, s: OrganicUi.IPanelProps, repatch: Func
             </div>}
             <div key="content" className="  panel-content">
                 {children && children.map(c => {
-                    if(!c) return ;
+                    if (!c) return;
                     const props = Object.assign({}, c.props || {}) || {};
                     if (p.classNamePerChild) {
                         Object.assign(props, { className: p.classNamePerChild });
