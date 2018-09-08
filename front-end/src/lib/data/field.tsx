@@ -4,7 +4,7 @@ import { changeCase, Utils } from '../core/utils';
 import { DataForm } from "../data/data-form";
 import { IComponentRefer, IFieldProps } from "@organic-ui";
 import { Menu, MenuItem } from "../controls/inspired-components";
-
+import * as errorIcon from '../../../icons/ic_error.svg';
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -27,6 +27,7 @@ export interface FilterItem {
 }
 const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'];
 export class Field extends BaseComponent<IFieldProps, IFieldState>{
+    static isField=true;
     focus() {
         const inputElement = this.getInputElement('default') as any;
         inputElement && inputElement.focus && inputElement.focus();
@@ -51,7 +52,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     }
     getFilterItem(): FilterItem {
 
-        const op = (this.state.currentOp || 'LIKE').toLowerCase();
+        const op = (this.getCurrentOp() || 'LIKE').toLowerCase();
         const p = this.props;
         return Object.assign({},
             {
@@ -247,7 +248,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         let inputElement = this.getInputElement('default');
         const inputElementType: any = (inputElement && inputElement.type) || {};
         const classNameFromInputType = inputElementType['field-className'];
-        if (inputElement && !inputElement.props) return <>{p.children}</>;
+        if (inputElement && !inputElement.props) {
+
+            return <>{p.children}</>;
+        }
         this.changeEvent = this.changeEvent || (inputElement && this.createHandleSetData('default', inputElement.props.onChange));
         this.blurEvent = this.blurEvent || (inputElement && this.createBlurEvent(inputElement.props.onBlur));
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
@@ -288,17 +292,27 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             this.fixedClientWidth = root.clientWidth;
         if (s.messages && s.messages[0]) this.fixedClientWidth = undefined;
         if (p.onlyInput) return inputElement;
-        const hasValue = (this.extractedValues && this.extractedValues['default'] !== undefined) && (this.extractedValues && this.extractedValues['default'] !== null);
+        const hasValue = (this.extractedValues && !Utils.isUndefined(this.extractedValues['default']));
         const { fixedClientWidth } = this;
         const style: React.CSSProperties = !p.disableFixedWidth && !!fixedClientWidth ? {
             maxWidth: `${fixedClientWidth}px`,
             width: `${fixedClientWidth}px`,
             minWidth: `${fixedClientWidth}px`
         } : {};
-        this.operators = this.operators || p.operators || inputElementType['filterOperators'] || defaultOperators;
-        return (<div ref="root" key="root" className={Utils.classNames("field-accessor", classNameForField)} style={style} >
+        this.operators = this.operators || inputElementType['filterOperators'] || defaultOperators;
+        let classNameForRoot = Utils.classNames("field-accessor", classNameForField, hasError && 'has-error');
+        let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
+        const { adjustFieldClassName } = (inputElementType || {}) as any;
+        if (adjustFieldClassName instanceof Function) {
+              [classNameForRoot, className] = adjustFieldClassName(inputElement.props, classNameForRoot, className);
+        }
+        return (<div ref="root" key="root"
+            data-accessor-name={Field.getAccessorName(p.accessor)}
+            data-message={s.messages && s.messages[0] && s.messages[0].message}
+            className={classNameForRoot} style={style} >
+            {hasError && <div style={{ width: '1.71rem' }} className="error-icon" dangerouslySetInnerHTML={{ __html: errorIcon }}></div>}
 
-            <div ref="container" key="container" className={Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className)}>
+            <div ref="container" key="container" className={className}>
 
                 <label key="label" className="label">{label}</label>
                 <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
@@ -313,17 +327,15 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
                 </div>
 
-
-
-                {!!p.showOpeartors && <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
-                    {this.fixedClientWidth && root && s.messages && s.messages[0] &&
-                        <p style={{ width: `${this.fixedClientWidth}px`, maxWidth: `${this.fixedClientWidth}px` }} className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
+                {!p.showOpeartors && <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
+                    {s.messages && s.messages[0] &&
+                        <p className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
                 </div>}
                 {!!p.showOpeartors && <a tabIndex={-1} ref="op"
 
 
-                    className="op" style={{ width: !!s.operatorsMenuIsOpen ? '100%' : 'auto', display: 'flex', alignItems: 'center' }} onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
+                    className="op" style={{ display: 'flex', alignItems: 'center' }} onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
                     <i className="fa fa-ellipsis-v" style={{ margin: '2px 0px 0 5px' }}></i>
                     {i18n('operator-' + this.getCurrentOp())}</a>}
                 {!!s.operatorsMenuIsOpen && <Menu
@@ -376,6 +388,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.repatch({ operatorsMenuIsOpen: true });
     }
     processDOM() {
+        const { root } = this.refs;
+        root && Array.from(root.querySelectorAll('.error-icon svg title')).forEach(
+            title => title.innerHTML = root.getAttribute('data-message')
+        )
         this.refs.op && (this.refs.op.tabIndex = -1);
         ['default', 'alt'].forEach(key => {
             let value = this.handleGetData(key);
@@ -408,6 +424,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             }
         });
+
     }
     componentDidMount() {
         super.componentDidMount();
@@ -425,11 +442,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (val instanceof Array && val.length == 0) val = undefined;
         const message = ((p.messages || []).filter(msg => msg.type == 'danger').map(msg => msg.message)[0])
 
-            || (p.required && typeof val != 'number' && !val && 'error-required')
+            || (p.required && Utils.isUndefined(val) && 'error-required')
             || (p.onErrorCode instanceof Function) && p.onErrorCode(val);
         const s = Field.getLabelText(p.accessor, p.label);
         const result = message && Utils.i18nFormat(message, s);
-        console.log({ message, result, s });
         return result;
 
     }

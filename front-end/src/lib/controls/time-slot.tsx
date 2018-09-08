@@ -240,7 +240,7 @@ class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
                 {this.renderRanges()}
             </div>
             <footer className="is-centered">
-                <Button fullWidth color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  >{Utils.showIcon('fa-check')}{i18n('apply')}  </Button >
+                <Button fullWidth color="primary" variant="raised" onClick={() => this.props.onOkeyClick(this.state.ranges)}  > {i18n('apply')}  </Button >
 
             </footer>
         </AdvSection>

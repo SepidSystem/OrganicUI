@@ -14,7 +14,7 @@ import { IAppModel, ITreeListNode } from "@organic-ui";
 import { NotFoundView } from "./404";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import theme from '../../styles/theme';
- 
+
 let afterLoadCallback: Function = null;
 export const setAfterLoadCallback = (callback: Function) => afterLoadCallback = callback;
 export const appData: {
@@ -107,7 +107,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
                 const criticalArray = Array.from(temp.querySelectorAll('.critical-content'));
                 const treeList: ITreeListNode[] =
                     criticalArray.map(ele => ele.getAttribute('data-key'))
-                        .map(key => ({ key, text: i18n.get(key), parentKey: url, type: 0 }));
+                        .map<ITreeListNode>(key => ({ key, text: i18n.get(key), parentKey: url, checkBoxStatus: 0 }));
                 if (treeList.length) {
                     treeList.unshift({
                         key: url,
@@ -115,7 +115,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
                         text: Array.from(temp.querySelectorAll('.page-title-value')).map(p => p.getAttribute('data-page-title')).join('')
 
                             || url,
-                        type: 0
+                        checkBoxStatus: 0
                     })
                 }
                 result.push(...treeList);
