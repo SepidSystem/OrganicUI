@@ -104,7 +104,7 @@ export const Utils = {
 		return format(text, args);
 	},
 	showIcon(icon, className?: string) {
-		if (icon&&  (icon.svg))
+		if (icon && (icon.svg))
 			return <div style={{ 'width': icon.width }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
 		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
 	},
@@ -174,6 +174,7 @@ export const Utils = {
 	},
 	simulateClick(elem) {
 		// Create our event (with options)
+
 		var evt = new MouseEvent('click', {
 			bubbles: true,
 			cancelable: true,
@@ -181,6 +182,14 @@ export const Utils = {
 		});
 		// If cancelled, don't dispatch our event
 		return !elem.dispatchEvent(evt);
+	}, simulateBlur(relatedTarget) {
+		// Create our event (with options)
+		if (!relatedTarget) return;
+		var evt = new FocusEvent('blur', {
+			relatedTarget
+		});
+		// If cancelled, don't dispatch our event
+		return !relatedTarget.dispatchEvent(evt);
 	},
 	merge<T>(...args: Partial<T>[]): T {
 		return args.reduce((accumulator, obj) => Object.assign(accumulator, obj), {}) as T;
@@ -196,8 +205,8 @@ export const Utils = {
 		if (min !== undefined) value = Math.min(value, min);
 		return value;
 	},
-	isUndefined(value){
-		return value===false || value===undefined || value===null;
+	isUndefined(value) {
+		return value === undefined || value === null || value === '';
 	},
 	sumValues(numbers: number[]) {
 		return numbers.reduce((a, b) => a + b, 0);
@@ -270,7 +279,7 @@ export const Utils = {
 		customCaptions = customCaptions || {};
 		return [{ Id: undefined, Name: '' }].concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
-			.map(Name => ({ Id: enumType[Name], Name: customCaptions[Name] || i18n.get(changeCase.paramCase(   Name) ) || changeCase.paramCase(   Name) || Name })))
+			.map(Name => ({ Id: enumType[Name], Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name })))
 	},
 	equals(left, right) {
 		const result = left == right;
@@ -289,6 +298,19 @@ export const Utils = {
 		const result = +s;
 		if (Number.isNaN(result)) return s;
 		return result;
+	},
+	addDays(date, days) {
+		const result = new Date(date);
+		result.setDate(date.getDate() + days);
+		return result;
+	},
+	getCascadeAttribute(element: HTMLElement, attributeName: string, errorRaised?: boolean) {
+		while (element) {
+			if (element.hasAttribute(attributeName))
+				return element.getAttribute(attributeName);
+			element = element.parentElement;
+		}
+		if (!!errorRaised) throw `getCascadeAttribute fail for ${attributeName}`;
 	}
 }
 import * as changeCaseObject from 'change-case-object'
