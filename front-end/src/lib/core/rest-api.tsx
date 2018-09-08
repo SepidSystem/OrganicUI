@@ -64,8 +64,9 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
 
 
             }, error => {
-                console.log(error.response || error);
-                return Promise.reject(error.response || error);
+                const errorData = error.response && [400, 500].includes(error.response.status) && (error.response.data);
+                // error = errorData || error.response || error;
+                return options.rejectHandler instanceof Function ? options.rejectHandler(errorData, error) : Promise.reject(errorData || error);
             }).then(result => afterREST instanceof Function ? afterREST({ url, data, method, result }) : result);
         Object.assign(result, { url, method, data });
         return result;
