@@ -28,7 +28,6 @@
         justify-items: center;
         justify-content: center;
         height: 50px;
-        
     }
     .part1 {
         width: 50px;
@@ -45,11 +44,17 @@
     .part4 {
         width: 40px;
         float: right;
-        margin-top:3px;
+        margin-top: 3px;
         margin-left: 5px;
     }
     span {
         background: transparent !important;
         font-size: 32px;
     }
+}
+
+.last-attendance {
+    .data   {
+        font-size: 3.43rem !important;
+    } 
 }

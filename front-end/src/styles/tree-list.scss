@@ -1,13 +1,24 @@
 .tree-list {
     overflow-y: scroll;
-    width:100%;
+    width: 100%;
+    font-size: 1.71rem;
     li {
         list-style: none;
         display: flex;
         flex-wrap: wrap;
     }
+    li>.node {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    li.selected>.node {
+        background: #04a0dc;
+        color: white;
+        text-shadow: 0 0 1px #444;
+    }
     .fa {
-        cursor: ponter;
+        cursor: pointer;
     }
     .choice-flag {
         display: none;
@@ -15,40 +26,46 @@
     .node:hover .choice-flag {
         display: inline-block;
     }
-    .node>span{
+    .node>span {
         max-height: 25px !important;
     }
     .choices {
         padding: 2px 20px;
     }
-    .expandIcon{
-        min-width:32px;
+    .expand-icon {
+        min-width: 32px;
+        display: flex;
+        align-content: center;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 7px;
+        border-radius: 100%;
     }
-    li.leaf .expandIcon {
+    li.leaf .expand-icon {
         visibility: hidden;
     }
     .subitems {
         padding: 0 20px;
-        width:100%;
+        width: 100%;
     }
-    .expandIcon>i {
+    .expand-icon i {
         display: none;
     }
     li.expanded {
         ul.subitems {
             display: block;
         }
-        >.expandIcon>.fa-chevron-left {
-            display: inline-block;
-        }
+    }
+    .expand-icon.collapsed .fa-chevron-left {
+        display: inline-block;
     }
     li.collapsed {
         ul.subitems {
             display: none;
         }
-        >.expandIcon>.fa-chevron-down {
-            display: inline-block;
-        }
+    }
+    .expand-icon.expanded .fa-chevron-down {
+        display: inline-block;
     }
     .type .type-flag {
         display: none;
@@ -76,5 +93,17 @@
     }
     .type3>.type-flag3 {
         display: inline-block !important;
+    }
+    .MuiIconButton-root {
+        width: 30px;
+    }
+}
+
+.data-items {
+    .tree-list {
+        flex: 1;
+        .choices {
+            display: none;
+        }
     }
 }

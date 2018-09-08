@@ -78,7 +78,7 @@ main.main-container {
 }
 
 #root,
-.MuiInput-root,
+.MuiInput-root,.MuiPaper-root,
 label,
 input,
 button,
@@ -118,6 +118,7 @@ span,aside {
             display: block;
             width: 100%;
             font-size:1.79rem;
+            padding: 12px 15px;
         }
     }
     aside {
@@ -126,9 +127,13 @@ span,aside {
             min-height: 160px;
             background: linear-gradient(to bottom, #484A69 0%,rgba(0,0,0,1) 50%,#484A69 100%);
             .user-info {
+                font-size: 1.71rem !important;
                 display: flex;
-                justify-items: center;
-                flex-direction: row-reverse;
+                justify-items: center !important;
+                flex-direction: row-reverse; 
+                align-items: center !important;
+                align-content: center !important;
+                
                 .icon {
                     width: auto !important;
                     margin: 0 5px;
@@ -136,7 +141,7 @@ span,aside {
             }
             i.icon {
                 width: 100%;
-                font-size: 30px;
+                font-size: 3rem;
             }
             button span {
                 display: flex;

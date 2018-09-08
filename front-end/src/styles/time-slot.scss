@@ -16,6 +16,7 @@ section.time-slot {
     .prefix{
         position: absolute;
         left:0;
+        font-size:1.71rem;
         width:$prefix-width;
         text-align: center;
         display: flex;
@@ -32,7 +33,7 @@ section.time-slot {
         height: 20px;
         right: $buttons-width;
         left: $prefix-width;
-        font-size: 70%;
+        font-size: 1.4rem;
     }
     main {
         overflow: hidden;

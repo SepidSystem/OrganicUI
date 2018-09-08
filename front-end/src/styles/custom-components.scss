@@ -87,6 +87,30 @@
     padding: 3px;
 }
 
+.field-accessor {
+    &.has-error {
+        position: relative;
+        .label{
+            color:#B00020 !important;
+            padding:0 1rem;
+        }
+        .error-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 1rem;
+            z-index: 1000;
+        }
+        .control {
+            background: rgb(238, 238, 238);
+            border-radius: 10px 10px 0 0;
+            border-bottom:2px #B00020  solid !important;
+        }
+        .MuiInput-underline:after,.MuiInput-underline:before{
+            display: none;
+        }
+    }
+}
+
 .field {
     .control {
         flex: 1;
@@ -100,18 +124,20 @@
         text-overflow: ellipsis;
     }
     a.op {
-        width: auto;
+        width: 100%;
         right: 0;
         order: 100;
         margin-top: 1px;
         line-height: 13px;
-        padding: 0;
-        position: absolute;
+        padding: 0; 
         bottom: 0;
         font-size: 1.14rem !important;
         span {
             font-size: 1.14rem !important;
         }
+    }
+    .messages * {
+        font-size: 1rem !important;
     }
 }
 
@@ -187,7 +213,6 @@ a.close {
 .field {
     flex-wrap: wrap;
     .messages {
-        background: lightyellow;
         margin: 0px !important;
         text-align: right;
         z-index: 20000;

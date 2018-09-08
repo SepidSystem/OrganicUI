@@ -1,10 +1,11 @@
 .field:not(.no-material) {
     position: relative;
     min-height: 50px;
-    margin: 10px 5px;
+    margin: 5px;
     .label {
         position: absolute;
-        top: 1rem;
+        top: 2.0rem;
+        right: 0.15rem;
         line-height: 1.5rem;
         pointer-events: none;
         padding-left: 0.125rem;
@@ -155,10 +156,10 @@
 
 .field.focused:not(.no-material) .label,
 .field.has-value:not(.no-material) .label {
-    top: -0.5rem !important;
+    top: -0.5rem;
     line-height: 1rem;
     * {
-        font-size: 1rem !important;
+        font-size: 1rem;
     }
 }
 
@@ -273,9 +274,10 @@
 
 .ms-DetailsList {
     overflow-x: hidden !important;
+    overflow-y: hidden !important;
 }
 
-.MuiPaper-root {
+.MuiPaper-root { 
     direction: rtl;
 }
 
@@ -286,17 +288,7 @@
     }
 }
 
-.filter-panel {
-    .field:not(.no-material) {
-        .label {
-            top: 0.35rem;
-        }
-    }
-    .field.has-value:not(.no-material) .label {
-        top: -0.5rem !important;
-    }
-}
-
+ 
 .button-icon-ux {
     position: relative;
     i {
@@ -328,12 +320,16 @@
     }
 }
 
-.single-view {
-    .field-accessor {
-        * {
-            font-size: 1.71rem;
-        }
+.field-accessor {
+    * {
+        font-size: 1.71rem;
     }
+    input{
+        font-size: 1.71rem !important;
+    }
+}
+
+.single-view {
     .MuiPaper-root {
         padding: 0;
     }
@@ -344,4 +340,10 @@
 .pagination-link,
 .pagination-ellipsis {
     font-size: 1.71rem;
+}
+
+.MuiMenuItem-root,
+.MuiTypography-body1,
+.label,.center-text {
+    font-size: 1.71rem !important;
 }
