@@ -1,10 +1,9 @@
 import OrganicBox from './organic-box';
 import { Utils } from '../core/utils';
-
-
+import { reinvent } from '../reinvent/reinvent';
 interface ViewBoxState { formData: any; validated: boolean; }
 export interface IOptionsForViewBox {
-    className?: string  
+    className?: string
 }
 interface IActionsForViewBox {
 
@@ -15,9 +14,10 @@ export class ViewBox<T=any> extends OrganicBox<
         super(p);
 
     }
-    renderContent(p=this.props){
-        return <section  className={Utils.classNames(  "view-box",p.options.className)} ref="root">
-        {this.props.children}
-            </section>
+    renderContent(p = this.props) {
+        return <section className={Utils.classNames("view-box", p.options.className)} ref="root">
+            {this.props.children}
+        </section>
     }
 }
+Object.assign(reinvent.templates, { blank: ViewBox });

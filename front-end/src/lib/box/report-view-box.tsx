@@ -8,10 +8,10 @@ import { FilterPanel } from '../data/filter-panel';
 import { DataList } from '../data/data-list';
 import { i18n } from '../core/shared-vars';
 interface ReportViewBoxProps {
-
+    
 };
 interface ReportViewBoxState { formData: any; validated: boolean; }
-export class ReportViewBox extends OrganicBox<any, OrganicUi.IOptionsForReportViewBox, any, ReportViewBoxState> {
+export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState> {
 
     refs: {
         filterPanel: FilterPanel;
@@ -28,31 +28,40 @@ export class ReportViewBox extends OrganicBox<any, OrganicUi.IOptionsForReportVi
             params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
         return params;
     }
-    renderContent(p = this.props) {
-        const children = React.Children.toArray(this.props.children) as React.ClassicElement<any>[];
-        const handleApplyClick = this.handleApplyClick.bind(this);
-        let filterPanelElement = children.filter(child => child.type == FilterPanel)[0];
-        filterPanelElement = filterPanelElement && React.cloneElement(filterPanelElement,
-            { onApplyClick: handleApplyClick, ref: "filterPanel" } as Partial<OrganicUi.IFilterPanelProps>);
-        let dataListElement = children.filter(child => child.type == DataList)[0];
-        dataListElement = dataListElement && React.cloneElement(dataListElement,
+    isDataListTargeted(child: React.ClassicElement<any>) {
+        return child && child.type && child.type['isDataList'] && !child.props.loader;
+    }
+    prepareDataList(dataListElement) {
+        return React.cloneElement(dataListElement,
             {
-                loader: this.actions.read,
+                loader: dataListElement.props.loader || this.actions.read,
                 height: 700,
                 ref: "datalist",
                 onLoadRequestParams: this.handleLoadRequestParams.bind(this),
                 startWithEmptyList: true
-            } as Partial<OrganicUi.IDataListProps>);
+            } as Partial<OrganicUi.IDataListProps>)
+    }
+    renderContent(p = this.props) {
+        const handleApplyClick = this.handleApplyClick.bind(this);
+        let children = React.Children.toArray(this.props.children) as any[];
+        children = children.map(child => {
+            if (child && (child.type == FilterPanel))
+                return React.cloneElement(child, { onApplyClick: handleApplyClick, ref: "filterPanel" } as Partial<OrganicUi.IFilterPanelProps>);
 
-        return <section ref="root">
-            <h1 className="title is-2">{i18n((p.options && p.options.title )|| 'report')}</h1>
-            {filterPanelElement} <br />
-            <Paper className="main-content">
+            return child;
 
-                {dataListElement}
-                <br /><br /> </Paper>
-        </section>
+
+        });
+        return (<section ref="root">
+            {children.filter(child => !this.isDataListTargeted(child))}
+            <br /><Paper className="main-content">
+                {children.filter(this.isDataListTargeted).map(dataListElement => this.prepareDataList(dataListElement))}
+                <br /><br />
+            </Paper>
+        </section>);
 
     }
 
-} 
+}
+import { reinvent } from '../reinvent/reinvent';
+Object.assign(reinvent.templates, { 'report-view': ReportViewBox });

@@ -1,7 +1,18 @@
 import { reinvent } from "./reinvent";
 import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
- 
+function injectRandomNumberToObject(obj) {
+    const queue: { parent, key }[] = Object.keys(obj).map(key => ({ parent: obj, key }));
+    let item;
+    while (item = queue.shift()) {
+        const child = item.parent[item.key];
+        if (typeof child == 'number')
+            item.parent[item.key] = Math.round(Math.random() * 1000);
+        else if (typeof child == 'object')
+            queue.push(...Object.keys(child).map(key => ({ parent: child, key })));
+    }
+
+}
 function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptions):
     Reinvent.IDashboardWidgetReinvent<TData, TState> {
     const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer', 'size'];
@@ -15,21 +26,25 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
 
                 Utils.toPromise(AClass.applyChain('dataLoader', param))
                     .then(data => {
-                        this.repatch({ data })
-                        if (this['timerActivate'])
+
+                        if (localStorage.getItem('injectRandomNumberToDataLoad')) injectRandomNumberToObject(data);
+                        this.repatch({ data });
+
+                        if (options['timerActivate'])
                             setTimeout(tick, options.interval);
                         return data;
                     });
             }
-            setTimeout(tick, options.interval);
+            if (options['timerActivate'])
+                setTimeout(tick, options.interval);
         }
         reactClass.prototype.componentWillUnmount = function () {
-            delete this['timerActivate'];
+            delete options['timerActivate'];
         }
     }
     AClass.afterConsturct = function () {
         const param = AClass.applyChain('paramInitializer');
-        this['timerActivate'] = 1;
+        options['timerActivate'] = !!options.interval;
         const loader = Utils.toPromise(AClass.applyChain('dataLoader', param))
             .then(data => this.repatch({ data }));
         Object.assign(this.state, { data: loader, param });

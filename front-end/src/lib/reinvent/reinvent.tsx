@@ -26,19 +26,30 @@ function _reinvent(factoryName: string) {
 const query = factoryName => all.filter(item => item.factoryName == factoryName);
 const factoryTable = {};
 const templates = {}
-function templatedView(templName: string, { actions, options, ref, customActions }) {
-    const templComponent = templates[templName];
+function templatedView(templName, extraParams) {
+    if (templName instanceof Function) {
+        const func = templName as Function;
+        return function (templName, props) {
+            const templComponent = templates[templName];
+            return function (params) {
+                const result = func.apply(this, arguments);
+                const { children } = result && result.props;
+                const childrenArray = React.Children.toArray(children);
+                return React.createElement(templComponent, Object.assign({ params }, props), ...childrenArray)
+
+            }
+        }
+    }
+    const templComponentType = templates[templName];
+    if (!templComponentType) throw `template-name is missing  , template:${templName}`;
     return function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
         const orginalMethod = propertyDescriptor.value;
         propertyDescriptor.value = function () {
             const result = orginalMethod.apply(this, arguments);
             const { children } = result && result.props;
-            const props = Object.assign({}, result.props,
-                { options, actions, params: this.props },
-                ref ? { ref } : {},
-                customActions ? { customActions } : {});
+            const props = Object.assign({ params: this.props }, extraParams);
             const childrenArray = React.Children.toArray(children);
-            return React.createElement(templComponent, props, ...childrenArray);
+            return React.createElement(templComponentType, props, ...childrenArray);
         };
     }
 }
@@ -50,6 +61,6 @@ export const reinvent: typeof _reinvent & {
 } = Object.assign(_reinvent, {
     baseClassFactory: () => { throw ' baseClassFactory is missed' },
     query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView,
-    openBindingHub:openBindingSource
+    openBindingHub: openBindingSource
 });
 Object.assign(window, { reinvent });
