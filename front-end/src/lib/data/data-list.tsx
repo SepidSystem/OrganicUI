@@ -9,7 +9,7 @@ import { Cache } from 'lru-cache';
 import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { DetailsList, FocusZone, Button } from '../controls/inspired-components';
-import { IColumn, ConstrainMode, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
+import { IColumn, ConstrainMode, IDetailsListProps, Selection } from 'office-ui-fabric-react/lib/DetailsList';
 
 
 interface IPaginationProps {
@@ -26,7 +26,7 @@ const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
     return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
         <Button variant="raised" className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</Button>
-        <Button  variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</Button>
+        <Button variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</Button>
 
         <ul key="pagination-list" className="pagination-list">
 
@@ -89,10 +89,13 @@ const rowRenderer = p => (
 export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IDataListState> implements IDeveloperFeatures {
     items: any[];
     rowCount: number;
+
+
     static defaultProps = {
         itemHeight: 42,
         paginationMode: 'paged'
     }
+    static isDataList = true;
     refs: {
         root: HTMLElement;
         parent: HTMLElement;
@@ -131,7 +134,6 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
     cache: Cache<number, any>;
     lastDataLoading = new Date();
     loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0 }) {
-
         const s = this.state, p = this.props;
         if (!p.loader) return null;
         this.items = null;
@@ -158,6 +160,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
                 else
                     listData.rows.forEach((row, idx) => this.cache.set(idx, row));
             }
+            //this.rowCount = Math.max(listData.rows.length, Number.isNaN(this.rowCount) ? 0 : (this.rowCount || 0));
             this.detailList = null;
 
             this.repatch({
@@ -169,6 +172,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
         }, (error) => (this.repatch({ isLoading: false }), Promise.reject(error)));
     }
     scrollTimer: any;
+
     getDevButton() {
         return Utils.renderDevButton('DataList', this);
     }
@@ -212,8 +216,35 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
             parent.scrollTop = (detailsRow.clientHeight * index);
     }
     renderContent() {
+        const p = this.props, s: IDataListState = this.state;
+        const { startFrom } = s;
+        s.listData = s.listData || (!p.startWithEmptyList && this.loadDataIfNeeded(+startFrom)) as any;
+        const length = this.rowCount || 10;
+        let items = this.items =
+            (s.noPaging ? s.listData && s.listData.rows :
+                Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx))) || [];
+
+        if (!items) items = [];
+        items = items.filter(x => !!x);
+
+        return (
+            <div ref="root" onDoubleClick={this.handleDoubleClick}
+                data-height={p.height} style={p.flexMode ? {} : { minHeight: p.height + 'px' }}
+                className={Utils.classNames("data-list-wrapper developer-features", p.className)} data-flex-mode={p.flexMode}>
+                {p.customDataRenderer instanceof Function ? p.customDataRenderer(items, this) : this.renderItems(items)}
+
+            </div>
+        );
+    }
+    renderItems(items: any[]) {
+        const length = this.rowCount || 10;
+
+        const p = this.props, s = this.state;
         const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
         const textReaders = columnArray.filter(col => col && (col.type == Field)).map(fld => Field.prototype.getTextReader.apply(fld))
+
+        const { listData } = this.state;
+
         const columns: IColumn[] =
             columnArray.filter(col => col && (col.type == Field))
                 .map((col, idx) => Object.assign({}, col.props || {}, {
@@ -227,30 +258,22 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
                     }
                 } as Partial<IColumn>, col.props.columnProps || {}) as IColumn)
 
-        const { listData, startFrom } = this.state;
-        const p = this.props, s: IDataListState = this.state;
-        s.listData = s.listData || (!p.startWithEmptyList && this.loadDataIfNeeded(+s.startFrom)) as any;
-        const length = this.rowCount || 10;
-
-        let items = this.items =
-            (s.noPaging ? s.listData && s.listData.rows :
-                Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx))) || [];
-
-        if (!items) items = [];
-        items = items.filter(x => !!x);
+        const totalPages = listData && Math.ceil(listData.totalRows / (length)) || 0;
         const dataListProps: IDetailsListProps = Object.assign({ ref: "detailList" }, p, {
             columns,
-            items, constraintMode: ConstrainMode.horizontalConstrained,
+            items, constraintMode: ConstrainMode.unconstrained,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : length)
                 : (!!listData && length)),
             minHeight: p.height,
+            listProps: {
+                style: { overflowX: 'hidden' }
+            }
             //    constrainMode: ConstrainMode.unconstrained,
             // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
         } as Partial<IDetailsListProps>, p.detailsListProps ? p.detailsListProps : {}) as any;
-        const { itemHeight } = this.props;
-        const totalPages = listData && Math.ceil(listData.totalRows / (length || 10)) || 0;
-        const pagination = p.paginationMode != 'scrolled' && !!listData
+
+        const pagination = p.paginationMode != 'scrolled' && !!s.listData
             && <Pagination
                 totalPages={totalPages}
                 loadingPageIndex={s.loadingPageIndex}
@@ -262,32 +285,27 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
 
                 }} />;
 
-        return (
-            <div ref="root" onDoubleClick={this.handleDoubleClick}
-                data-height={p.height} style={p.flexMode ? {} : { minHeight: p.height + 'px' }}
-                className={Utils.classNames("data-list-wrapper developer-features", p.className)} data-flex-mode={p.flexMode}>
-                <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
-                    ref="parent"
-                    className={Utils.classNames("data-list", p.flexMode && 'flex-mode', p.paginationMode)}
-                >
+        return <div onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}
+            ref="parent"
+            className={Utils.classNames("data-list", p.flexMode && 'flex-mode', p.paginationMode)}
+        >
 
-                    {!!this.refs.root && items &&
-                        <div className="data-list-content" ref="content">
-                            <div className="data-list-c1" style={{
-                                overflowY: p.flexMode ? 'scroll' : null, flex: '1'
-                            }} >
-                                {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
-                            </div>
-                            {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ padding: '0 4px', maxHeight: '60px', minHeight: '60px' }}  >
-                                {pagination}
+            {!!this.refs.root && items &&
+                <div className="data-list-content" ref="content">
+                    <div className="data-list-c1" style={{
+                        overflowY: p.flexMode ? 'scroll' : null, flex: '1'
+                    }} >
+                        {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
+                    </div>
+                    {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ padding: '0 4px', maxHeight: '60px', minHeight: '60px' }}  >
+                        {pagination}
 
-                            </div>}
-                        </div>}
+                    </div>}
+                </div>}
 
-                </div>
-
-            </div>
-        );
+        </div>
     }
-
+    static getSelectionClass(dataListInstance: React.ReactInstance) {
+        return Selection;
+    }
 }
