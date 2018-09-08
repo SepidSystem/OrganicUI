@@ -20,7 +20,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
         if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length == 0) {
             clearInterval(this.autoUpdateTimer);
         }
-         const newState = Object.keys(this.autoUpdateState).map(key => {
+        const newState = Object.keys(this.autoUpdateState).map(key => {
             const method = this.autoUpdateState[key];
             try {
                 const result = method(key);
@@ -48,7 +48,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
             });
 
         if (newState.length) {
-             this.repatch(Utils.reduceEntriesToObject(newState) as S);
+            this.repatch(Utils.reduceEntriesToObject(newState) as S);
         }
 
     }
@@ -65,8 +65,10 @@ export class BaseComponent<P, S> extends Component<P, S>{
     refs: any;
     stateListener: IStateListener[];
     autoUpdateState: OrganicUi.PartialFunction<S>;
+    childrenByRole: { [role: string]: any[] }
     constructor(props: P) {
         super(props);
+        this.childrenByRole = this.getChildrenByRole((props as any).children);
         this.repatch = this.repatch.bind(this);
         this.state = {} as any;
         this.issues = {} as any;
@@ -75,13 +77,25 @@ export class BaseComponent<P, S> extends Component<P, S>{
             .map(child => (child as any).props);
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
-         
+
         this.tryCountLimits = {};
 
     }
+    _getChildrenByRole(accum, child) {
+        const { role } = child.props;
+        return Object.assign(accum, {
+            [role]: (accum[role] || []).concat([child])
+        })
+    }
+    getChildrenByRole(children) {
+        return (children instanceof Array ? children
+            : React.Children.toArray(children))
+            .filter((c: any) => c && c.props && c.props.role)
+            .reduce(this._getChildrenByRole, {});
+    } /*  */
     tryCountLimits: { [key: string]: number };
 
-   
+
     componentDidMount() {
         const { root } = this.refs;
         root && Object.assign(root, { componentRef: this });
