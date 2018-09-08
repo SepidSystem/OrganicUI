@@ -38,7 +38,10 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
         </Dialog>
 
     }
-    static renderButtons = (p: OrganicUi.DataLookupProps, { onClick, onClose }) => (<Button onClick={onClick} style={{ padding: '2px', minWidth: '30px', maxHeight: '25px' }} color="primary">
+    static renderButtons = (p: OrganicUi.DataLookupProps, { onClick, onClose }) => (<Button
+        className="data-lookup-action"
+        onClick={onClick}
+        style={{ padding: '2px', minWidth: '30px', maxHeight: '25px' }} color="primary">
         <i className="fa-ellipsis-h fa"></i>
     </Button>);
 

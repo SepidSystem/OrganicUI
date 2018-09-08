@@ -7,7 +7,7 @@ export class DataLookupPopOver extends BaseComponent<OrganicUi.IDataLookupPopupM
         const rects = p.target && p.target.getClientRects();
         const rect = rects && rects[0];
         const targetIsTop = rect && (rect.top < window.innerHeight * 0.7);
-        return <Popover open={p.isOpen} onClose={() => {
+        return <Popover open={p.isOpen} style={{zIndex:2000000 }}  onClose={() => {
             p.onClose && p.onClose();
             document.documentElement.classList.remove('overflowY-hidden');
         }}

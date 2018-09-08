@@ -13,6 +13,7 @@ import OrganicBox from '../box/organic-box';
 import { ActionButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from '../controls/inspired-components';
 import { DataLookupModal } from './data-lookup-modal';
+import { DataList } from '../data/data-list';
 
 
 interface DataLookupState {
@@ -31,6 +32,7 @@ function closeAllPopup(activeDataLookup?) {
         .forEach(dataLookup => activeDataLookup != dataLookup && dataLookup.closePopup({ isActive: false }));
     setTimeout(query, 200);
 }
+
 export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLookupState>{
 
     static Popover = DataLookupPopOver;
@@ -76,6 +78,12 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         return elements.map(dom => dom['componentRef'])[0];
 
     }
+    getListViewElement(): HTMLElement {
+        const { refId } = this.state as any;
+
+        return Array.from(document.querySelectorAll('.list-view-data-lookup')).
+            filter(dom => dom.getAttribute('data-parent-id') == refId)[0] as HTMLElement;
+    }
     closePopup(delta?: Partial<DataLookupState>) {
         if (this.openRequestTime && ((+ new Date() - this.openRequestTime) < 200))
             return;
@@ -106,9 +114,14 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
         const isOpen = !s.isOpen;
         closeAllPopup(this);
-        if (s.isOpen) {
-            this.savedScrollTop = document.documentElement.scrollTop;
-            document.documentElement.classList.add('overflowY-hidden');
+        if (isOpen) {
+            const savedScrollTop = this.savedScrollTop = document.documentElement.scrollTop;
+            const { overflow } = getComputedStyle(document.body);
+            setTimeout(function () {
+                document.body.style.overflow = overflow;
+                document.documentElement.scrollTop = savedScrollTop;
+            }, 100);
+            //document.documentElement.classList.add('overflowY-hidden');
         }
         this.repatch({ isOpen, isHidden: false, isActive: true })
     }
@@ -144,8 +157,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
                         delete selectedValueDic[id];
                 });
         this.state.selectedValueDic = selectedValueDic;
-        const value = this.props.multiple ? Object.keys(selectedValueDic).filter(id => Utils.safeNumber(id)) : ids[0];
-        this.repatch({ value });
+        if (this.props.popupMode.inlineMode) {
+            const value = this.props.multiple ? Object.keys(selectedValueDic).filter(id => Utils.safeNumber(id)) : ids[0];
+            this.repatch({ value });
+        }
         if (!this.props.multiple && ids.length)
             closeAllPopup();
         this.props.onChange instanceof Function && this.props.onChange(
@@ -256,25 +271,33 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         else if (value instanceof Array) this.handleSetValue((value || []).filter((_, i) => i != idx));
 
     }
+    getSelectedKeyCollection() {
+        return this.state.selectedValueDic;
+    }
     handleApply() {
-        const listViewBox = this.getListViewBox();
-        const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
+        const listViewELement = this.getListViewElement();
+        const dataList = this.querySelectorAll<DataList>('.data-list-wrapper', listViewELement)[0];
+        const items: any[] = dataList && dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
-        const { selectedValueDic } = this.state;
-        if (!selectedValueDic) throw 'selectedValueDic=null';
-        const ids = Object.keys(selectedValueDic).filter(id => id !== undefined && id !== null).filter(id => selectedValueDic[id]);
+        const { getSelectedKeyCollection } = dataList as any;
+        const selectedKeyCollection = getSelectedKeyCollection instanceof Function ? getSelectedKeyCollection.apply(dataList) : this.getSelectedKeyCollection();
+        if (!selectedKeyCollection) throw 'selectedKeyCollection=null';
+        const keys = Object.keys(selectedKeyCollection).filter(id => id !== undefined && id !== null).filter(id => selectedKeyCollection[id]);
+        this.handleSetValue(keys)
 
-        this.handleSetValue(ids)
         this.repatch({ isOpen: false });
     }
     handleAppend() {
-        const listViewBox = this.getListViewBox();
-        const indices = listViewBox.selection.getSelectedIndices();
-        const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items;
+        const listViewELement = this.getListViewElement();
+        const dataList = this.querySelectorAll<DataList>('.data-list-wrapper', listViewELement)[0];
+        const items: any[] = dataList && dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
-        const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
-        const ids = items.filter((_, idx) => indiceDic[idx]).map(row => listViewBox.getId(row));
-        this.handleSetValue(ids.concat(this.state.value));
+        const { getSelectedKeyCollection } = dataList as any;
+
+        const selectedKeyCollection = getSelectedKeyCollection instanceof Function ? getSelectedKeyCollection.apply(dataList) : this.getSelectedKeyCollection();
+        if (!selectedKeyCollection) throw 'selectedKeyCollection=null';
+        const keys = Object.keys(selectedKeyCollection).filter(id => id !== undefined && id !== null).filter(id => selectedKeyCollection[id]);
+        this.handleSetValue(keys.concat(this.state.value));
         this.repatch({ isOpen: false });
     }
     repatch(delta) {
@@ -286,6 +309,17 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
 
         }
         super.repatch(delta);
+    }
+
+    static adjustFieldClassName(props, classNameForRoot, className) {
+        const excludedClasses = [props.bellowList && 'has-value'].filter(x => !!x);
+        function adjustClassName(clsName: string) {
+            if (excludedClasses.length == 0) return clsName;
+            return clsName.split(' ').filter(item => !excludedClasses.includes(item)).join(' ');
+        }
+        const result = [adjustClassName(classNameForRoot), adjustClassName(className)];
+        return result;
+
     }
     renderPopOver() {
         const p = this.props, s = this.state;
@@ -301,7 +335,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             multipleDataLookup: p.multiple,
             height: 300,
             onSelectionChanged: this.handleSelectionChanged,
-            setValue: this.handleSetValue.bind(this)
+            setValue: this.handleSetValue.bind(this),
+            customReadListArguments: p.customReadListArguments,
+            customReadList: p.customReadList
+
         } as Partial<OrganicUi.IListViewParams>);
 
         const onClose = () => {
@@ -333,7 +370,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             </li>))}
         </ul></div>
     }
-
+    handleFocus() {
+        Utils.simulateClick(document.body);
+        this.props.onFocus instanceof Function() && this.props.onFocus.apply(this, arguments);
+    }
     render() {
         if (this.state.value === undefined)
             this.state.value = this.props.value;
@@ -344,7 +384,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         if (s.isOpen && !listViewContainer)
             setTimeout(() => this.forceUpdate(), 10);
         const textField = !(innerText instanceof Promise) &&
-            <TextField onBlur={p.onBlur as any} onFocus={p.onFocus} itemRef="textField" />;
+            <TextField onBlur={p.onBlur as any} className="data-lookup-textfield" style={{ color: 'transparent' }}
+                onFocus={this.handleFocus.bind(this)} itemRef="textField" />;
         this.adjustEditorPadding();
 
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
