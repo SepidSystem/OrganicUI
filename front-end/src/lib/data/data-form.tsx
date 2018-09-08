@@ -25,13 +25,28 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     }
     setFocusByAcccesor(accessor) {
         accessor = Field.getAccessorName(accessor);
-        this.querySelectorAll<Field>('.field-accessor').filter(fld => Field.getAccessorName(fld.props.accessor) == accessor).forEach(fld => {
-            fld.refs.root.classList.add('field-targeted');
-            Utils.scrollTo(document.body, fld.refs.root.clientTop, 100);
-            fld.refs.root.querySelector('input').focus();
-            fld.focus && fld.focus();
-            setTimeout(() => fld.refs.root.classList.remove('field-targeted'), 1500);
-        })
+        const fldHtmlElement = Array.from(this.refs.root.querySelectorAll('.field-accessor'))
+            .filter(fld => fld.getAttribute('data-accessor-name') == accessor)[0];
+        const { componentRef } = fldHtmlElement as any;
+        if (componentRef) {
+            componentRef.repatch({});
+        }
+        fldHtmlElement.classList.add('field-targeted');
+        Utils.scrollTo(document.body, fldHtmlElement.clientTop, 100);
+
+        const input = fldHtmlElement.querySelector('input');
+        try {
+            input.focus();
+        } catch (exc1) {
+
+        }
+
+        setTimeout(() => fldHtmlElement && fldHtmlElement.classList.remove('field-targeted'), 1500);
+    }
+    handleInvalidItemClick(e: React.MouseEvent<HTMLElement>) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setFocusByAcccesor(Utils.getCascadeAttribute(e.currentTarget, 'data-accessor-name', true));
     }
     showInvalidItems(invalidItems = this.invalidItems): JSX.Element {
         if (!invalidItems || !invalidItems.length) return undefined;
@@ -45,10 +60,9 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
                     {invalidItems
                         .filter(invalidItem => !!invalidItem)
                         .map(invalidItem => (<li className="invalid-item">
-                            <a href="#" onClick={e => {
-                                e.preventDefault();
-                                this.setFocusByAcccesor(invalidItem.accessor);
-                            }}>
+                            <a className="invalid-item" href="#"
+                                data-accessor-name={invalidItem.accessor}
+                                onClick={this.handleInvalidItemClick.bind(this)}>
 
                                 {i18n(invalidItem.message)}
                             </a>

@@ -75,18 +75,26 @@ export class ListViewBox<T> extends
         super(p);
         this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
         this.readList = this.readList.bind(this);
-        this.selection = new Selection({
-            selectionMode: this.getMultiple() ? SelectionMode.multiple : SelectionMode.single,
-            onSelectionChanged: this.handleSelectionChanged
-        });
+
         this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
         this.handleEdit = this.handleEdit.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
         this.handleLoadRequestParams = this.handleLoadRequestParams.bind(this);
         this.state.quickFilter = (this.props.params.filterMode != 'advanced');
     }
+    autoCreatedDataList: any;
+    static isTargetedDataList(dataList) {
+        return dataList && dataList.type && dataList.type.isDataList && !dataList.props.loader;
+    }
+    getDataList() {
+        const dataList = React.Children.toArray(this.props.children || []).filter(ListViewBox.isTargetedDataList)[0] as React.ReactElement<DataList>;
+        if (!dataList)
+            return this.autoCreatedDataList = this.autoCreatedDataList || React.createElement(DataList as any, {}, ...React.Children.toArray(this.props.children))
+
+        return dataList;
+    }
     getColumns(): IFieldProps[] {
-        const dataList = React.Children.map(this.props.children || [], (child: any) => child && child.type == DataList && !child.props.loader && child)[0] as React.ReactElement<DataList>;
+        const dataList = this.getDataList();
         if (!dataList) return;
         const { children } = dataList.props as OrganicUi.IDataListProps;
         return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
@@ -99,10 +107,16 @@ export class ListViewBox<T> extends
         return Utils.renderDevButton('ListView', this)
     }
     handleEdit() {
-        const indices = this.selection.getSelectedIndices();
-        const index = indices[0];
-        const row = (this.selection.getItems()[index]);
-        const id = this.getId(row);
+        const { getSelectedKey } = this.selection as any;
+        let id;
+        if (!getSelectedKey) {
+            const indices = this.selection.getSelectedIndices();
+            const index = indices[0];
+            const row = (this.selection.getItems()[index]);
+            id = this.getId(row);
+        }
+        else
+            id = getSelectedKey.apply(this.selection);
         const url = this.getUrlForSingleView(id);
         return Utils.navigate(url);
     }
@@ -155,20 +169,20 @@ export class ListViewBox<T> extends
     }
     static fetchFail: Function;
     static fetchFailSuppressDate: number;
-    requestIsFail: boolean;
     readList(params) {
-        if (!ListViewBox.fakeLoad() && !this.requestIsFail) {
+        if (!ListViewBox.fakeLoad()) {
             this.state.readingList = true;
-            return this.actions.readList(params).then(r => {
+            const readList = this.props.params.customReadList || this.actions.readList;
+            return readList(...(this.props.params.customReadListArguments || [params])).then(r => {
                 setTimeout(() => {
                     this.adjustSelectedRows();
                     this.state.readingList = false;
                 }, 200);
                 return r;
             }, error => {
-                this.requestIsFail = true;
+
                 this.devElement = this.makeDevElementForDiag(error);
-                this.repatch({});
+                return Promise.resolve({ rows: [], totalRows: 0 });
             });
         }
         else {
@@ -234,6 +248,7 @@ export class ListViewBox<T> extends
         const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
         if (filterPanel)
             params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
+        if (window['debugHandleLoadRequestParams']) debugger;
         return params;
     }
     renderQuickFilter() {
@@ -243,50 +258,60 @@ export class ListViewBox<T> extends
             //  <i className="fa fa-bars" onClick={() => this.repatch({ quickFilter: false })}></i>,
         ]
     }
-    renderContent() {
+    prepareDataList(intialDataList: React.ReactElement<OrganicUi.IDataListProps>) {
+        const multiple = this.getMultiple();
 
-        if ((React.Children.map(this.props.children || [], child => child) || [])
-            .filter((child: any) => !!child && child.type == DataList && !child.props.loader)
-            .length == 0) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
-        const { repatch } = this;
-        const onRowClick = (rowIdx, currentRow) => {
-
-            //     currentRow && TemplateForCRUD.Instance && TemplateForCRUD.Instance.repatch({ currentRow })
+        const dataItemsElement = this.refs.root.querySelector('.data-items');
+        if (!this.selection) {
+            const SelectionClass: typeof Selection = (intialDataList.type as typeof DataList).getSelectionClass(intialDataList as any) as any;
+            this.selection = new SelectionClass({
+                selectionMode: this.getMultiple() ? SelectionMode.multiple : SelectionMode.single,
+                onSelectionChanged: this.handleSelectionChanged
+            });
         }
+        return React.cloneElement(intialDataList, Object.assign(
+            {}, intialDataList.props, {
+                ref: "dataList",
+                height: dataItemsElement ? dataItemsElement.clientHeight : this.props.params.height,
+                onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
+                onLoadRequestParams: this.handleLoadRequestParams,
+                multiple: this.props.params.forDataLookup,
+                loader: this.readList,
+                flexMode: true,
+                paginationMode: intialDataList.props.paginationMode || 'paged',
+                selection: this.selection,
+
+            } as Partial<OrganicUi.IDataListProps>,
+            multiple
+                ? {
+                    selectionMode: 2, checkboxVisibility: 1
+                } as Partial<IDetailsListProps>
+                : {} as Partial<IDetailsListProps>));
+    }
+    renderContent() {
+        const dataList = this.getDataList();
+
+        if (!dataList) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
+        const { repatch } = this;
+
         const { options, params } = this.props;
-        const { corner } = params;
 
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
         const { root } = this.refs;
         const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0]) || this.getFilterPanel();
-        const multiple = this.getMultiple();
-        const children = !!root && React.Children.map(this.props.children || [], (child: any) => {
-            if (child && (child.type == FilterPanel)) return null;
-            if (child && (child.type == DataList && !child.props.loader)) {
-                const dataItemsElement = root.querySelector('.data-items');
-                return React.cloneElement(child, Object.assign(
-                    {}, child.props, {
-                        ref: "dataList",
-                        height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
-                        onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
-                        onLoadRequestParams: this.handleLoadRequestParams,
-                        loader: this.readList,
-                        flexMode: true,
-                        paginationMode: child.props.paginationMode || 'paged',
-                        selection: this.selection,
-
-                    } as Partial<OrganicUi.IDataListProps>,
-
-                    //    { corner } as Partial<IDataListProps>,
-                    multiple
-                        ? {
-                            selectionMode: 2, checkboxVisibility: 1
-                        } as Partial<IDetailsListProps>
-                        : {} as Partial<IDetailsListProps>));
-            }
-            return child;
-        });
+        let dataListFound = false;
+        const children = !!root &&
+            React.Children.toArray(this.props.children).map((child: any) => {
+                if (child && (child.type == FilterPanel)) return null;
+                if (child && (child.type && child.type.isField)) return null;
+                if (ListViewBox.isTargetedDataList(child)) {
+                    dataListFound = true;
+                    return this.prepareDataList(dataList);
+                }
+                return child;
+            });
+        if (this.autoCreatedDataList && !dataListFound && children instanceof Array) children.push(this.prepareDataList(dataList));
         if (!root) setTimeout(() => (this.repatch({})), 10);
         const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
@@ -298,8 +323,8 @@ export class ListViewBox<T> extends
                     minWidth: (minWidth ? minWidth + 'px' : 'auto'),
                     overflow: 'hidden'
                 }} ref="root"  >
-                {!params.noTitle && <div className="animated fadeInUp title " style={{fontSize:'1.71rem'}}>
-                   
+                {!params.noTitle && <div className="animated fadeInUp title " style={{ fontSize: '1.71rem' }}>
+
                     {i18n(options.pluralName)}</div>}
                 {(params.filterMode != 'none') && <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
                     {filterPanel}
@@ -313,7 +338,7 @@ export class ListViewBox<T> extends
             </section>;
         return <section className="list-view developer-features" ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
-           
+
             <header className="  static-height list-view-header"  >
                 {filterPanel}
                 <CriticalContent permissionKey="create-permission">
@@ -335,7 +360,7 @@ export class ListViewBox<T> extends
                 <CriticalContent permissionKey="trash-permission" />
                 <div className="buttons"  >
                     <Button   >
-                        <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '4.3rem' ,margin:'0.5rem 1rem'}} />
+                        <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '4.3rem', margin: '0.5rem 1rem' }} />
                         {i18n('export')}
                     </Button>
 
