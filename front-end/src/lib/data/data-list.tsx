@@ -9,7 +9,7 @@ import { Cache } from 'lru-cache';
 import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { DetailsList, FocusZone, Button } from '../controls/inspired-components';
-import { IColumn, ConstrainMode, IDetailsListProps, Selection } from 'office-ui-fabric-react/lib/DetailsList';
+import { IColumn, ConstrainMode, IDetailsListProps, Selection, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
 
 
 interface IPaginationProps {
@@ -19,37 +19,38 @@ interface IPaginationProps {
     onPageIndexChange: (index: number) => void;
 
 }
-const defaultNormalPageCount = 3;
+const defaultNormalPageCount = 2;
 const pagination: FuncComponent<IPaginationProps, any> = (p, s, repatch) => {
 
-    const targetPageIndex = (p.loadingPageIndex === undefined || p.loadingPageIndex < 0) ? p.currentPageIndex : p.loadingPageIndex;
+    const targetPageIndex = p.currentPageIndex;
+    const pushNum = n => (n > 0) && (n < p.totalPages - 1) && !pageNumbers.includes(n) && pageNumbers.push(n);
+    const pageNumbers = [];
+    const showButton = n => (<li key={n} className="">
+        <Button variant="flat"
+            className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}
+            onClick={e => {
+                if (p.loadingPageIndex > 0) return;
+                e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n);
+            }
+
+            }
+        >{n + 1}</Button>
+    </li>)
+    for (let i = -defaultNormalPageCount; i < defaultNormalPageCount; i++) {
+        pushNum(i + targetPageIndex);
+
+    }
     const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
     return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination">
-        <Button variant="raised" className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</Button>
-        <Button variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} onClick={() => p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</Button>
+        <Button variant="raised" className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.loadingPageIndex < 0 && p.onPageIndexChange(targetPageIndex - 1)}>{i18n('previous-page')}</Button>
+        <Button variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} data-loading-idx={p.loadingPageIndex} onClick={() => p.loadingPageIndex < 0 && p.onPageIndexChange(targetPageIndex + 1)} >{i18n('next-page')}</Button>
 
         <ul key="pagination-list" className="pagination-list">
-
-            {Array.from({ length: p.totalPages }, (_, idx) => idx)
-                .filter(idx => (idx == 0) || (idx == p.totalPages - 1) || (idx > (targetPageIndex - defaultNormalPageCount) && idx < (targetPageIndex + defaultNormalPageCount)) || (idx == p.totalPages - 1))
-                .map(n => (
-                    [
-                        n == p.totalPages - 1 && ((p.totalPages - targetPageIndex) >= (defaultNormalPageCount * 2) - 1)
-                        && ellipsis,
-                        <li key={n} className="">
-                            <Button variant="flat"
-                                className={Utils.classNames(n === p.loadingPageIndex ? "button is-loading" : "", "pagination-link", targetPageIndex == n && 'is-current')}
-                                onClick={e => {
-                                    if (p.loadingPageIndex > 0) return;
-                                    e.preventDefault(), p.onPageIndexChange instanceof Function && p.onPageIndexChange(n);
-                                }
-
-                                }
-                            >{n + 1}</Button>
-                        </li>,
-                        n == 0 && (targetPageIndex >= (defaultNormalPageCount * 2) - 1) && ellipsis
-                    ]
-                ))}
+            {showButton(0)}
+            {!pageNumbers.includes(1) && pageNumbers.length && ellipsis}
+            {pageNumbers.map(showButton)}
+            {!pageNumbers.includes(p.totalPages - 2) && (p.totalPages >= defaultNormalPageCount) && ellipsis}
+            {showButton(p.totalPages - 1)}
 
         </ul>
     </nav >
@@ -79,13 +80,6 @@ let randomStrings = {};
 function defaultEmptyResult(p: OrganicUi.IDataListProps<any>) {
     return <div className="">no-result</div>;
 }
-/*
-const rowRenderer = p => (
-    !p.row || !p.row.__isLoading ? React.createElement(ReactDataGrid.Row, p) : <div className="react-loading-row" >
-        {React.createElement(ReactDataGrid.Row, p)}
-        <Spinner />
-    </div >);
-    */
 export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IDataListState> implements IDeveloperFeatures {
     items: any[];
     rowCount: number;
@@ -236,6 +230,12 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
             </div>
         );
     }
+    private renderRow(props: IDetailsRowProps, defaultRender: any) {
+        const { itemIsDisabled } = this.props;
+        const rowIsDisabled = itemIsDisabled instanceof Function && itemIsDisabled(props.item);
+        props.className = Utils.classNames(rowIsDisabled && "row-disabled", props.className);
+        return defaultRender(props);
+    }
     renderItems(items: any[]) {
         const length = this.rowCount || 10;
 
@@ -261,6 +261,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
         const totalPages = listData && Math.ceil(listData.totalRows / (length)) || 0;
         const dataListProps: IDetailsListProps = Object.assign({ ref: "detailList" }, p, {
             columns,
+            onRenderRow: this.renderRow.bind(this),
             items, constraintMode: ConstrainMode.unconstrained,
             rowsCount: (p.paginationMode == 'scrolled'
                 ? (!!listData ? listData.totalRows : length)
@@ -305,7 +306,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IData
 
         </div>
     }
-    static getSelectionClass(dataListInstance: React.ReactInstance) {
+    static getSelectionClass() {
         return Selection;
     }
 }
