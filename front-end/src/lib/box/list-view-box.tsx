@@ -5,7 +5,7 @@ import { icon, i18n } from '../core/shared-vars';
 import { Utils, changeCase } from '../core/utils';
 import { FilterPanel } from '../data/filter-panel';
 import { DataList } from '../data/data-list';
-import { Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
+import { ISelection, Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
 import { AdvButton, Placeholder } from '../core/ui-elements';
 
 
@@ -117,6 +117,7 @@ export class ListViewBox<T> extends
         }
         else
             id = getSelectedKey.apply(this.selection);
+        if (!id) return;
         const url = this.getUrlForSingleView(id);
         return Utils.navigate(url);
     }
@@ -260,22 +261,24 @@ export class ListViewBox<T> extends
     }
     prepareDataList(intialDataList: React.ReactElement<OrganicUi.IDataListProps>) {
         const multiple = this.getMultiple();
-
+        const { params } = this.props;
         const dataItemsElement = this.refs.root.querySelector('.data-items');
         if (!this.selection) {
-            const SelectionClass: typeof Selection = (intialDataList.type as typeof DataList).getSelectionClass(intialDataList as any) as any;
+            const SelectionClass: typeof Selection = (intialDataList.type as typeof DataList).getSelectionClass() as any;
             this.selection = new SelectionClass({
                 selectionMode: this.getMultiple() ? SelectionMode.multiple : SelectionMode.single,
-                onSelectionChanged: this.handleSelectionChanged
-            });
+                onSelectionChanged: this.handleSelectionChanged,
+                canSelectItem: params.canSelectItem
+            } as Partial<ISelection>);
         }
         return React.cloneElement(intialDataList, Object.assign(
             {}, intialDataList.props, {
                 ref: "dataList",
-                height: dataItemsElement ? dataItemsElement.clientHeight : this.props.params.height,
-                onDoubleClick: this.props.params.forDataLookup ? null : this.handleEdit,
+                height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
+                onDoubleClick: params.forDataLookup ? null : this.handleEdit,
                 onLoadRequestParams: this.handleLoadRequestParams,
                 multiple: this.props.params.forDataLookup,
+                itemIsDisabled: params.canSelectItem && (item => !params.canSelectItem(item)),
                 loader: this.readList,
                 flexMode: true,
                 paginationMode: intialDataList.props.paginationMode || 'paged',
@@ -290,12 +293,8 @@ export class ListViewBox<T> extends
     }
     renderContent() {
         const dataList = this.getDataList();
-
         if (!dataList) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
-        const { repatch } = this;
-
         const { options, params } = this.props;
-
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
         const { root } = this.refs;
@@ -315,7 +314,7 @@ export class ListViewBox<T> extends
         if (!root) setTimeout(() => (this.repatch({})), 10);
         const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
-            return <section className={Utils.classNames(`developer-features list-view-data-lookup `)}
+            return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options.classNameForListView)}
                 data-parent-id={params.parentRefId}
                 style={{
                     minHeight: (params.height ? params.height + 'px' : 'auto'),
@@ -323,9 +322,7 @@ export class ListViewBox<T> extends
                     minWidth: (minWidth ? minWidth + 'px' : 'auto'),
                     overflow: 'hidden'
                 }} ref="root"  >
-                {!params.noTitle && <div className="animated fadeInUp title " style={{ fontSize: '1.71rem' }}>
 
-                    {i18n(options.pluralName)}</div>}
                 {(params.filterMode != 'none') && <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
                     {filterPanel}
                 </div>}
@@ -336,7 +333,7 @@ export class ListViewBox<T> extends
                     {children}
                 </div>
             </section>;
-        return <section className="list-view developer-features" ref="root"   >
+        return <section className={Utils.classNames("list-view developer-features", options.classNameForListView)} ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
 
             <header className="  static-height list-view-header"  >
@@ -394,29 +391,40 @@ export class ListViewBox<T> extends
 
         </section >;
     }
-    static fromArray<T>(items: T[], { keyField = 'Id', fields = ['Name'], title, iconCode } = { keyField: 'Id', fields: ['Name'], title: '', iconCode: '' }): StatelessListView {
+    static fromEnum(enumType, extraParams): StatelessListView {
+        return ListViewBox.fromArray(Utils.enumToIdNames(enumType), extraParams);
+    }
+    static fromArray<T>(items: T[], { keyField = 'Id', fields = ['Name'], title, iconCode, iconCodes } = { keyField: 'Id', fields: ['Name'], title: '', iconCode: '', iconCodes: null }): StatelessListView {
+        const renderCellForIcon = (data) => (<div>{iconCodes && iconCodes[data[keyField]] && <span className="icon-code"> {Utils.showIcon(iconCodes[data[keyField]])}   </span>} {i18n(data[fields[0]])}</div>);
+
         const actions: IActionsForCRUD<T> = {
             create: () => Promise.resolve(true),
             update: () => Promise.resolve(true),
             deleteList: () => Promise.resolve(true),
             readList: () => Promise.resolve(items.filter(item => !!item[keyField])) as any,
             read: id => Promise.resolve(items.filter(item => (item[keyField]) == id)[0]),
-            getText: dto => dto[fields[0]],
+            getText: iconCodes ? renderCellForIcon : dto => dto[fields[0]],
             getId: dto => dto[keyField]
         };
         const options: Partial<IOptionsForCRUD> = {
-            singularName: 'local' + (+new Date()) + 'data'
+            singularName: 'local' + (+new Date()) + 'data',
+            classNameForListView: 'enum-mode'
         }
-        return p => (<ListViewBox actions={actions} options={options as any} params={Object.assign({}, p, { filterMode: 'none' })}>
+        return p => (<ListViewBox actions={actions} options={options as any} params={Object.assign({}, p, { filterMode: 'none' } as Partial<IListViewParams>)}>
             {!!title && <div className="animated fadeInUp  title is-6">
                 {Utils.showIcon(iconCode)}
                 {i18n(title)}</div>}
+
             <DataList>
-                {fields.map(fieldName => (<Field accessor={fieldName} />))}
+                {fields.map((fieldName, idx) => (<Field accessor={fieldName} onRenderCell={iconCodes && (idx == 0) && renderCellForIcon
+
+                } />))}
             </DataList>
         </ListViewBox>);
 
     }
+
 }
 Object.assign(reinvent.templates, { listView: ListViewBox });
-Object.assign(reinvent.utils, { listViewFromArray: ListViewBox.fromArray })
+Object.assign(reinvent.utils, { listViewFromArray: ListViewBox.fromArray, listViewFromEnum: ListViewBox.fromEnum });
+ 
