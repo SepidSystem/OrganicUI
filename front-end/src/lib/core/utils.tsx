@@ -281,8 +281,10 @@ export const Utils = {
 		customCaptions = customCaptions || {};
 		return [{ Id: undefined, Name: '' }].concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
-			.map(Name => ({ Id: enumType[Name],
-				 Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name })))
+			.map(Name => ({
+				Id: enumType[Name],
+				Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name
+			})))
 	},
 	equals(left, right) {
 		const result = left == right;
@@ -306,6 +308,14 @@ export const Utils = {
 		const result = new Date(date);
 		result.setDate(date.getDate() + days);
 		return result;
+	},
+	cascadeQueryElement(target: HTMLElement, { className, attrName, attrValue }):HTMLElement {
+		while (target) {
+			if (className && target.classList.contains(className)) return target;
+			if (attrName && target.getAttribute(attrName) == attrValue) return target;
+			target = target.parentElement;
+		}
+		return null;
 	},
 	getCascadeAttribute(element: HTMLElement, attributeName: string, errorRaised?: boolean) {
 		while (element) {
