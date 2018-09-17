@@ -75,6 +75,7 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
     instances.push(restClient);
     return restClient;
 };
+  
 /*
 export const refetch = createClientForREST();
 const patterns = {
