@@ -31,31 +31,38 @@ function templatedView(templName, extraParams) {
         const func = templName as Function;
         return function (templName, props) {
             const templComponent = templates[templName];
-            return function (params) {
+            const result = function (params) {
                 const result = func.apply(this, arguments);
-                const { children } = result && result.props;
+                const { children } = (result && result.props) || {} as any;
                 const childrenArray = React.Children.toArray(children);
                 return React.createElement(templComponent, Object.assign({ params }, props), ...childrenArray)
 
             }
+            const resultFilter = templates[templName + '_resultFilter'];
+             if (resultFilter instanceof Function) return resultFilter(result);
+            return result;
         }
+
+
     }
     const templComponentType = templates[templName];
     if (!templComponentType) throw `template-name is missing  , template:${templName}`;
-    return function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
+    const result = function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
         const orginalMethod = propertyDescriptor.value;
         propertyDescriptor.value = function () {
             const result = orginalMethod.apply(this, arguments);
             const { children } = result && result.props;
-            const props = Object.assign({ params: this.props }, extraParams);
+            const props = Object.assign({ params: this.props }, extraParams || {});
             const childrenArray = React.Children.toArray(children);
             return React.createElement(templComponentType, props, ...childrenArray);
         };
     }
+
+    return result;
 }
 export const reinvent: typeof _reinvent & {
     query, factoryTable, prefix,
-    baseClassFactory: Function, templates: { [key: string]: React.ComponentClass<any> },
+    baseClassFactory: Function, templates: { [key: string]: React.ComponentClass<any> | Function },
     utils: any,
     modules: { [key: string]: any }
 } = Object.assign(_reinvent, {

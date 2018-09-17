@@ -1,13 +1,16 @@
 import { reinvent } from "./reinvent";
 import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
+import { GridList, GridListTile, Paper } from '../controls/inspired-components'
+import { BaseComponent } from "../core/base-component";
 function injectRandomNumberToObject(obj) {
     const queue: { parent, key }[] = Object.keys(obj).map(key => ({ parent: obj, key }));
     let item;
+    var cc = 0;
     while (item = queue.shift()) {
         const child = item.parent[item.key];
         if (typeof child == 'number')
-            item.parent[item.key] = Math.round(Math.random() * 1000);
+            item.parent[item.key] = cc++;
         else if (typeof child == 'object')
             queue.push(...Object.keys(child).map(key => ({ parent: child, key })));
     }
@@ -75,3 +78,21 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
     return Object.assign(AClass, { options, getRenderParams }) as any;
 }
 reinvent.factoryTable['frontend:dashboard:widget'] = classFactory;
+
+class DashboardPage extends BaseComponent<never, never> {
+    render() {
+        const widgetES6Classes = reinvent.query('frontend:dashboard:widget');
+        return (<article >
+            <GridList cellHeight={400} spacing={20} cols={3} >
+                {widgetES6Classes.map((widgetES6Class: any, idx) =>
+                    <GridListTile cols={(widgetES6Class.options && widgetES6Class.options.cols) || 0}>
+                        {(widgetES6Class.options && widgetES6Class.options.fragment) ?
+                            React.createElement(widgetES6Class, {})
+                            : <Paper className="block" style={{ padding: '10px', height: '98%' }}>
+                                {React.createElement(widgetES6Class, {})}
+                            </Paper>} </GridListTile>
+                )}</GridList>
+        </article>)
+    }
+}
+reinvent.templates['dashboard'] = DashboardPage;

@@ -3,8 +3,7 @@ import { reinvent } from "./reinvent";
 import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
 import { openBindingSource } from "./binding-source";
-import { IActionsForCRUD } from "@organic-ui";
-import { routeTable } from "../core/router";
+ import { routeTable } from "../core/router";
 interface IParams<TDto> { actions: OrganicUi.IActionsForCRUD<TDto>, customActions, options: OrganicUi.IOptionsForCRUD };
 function classFactory<TDto>(p: IParams<TDto>):
     Reinvent.IReinventForCRUD<TDto> {
@@ -42,7 +41,7 @@ function classFactory<TDto>(p: IParams<TDto>):
             <Spinner />
         </div>;
         const targetKey = id ? 'singleView' : 'listView';
-        const componentClass = reinvent.templates[targetKey];
+        const componentClass = reinvent.templates[targetKey] as React.ComponentClass<any>;
         const result = AClass.applyChain(targetKey, p) as React.ReactElement<any>;
         const children = React.Children.toArray(result.props.children);
         return React.createElement(componentClass, { actions, params: p.props, options, customActions }, ...children);

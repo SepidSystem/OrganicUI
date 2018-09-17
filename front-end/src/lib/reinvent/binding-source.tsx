@@ -1,3 +1,5 @@
+import { BindingPoint } from "@reinvent";
+
 const proxyHandlerForBinding: ProxyHandler<{ __name?, __path?, __isArray?}> = {
     get(target, key: string) {
         const __isArray = /^[0-9]+$/.test(key.toString());
@@ -16,4 +18,7 @@ export function openBindingSource<T>(): T {
 const _globalBindingSource = openBindingSource();
 export function globalBindingSource<T>() {
     return _globalBindingSource as T;
+}
+export function getFieldValue(data, accessor: BindingPoint): any {
+    throw new Error("Method not implemented.");
 }
