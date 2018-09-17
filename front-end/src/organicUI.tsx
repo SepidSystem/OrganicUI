@@ -46,6 +46,8 @@ export { ViewBox } from './lib/box/view-box';
 export { DashboardBox } from './lib/box/dashboard-box';
 export { ReportViewBox } from './lib/box/report-view-box';
 export { ListViewBox } from './lib/box/list-view-box';
+import './lib/box/login-view';
+import './lib/box/blank-view';
 //----- Import Reinvent  
 export { reinvent } from './lib/reinvent/reinvent';
 import './lib/reinvent/reinvent';
