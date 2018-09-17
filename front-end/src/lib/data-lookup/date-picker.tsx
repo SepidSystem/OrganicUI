@@ -42,10 +42,10 @@ export class DatePicker extends BaseComponent<any, any>{
         dataLookup: DataLookup;
     }
 
-    static handleDisplayText(value:string) {
-        
+    static handleDisplayText(value: string, hasTime?) {
+        const v = value;
         value = value && value.toString();
-        if(value && value.indexOf('T')) value=value.split('T')[0].split('-').join('/');
+        if (value && value.indexOf('T') && typeof v == 'string') value = value.split('T')[0];
         const m = value && moment(value);
         let timeIdx = value && value.indexOf(':');
         let time = '';
@@ -61,12 +61,13 @@ export class DatePicker extends BaseComponent<any, any>{
             <span style={{ float: 'left' }}>
                 {m.format('jYYYY/jMM/jDD')}
             </span>
-            <span style={{ float: 'right' }}>
+            {!!hasTime && <span style={{ float: 'right' }}>
                 {time}
-            </span></span>
+            </span>}</span>
     }
     render() {
         const p = this.props;
+
         return <DataLookup ref="dataLookup" iconCode='fa-calendar'
             onDisplayText={DatePicker.handleDisplayText} minHeightForPopup="350px"
             {...this.props} className={Utils.classNames("date-picker", p.className)}
@@ -76,7 +77,7 @@ export class DatePicker extends BaseComponent<any, any>{
         />
     }
     static textReader(fieldProps, props, value) {
-        return DatePicker.handleDisplayText(value);
+        return DatePicker.handleDisplayText(value, true);
     }
     static inlineMode: boolean = true;
 }

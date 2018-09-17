@@ -40,8 +40,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     static defaultProps: Partial<OrganicUi.DataLookupProps> = {
         minHeightForPopup: '300px',
         popupMode: (DataLookup.Popover as any),
-
     }
+
     static classNameForField = (p: OrganicUi.DataLookupProps) => `data-lookup-field control-field-single-line ${!!p.bellowList ? 'has-bellow-list' : ''}`;
     static textReader = (fld, prop: OrganicUi.DataLookupProps, value) => {
         const { source } = prop as any;
@@ -139,9 +139,11 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
     }
 
     handleSelectionChanged(indices: number[], index) {
+        if (indices.length == 0) return;
         const listViewBox = this.getListViewBox();
         if (listViewBox.state.readingList) return;
         const items: any[] = listViewBox && listViewBox.refs.dataList && listViewBox.refs.dataList.items && listViewBox.refs.dataList.items.filter(x => !!x);
+
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const indiceDic: { [key: number]: boolean } = indices.reduce((accum, idx) => (Object.assign(accum, { [idx]: true })), {});
         let { selectedValueDic } = this.state;
@@ -161,7 +163,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             const value = this.props.multiple ? Object.keys(selectedValueDic).filter(id => Utils.safeNumber(id)) : ids[0];
             this.repatch({ value });
         }
-        if (!this.props.multiple && ids.length)
+        if (this.props.popupMode.inlineMode)
             closeAllPopup();
         this.props.onChange instanceof Function && this.props.onChange(
             this.props.multiple ? ids : ids[0]
@@ -275,8 +277,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         return this.state.selectedValueDic;
     }
     handleApply() {
-        const listViewELement = this.getListViewElement();
-        const dataList = this.querySelectorAll<DataList>('.data-list-wrapper', listViewELement)[0];
+        const listViewElement = this.getListViewElement();
+        const dataList = this.querySelectorAll<DataList>('.data-list-wrapper', listViewElement)[0];
         const items: any[] = dataList && dataList.items;
         console.assert(items instanceof Array, 'items is not array @handleSelectionChanged');
         const { getSelectedKeyCollection } = dataList as any;
@@ -337,8 +339,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
             onSelectionChanged: this.handleSelectionChanged,
             setValue: this.handleSetValue.bind(this),
             customReadListArguments: p.customReadListArguments,
-            customReadList: p.customReadList
-
+            customReadList: p.customReadList,
+            canSelectItem: p.canSelectItem
         } as Partial<OrganicUi.IListViewParams>);
 
         const onClose = () => {
@@ -391,7 +393,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, DataLoo
         const maxWidthForTextOverflow = this.refs.root && Math.round(this.refs.root.offsetWidth * 0.8);
         console.assert(!p.popupMode.inlineMode || !p.multiple, 'conflicted properties >>> inlineMode & multiple');
         const children: any[] = p.children && React.Children.toArray(p.children);
-        return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root" className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive')}
+        return <div onClick={!!p.popupMode.inlineMode && this.handleClick} ref="root"
+            className={classNames("closable-element", p.className, "data-lookup", s.isActive ? 'active' : 'deactive', this.props.multiple ? 'data-lookup-multiple' : 'data-lookup-single')}
             style={p.style}     >
             {innerText instanceof Promise && <span className="spinner-container"> <Spinner /></span>}
             <div className="editor" ref="editorWrapper">{textField}</div>

@@ -32,7 +32,7 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
             const cacheId = this.getListViewName() + p.value;
             const { refId } = this.state;
             DataLookupCell.cellRefsByCacheId[cacheId] = DataLookupCell.cellRefsByCacheId[cacheId] || {};
-             if (!DataLookupCell.cellRefsByCacheId[cacheId][refId]) {
+            if (!DataLookupCell.cellRefsByCacheId[cacheId][refId]) {
                 DataLookupCell.cellsByCacheId[cacheId] = DataLookupCell.cellsByCacheId[cacheId] || [];
                 DataLookupCell.cellsByCacheId[cacheId].push(this);
             }
