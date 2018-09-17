@@ -1,5 +1,14 @@
 .login-box {
     color: white !important;
+    .front{
+        display: flex;
+        padding:2px 10px;
+        flex-direction: column;
+        .field{
+            margin:0;
+             
+        }
+    }
     .fa {
         color: white !important;
     }
@@ -51,13 +60,15 @@
     } 
     footer {
         display: flex;
-        flex-direction: column;
-        margin: 5px 2px;
+        justify-content: center;
+        justify-content: center;
+      
     }
     button {
         background-color: #dd1b16 !important;
         color: #fff;
         margin-bottom: 60px;
+        min-width:100%;
     }
 }
 

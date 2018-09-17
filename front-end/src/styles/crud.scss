@@ -15,8 +15,8 @@
     .singleview-back-btn {
         background: #fff;
     }
-    .panel-heading *{
-        font-size:1.86rem !important;
+    .panel-heading * {
+        font-size: 1.86rem !important;
     }
 }
 
@@ -39,8 +39,8 @@
         min-height: 30px;
         button {
             color: #BCBCBC;
-            font-size:1.7rem;
-            .svg-icon{
+            font-size: 1.7rem;
+            .svg-icon {
                 margin: 0 0.5rem;
             }
         }
@@ -75,8 +75,8 @@
         }
     }
     .filter-panel {
-        .MuiPaper-root{
-            padding:5px 4rem;
+        .MuiPaper-root {
+            padding: 5px 4rem;
             min-height: 15.14rem;
             display: flex;
             flex-direction: column;
@@ -148,4 +148,16 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+}
+
+.list-view-data-lookup.enum-mode {
+    .ms-DetailsHeader {
+        display: none
+    }
+    .icon {
+        margin: 2px 10px;
+    }
+    .ms-DetailsRow-cellCheck{
+        display: none;
+    }
 }

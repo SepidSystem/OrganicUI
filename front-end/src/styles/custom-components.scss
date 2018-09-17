@@ -90,9 +90,9 @@
 .field-accessor {
     &.has-error {
         position: relative;
-        .label{
-            color:#B00020 !important;
-            padding:0 1rem;
+        .label {
+            color: #B00020 !important;
+            padding: 0 1rem;
         }
         .error-icon {
             position: absolute;
@@ -103,15 +103,17 @@
         .control {
             background: rgb(238, 238, 238);
             border-radius: 10px 10px 0 0;
-            border-bottom:2px #B00020  solid !important;
+            border-bottom: 2px #B00020 solid !important;
         }
-        .MuiInput-underline:after,.MuiInput-underline:before{
+        .MuiInput-underline:after,
+        .MuiInput-underline:before {
             display: none;
         }
     }
 }
 
 .field {
+    width: 100%;
     .control {
         flex: 1;
         display: flex;
@@ -129,7 +131,7 @@
         order: 100;
         margin-top: 1px;
         line-height: 13px;
-        padding: 0; 
+        padding: 0;
         bottom: 0;
         font-size: 1.14rem !important;
         span {
@@ -303,6 +305,13 @@ a.close {
         border-bottom: none !important;
         border-top: none !important;
         border: none !important;
+        &.is-selected {
+            background: rgba(0, 0, 0, 0.14) !important;
+        }
+    }
+   .row-disabled *{
+        color:#aaa;
+        cursor: not-allowed;
     }
 }
 

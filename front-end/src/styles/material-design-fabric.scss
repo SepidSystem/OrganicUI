@@ -187,6 +187,19 @@
 .check-field {
     display: flex;
     flex-direction: row;
+    .label {
+        flex:1;
+        position: relative;
+        span {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            height: 30px;
+            overflow: hidden;
+            margin-top: -15px;
+            text-align: right;
+        }
+    }
     .control {
         width: 40px;
         max-width: 40px;
@@ -277,7 +290,7 @@
     overflow-y: hidden !important;
 }
 
-.MuiPaper-root { 
+.MuiPaper-root {
     direction: rtl;
 }
 
@@ -288,7 +301,6 @@
     }
 }
 
- 
 .button-icon-ux {
     position: relative;
     i {
@@ -324,7 +336,7 @@
     * {
         font-size: 1.71rem;
     }
-    input{
+    input {
         font-size: 1.71rem !important;
     }
 }
@@ -343,7 +355,9 @@
 }
 
 .MuiMenuItem-root,
+li.MuiButtonBase-root,
 .MuiTypography-body1,
-.label,.center-text {
+.label,
+.center-text {
     font-size: 1.71rem !important;
 }
