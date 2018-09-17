@@ -11,6 +11,7 @@ import { IDataFormAccessorMsg } from "@organic-ui";
 interface IState {
     message?: { type, text };
     selectedItem: any;
+    capturedValues: any;
     selectedItemIndex: number;
     isOpen?: boolean;
     targetSelector?: string;
@@ -20,6 +21,9 @@ interface IState {
 
 export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> implements OrganicUi.IDeveloperFeatures {
     devPortId: number;
+    onFieldWrite?: Function;
+    onFieldRead?: Function;
+
     getDevButton() {
         return Utils.renderDevButton('DataForm', this as any);
     }
@@ -84,12 +88,22 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     refs: {
         root: HTMLElement;
     }
-    constructor(p) {
+    constructor(p: OrganicUi.IDataFormProps) {
         super(p);
+        this.onFieldWrite = this.props.onFieldWrite || ((key, value) => {
+            debugger;
+            return p.data[key] = value;
+        });
+
+        this.onFieldRead = this.props.onFieldRead || ((key) => p.data[key]);
+
+
+
         this.appliedFieldName = `data-form-applied${DataForm.DataFormCount}`;
         this.devPortId = Utils.accquireDevPortId();
         DataForm.DataFormCount++;
     }
+
     getErrors() {
         const { root } = this.refs;
         console.assert(!!root, 'root is null@getErrors');
@@ -149,7 +163,11 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     processFields() {
         if (this.devElement) return;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
-
+        if (this.props.onCustomRenderWithCaptureValues) {
+            const capturedValues = Object.assign({}, ...this.querySelectorAll<Field>('.field-accessor').map(fld => fld.getValuePair()));
+            this.repatch({ capturedValues })
+            this.state.message
+        }
         this.querySelectorAll<OrganicUi.IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 
     }
@@ -160,4 +178,6 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     componentDidUpdate() {
         this.processFields();
     }
+
+
 }
