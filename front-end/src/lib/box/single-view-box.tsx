@@ -68,6 +68,10 @@ export class SingleViewBox<T> extends OrganicBox<
 
             : this.mapFormData({});
     }
+    componentDidMount() {
+
+        this.setPageTitle(this.getTitle());
+    }
     getId(row) {
         if (this.actions.getId instanceof Function)
             return this.actions.getId(row);
@@ -190,6 +194,10 @@ export class SingleViewBox<T> extends OrganicBox<
         return val;
 
     }
+    getTitle() {
+        const p = this.props;
+        return Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(p.options.singularName) })
+    }
     renderContent(p = this.props) {
 
         const { options } = this.props;
@@ -201,7 +209,7 @@ export class SingleViewBox<T> extends OrganicBox<
         return <section className="organic-box single-view developer-features" ref="root">
             {!p.params.noTitle && <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0', fontSize: '2.57rem' }}>
                 <div className="column  " style={{ flex: '10' }}>
-                    {Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(options.singularName) })}
+                    {this.getTitle()}
                 </div>
                 <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
                     {!p.params.onNavigate && <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.handleNavigate}   >
