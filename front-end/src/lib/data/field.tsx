@@ -17,6 +17,7 @@ export interface IFieldState {
     messages?: IFieldMessage[];
     currentOp?: string;
     operatorsMenuIsOpen?: boolean;
+    extractedValues: any;
 }
 export interface FilterItem {
     op: string;
@@ -27,7 +28,7 @@ export interface FilterItem {
 }
 const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'];
 export class Field extends BaseComponent<IFieldProps, IFieldState>{
-    static isField=true;
+    static isField = true;
     focus() {
         const inputElement = this.getInputElement('default') as any;
         inputElement && inputElement.focus && inputElement.focus();
@@ -46,9 +47,13 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
     constructor(p) {
         super(p);
+        this.state.extractedValues = {};
         this.handleSetData = this.handleSetData.bind(this);
         this.handleGetData = this.handleGetData.bind(this);
 
+    }
+    getValuePair() {
+        return { [Field.getAccessorName(this.props.accessor)]: this.state.extractedValues['default'] };
     }
     getFilterItem(): FilterItem {
 
@@ -56,17 +61,16 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const p = this.props;
         return Object.assign({},
             {
-                value: this.extractedValues['default'],
+                value: this.state.extractedValues['default'],
                 fieldName: Field.getAccessorName(p.accessor),
                 op: (operatorsForServerSideMap[op] || op)
             },
             p.filterData || {},
-            this.extractedValues['alt'] !== undefined ? { value2: this.extractedValues['alt'] } : {});
+            this.state.extractedValues['alt'] !== undefined ? { value2: this.state.extractedValues['alt'] } : {});
 
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(Field.getAccessorName(accessor)))
     static getLabelText = (accessor, label?) => i18n.get(label || changeCase.paramCase(Field.getAccessorName(accessor)))
-    extractedValues: { default?, alt?} = {};
     getDataForm(avoidAssertion?) {
         const { root } = this.refs;
         !avoidAssertion && console.assert(!!root, 'root is null @ getDataForm');
@@ -127,21 +131,21 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (!root) return;
 
         let parent = root;
-        let getters: (string | Function)[] = [];
         const dataForm = this.getDataForm();
 
         while (parent) {
             const { componentRef } = parent as any;
             const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
-            if (props && props.onFieldWrite) {
+            const onFieldWrite = (props && props.onFieldWrite) || (componentRef && componentRef.onFieldWrite);
+            if (onFieldWrite) {
                 if (prefix == 'default')
-                    props.onFieldWrite(Field.getAccessorName(p.accessor), value);
+                    onFieldWrite(Field.getAccessorName(p.accessor), value);
                 else
-                    props.onFieldWrite(Field.getAccessorName(p.accessor) + '__2', value);
+                    onFieldWrite(Field.getAccessorName(p.accessor) + '__2', value);
 
-                Object.assign(this.extractedValues, { [prefix]: value });
+                const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
 
-                this.repatch({});
+                this.repatch({ extractedValues });
 
                 break;
             }
@@ -168,7 +172,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             this.repatch({});
         }, 1);
-        this.extractedValues = {};
+        this.state.extractedValues = {};
         Object.keys(this.inputElements).forEach(key => this.inputElements[key] = <NotConnectedInput />);
         this.repatch({});
     }
@@ -257,14 +261,18 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
         let classNameForField = inputElement && inputElement.type && inputElement.type['classNameForField'];
         if (classNameForField instanceof Function) classNameForField = classNameForField(inputElement.props);
-        const propsOfInputElement = inputElement && Object.assign({}, inputElement.props,
+        const valProps = this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.state.extractedValues['default']);
+        if (p.onMirror instanceof Function) {
+            return p.onMirror(valProps, p);
+        }
+        const propsOfInputElement = inputElement && Object.assign(inputElementType.hasDataFormProp ? { dataForm } : {}, inputElement.props,
             {
                 onChange: this.changeEvent,
                 onChanged: this.changeEvent,
                 onFocus: this.focusEvent,
                 onBlur: this.blurEvent,
                 className: Utils.classNames(inputElement.props && inputElement.props.className)
-            }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.extractedValues['default'])
+            }, valProps
         );
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
 
@@ -280,7 +288,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 onFocus: this.focusEvent2,
                 onBlur: this.blurEvent2,
                 className: Utils.classNames("alt-input-element", inputElement2.props && inputElement2.props.className)
-            }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.extractedValues['alt'])
+            }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.state.extractedValues['alt'])
         );
         inputElement2 = inputElement2 && React.cloneElement(inputElement2, propsOfInputElement2);
         const label = Field.getLabel(p.accessor, p.label);
@@ -292,19 +300,19 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             this.fixedClientWidth = root.clientWidth;
         if (s.messages && s.messages[0]) this.fixedClientWidth = undefined;
         if (p.onlyInput) return inputElement;
-        const hasValue = (this.extractedValues && !Utils.isUndefined(this.extractedValues['default']));
+        const hasValue = (this.state.extractedValues && !Utils.isUndefined(this.state.extractedValues['default']));
         const { fixedClientWidth } = this;
         const style: React.CSSProperties = !p.disableFixedWidth && !!fixedClientWidth ? {
             maxWidth: `${fixedClientWidth}px`,
             width: `${fixedClientWidth}px`,
             minWidth: `${fixedClientWidth}px`
-        } : {};
+        } : null;
         this.operators = this.operators || inputElementType['filterOperators'] || defaultOperators;
-        let classNameForRoot = Utils.classNames("field-accessor", classNameForField, hasError && 'has-error');
-        let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
+        let classNameForRoot = Utils.classNames("field-accessor", style && 'fixed-width', classNameForField, hasError && 'has-error');
+         let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
         const { adjustFieldClassName } = (inputElementType || {}) as any;
         if (adjustFieldClassName instanceof Function) {
-              [classNameForRoot, className] = adjustFieldClassName(inputElement.props, classNameForRoot, className);
+            [classNameForRoot, className] = adjustFieldClassName(inputElement.props, classNameForRoot, className);
         }
         return (<div ref="root" key="root"
             data-accessor-name={Field.getAccessorName(p.accessor)}
@@ -403,8 +411,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 });
                 return;
             }
-            if (value != this.extractedValues['default']) {
-                this.extractedValues['default'] = value;
+            if (Object.keys(this.state.extractedValues).length == 0 && (value != this.state.extractedValues['default'])) {
+                this.state.extractedValues['default'] = value;
                 setTimeout(() => this.repatch({}), 10);
 
             }
@@ -419,7 +427,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             if (dataType == 'boolean' && this.refs.root) {
                 const htmlCheckBox = this.refs.root.querySelector('input[type=checkbox]') as HTMLInputElement;
                 if (htmlCheckBox &&
-                    (!!this.extractedValues['default'] !== htmlCheckBox.checked))
+                    (!!this.state.extractedValues['default'] !== htmlCheckBox.checked))
                     Utils.simulateClick(htmlCheckBox);
 
             }
