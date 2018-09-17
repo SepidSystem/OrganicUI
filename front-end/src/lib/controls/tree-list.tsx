@@ -5,14 +5,19 @@ import { Utils } from '../core/utils';
 
 import { Spinner } from '../core/spinner';
 import { ITreeListNode, ITreeListProps } from '@organic-ui';
-import { Checkbox, Button } from './inspired-components';
-
-export class TreeList extends BaseComponent<ITreeListProps, any>{
+import { Checkbox, Button, TextField } from './inspired-components';
+interface IState {
+    searching: string;
+}
+export class TreeList extends BaseComponent<ITreeListProps, IState>{
     static defaultProps = {
         mapping: { key: 'key', parentKey: 'parentKey', text: 'text' }
     }
+    foundedKeys: any;
+    nodeByKey: any;
     constructor(p) {
         super(p);
+        this.handleSearch = this.handleSearch.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
     }
     cache: any = {};
@@ -48,9 +53,14 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
         "type-flag  type-flag2 fa   fa-times-rectangle ",
         "type-flag  type-flag3 fa  fa-dot-circle-o  "];
     expandedKeys: any = {};
+    internalExpandedKeys: any = {};
+    isExpanded(key) {
+        return (this.internalExpandedKeys[key] || this.expandedKeys[key]);
+    }
     handleToggle(e: React.MouseEvent<any>) {
         const key = Utils.getCascadeAttribute(e.target as any, 'data-key', true);
-        this.expandedKeys[key] = !this.expandedKeys[key];
+        this.expandedKeys[key] = !this.isExpanded(key);
+        delete this.internalExpandedKeys[key];
         this.forceUpdate();
     }
     parentKeys: any = {};
@@ -59,7 +69,7 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
             throw `renderNodes:${parentKey}`;
         const p = this.props;
         const { mapping } = this.props;
-        let nodes = this.cache[parentKey];
+        let nodes = parentKey instanceof Array ? parentKey as any[] : this.cache[parentKey];
         if (!(mapping.key && mapping.text && mapping.parentKey))
             throw `invalid mapping`;
 
@@ -75,48 +85,83 @@ export class TreeList extends BaseComponent<ITreeListProps, any>{
         this.parentKeys[parentKey] = true
 
         const result = <ul className={parentKey ? "subitems" : ""}>
-            {nodes.map(node => ([<li key={node[mapping.key]} className={
-                Utils.classNames(this.expandedKeys[node[mapping.key]] ? "expanded" : "collapsed", this.isLeafNode(node) ? 'leaf ' : '',
-                    p.getNodeClass instanceof Function && p.getNodeClass(node)
-                )} data-node-key={node[mapping.key]} onClick={p.onNodeClick} >
-                <Button variant="flat" data-area="expand" data-key={node[mapping.key]} className={Utils.classNames("expand-icon",
-                    this.expandedKeys[node[mapping.key]] ? "expanded" : "collapsed")} onClick={this.handleToggle} >
-                    <i className="fa fa-chevron-left" aria-hidden="true"></i>
-                    <i className="fa fa-chevron-down" aria-hidden="true"></i>
-                </Button>
+            {nodes.filter(n => this.expandedKeys[n[mapping.parentKey]] || !this.foundedKeys || this.foundedKeys[n[mapping.key]])
+                .map(node => ([<li key={node[mapping.key]} className={
+                    Utils.classNames(this.isExpanded(node[mapping.key]) ? "expanded" : "collapsed", this.isLeafNode(node) ? 'leaf ' : '',
+                        p.getNodeClass instanceof Function && p.getNodeClass(node)
+                    )} data-node-key={node[mapping.key]} onClick={p.onNodeClick} >
+                    <Button variant="flat" data-area="expand" data-key={node[mapping.key]} className={Utils.classNames("expand-icon",
+                        (this.isExpanded(node[mapping.key])) ? "expanded" : "collapsed")} onClick={this.handleToggle} >
+                        <i className="fa fa-chevron-left" aria-hidden="true"></i>
+                        <i className="fa fa-chevron-down" aria-hidden="true"></i>
+                    </Button>
 
-                <span className="node" data-area="text">
+                    <span className="node" data-area="text">
 
-                    {p.showCheckBoxes && <Checkbox color={node.checkBoxStatus == 2 ? "secondary" : "primary"} onClick={this.changeCheckStatus.bind(this, node, '+')}
-                        checked={p.onGetCheckBoxStatus ? p.onGetCheckBoxStatus(node) : !!node.checkBoxStatus} indeterminate={node.checkBoxStatus == 2}
-                        centerRipple
-                        checkedIcon={undefined && <i className={TreeList.checkBoxClassNames[(node.checkBoxStatus || 0)]} style={{ fill: "#ff0000" }} />}
-                    />}
-                    <span>{node[mapping.text]}</span>
+                        {p.showCheckBoxes && <Checkbox color={node.checkBoxStatus == 2 ? "secondary" : "primary"} onClick={this.changeCheckStatus.bind(this, node, '+')}
+                            checked={p.onGetCheckBoxStatus ? p.onGetCheckBoxStatus(node) : !!node.checkBoxStatus} indeterminate={node.checkBoxStatus == 2}
+                            centerRipple
+                            checkedIcon={undefined && <i className={TreeList.checkBoxClassNames[(node.checkBoxStatus || 0)]} style={{ fill: "#ff0000" }} />}
+                        />}
+                        <span>{node[mapping.text]}</span>
 
-                    {p.showCheckBoxes && <span className="choices" >
-                        {classNameForCheckBoxStatuses.map(
-                            (clsName, idx) => (<i className={`choice-flag  ${clsName}`}
-                                onClick={this.changeCheckStatus.bind(this, node, idx)} />))}
+                        {p.showCheckBoxes && <span className="choices" >
+                            {classNameForCheckBoxStatuses.map(
+                                (clsName, idx) => (<i className={`choice-flag    ${clsName}`}
+                                    onClick={this.changeCheckStatus.bind(this, node, idx)} />))}
 
-                    </span>}
-                </span>
+                        </span>}
+                    </span>
 
-                {this.renderNodes(node[mapping.key])}
-            </li>]))}
+                    {(this.isExpanded(node[mapping.key])) && this.renderNodes(node[mapping.key])}
+                </li>]))}
         </ul>;
         delete this.parentKeys[parentKey];
         return result;
+    }
 
+    handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+        const { currentTarget } = e;
+        if (!currentTarget) return;
+        this.foundedKeys = null;
+        this.repatch({ searching: currentTarget.value });
 
+    }
+    filterNode(node) {
+        const { mapping } = this.props;
+        const { searching } = this.state;
+        const text = node[mapping.text];
+        return text.includes(searching);
+    }
+    getFoundedKey() {
+        this.internalExpandedKeys = {};
+        if (!this.state.searching) return null;
+        const foundedKeys = {};
+        const { mapping } = this.props;
+        this.filterNode = this.filterNode.bind(this);
+        for (const node of this.props.nodes) {
+            if (!this.filterNode(node)) continue;
+            let targetNode = node;
+            while (targetNode) {
+                foundedKeys[targetNode[mapping.key]] = true;
+                this.internalExpandedKeys[targetNode[mapping.key]] = true;
+                targetNode = this.nodeByKey[targetNode[mapping.parentKey]];
+            }
+        }
+        return foundedKeys;
     }
     render() {
         const p = this.props;
-        if (p.nodes instanceof Promise) return <Spinner />;
-        return <div className="tree-list" style={{ maxHeight: p.height ? `${p.height}px` : null, height: p.height ? `${p.height}px` : null, overflow: 'scroll', overflowX: 'hidden' }}>
-            {this.renderNodes(0)}
+        const rootNodes = p.nodes instanceof Array && p.nodes.filter(n => !n[p.mapping.parentKey]);
+        this.nodeByKey = this.nodeByKey || (p.nodes instanceof Array && p.nodes.reduce((accum, node) => Object.assign(accum, { [node[p.mapping.key]]: node }), {}));
+        this.foundedKeys = this.foundedKeys || this.getFoundedKey();
+        return <div className="tree-list" style={{ maxHeight: p.height ? `${p.height}px` : null, height: p.height ? `${p.height}px` : null, display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
+            <TextField    type="text" style={{ maxHeight: '30px' }} onChange={this.handleSearch} />
+            <div style={{ overflowY: 'scroll', flex: '1' }}>
+                {p.nodes instanceof Promise ? <Spinner /> : this.renderNodes(rootNodes)}
+            </div>
         </div>
     }
 }
-const classNameForCheckBoxStatuses = ['fa-square', 'fa-check-square', 'fa-times-rectangle']
+const classNameForCheckBoxStatuses = ['fa fa-square', 'fa fa-check-square', 'fa fa-times-rectangle']
 TreeList['field-className'] = 'no-material no-label';
