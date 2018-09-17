@@ -79,8 +79,10 @@ declare namespace Reinvent {
         utils: {
             listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
             showDialogForAddNew(componentType): (() => Promise<any>);
+            listViewFromEnum<TEnum>(enumType, options?: { keyField?: string, title?, iconCodes: { [key in keyof TEnum]: string } }): OrganicUi.StatelessListView;
+
         }
-          openBindingHub<T>(): BindingHub<T>;
+        openBindingHub<T>(): BindingHub<T>;
     }
     export interface BindingPoint {
         __name: string;
@@ -90,18 +92,45 @@ declare namespace Reinvent {
         [P in keyof T]?: T[P] extends (object | object[]) ? BindingHub<T[P]> :
         BindingPoint;
     };
-    type TemplateName= 'singleView' | 'listView'| 'report-view';
-    export function templatedView<T>(templName: TemplateName, opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
-    export function templatedView<TProps>(method: React.SFC<TProps>): (templName:TemplateName, props) => React.SFC<TProps>;
+    type TemplateName = 'report-view' | 'dashboard' | 'login' | 'blank';
+    export function templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    export function templatedView<T>(templName: TemplateName, opts?  ): MethodDecorator;
+    export function templatedView<TProps>(method: React.SFC<TProps>): (templName: TemplateName, props) => React.SFC<TProps>;
 
     export function openBindingHub<T>(): BindingHub<T>;
-    const utils: {
-        listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
-        showDialogForAddNew(componentType): (() => Promise<any>);
-    }
+
 }
 
 
 declare module '@reinvent' {
     export =Reinvent;
-} 
+}
+
+declare module '@reinvent/test' {
+    interface IOptionsForCRUD {
+        avoidAutoFilter?: boolean;
+        insertButtonContent?: any;
+        singularName: string;
+        routeForSingleView: string;
+        routeForListView: string;
+        pluralName: string;
+        iconCode;
+    }
+
+    interface ITestCaseSource {
+
+    }
+    interface ITestCase {
+        addPlugin()
+    }
+    interface TestPlugin {
+
+    }
+    export function source(type: 'test:frontend:crud', options: IOptionsForCRUD): ITestCaseSource;
+    export function source(type: 'test:frontend', options: IOptionsForCRUD): ITestCaseSource;
+    export function testCase(name: string, source: ITestCaseSource): ITestCase;
+    export class BrowserAgent implements TestPlugin { }
+
+
+
+}

@@ -77,6 +77,7 @@ declare namespace OrganicUi {
         readonly?: boolean;
         messages?: IFieldMessage[];
         onlyInput?: boolean;
+        onMirror?: Function;
         getInfoMessage?: () => string;
         children?: any;
         className?: string;
@@ -151,6 +152,7 @@ declare namespace OrganicUi {
         getCascadeAttribute(element: HTMLElement, attributeName: string, errorRaised?: boolean): string;
         enumToIdNames(enumType: any): ({ Id, Name }[]);
         addDays(date: Date, days: number): Date;
+        numberFormat(n: string | number): string;
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -266,7 +268,13 @@ declare namespace OrganicUi {
 
 
     export const DataList: React.SFC<OrganicUi.IDataListProps<any>>;
-    export const DataTreeList: React.SFC<OrganicUi.IDataListProps<any> & Partial< OrganicUi.ITreeListProps>>;
+    export const DataTreeList: React.SFC<OrganicUi.IDataListProps<any> & Partial<OrganicUi.ITreeListProps>>;
+    export interface IDataGalleryProps extends IDataListProps {
+        fieldMapping?: {
+            key, title, description
+        }
+    }
+    export const DataGallery: React.SFC<IDataGalleryProps>;
     interface IDataPanelProps {
         header: any;
         primary?: boolean;
@@ -298,12 +306,17 @@ declare namespace OrganicUi {
     type PartialFunction<T> = {
         [P in keyof T]?: ((value: T[P]) => any);
     };
+    export interface IBlankOptions {
+        title: string;
+    }
     export interface IOptionsForCRUD {
         avoidAutoFilter?: boolean;
         insertButtonContent?: any;
         singularName: string;
         routeForSingleView: string;
         routeForListView: string;
+        classNameForListView?: string;
+        classNameForSingleView?: string;
         pluralName: string;
         iconCode;
     }
@@ -319,6 +332,7 @@ declare namespace OrganicUi {
         onSelectionChanged?: Function;
         customReadList?: Function;
         customReadListArguments?: any[];
+        canSelectItem?: (row) => boolean;
         defaultSelectedValues?: () => { [key: number]: true };
         getValue?: () => any;
         setValue?: (value) => void;
@@ -361,8 +375,8 @@ declare namespace OrganicUi {
         getNodeClass?: (item: ITreeListNode) => string;
         onNodeClick?: (e: React.MouseEvent<HTMLElement>) => void;
         mapping?: { key: string, parentKey: string, text: string };
-        onGetCheckBoxStatus?:(node)=>any;
-        onChangeCheckBoxStatus?:(node,newState)=>void;
+        onGetCheckBoxStatus?: (node) => any;
+        onChangeCheckBoxStatus?: (node, newState) => void;
     }
     export interface IRegistry<T> {
         data: any;
@@ -410,6 +424,13 @@ declare namespace OrganicUi {
         className?: string;
         style?: React.CSSProperties;
         children: any;
+        onCustomRenderWithCaptureValues?: Function;
+    }
+    export interface ISubmitProps {
+        className?: string;
+        buttonComponent: React.ComponentType<any>;
+        bindingSource: Reinvent.BindingHub;
+        onExecute: (body) => Promise<any>;
     }
     interface IFilterPanelProps {
         dataForm?: any;
@@ -440,6 +461,7 @@ declare namespace OrganicUi {
     export interface IAppModel {
         getMenuItems(): { menu: IMenu }[];
         defaultMasterPage: () => any;
+        checkPermission(permission): boolean;
     }
     export function startApp(appModel: IAppModel);
     export interface ITimeSlotRange { from: string, to: string }
@@ -477,6 +499,7 @@ declare namespace OrganicUi {
         customDataRenderer?: (items: any[], dataList?: BaseComponent<OrganicUi.IDataListProps<any>>) => JSX.Element;
         detailsListProps?: T;
         selection?: any;
+        itemIsDisabled?: (row: T) => boolean;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
 
@@ -498,6 +521,7 @@ declare namespace OrganicUi {
         onFocus?: () => void;
         onBlur?: () => void;
         onDisplayText?: (value) => React.ReactNode;
+        canSelectItem?: (row) => boolean;
         multiple?: boolean;
         value?: any;
         iconCode?: string;
@@ -668,7 +692,7 @@ declare module '@organic-ui' {
     }
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export const DataList: React.SFC<OrganicUi.IDataListProps<IDetailsListProps>>;
-    export const DataTreeList:typeof OrganicUi.DataTreeList;
+    export const DataTreeList: typeof OrganicUi.DataTreeList;
     export const DataPanel: typeof OrganicUi.DataPanel;
     export const DataListPanel: typeof OrganicUi.DataListPanel;
     export const FilterPanel: typeof OrganicUi.FilterPanel;
