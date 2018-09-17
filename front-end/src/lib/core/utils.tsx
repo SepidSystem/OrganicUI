@@ -3,6 +3,7 @@ import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 import { diff } from 'rus-diff';
 let devPortIdCounter = 0;
+interface IEnumToArrayOptions { customCaptions?: Object }
 export const Utils = {
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
@@ -275,11 +276,13 @@ export const Utils = {
 	toPromise<T>(value: (T | Promise<T>)): Promise<T> {
 		return Promise.all([value]).then(([result]) => result);
 	},
-	enumToIdNames(enumType: any, customCaptions?: Object): ({ Id, Name }[]) {
+	enumToIdNames(enumType: any, opts?: IEnumToArrayOptions): ({ Id, Name }[]) {
+		let { customCaptions } = opts || {} as IEnumToArrayOptions;
 		customCaptions = customCaptions || {};
 		return [{ Id: undefined, Name: '' }].concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
-			.map(Name => ({ Id: enumType[Name], Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name })))
+			.map(Name => ({ Id: enumType[Name],
+				 Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name })))
 	},
 	equals(left, right) {
 		const result = left == right;
@@ -311,9 +314,22 @@ export const Utils = {
 			element = element.parentElement;
 		}
 		if (!!errorRaised) throw `getCascadeAttribute fail for ${attributeName}`;
+	},
+	numberFormat(n) {
+		n = n.toString();
+		if (n.length % 3)
+			n = '0'.repeat(3 - (n.length % 3)) + n;
+		let result = '';
+		while (n) {
+			const part = n.substr(0, 3);
+			n = n.substr(3);
+			result = result ? (result + ',' + part) : (+part).toString();
+
+		}
+		return result;
 	}
 }
-import * as changeCaseObject from 'change-case-object'
+import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
 import { ActionButton } from "office-ui-fabric-react/lib/Button";
 import { Button } from "../controls/inspired-components";
