@@ -91,7 +91,6 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     constructor(p: OrganicUi.IDataFormProps) {
         super(p);
         this.onFieldWrite = this.props.onFieldWrite || ((key, value) => {
-            debugger;
             return p.data[key] = value;
         });
 
