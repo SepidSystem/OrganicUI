@@ -105,32 +105,3 @@ declare namespace Reinvent {
 declare module '@reinvent' {
     export =Reinvent;
 }
-
-declare module '@reinvent/test' {
-    interface IOptionsForCRUD {
-        avoidAutoFilter?: boolean;
-        insertButtonContent?: any;
-        singularName: string;
-        routeForSingleView: string;
-        routeForListView: string;
-        pluralName: string;
-        iconCode;
-    }
-
-    interface ITestCaseSource {
-
-    }
-    interface ITestCase {
-        addPlugin()
-    }
-    interface TestPlugin {
-
-    }
-    export function source(type: 'test:frontend:crud', options: IOptionsForCRUD): ITestCaseSource;
-    export function source(type: 'test:frontend', options: IOptionsForCRUD): ITestCaseSource;
-    export function testCase(name: string, source: ITestCaseSource): ITestCase;
-    export class BrowserAgent implements TestPlugin { }
-
-
-
-}

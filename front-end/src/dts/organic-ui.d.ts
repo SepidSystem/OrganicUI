@@ -153,6 +153,7 @@ declare namespace OrganicUi {
         enumToIdNames(enumType: any): ({ Id, Name }[]);
         addDays(date: Date, days: number): Date;
         numberFormat(n: string | number): string;
+        hash(data):string;
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -318,6 +319,7 @@ declare namespace OrganicUi {
         classNameForListView?: string;
         classNameForSingleView?: string;
         pluralName: string;
+        permissionKeys?:{forCreate,forRead,forUpdate,forDelete}
         iconCode;
     }
     interface IListViewParams {
@@ -423,7 +425,7 @@ declare namespace OrganicUi {
         data?: T;
         className?: string;
         style?: React.CSSProperties;
-        children: any;
+        children?: any;
         onCustomRenderWithCaptureValues?: Function;
     }
     export interface ISubmitProps {
@@ -459,9 +461,9 @@ declare namespace OrganicUi {
     function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
 
     export interface IAppModel {
-        getMenuItems(): { menu: IMenu }[];
+        getMenuItems(): { menu: IMenu,permission? }[];
         defaultMasterPage: () => any;
-        checkPermission(permission): boolean;
+        checkPermission(permissionKey): boolean;
     }
     export function startApp(appModel: IAppModel);
     export interface ITimeSlotRange { from: string, to: string }
