@@ -36,15 +36,17 @@ class loginView extends BaseComponent<any, IState>{
     }
     componentDidMount() {
         const { back, front } = this.refs;
-        const flipperHeight = Math.max(back.clientHeight, front.clientHeight);
-        this.repatch({ flipperHeight });
+        if (back && front) {
+            const flipperHeight = Math.max(back.clientHeight, front.clientHeight);
+            this.repatch({ flipperHeight });
+        }
     }
     componentWillMount() {
         this.state.serverResponse = !!this.props.message && { message: this.props.message, success: false } as IResponseForLogin;
     }
     render() {
         const { serverResponse } = this.state;
-        return <section className="login-box content col-lg-4 col-md-6 col-10"  style={{minWidth:'400px'}}>
+        return <section className="login-box content col-lg-4 col-md-6 col-10" style={{ minWidth: '400px' }}>
             <div ref="root" className={Utils.classNames("flip-container", this.state.serverResponse && "applied")}>
                 <div className="flipper" style={{ minHeight: this.state.flipperHeight || null }}>
                     <div ref="front" className="front">
@@ -54,12 +56,12 @@ class loginView extends BaseComponent<any, IState>{
                                 {i18n('productName')}
                             </div>
                         </header>
-                        <div className="field">
+                        <div className="field user-name">
                             <div className="control">
                                 <input ref="userNameInput" className="input is-primary" type="text" placeholder={i18nAttr('user-name')} />
                             </div>
                         </div>
-                        <div className="field">
+                        <div className="field password  ">
                             <div className="control">
                                 <input ref="passwordInput" className="input is-primary" type="password" placeholder={i18nAttr('password')} />
                             </div>

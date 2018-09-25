@@ -1,9 +1,7 @@
 /// <reference path="../../dts/globals.d.ts" />
 import { icon, i18n } from '../core/shared-vars';
 import { Utils } from '../core/utils';
-import { Field } from '../data/field';
-import { listViews } from '../core/shared-vars';
-import { ReactElement, isValidElement } from 'react';
+import { checkPermission } from '../core/bootstrapper';
 import { DataForm } from '../data/data-form';
 import { Spinner } from '../core/spinner';
 import { AdvButton, Placeholder } from '../core/ui-elements';
@@ -46,6 +44,7 @@ export class SingleViewBox<T> extends OrganicBox<
         Utils.navigate(url);
     }
     refs: {
+        root:HTMLElement;
         dataForm: DataForm;
         primaryButton: AdvButton;
         secondaryButton: AdvButton;
@@ -86,7 +85,9 @@ export class SingleViewBox<T> extends OrganicBox<
         const formData = this.getFormData();
         formData && (formData[fieldName] = value);
     }
-
+    addNewMode() {
+        return this.props.params.id == 'new';
+    }
     async handleSave(navigateToListView?) {
         const p = this.props, s = this.state;
         this.repatch({ validated: true });
@@ -105,13 +106,12 @@ export class SingleViewBox<T> extends OrganicBox<
             return dataForm.showInvalidItems(invalidItems);
         }
         let updateResult: Promise<any>;
-        let { id } = p.params;
-        if (id == 'new') id = 0;
+        const { id } = p.params;
         const monitorFunc = SingleViewBox.getMonitorFunc();
         const debugResult = await Utils.toPromise(!!monitorFunc && monitorFunc('beforeSave', formData));
         console.assert(debugResult === -1, 'debugResult>>>>', { debugResult });
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
-            updateResult = id > 0 ? this.actions.update(id, formData) : this.actions.create(formData);
+            updateResult = this.addNewMode() ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
             return (<div className="error-callback" style={{ padding: '10px' }}>
                 <div className="title is-3 animated fadeInUp ">{i18n('error')}</div>
@@ -205,7 +205,10 @@ export class SingleViewBox<T> extends OrganicBox<
         if (s.formData instanceof Promise) return <Spinner />;
 
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
+        const hasModifyPermission=(!options.permissionKeys || checkPermission(this.addNewMode() ? options.permissionKeys.forCreate : options.permissionKeys.forUpdate));
+        if(!hasModifyPermission && this.refs.root){
 
+        }
         return <section className="organic-box single-view developer-features" ref="root">
             {!p.params.noTitle && <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0', fontSize: '2.57rem' }}>
                 <div className="column  " style={{ flex: '10' }}>
@@ -226,10 +229,12 @@ export class SingleViewBox<T> extends OrganicBox<
                     data={s.formData}>
                     {this.props.children}
                 </DataForm>
-                <footer className="buttons  single-view-buttons">
-                    <AdvButton onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
-                    <AdvButton onClick={() => this.handleSave(true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
-                </footer>
+                {hasModifyPermission &&
+                    <footer className="buttons  single-view-buttons">
+                        <AdvButton
+                            onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
+                        <AdvButton onClick={() => this.handleSave(true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
+                    </footer>}
             </Paper>
 
         </section>

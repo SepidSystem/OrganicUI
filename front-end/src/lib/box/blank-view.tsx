@@ -4,8 +4,7 @@ import { icon, i18n } from '../core/shared-vars';
 import { Icon, Paper, Button } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
 import { BaseComponent } from '../core/base-component';
-interface SingleViewBoxState<T> { formData: T; validated: boolean; }
-
+ 
 export class Blank extends BaseComponent<any, never>{
     handleNavigate() {
 

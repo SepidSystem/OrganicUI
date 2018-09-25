@@ -1,6 +1,6 @@
 /// <reference path="../../dts/globals.d.ts" />
 
-import { BaseComponent, CriticalContent } from '../core/base-component';
+import {   CriticalContent } from '../core/base-component';
 import { icon, i18n } from '../core/shared-vars';
 import { Utils, changeCase } from '../core/utils';
 import { FilterPanel } from '../data/filter-panel';
@@ -22,6 +22,7 @@ import { SnackBar } from '../controls/snack-bar';
 import { DeveloperBar } from '../core/developer-features';
 import { reinvent } from '../reinvent/reinvent';
 import * as printerIcon from '../../../icons/printer.svg';
+import { checkPermission } from '../core/bootstrapper';
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -339,7 +340,9 @@ export class ListViewBox<T> extends
             <header className="  static-height list-view-header"  >
                 {filterPanel}
                 <CriticalContent permissionKey="create-permission">
-                    <AdvButton color="primary" variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
+                    <AdvButton color="primary" 
+                    disabled={options.permissionKeys && !checkPermission(options.permissionKeys.forCreate)}
+                    variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
                         <i className="fa fa-plus flag" key="flag" />
                         <div className="content" key="content">
                             {Utils.showIcon(options.iconCode, "iconCode")}
@@ -366,7 +369,7 @@ export class ListViewBox<T> extends
 
             <Paper className="  main-content column  "   >
 
-                <header className="navigator">
+                {(!options.permissionKeys ||  checkPermission(options.permissionKeys.forDelete)) && <header className="navigator">
 
                     <Button onClick={this.handleRemove}   >
                         <DeleteIcon />
@@ -374,7 +377,7 @@ export class ListViewBox<T> extends
 
                     </Button>
 
-                </header>
+                </header>}
                 <div className="data-items">
                     {!!this.refs.root && children}
                 </div>
