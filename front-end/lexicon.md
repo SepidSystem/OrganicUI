@@ -26,8 +26,8 @@ after many years in SPA development, software companies arrive to mature approac
 MVC is common methodology to application development,The Model-View-Template (MVT) is slightly different from MVC.Template is helper for view component , In `view` you should return VDOM in Fragmented Element .
 
 ```tsx
-  import {reinvent} from '@reinvent' // FP* Use Pure Function
-  reinvent('frontend:blank'). /* Specify Template */
+  import {reinvent} from '@reinvent' // chainful   
+    reinvent('frontend:blank'). /* Specify Template */
     renderer(
       ()=>(<>Hello World</>)  /* Return View */
     ).
@@ -43,6 +43,14 @@ MVC is common methodology to application development,The Model-View-Template (MV
     }   
   }
 
+```
+
+```tsx
+import {templatedView} from '@reinvent' // Stateless Funtional Programming * Use HOC for leverage templating
+function HelloWorldModel(){ // View 
+    return <>Hello World</>; // <>=React.Fragment
+}   
+routeTable('/view/hello',templatedView(HelloWorldModel)('blank',{}))   
 ```
 
 ### **reinvent**
