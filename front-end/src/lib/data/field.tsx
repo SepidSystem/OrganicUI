@@ -29,6 +29,7 @@ export interface FilterItem {
 const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'];
 export class Field extends BaseComponent<IFieldProps, IFieldState>{
     static isField = true;
+    readonly: boolean;
     focus() {
         const inputElement = this.getInputElement('default') as any;
         inputElement && inputElement.focus && inputElement.focus();
@@ -50,7 +51,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.state.extractedValues = {};
         this.handleSetData = this.handleSetData.bind(this);
         this.handleGetData = this.handleGetData.bind(this);
-
+        this.readonly = p.readonly;
     }
     getValuePair() {
         return { [Field.getAccessorName(this.props.accessor)]: this.state.extractedValues['default'] };
@@ -198,6 +199,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     componentWillMount() {
         this.state.currentOp = this.props.defaultOperator || this.state.currentOp;
     }
+    
     getCurrentOp() {
         return this.state.currentOp || (this.operators[0]);
     }
@@ -309,7 +311,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         } : null;
         this.operators = this.operators || inputElementType['filterOperators'] || defaultOperators;
         let classNameForRoot = Utils.classNames("field-accessor", style && 'fixed-width', classNameForField, hasError && 'has-error');
-         let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
+        let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
         const { adjustFieldClassName } = (inputElementType || {}) as any;
         if (adjustFieldClassName instanceof Function) {
             [classNameForRoot, className] = adjustFieldClassName(inputElement.props, classNameForRoot, className);
@@ -395,6 +397,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
            </DataForm>, { defaultValues }).then(({ op }) => this.repatch({ currentOp: op }));*/
         this.repatch({ operatorsMenuIsOpen: true });
     }
+    makeReadonly() {
+        this.readonly = true;
+        Utils.makeReadonly(this.refs.root);
+    }
     processDOM() {
         const { root } = this.refs;
         root && Array.from(root.querySelectorAll('.error-icon svg title')).forEach(
@@ -417,7 +423,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             }
 
-            const { readonly } = this.props;
+            const { readonly } = this;
             if (readonly)
                 Utils.makeReadonly(this.refs.root);
             else Utils.makeWritable(this.refs.root);

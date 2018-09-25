@@ -19,6 +19,9 @@ export class DataTreeList extends DataList {
     handleGetCheckBoxStatus(targetNode) {
         return this.props.selection.selectedNodeKeys[targetNode[this.mapping.key]] ? 1 : 0;
     }
+    zeroFunc() {
+        return 0;
+    }
     renderItems(nodes) {
         this.nodes = nodes;
         this.mapping = this.mapping || Object.keys(this.childrenByRole)
@@ -29,7 +32,7 @@ export class DataTreeList extends DataList {
         if (nodes && nodes.length)
 
             return <TreeList {...this.props} {...{ nodes, mapping }} showCheckBoxes={true} onNodeClick={this.handleNodeClick.bind(this)}
-                onChangeCheckBoxStatus={() => 0}
+                onChangeCheckBoxStatus={this.zeroFunc}
                 onGetCheckBoxStatus={this.handleGetCheckBoxStatus}
             />
     }

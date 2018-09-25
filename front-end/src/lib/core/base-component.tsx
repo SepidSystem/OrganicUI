@@ -3,6 +3,8 @@ import { IStateListener, StateListener } from "./state-listener";
 import { Component } from 'react';
 import { IComponentRefer } from "@organic-ui";
 import { Utils } from "./utils";
+
+/** BaseComponent for Organic-UI  */
 export class BaseComponent<P, S> extends Component<P, S>{
     static refIdCounter = 0;
     issues: { [key: string]: Date };
@@ -16,6 +18,9 @@ export class BaseComponent<P, S> extends Component<P, S>{
     layoutIsComplete() {
         return true;
     }
+    /** 
+     * 
+     */
     processAutoUpdateState() {
         if (this.autoUpdateTimer && Object.keys(this.autoUpdateState).length == 0) {
             clearInterval(this.autoUpdateTimer);
@@ -23,7 +28,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
         const newState = Object.keys(this.autoUpdateState).map(key => {
             const method = this.autoUpdateState[key];
             try {
-                const result = method(key);
+                const result = method instanceof Function && method(key);
                 if (result instanceof Promise) {
                     (result as Promise<any>).then(r => {
                         Object.assign(this._autoUpdateState, { [key]: r });
@@ -52,6 +57,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
         }
 
     }
+    /** initialize autoUpdateState if needed */
     componentWillMount() {
         if (this.autoUpdateState && Object.keys(this.autoUpdateState).length) {
             this._autoUpdateState = Object.assign({}, this.state || {}) as S;
@@ -66,6 +72,10 @@ export class BaseComponent<P, S> extends Component<P, S>{
     stateListener: IStateListener[];
     autoUpdateState: OrganicUi.PartialFunction<S>;
     childrenByRole: { [role: string]: any[] }
+    /**
+     * 
+     * @param props react properties
+     */
     constructor(props: P) {
         super(props);
         this.childrenByRole = this.getChildrenByRole((props as any).children);
@@ -208,22 +218,4 @@ export function CriticalContent(p: { permissionKey: string, children?}) {
 
     return <div className={"critical-content"} data-key={p.permissionKey}>{p.children}</div>
 }
-const nodeRefTick = (target: BaseComponent<any, any>, refName) => {
-    const result = target.refs[refName];
-    if (result) return;
-    if (target.tryCountLimits[refName])
-        target.tryCountLimits[refName]--;
-    else {
-        const lastEcho = +(target.issues[refName] || 0);
-        const now = +new Date();
-        if (!lastEcho || (now - lastEcho > 2500)) {
-            console.warn('nodeRefTick issue>>>', target, refName);
-            target.issues[refName] = new Date();
-        }
-    }
-
-
-    target.repatch({});
-    setTimeout(nodeRefTick, 20, target, refName);
-
-}
+  

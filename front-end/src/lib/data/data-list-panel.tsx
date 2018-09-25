@@ -200,6 +200,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                         {s.targetSelector && !s.targetSelector.includes('delete') && React.createElement(DataForm,
                             {
                                 ref: "dataForm",
+                                data:this.targetItem,
                                 onFieldRead: fieldName => this.targetItem[fieldName],
                                 onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value,
                                 onErrorCode: p.onErrorCode,

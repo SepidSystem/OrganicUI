@@ -124,3 +124,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
     });
 }
 
+export function checkPermission(permissionKey){
+    if(!appData || !appData.appModel) return true;
+    return  appData.appModel.checkPermission(permissionKey) ;
+} 

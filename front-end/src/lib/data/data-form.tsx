@@ -90,14 +90,8 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     }
     constructor(p: OrganicUi.IDataFormProps) {
         super(p);
-        this.onFieldWrite = this.props.onFieldWrite || ((key, value) => {
-            return p.data[key] = value;
-        });
-
+        this.onFieldWrite = this.props.onFieldWrite || ((key, value) =>  p.data[key] = value);
         this.onFieldRead = this.props.onFieldRead || ((key) => p.data[key]);
-
-
-
         this.appliedFieldName = `data-form-applied${DataForm.DataFormCount}`;
         this.devPortId = Utils.accquireDevPortId();
         DataForm.DataFormCount++;

@@ -27,7 +27,7 @@ const query = factoryName => all.filter(item => item.factoryName == factoryName)
 const factoryTable = {};
 const templates = {}
 function templatedView(templName, extraParams) {
-    if (templName instanceof Function) {
+    if (templName instanceof Function) { //HOC**Mode
         const func = templName as Function;
         return function (templName, props) {
             const templComponent = templates[templName];
@@ -39,7 +39,7 @@ function templatedView(templName, extraParams) {
 
             }
             const resultFilter = templates[templName + '_resultFilter'];
-             if (resultFilter instanceof Function) return resultFilter(result);
+            if (resultFilter instanceof Function) return resultFilter(result);
             return result;
         }
 
@@ -47,7 +47,7 @@ function templatedView(templName, extraParams) {
     }
     const templComponentType = templates[templName];
     if (!templComponentType) throw `template-name is missing  , template:${templName}`;
-    const result = function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
+    const result :MethodDecorator = function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
         const orginalMethod = propertyDescriptor.value;
         propertyDescriptor.value = function () {
             const result = orginalMethod.apply(this, arguments);
