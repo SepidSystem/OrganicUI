@@ -2,6 +2,7 @@
 import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 import { diff } from 'rus-diff';
+import md5 = require('md5');
 let devPortIdCounter = 0;
 interface IEnumToArrayOptions { customCaptions?: Object }
 export const Utils = {
@@ -309,7 +310,7 @@ export const Utils = {
 		result.setDate(date.getDate() + days);
 		return result;
 	},
-	cascadeQueryElement(target: HTMLElement, { className, attrName, attrValue }):HTMLElement {
+	cascadeQueryElement(target: HTMLElement, { className, attrName, attrValue }): HTMLElement {
 		while (target) {
 			if (className && target.classList.contains(className)) return target;
 			if (attrName && target.getAttribute(attrName) == attrValue) return target;
@@ -337,6 +338,9 @@ export const Utils = {
 
 		}
 		return result;
+	},
+	hash(data) {
+		return data ? md5(JSON.stringify(data)) : 'none';
 	}
 }
 import * as changeCaseObject from 'change-case-object';
