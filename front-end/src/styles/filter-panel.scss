@@ -16,11 +16,15 @@
             background: #59D446;
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20);
         } 
-        button{
+        .adv-button{
             min-width:8.67rem;
             min-height: 3.92rem;
             font-size: 1.71rem !important;
             margin:0 0.5rem;
         } 
+    }
+    .date-picker-field{ 
+        min-width:30.4rem !important;
+        max-width:30.4rem !important; 
     }
 }

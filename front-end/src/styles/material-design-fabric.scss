@@ -157,6 +157,9 @@
 .field.focused:not(.no-material) .label,
 .field.has-value:not(.no-material) .label {
     top: -0.5rem;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
     line-height: 1rem;
     * {
         font-size: 1rem;
@@ -188,7 +191,7 @@
     display: flex;
     flex-direction: row;
     .label {
-        flex:1;
+        flex: 1;
         position: relative;
         span {
             position: absolute;
@@ -253,10 +256,18 @@
     }
 }
 
+.title {
+    font-weight: 100 !important;
+}
+
 .ms-DetailsRow-cell {
     color: #000 !important;
     min-height: 5.4rem !important;
     font-size: 1.8rem !important;
+}
+
+.MuiTab-label {
+    font-size: 1.7rem !important;
 }
 
 .ms-List-cell {
@@ -271,12 +282,14 @@
         font-size: 19px !important;
     }
     &:nth-child(odd) {
-        div {
+        div,
+        td {
             background: rgb(218, 218, 218);
         }
     }
     &:nth-child(even) {
-        div {
+        div,
+        td {
             background: rgb(241, 241, 241);
         }
     }
@@ -360,4 +373,25 @@ li.MuiButtonBase-root,
 .label,
 .center-text {
     font-size: 1.71rem !important;
+}
+
+.ux-modal {
+    .ux-button,
+    .ux-button:hover { 
+        margin:0 0.5rem;
+        border: 1px solid #939393;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20),0 2px 4px 0 rgba(0, 0, 0, 0.20) inset;
+        border-radius: 4px;
+        min-width: 13rem;
+        max-width: 13rem;
+        
+        min-height: 3.92rem;
+        
+    }
+
+    .ux-button.primary,
+    .ux-button.primary:hover{
+        background: #1492D5;
+        color:#fff; 
+    }
 }

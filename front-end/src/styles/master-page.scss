@@ -28,7 +28,6 @@ main.main-container {
 
 .main-content {
     padding: 4px 4rem;
-    
     footer {
         padding: 10px 2px;
     }
@@ -45,7 +44,7 @@ main.main-container {
                 left: 0;
                 right: 0;
                 background: #979797;
-                height: 1px !important; 
+                height: 1px !important;
                 bottom: 6px;
             }
             .title {
@@ -78,18 +77,19 @@ main.main-container {
 }
 
 #root,
-.MuiInput-root,.MuiPaper-root,
+.MuiInput-root,
+.MuiPaper-root,
 label,
 input,
 button,
-span,aside {
+span,
+aside {
     font-family: Yekan;
 }
 
 .master-page {
     display: flex;
     min-height: 100%;
-     
     >footer {
         background: rgb(210, 210, 201);
         position: fixed;
@@ -113,11 +113,11 @@ span,aside {
         a,
         .icon {
             padding: 12px 15px;
-        } 
+        }
         a {
             display: block;
             width: 100%;
-            font-size:1.79rem;
+            font-size: 1.79rem;
             padding: 12px 15px;
         }
     }
@@ -125,15 +125,14 @@ span,aside {
         header {
             margin-bottom: 40px;
             min-height: 160px;
-            background: linear-gradient(to bottom, #484A69 0%,rgba(0,0,0,1) 50%,#484A69 100%);
+            background: linear-gradient(to bottom, #484A69 0%, rgba(0, 0, 0, 1) 50%, #484A69 100%);
             .user-info {
                 font-size: 1.71rem !important;
                 display: flex;
                 justify-items: center !important;
-                flex-direction: row-reverse; 
+                flex-direction: row-reverse;
                 align-items: center !important;
                 align-content: center !important;
-                
                 .icon {
                     width: auto !important;
                     margin: 0 5px;
@@ -155,7 +154,6 @@ span,aside {
             }
             .logo {
                 display: flex;
-
                 justify-content: center;
                 * {
                     font-size: 3.43rem !important;
@@ -192,6 +190,8 @@ span,aside {
             background: rgb(4, 160, 220) !important;
         }
         .router.active {
+            box-shadow: 0 0 2px #333;
+        
             background: rgb(4, 160, 220) !important;
             .triangle {
                 display: inline-block;
@@ -212,6 +212,8 @@ span,aside {
     display: flex;
     flex: 10;
 }
-button,.MuiButton-root{
+
+button,
+.MuiButton-root {
     font-size: 1.71rem !important;
 }

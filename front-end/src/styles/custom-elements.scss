@@ -40,20 +40,19 @@
 }
 
 .checkbox-field {
-     
     .label {
         height: 50px;
         color: #3F3F3F 100% !important;
         font-weight: normal;
     }
 }
- 
+
 .switch-field {
     .label {
         top: 2rem !important;
         right: 60px !important;
         * {
-            font-size:1.71rem !important;
+            font-size: 1.71rem !important;
         }
     }
     .MuiSwitch-root {
@@ -63,7 +62,9 @@
     }
 }
 
-.dropdown-field .control,.filter-panel .checkbox-field .control,.filter-panel .switch-field .control{
+.dropdown-field .control,
+.filter-panel .checkbox-field .control,
+.filter-panel .switch-field .control {
     height: 42px;
 }
 
@@ -84,7 +85,6 @@
     max-width: 36.93rem;
     min-width: 36.93rem;
     padding: 0;
-     
     .heading {
         background: #4AABD5 100%;
         * {
@@ -139,39 +139,76 @@
         background: linear-gradient(left, #fff, #e4e4e4);
         border: 1px solid #aaa;
     }
+    
     &::-webkit-scrollbar-thumb:active {
         background: linear-gradient(left, #22ADD4, #1E98BA);
     }
 }
+/*
+.data-list-c1::-webkit-scrollbar {
+    visibility: hidden;
+}
+*/
+/*
 
-div::-webkit-scrollbar-track {
+.scroller::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+    visibility: visible;
+} 
+ 
+.scroller {
+    overflow-y: scroll !important;
+    -webkit-background-clip: text;
+     transition: background-color .8s;
+}
+
+.scroller::-webkit-scrollbar-track {
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.1);
     border: 1px solid #ccc;
 }
 
-div::-webkit-scrollbar {
-    width: 12px;
-    background-color: #F5F5F5;
-}
-
-div::-webkit-scrollbar-thumb {
+ 
+.scroller::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background: linear-gradient(left, #fff, #e4e4e4);
+    background: linear-gradient(left, #fff, #F5F5F5);
     border: 1px solid #aaa;
 }
 
-div::-webkit-scrollbar-thumb:active {
+.scroller::-webkit-scrollbar-thumb:active {
     background: linear-gradient(left, #22ADD4, #1E98BA);
 }
-
-.i18n.en{
-    font-family: Arial, Helvetica, sans-serif !important;
-
+ */
+/*
+.scroller {
+    &::-webkit-scrollbar {
+        height: 8px;
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background:#000;
+        border: 1px solid #ccc;
+    }
+    &::-webkit-scrollbar-track-piece {
+        background: #F0F0F0;
+    }
+    &::-webkit-scrollbar-thumb:vertical,
+    &::-webkit-scrollbar-thumb:horizontal {
+        background: #E5E5E5;
+        border-radius: 20px;
+    }
 }
+*/
+.i18n.en {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
 .c3 svg {
     font: 1rem Yekan !important;
 }
-.icon{
+
+.icon {
     height: auto;
 }

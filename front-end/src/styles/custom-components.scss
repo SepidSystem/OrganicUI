@@ -164,8 +164,22 @@
         right: 0;
     }
 }
-
+.scrollY{
+    overflow-y: scroll;
+}
 .data-list {
+    .data-list-c1,
+    .ms-Viewport,
+    .ms-DetailsList,
+    [role=grid],
+    [role=grid]>[role=presentation]:nth-child(2),
+    [role=grid]>[role=presentation]:nth-child(2)>.ms-FocusZone ,
+    .ms-SelectionZone,
+    .ms-List {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+    }
     .ms-DetailsRow-cell {
         display: flex;
         align-items: center;
@@ -280,7 +294,6 @@ a.close {
 }
 
 .data-list,
-.data-list-c1,
 .data-list-content,
 .data-list-wrapper {
     flex: 1;
@@ -309,8 +322,8 @@ a.close {
             background: rgba(0, 0, 0, 0.14) !important;
         }
     }
-   .row-disabled *{
-        color:#aaa;
+    .row-disabled * {
+        color: #aaa;
         cursor: not-allowed;
     }
 }

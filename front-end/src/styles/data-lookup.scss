@@ -130,7 +130,7 @@ $below-list-height:200;
         padding: 4px;
         min-width: 500px;
     }
-    .caretDownWrapper {
+    .caret-down-wrapper {
         left: 2px;
         position: absolute;
         top: 1rem;
@@ -221,9 +221,36 @@ $below-list-height:200;
 }
 
 .full-data-lookup {
+    * {
+        border: none !important;
+    }
     .inner-text {
         display: flex;
         width: 100%;
         justify-content: center;
     }
+   .editor{
+       input{
+           text-align: center !important;
+           font-size:120%;
+       }
+   }
+   .MuiInput-root{
+       &::after{
+        display: none;
+       }
+       &:before{
+        display: none;
+       }
+   }
+    .caret-down-wrapper {
+        display: none;
+    }
+    .adv-button {
+        color:  #bebebe;
+    }
+}
+
+.MuiTab-labelContainer {
+    padding: 0 !important;
 }

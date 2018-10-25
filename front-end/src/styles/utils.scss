@@ -1,4 +1,8 @@
 .medium-fields {
+    &.frame {
+        display: flex;
+        flex-wrap: wrap;
+    }
     .panel-content {
         display: flex;
         flex-wrap: wrap;
@@ -31,8 +35,8 @@
         min-width: 100%;
         float: right;
     }
-    button{
-        margin:0 0.5rem;
+    button {
+        margin: 0 0.5rem;
     }
 }
 
@@ -159,7 +163,7 @@ hr {
     * {
         border: none !important;
     }
-    .caretDownWrapper {
+    .caret-down-wrapper {
         visibility: hidden;
     }
     .MuiInput-underline:after {
@@ -172,5 +176,45 @@ hr {
         align-content: center;
         align-items: center;
         display: flex;
+    }
+}
+
+.dashboard-widget {
+    .adv-button .i18n {
+        font-size: 1.3rem;
+    }
+}
+
+.buttons-as-tab-style {
+    display: flex;
+    .adv-button {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        justify-items: center;
+        &.is-active {
+            border-bottom: #2196f3 2px solid;
+        }
+    }
+}
+
+.row {
+    width: 100%;
+}
+
+.tableBodyScroll {
+    empty-cells: show;
+    th{
+        vertical-align: middle;
+        padding:0 1rem;
+    }
+    tbody {
+        display: block;
+         overflow-y: scroll;
+    }
+    thead,
+    tbody tr {
+        display: table;
+        width: 100%;
     }
 }
