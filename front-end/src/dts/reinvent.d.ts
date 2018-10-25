@@ -27,6 +27,12 @@ declare namespace Reinvent {
         param: TLoadParam;
         reload: (param: TLoadParam) => Promise<any>;
     }
+    interface IRenderFuncExtForDashboard<TData, TState, TLoadParam> {
+        data: TData;
+        binding: BindingHub<TData>;
+        param: TLoadParam;
+        reload: (delta?: Partial<TState>) => Promise<any>;
+    }
     interface IReinventForCRUDParams<TDto, TState> {
         data: TDto;
         binding: BindingHub<TDto>;
@@ -51,9 +57,10 @@ declare namespace Reinvent {
     }
 
     export interface IDashboardWidgetReinvent<TLoadParam, TData> extends IBaseFrontEndReinvent<never> {
+        defaultState(state: Partial<TData>): IDashboardWidgetReinvent<TLoadParam, TData>;
         paramInitializer(loaderFunc: () => TLoadParam): IDashboardWidgetReinvent<TLoadParam, TData>;
-        dataLoader(callback: (param: TLoadParam) => (TData | Promise<TData>)): IDashboardWidgetReinvent<TLoadParam, TData>;
-        dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForSingleView<TData, TLoadParam>>): IDashboardWidgetReinvent<TLoadParam, TData>;
+        dataLoader(callback: (param: TLoadParam, state: TData) => (TData | Promise<TData>)): IDashboardWidgetReinvent<TLoadParam, TData>;
+        dataRenderer(renderFunc: TRenderFunc<TData, IRenderFuncExtForDashboard<TData, TData, TLoadParam>>): IDashboardWidgetReinvent<TLoadParam, TData>;
     }
 
     interface IDashboardWidgetOptions {
@@ -82,23 +89,33 @@ declare namespace Reinvent {
             listViewFromEnum<TEnum>(enumType, options?: { keyField?: string, title?, iconCodes: { [key in keyof TEnum]: string } }): OrganicUi.StatelessListView;
 
         }
-        openBindingHub<T>(): BindingHub<T>;
+
     }
-    export interface BindingPoint {
+    export interface IBindingPoint {
         __name: string;
+        __path: string[];
+        __isArray: boolean;
     }
 
     export type BindingHub<T=any> = {
-        [P in keyof T]?: T[P] extends (object | object[]) ? BindingHub<T[P]> :
-        BindingPoint;
+        [P in keyof T]?: T[P] extends (number | string | boolean | number[] | string[]) ? IBindingPoint : BindingHub<T[P]>;
+
     };
     type TemplateName = 'report-view' | 'dashboard' | 'login' | 'blank';
     export function templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
-    export function templatedView<T>(templName: TemplateName, opts?  ): MethodDecorator;
+    export function templatedView<T>(templName: TemplateName, opts?): MethodDecorator;
     export function templatedView<TProps>(method: React.SFC<TProps>): (templName: TemplateName, props) => React.SFC<TProps>;
 
-    export function openBindingHub<T>(): BindingHub<T>;
-
+    export class BindingSource<T> implements IBindingPoint {
+        __name: string;
+        __path: string[];
+        __isArray: boolean;
+        __bindingSource: BindingSource<T>;
+        getFieldValue(bindingPoint: IBindingPoint);
+        setFieldValue(bindingPoint: IBindingPoint, value, indexes?: { [key: string]: number })
+        constructor(data: any);
+    }
+    export function openBindingSource<T>(): BindingHub<T>;
 }
 
 
