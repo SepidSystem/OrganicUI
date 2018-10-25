@@ -7,6 +7,7 @@ import { BaseComponent } from '../core/base-component';
 import { Utils, changeCase } from '../core/utils';
 import { Field } from "../data/field";
 import { IDataFormAccessorMsg } from "@organic-ui";
+import { BindingSource } from "../reinvent/binding-source";
 
 interface IState {
     message?: { type, text };
@@ -23,11 +24,12 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     devPortId: number;
     onFieldWrite?: Function;
     onFieldRead?: Function;
-
+    bindingSource: BindingSource;
     getDevButton() {
         return Utils.renderDevButton('DataForm', this as any);
     }
     setFocusByAcccesor(accessor) {
+
         accessor = Field.getAccessorName(accessor);
         const fldHtmlElement = Array.from(this.refs.root.querySelectorAll('.field-accessor'))
             .filter(fld => fld.getAttribute('data-accessor-name') == accessor)[0];
@@ -90,8 +92,16 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     }
     constructor(p: OrganicUi.IDataFormProps) {
         super(p);
-        this.onFieldWrite = this.props.onFieldWrite || ((key, value) =>  p.data[key] = value);
-        this.onFieldRead = this.props.onFieldRead || ((key) => p.data[key]);
+        this.bindingSource = p.bindingSource || new BindingSource();
+        this.onFieldWrite = (bindingPoint, value) => {
+    
+            this.bindingSource.setFieldValue(this.props.data, bindingPoint, value);
+            const { onChange } = this.props;
+            onChange instanceof Function && onChange(this.props.data);
+        }
+
+        this.onFieldRead = this.bindingSource.getFieldValue.bind(this.bindingSource, p.data); // = this.props.onFieldRead || ((key) => p.data[key]);
+
         this.appliedFieldName = `data-form-applied${DataForm.DataFormCount}`;
         this.devPortId = Utils.accquireDevPortId();
         DataForm.DataFormCount++;

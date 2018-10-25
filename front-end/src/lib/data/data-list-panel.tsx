@@ -10,6 +10,7 @@ import { AdvButton } from "../core/ui-elements";
 import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 import { DataPanel } from './data-panel';
 import { Field } from "../data/field";
+import { BindingSource } from "../reinvent/binding-source";
 interface IState {
     message?: { type, text };
     selectedItem: any;
@@ -58,26 +59,29 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (!root) return;
         let parent = root.parentElement;
         let getters: (string | Function)[] = [];
-        const accessor = Field.getAccessorName(this.props.accessor);
+        const { accessor } = this.props;
+
         while (parent) {
-            const { componentRef } = parent as any;
-            const onFieldRead = componentRef && componentRef.props && (componentRef.props as OrganicUi.IFieldReaderWriter).onFieldRead;
-            const onFieldWrite = componentRef && componentRef.props && (componentRef.props as OrganicUi.IFieldReaderWriter).onFieldWrite;
+            const { componentRef } = (parent as any) as { componentRef: DataForm };
+            if (componentRef) {
+                const { onFieldRead, onFieldWrite } = componentRef;
 
-            if (onFieldRead instanceof Function && onFieldWrite instanceof Function) {
+                if (onFieldRead instanceof Function && onFieldWrite instanceof Function) {
+                    let items = onFieldRead(accessor);
+                    if (!items) {
+                        onFieldWrite(accessor, []);
+                        items = onFieldRead(accessor);
+                    }
+                    this.items = items;
+                    return items;
 
-                let items = onFieldRead(accessor);
-                if (!items) {
-                    onFieldWrite(accessor, []);
-                    items = onFieldRead(accessor);
                 }
-                this.items = items;
-                return items;
-
             }
             parent = parent.parentElement;
         }
+
     }
+
     getCustomBar(customBar = this.props.customBar) {
         const callback = (promise: Promise<any>, key) => {
             if (promise instanceof Promise)
@@ -90,11 +94,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     this.forceUpdate();
                 });
         }
-        return [Utils.renderButtons(customBar, {
+        return Utils.renderButtons(customBar, {
             callback
-        })].concat([<Button
-            disabled={!this.state.selectedItem}
-            className="delete-button" onClick={() => this.doAction('delete')}>{i18n('delete')}</Button>])
+        });
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));
@@ -126,7 +128,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
             setTimeout(() => this.tryToBinding(), 20);
         }
 
-        this.dataListProps = this.dataListProps || Object.assign({} as OrganicUi.IDataListProps,
+        this.dataListProps = this.dataListProps || Object.assign({noBestFit:true} as OrganicUi.IDataListProps,
             {
                 ref: 'datalist',
                 selection: this.selection,
@@ -200,16 +202,13 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                         {s.targetSelector && !s.targetSelector.includes('delete') && React.createElement(DataForm,
                             {
                                 ref: "dataForm",
-                                data:this.targetItem,
-                                onFieldRead: fieldName => this.targetItem[fieldName],
-                                onFieldWrite: (fieldName, value) => this.targetItem[fieldName] = value,
+                                data: this.targetItem,
                                 onErrorCode: p.onErrorCode,
                                 validate: s.validated
                             },
                             React.Children.toArray(p.children)
                                 .filter(fld => fld && fld['type'] == Field)
-                                .filter(fld =>
-                                    !Utils.isUndefined(this.targetItem[Field.getAccessorName(fld['props']['accessor'])])))
+                            )
                         }
 
                     </div>
