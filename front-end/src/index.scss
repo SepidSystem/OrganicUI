@@ -8,8 +8,10 @@
 ::-webkit-scrollbar-thumb {
     background: #888;
 }
-
-.hero-body {
+.data-list-c1::-webkit-scrollbar-thumb {
+    visibility: hidden;
+}
+.hero-body {  
     flex-grow: 1;
     flex-shrink: 0;
     padding: 1rem 1.5rem;
