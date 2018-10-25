@@ -1,5 +1,7 @@
 import { changeCase } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
+import { AppUtils } from "./app-utils";
+import { i18n } from "./shared-vars";
 
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
@@ -21,13 +23,16 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
         //}
         if (!(['GET', 'HEAD'].includes(method)) && data)
             restClient['cache'].reset();
-        const params = { url, method, data, options };
+        const params: any = { url, method, data, options };
         Object.assign(createClientForREST, { lastRequest: params });
 
         const firstPromise = (restClient['confrim'] instanceof Function) ?
             restClient['confrim'](Object.assign({ mode: 0 }, params)) as Promise<T> : (Promise.resolve(false) as any) as Promise<T>;
         const opts = options instanceof Function ? options() : options;
         Object.assign(params, opts);
+        params.headers = params.headers || {};
+        params.headers['Content-Type'] = 'application/json;charset=utf-8';
+        params.data = JSON.stringify(data);
         let showResponse = false;
         const { afterREST } = OrganicUI.AppUtils;
         const result = firstPromise
@@ -35,6 +40,7 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
             .then(() => axios(params)).then(resp => {
 
                 const { headers } = resp;
+
                 var result = changeCase.camelCase(resp.data);
                 const headerPairs = typeof headers == 'object' ? headers : Array.from((headers as any).entries()).reduce((a, [key, value]) => (a[key] = value, a), {});
 
@@ -63,9 +69,19 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
                     return result;
 
 
-            }, error => {
-                const errorData = error.response
-                /* && [400, 500].includes(error.response.status)*/ && (error.response.data);
+            }, async error => {
+                const errorData = error && error.response ?
+                    (error.response.data && changeCase.camelCase(error.response.data))
+                    : error && i18n(error.message);
+                AppUtils.networkError = {
+                    content: errorData, actions: {
+                        close: () => {
+                            AppUtils.networkError = null;
+                            return true;
+                        }
+                    }
+                }
+                AppUtils.Instance.repatch({});
                 // error = errorData || error.response || error;
                 return options.rejectHandler instanceof Function ? options.rejectHandler(errorData, error) : Promise.reject(errorData || error);
             }).then(result => afterREST instanceof Function ? afterREST({ url, data, method, result }) : result);
@@ -74,6 +90,7 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
     }
     Object.assign(restClient, { options, delay: 0, cache: LRU(200), bodyMapper: null });
     instances.push(restClient);
+    Object.assign(window, { restClient });
     return restClient;
 };
 
@@ -122,4 +139,4 @@ export function remoteApiProxy() {
 
 export const remoteApi: any = remoteApiProxy();*/
 Object.assign(createClientForREST, { instances });
-Object.assign(window, { axios });
+Object.assign(window, { axios, });
