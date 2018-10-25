@@ -1,7 +1,7 @@
 # BaseComponent
 All Components of this framework de 
 ## repatch(delta)
-this method for update state . Properties of `state` will be overwritten by properties in the delta if they have the same key.  Later `delta` properties will similarly overwrite earlier ones. after chaging state `forceUpdate` called.
+. Properties of `state` will be overwritten by properties in the delta if they have the same key.  Later `delta` properties will similarly overwrite earlier ones. after chaging state `forceUpdate` called.
 Calling `forceUpdate()` will cause `render()` to be called on the component.
 
 ## how to inherit from `BaseComponent`
@@ -29,4 +29,7 @@ If you need to interact with the browser, perform your work in componentDidMount
 
 #### BaseComponent vs React.Component
 
-BaseComponent extends React.
+- `BaseComponent` extends React.Component 
+- `BaseComponent` Class has data-flow process with `repatch` method 
+- override renderContent in derived classes from `BaseComponent` instead-of `render`
+- `BaseComponent` has `autoUpdateState` feature for auto-rendering         
