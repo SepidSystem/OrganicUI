@@ -74,7 +74,7 @@ export function ChildrenMapper({ cached }) {
 
     }
 }
- 
+
 export function Log(title) {
     return function (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
         if (isProdMode()) return;
@@ -83,7 +83,7 @@ export function Log(title) {
         function loggedFunction() {
             const inputs = Array.from(arguments);
             function showLog(result) {
-                console.groupCollapsed(`${title} on method ${orginMethod.name}`);
+                console.groupCollapsed(title ? `${title} on method ${orginMethod.name}` : 'method ' + orginMethod.name);
                 console.log('arguments>>>', inputs);
                 console.log('result>>>>', result);
                 console.groupEnd();
@@ -101,5 +101,13 @@ export function Helper(helperId) {
         target['helpers'] = target['helpers'] || [];
         target['helpers'].push(helperId);
         helper && helper(target);
+    }
+}
+
+export function SelfBind() {
+
+    return (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) => {
+        target['selfBindMethods'] = target['selfBindMethods'] || [];
+        target['selfBindMethods'].push(propertyName);
     }
 }
