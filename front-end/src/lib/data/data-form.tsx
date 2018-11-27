@@ -8,6 +8,7 @@ import { Utils, changeCase } from '../core/utils';
 import { Field } from "../data/field";
 import { IDataFormAccessorMsg } from "@organic-ui";
 import { BindingSource } from "../reinvent/binding-source";
+import { Spinner } from "../core/spinner";
 
 interface IState {
     message?: { type, text };
@@ -94,7 +95,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         super(p);
         this.bindingSource = p.bindingSource || new BindingSource();
         this.onFieldWrite = (bindingPoint, value) => {
-    
+
             this.bindingSource.setFieldValue(this.props.data, bindingPoint, value);
             const { onChange } = this.props;
             onChange instanceof Function && onChange(this.props.data);
@@ -118,7 +119,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
 
     renderContent() {
         const p = this.props;
-
+        if(p.data instanceof Promise) return <Spinner />
         return (
             <div className={Utils.classNames("data-form", "developer-features", p.className)} ref="root" style={p.style}>
                 {this.props.children}
@@ -165,11 +166,12 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
 
     processFields() {
         if (this.devElement) return;
+        if (!this.refs.root) return;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.processDOM());
         if (this.props.onCustomRenderWithCaptureValues) {
             const capturedValues = Object.assign({}, ...this.querySelectorAll<Field>('.field-accessor').map(fld => fld.getValuePair()));
-            this.repatch({ capturedValues })
-            this.state.message
+            this.repatch({ capturedValues });
+            
         }
         this.querySelectorAll<OrganicUi.IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 

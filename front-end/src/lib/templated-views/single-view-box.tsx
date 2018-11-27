@@ -1,7 +1,7 @@
 /// <reference path="../../dts/globals.d.ts" />
 import { icon, i18n } from '../core/shared-vars';
 import { Utils } from '../core/utils';
-import { checkPermission } from '../core/bootstrapper';
+import { checkPermission } from '../core/permission-management';
 import { DataForm } from '../data/data-form';
 import { Spinner } from '../core/spinner';
 import { AdvButton, Placeholder } from '../core/ui-elements';
@@ -12,6 +12,7 @@ import { createClientForREST } from '../core/rest-api';
 import { DeveloperBar } from '../core/developer-features';
 import { Icon, Paper, Button } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
+import { SelfBind } from '../core/decorators';
 interface SingleViewBoxState<T> { formData: T; validated: boolean; }
 
 export class SingleViewBox<T> extends OrganicBox<
@@ -27,14 +28,10 @@ export class SingleViewBox<T> extends OrganicBox<
 
     constructor(p) {
         super(p);
-        this.handleFieldRead = this.handleFieldRead.bind(this);
-        this.handleFieldWrite = this.handleFieldWrite.bind(this);
-        this.handleNavigate = this.handleNavigate.bind(this);
-        this.navigateToNewItem = this.navigateToNewItem.bind(this);
-        this.handleSave = this.handleSave.bind(this);
         this.undefinedFields = {};
         this.objectCreation = +new Date();
     }
+    @SelfBind()
     handleNavigate(response?): any {
         const id = this.getId(response || this.state.formData);
         if (this.props.params && this.props.params.onNavigate) {
@@ -44,7 +41,7 @@ export class SingleViewBox<T> extends OrganicBox<
         Utils.navigate(url);
     }
     refs: {
-        root:HTMLElement;
+        root: HTMLElement;
         dataForm: DataForm;
         primaryButton: AdvButton;
         secondaryButton: AdvButton;
@@ -61,7 +58,7 @@ export class SingleViewBox<T> extends OrganicBox<
                 .then(formData => (formData = this.mapFormData(formData), this.repatch({ formData }), formData)
                     , error => {
                         this.devElement = this.makeDevElementForDiag(error);
-                        this.repatch({})
+                        this.repatch({});
                     }
                 ).then(formData => this.actions.mapFormData ? monitorFunc('mapFormData', formData) : formData)
 
@@ -81,6 +78,7 @@ export class SingleViewBox<T> extends OrganicBox<
         if (formData instanceof Promise) return null;
         return formData;
     }
+
     setFieldValue(fieldName, value) {
         const formData = this.getFormData();
         formData && (formData[fieldName] = value);
@@ -88,6 +86,7 @@ export class SingleViewBox<T> extends OrganicBox<
     addNewMode() {
         return this.props.params.id == 'new';
     }
+    @SelfBind()
     async handleSave(navigateToListView?) {
         const p = this.props, s = this.state;
         this.repatch({ validated: true });
@@ -109,9 +108,9 @@ export class SingleViewBox<T> extends OrganicBox<
         const { id } = p.params;
         const monitorFunc = SingleViewBox.getMonitorFunc();
         const debugResult = await Utils.toPromise(!!monitorFunc && monitorFunc('beforeSave', formData));
-        console.assert(debugResult === -1, 'debugResult>>>>', { debugResult });
+        //console.assert(debugResult === -1, 'debugResult>>>>', { debugResult });
         if (this.actions.create instanceof Function && this.actions.update instanceof Function)
-            updateResult = this.addNewMode() ? this.actions.update(id, formData) : this.actions.create(formData);
+            updateResult = !this.addNewMode() ? this.actions.update(id, formData) : this.actions.create(formData);
         else {
             return (<div className="error-callback" style={{ padding: '10px' }}>
                 <div className="title is-3 animated fadeInUp ">{i18n('error')}</div>
@@ -124,6 +123,7 @@ export class SingleViewBox<T> extends OrganicBox<
         return updateResult
             .then(data => monitorFunc instanceof Function ? monitorFunc('afterSave', formData, id, this.actions) : data)
             .catch(error => {
+                console.log(({ error }));
                 error = error.message || error;
                 return Promise.resolve({ error })
             })
@@ -165,8 +165,8 @@ export class SingleViewBox<T> extends OrganicBox<
             onProceed: () => (this.devElement = null, this.repatch({}))
         }))
     }
+    @SelfBind()
     navigateToNewItem() {
-
         Utils.navigate(this.props.options.routeForListView.replace(':id', 'new'))
     }
     getSuccess() {
@@ -182,18 +182,6 @@ export class SingleViewBox<T> extends OrganicBox<
     isFresh() {
         return (+new Date()) - this.objectCreation < 2500;
     }
-    handleFieldWrite(accessor, value) {
-        this.state.formData[accessor] = value;
-        this.actions.onFieldWrite instanceof Function &&
-            this.actions.onFieldWrite(accessor, value, this.state.formData);
-    }
-    handleFieldRead(accessor) {
-        const val = this.state.formData[accessor];
-        if (val === undefined && accessor) this.undefinedFields[accessor] = 1;
-        if (this.isFresh() && val && accessor) delete this.undefinedFields[accessor];
-        return val;
-
-    }
     getTitle() {
         const p = this.props;
         return Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(p.options.singularName) })
@@ -205,11 +193,11 @@ export class SingleViewBox<T> extends OrganicBox<
         if (s.formData instanceof Promise) return <Spinner />;
 
         s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
-        const hasModifyPermission=(!options.permissionKeys || checkPermission(this.addNewMode() ? options.permissionKeys.forCreate : options.permissionKeys.forUpdate));
-        if(!hasModifyPermission && this.refs.root){
+        const hasModifyPermission = (!options.permissionKeys || checkPermission(this.addNewMode() ? options.permissionKeys.forCreate : options.permissionKeys.forUpdate));
+        if (!hasModifyPermission && this.refs.root) {
 
         }
-        return <section className="organic-box single-view developer-features" ref="root">
+    return (<section className="organic-box single-view developer-features" ref="root">
             {!p.params.noTitle && <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0', fontSize: '2.57rem' }}>
                 <div className="column  " style={{ flex: '10' }}>
                     {this.getTitle()}
@@ -222,8 +210,7 @@ export class SingleViewBox<T> extends OrganicBox<
                 </div>
             </h1>}
             <Paper className="main-content">
-                <DataForm ref="dataForm" onFieldRead={this.handleFieldRead}
-                    onFieldWrite={this.handleFieldWrite}
+                <DataForm ref="dataForm"
                     validate={s.validated}
                     onErrorCode={this.actions.validate}
                     data={s.formData}>
@@ -233,11 +220,11 @@ export class SingleViewBox<T> extends OrganicBox<
                     <footer className="buttons  single-view-buttons">
                         <AdvButton
                             onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
-                        <AdvButton onClick={() => this.handleSave(true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
+                        <AdvButton onClick={this.handleSave.bind(this, true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
                     </footer>}
             </Paper>
 
-        </section>
+        </section>)
     }
     static showDialogForAddNew(componentType: React.ComponentType<ISingleViewParams>): (() => Promise<any>) {
         return () => new Promise(resolve => {

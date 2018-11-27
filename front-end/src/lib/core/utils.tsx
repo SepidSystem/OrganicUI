@@ -3,6 +3,7 @@ import { icon, i18n } from "./shared-vars";
 import format = require('string-template');
 import { diff } from 'rus-diff';
 import md5 = require('md5');
+import textContent = require('react-addons-text-content');
 let devPortIdCounter = 0;
 interface IEnumToArrayOptions { customCaptions?: Object }
 export const Utils = {
@@ -16,6 +17,7 @@ export const Utils = {
 
 		history.pushState(null, null, url);
 		OrganicUI['mountViewToRoot']();
+		scrollToTop(300);
 		return Promise.resolve(true);
 	},
 	debounce(func, wait, immediate?) {
@@ -109,6 +111,11 @@ export const Utils = {
 		if (icon && (icon.svg))
 			return <div style={{ 'width': icon.width }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
 		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
+	},
+	indicateNum(current, diff, max) {
+		const result = current + diff;
+		if (result < 0) return max + result;
+		return result % max;
 	},
 	defaultGetId: (row) => row.id,
 	setNoWarn(v) {
@@ -230,6 +237,8 @@ export const Utils = {
 	},
 	assignDefaultValues<T>(data: T, defaultValues: Partial<T>) {
 		if (!data || !defaultValues) return;
+		if (data['__defaultState']) return;
+		Object.assign(data, { __defaultState: true });
 		Object.keys(defaultValues)
 			.forEach(key => data[key] = data[key] === undefined ? defaultValues[key] : data[key]);
 	},
@@ -280,7 +289,7 @@ export const Utils = {
 	enumToIdNames(enumType: any, opts?: IEnumToArrayOptions): ({ Id, Name }[]) {
 		let { customCaptions } = opts || {} as IEnumToArrayOptions;
 		customCaptions = customCaptions || {};
-		return [{ Id: undefined, Name: '' }].concat(Object.keys(enumType)
+		 return (Utils.entries(enumType).filter(([_, value]) => value === "").length ? [] : [{ Id: undefined, Name: '' }]).concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
 			.map(Name => ({
 				Id: enumType[Name],
@@ -326,7 +335,24 @@ export const Utils = {
 		}
 		if (!!errorRaised) throw `getCascadeAttribute fail for ${attributeName}`;
 	},
+	persianNumber(s: any) {
+		s = s.toString();
+		const replaces = [
+			[/0/g, '۰'],
+			[/1/g, '۱'],
+			[/2/g, '۲'],
+			[/3/g, '۳'],
+			[/4/g, '۴'],
+			[/5/g, '۵'],
+			[/6/g, '۶'],
+			[/7/g, '۷'],
+			[/8/g, '۸'],
+			[/9/g, '۹'],
+		];
+		return replaces.reduce((s, [from, to]) => s.replace(from, to as any), s);
+	},
 	numberFormat(n) {
+		if (!n) return n;
 		n = n.toString();
 		if (n.length % 3)
 			n = '0'.repeat(3 - (n.length % 3)) + n;
@@ -341,11 +367,72 @@ export const Utils = {
 	},
 	hash(data) {
 		return data ? md5(JSON.stringify(data)) : 'none';
+	},
+	fakeLoad() {
+
+		return !!Utils['scaningAllPermission'];
+	},
+	fileToBase64(file: File): Promise<string> {
+		return new Promise(resolve => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.readAsDataURL(file);
+		});
+	},
+	entries(obj) {
+		return Object.keys(obj).map(key => [key, obj[key]]) ;
+	},
+	extractText(inputValue, filter?) {
+		if (!filter) {
+			if (React.isValidElement(inputValue))
+				return textContent(inputValue);
+			if (inputValue === null || inputValue === undefined)
+				return inputValue;
+		}
+		return filter instanceof Function ? Utils.extractText(filter(inputValue)) : inputValue.toString();
+	},
+	groupLog(title, logs) {
+		console.groupCollapsed(title);
+		Object.keys(logs).forEach(key => console.log(`${key}>>>`, logs[key]))
 	}
 }
 import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
 import { ActionButton } from "office-ui-fabric-react/lib/Button";
 import { Button } from "../controls/inspired-components";
+import * as camelCaseText0 from 'camelcase';
+function camelCaseText(s) {
+	try {
+		return camelCaseText0(s);
+	} catch{
+		return s;
+	}
+}
+function camelCase(obj) {
+	if (!obj) return obj;
+	if (obj instanceof Array) return obj.map(camelCase);
+	if (typeof obj == 'string') return (obj);
+	if (typeof obj == 'object') {
+		const array = Object.keys(obj).map(key => ({ camelKey: camelCaseText(key) || key, key })).map(({ key, camelKey }) =>
+			({ [camelCaseText(key)]: camelCase(obj[key]) }));
+		return Object.assign({}, ...array);
 
-export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = changeCaseObject;
+	}
+	return obj;
+
+
+}
+export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function } = Object.assign({}, changeCaseObject, { camelCase });
+
+function scrollToTop(scrollDuration) {
+	const scrollStep = -window.scrollY / (scrollDuration / 15);
+	const scrollInterval = setInterval(function () {
+		if (Math.abs(window.scrollY) < Math.abs(screenTop))
+			window.scroll(0, 0);
+
+		if (window.scrollY != 0) {
+			window.scrollBy(0, scrollStep);
+		}
+		else clearInterval(scrollInterval);
+	}, 15);
+}

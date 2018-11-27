@@ -5,6 +5,8 @@ import { DataForm } from "../data/data-form";
 import { IComponentRefer, IFieldProps } from "@organic-ui";
 import { Menu, MenuItem } from "../controls/inspired-components";
 import * as errorIcon from '../../../icons/ic_error.svg';
+import { BindingPoint } from "../reinvent/binding-source";
+import { InputLabel, FormControl } from "@material-ui/core";
 //--------------------------------------------------------------------------------
 interface IFieldMessage {
     type: 'info' | 'success' | 'danger';
@@ -13,11 +15,13 @@ interface IFieldMessage {
 }
 
 
-export interface IFieldState {
+interface IFieldState {
     messages?: IFieldMessage[];
     currentOp?: string;
     operatorsMenuIsOpen?: boolean;
     extractedValues: any;
+    initialReadOccured: boolean;
+    defautValueOccured: boolean;
 }
 export interface FilterItem {
     op: string;
@@ -25,6 +29,7 @@ export interface FilterItem {
     value2?: string;
     values?: string[];
     fieldName: string;
+    fieldType?: string;
 }
 const defaultOperators = ['like', 'eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between'];
 export class Field extends BaseComponent<IFieldProps, IFieldState>{
@@ -56,11 +61,15 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     getValuePair() {
         return { [Field.getAccessorName(this.props.accessor)]: this.state.extractedValues['default'] };
     }
+    getInputType() {
+        const { children } = this.props;
+        return children && children['type'];
+    }
     getFilterItem(): FilterItem {
 
         const op = (this.getCurrentOp() || 'LIKE').toLowerCase();
         const p = this.props;
-        return Object.assign({},
+        const filterItem = Object.assign({},
             {
                 value: this.state.extractedValues['default'],
                 fieldName: Field.getAccessorName(p.accessor),
@@ -68,7 +77,9 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             },
             p.filterData || {},
             this.state.extractedValues['alt'] !== undefined ? { value2: this.state.extractedValues['alt'] } : {});
-
+        const input = this.getInputElement('default');
+        const inputType: any = input && input['type'];
+        return (inputType && inputType.passFilterItem instanceof Function) ? inputType.passFilterItem(filterItem, p) : filterItem;
     }
     static getLabel = (accessor, label?) => i18n(label || changeCase.paramCase(Field.getAccessorName(accessor)))
     static getLabelText = (accessor, label?) => i18n.get(label || changeCase.paramCase(Field.getAccessorName(accessor)))
@@ -85,77 +96,67 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
     }
     handleGetData(prefix) {
-        const p = this.props;
 
+        const p = this.props;
+        const dataForm = this.getDataForm(true);
+        if (!dataForm) return;
         if (p.onGet instanceof Function) return p.onGet();
-        const { root } = this.refs;
-        if (!root) return;
-
-        let parent = root;
-        let getters: (string | Function)[] = [];
-        while (parent) {
-            const { componentRef } = parent as any;
-            const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
-            if (props) {
-                const value = props.onFieldRead || Field.getAccessorName(props.accessor);
-                value && getters.push(value);
-            }
-            parent = parent.parentElement;
+        const result = dataForm.onFieldRead(p.accessor);
+        if (this.props.onInitialRead instanceof Function && !this.state.initialReadOccured) {
+            this.state.initialReadOccured = true;
+            setTimeout(() => this.props.onInitialRead(result, dataForm.props.data), 10);
         }
 
-        const idxForNearestReadFieldFunc = Array.from(getters.entries()).reduceRight((foundIdx, [idx, item]) => {
-            if (foundIdx != -1) return foundIdx;
-            return (item instanceof Function) ? idx : foundIdx;
-        }, -1);
-        if (idxForNearestReadFieldFunc < 0) return;
-        const accessorPath: string[] = getters.slice(0, idxForNearestReadFieldFunc).reverse() as any;
-        const nearestReadFieldFunc = getters[idxForNearestReadFieldFunc] as Function;
-        let value: any = nearestReadFieldFunc(accessorPath.shift());
-
-        while (accessorPath.length) {
-            value = value && value[accessorPath.shift()];
-            if (!(value instanceof Object)) break;
-        }
-        return value;
+        return result;
     }
+    handleSetDataIsDirty: number;
     handleSetData(e: React.ChangeEvent<HTMLInputElement>, prefix: string) {
-        prefix = prefix || 'default';
-        const inputElement = this.getInputElement(prefix);
-
-        const dataType = inputElement.type && inputElement.type['dataType'];
-        const value: any = [dataType == 'boolean' ?
-            e && e.target && e.target.checked : undefined, e && e.target && e.target.value, e && (e as any).value, e].filter(x => x !== undefined)[0];
-        const p = this.props;
-        p.onChange instanceof Function && p.onChange(value);
-        if (p.onSet instanceof Function) return p.onSet(value);
-        const { root } = this.refs;
-        if (!root) return;
-
-        let parent = root;
-        const dataForm = this.getDataForm();
-
-        while (parent) {
-            const { componentRef } = parent as any;
-            const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
-            const onFieldWrite = (props && props.onFieldWrite) || (componentRef && componentRef.onFieldWrite);
-            if (onFieldWrite) {
-                if (prefix == 'default')
-                    onFieldWrite(Field.getAccessorName(p.accessor), value);
-                else
-                    onFieldWrite(Field.getAccessorName(p.accessor) + '__2', value);
-
-                const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
-
-                this.repatch({ extractedValues });
-
-                break;
+        function isSerialize(e) {
+            try {
+                JSON.stringify(e);
+                return true;
+            } catch{
+                return undefined;
             }
-            parent = parent.parentElement;
         }
-
-
-        dataForm && dataForm.props.validate && this.revalidate();
-
+        const now = +new Date();
+        if ((now - this.handleSetDataIsDirty) < 50) return;
+        this.handleSetDataIsDirty = now;
+        try {
+            prefix = prefix || 'default';
+            const inputElement = this.getInputElement(prefix);
+            const dataType = inputElement.type && inputElement.type['dataType'];
+            const valueArray = [dataType == 'boolean' ?
+                e && e.target && e.target.checked : undefined, e && e.target && e.target.value, e && (e as any).value, isSerialize(e) && e];
+            let value: any = valueArray.filter(x => x !== undefined && x !== null)[0];
+            const p = this.props;
+            p.onChange instanceof Function && p.onChange(value);
+            if (p.onSet instanceof Function) return p.onSet(value);
+            const { root } = this.refs;
+            if (!root) return;
+            let parent = root;
+            const dataForm = this.getDataForm();
+            /*while (parent) {
+                const { componentRef } = parent as any;
+                const props = componentRef && componentRef.props as OrganicUi.IFieldReaderWriter;
+                const onFieldWrite = (props && props.onFieldWrite) || (componentRef && componentRef.onFieldWrite);
+                if (onFieldWrite) {
+                    onFieldWrite(Field.getAccessorName(p.accessor) + getSuffix(prefix), value);
+                    const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
+                    this.repatch({ extractedValues });
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+            dataForm && dataForm.props.validate && this.revalidate();*/
+            const inputType: any = inputElement && inputElement.type;
+            value = inputType && inputType.parseValue ? inputType.parseValue(value, this.props) : value;
+            dataForm.onFieldWrite(p.accessor, value);
+            const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
+            this.repatch({ extractedValues });
+        } finally {
+            this.handleSetDataIsDirty = +new Date();
+        }
     }
 
     getValueProps(dataType, value) {
@@ -165,41 +166,56 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
         return { value };
     }
+    static getDisiplayText(p: IFieldProps, value: any) {
+        const { children } = p;
+        const type = children && children.type;
+        return
+    }
     clear() {
+
         const orginInputElement = Object.assign({}, this.inputElements);
-        this.inputElements = {};
+
         setTimeout(() => {
             Object.keys(this.inputElements).forEach(key => this.inputElements[key] = orginInputElement[key]);
 
-            this.repatch({});
+            this.repatch({ extractedValues: {} } as any);
         }, 1);
-        this.state.extractedValues = {};
-        Object.keys(this.inputElements).forEach(key => this.inputElements[key] = <NotConnectedInput />);
-        this.repatch({});
+        setTimeout(() => {
+            for (const input of this.querySelectorAll('.input-component'))
+                input.clear instanceof Function && input.clear();
+        }, 10)
+        //     this.state.extractedValues = {};
+        for (const key of Object.keys(this.inputElements))
+            this.inputElements[key] = <NotConnectedInput />;
+
+        this.repatch({ extractedValues: {} } as any);
     }
     getInputElement(prefix: string): JSX.Element {
-        if (!this.props.children && this.inputElements && this.inputElements[prefix]) return this.inputElements[prefix];
+        if (this.inputElements && this.inputElements[prefix]) return this.inputElements[prefix];
         let inputElement = this.props.children as React.ReactElement<any>;
         if (!inputElement)
             inputElement = editorByAccessor(changeCase.camelCase(Field.getAccessorName(this.props.accessor)));
         if (inputElement) {
             const customRenderer = (inputElement.type && inputElement.type[`field-renderMode-${this.props.renderMode}`]);
             if (customRenderer) {
-                this.operators = this.operators || customRenderer['filterOperators'];
+                this.operators = this.operators || this.props.operators || customRenderer['filterOperators'];
                 inputElement = customRenderer(this.props);
             }
             if (inputElement instanceof Function) {
                 inputElement = React.createElement(inputElement as any, {});
-                if (this instanceof Field)
-                    this.inputElements[prefix] = inputElement;
+
             }
+            if (this instanceof Field)
+                this.inputElements[prefix] = inputElement;
         }
         return inputElement;
     }
     componentWillMount() {
-        this.state.currentOp = this.props.defaultOperator || this.state.currentOp;
+        const inputType = this.getInputType();
+        this.state.currentOp = this.props.showOpeartors &&
+            (this.props.defaultOperator || (inputType && inputType.defaultOperator) || this.state.currentOp);
     }
-    
+
     getCurrentOp() {
         return this.state.currentOp || (this.operators[0]);
     }
@@ -207,10 +223,10 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     changeEvent2: Function;
     blurEvent2: Function;
     createHandleSetData(prefix: string, defaultCb: Function) {
-        return e => {
-
+        const that = this;
+        return function (e) {
             defaultCb && defaultCb(...arguments);
-            this.handleSetData(e, prefix);
+            that.handleSetData(e, prefix);
         };
     }
     focusEvent: Function;
@@ -231,7 +247,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 this.repatch({});
                 if (document.activeElement == target) return;
                 const { container } = this.refs;
-                container && container.classList.remove('focused');
+                const hasValue = (this.state.extractedValues && !Utils.isUndefined(this.state.extractedValues['default']));
+                if (!hasValue) {
+                    container && container.classList.add('bluring');
+
+                    setTimeout(() => container && container.classList.remove('bluring', 'focused'), 210);
+                }
+                else  container.classList.remove( 'focused')
+
             }, 100);
             this.repatch({});
         }
@@ -244,11 +267,31 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const inputElement = React.Children.only(element.props);
         return inputElement.type;
     }
+
     renderContent() {
         const p = this.props, s = this.state;
         s.messages = s.messages || p.messages || [];
         const { currentOp } = this.state;
         const dataForm = this.getDataForm(true);
+        if (!this.refs.root) this.state.defautValueOccured = false;
+        const { defaultValue } = this.props;
+
+        if (dataForm) {
+            const { onFieldValidate } = dataForm.props;
+            if ((onFieldValidate instanceof Function) && !onFieldValidate(this.props))
+                return this.renderErrorMode('invalid field accessor');
+
+
+            if (defaultValue !== undefined && !this.state.defautValueOccured) {
+                this.state.defautValueOccured = true;
+                setTimeout(() => {
+                    const currentValue = this.handleGetData('default');
+                    if (currentValue === undefined)
+                        this.handleSetData(defaultValue instanceof Function ? defaultValue() : defaultValue, 'default')
+                }, 300);
+            }
+        }
+        else this.repatch({}, null, 200);
         const hasError = dataForm && dataForm.props.validate && !!this.getErrorMessage();
         const iconForStatus: string = hasError && '';// 'fa-exclamation-triangle';
         let inputElement = this.getInputElement('default');
@@ -263,36 +306,40 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         this.focusEvent = this.focusEvent || (inputElement && this.createFocusEvent(inputElement.props.onFocus));
         let classNameForField = inputElement && inputElement.type && inputElement.type['classNameForField'];
         if (classNameForField instanceof Function) classNameForField = classNameForField(inputElement.props);
-        const valProps = this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.state.extractedValues['default']);
+        const { extractedValues } = this.state;
+        const valProps = this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], 'default' in extractedValues ? extractedValues.default : this.handleGetData('default'));
+
         if (p.onMirror instanceof Function) {
             return p.onMirror(valProps, p);
         }
-        const propsOfInputElement = inputElement && Object.assign(inputElementType.hasDataFormProp ? { dataForm } : {}, inputElement.props,
+        const propsOfInputElement = inputElement && Object.assign(inputElementType && inputElementType.hasDataFormProp ? { dataForm } : {}, inputElement.props,
             {
                 onChange: this.changeEvent,
                 onChanged: this.changeEvent,
                 onFocus: this.focusEvent,
                 onBlur: this.blurEvent,
                 className: Utils.classNames(inputElement.props && inputElement.props.className)
-            }, valProps
+            }, valProps,
+            ((inputElementType && inputElementType.defaultPrimaryProps) || {})
         );
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
 
-        let inputElement2 = currentOp == 'between' && this.getInputElement('alt');
-        this.changeEvent2 = this.changeEvent2 || (inputElement2 && this.createHandleSetData('alt', inputElement2.props.onChange));
-        this.blurEvent2 = this.blurEvent2 || (inputElement2 && this.createBlurEvent(inputElement2.props.onBlur));
-        this.focusEvent2 = this.focusEvent2 || (inputElement2 && this.createFocusEvent(inputElement2.props.onFocus));
-
-        const propsOfInputElement2 = inputElement2 && Object.assign({}, inputElement2.props,
+        const _inputElement2 = this.props.showOpeartors && currentOp == 'between' && this.getInputElement('alt');
+        this.changeEvent2 = this.changeEvent2 || (_inputElement2 && this.createHandleSetData('alt', _inputElement2.props.onChange));
+        this.blurEvent2 = this.blurEvent2 || (_inputElement2 && this.createBlurEvent(_inputElement2.props.onBlur));
+        this.focusEvent2 = this.focusEvent2 || (_inputElement2 && this.createFocusEvent(_inputElement2.props.onFocus));
+        const propsOfInputElement2 = _inputElement2 && Object.assign({}, _inputElement2.props,
             {
                 onChange: this.changeEvent2,
                 onChanged: this.changeEvent2,
                 onFocus: this.focusEvent2,
                 onBlur: this.blurEvent2,
-                className: Utils.classNames("alt-input-element", inputElement2.props && inputElement2.props.className)
+                className: Utils.classNames("alt-input-element", _inputElement2.props && _inputElement2.props.className),
+                editorPrefix: 'alt'
             }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.state.extractedValues['alt'])
+            , ((inputElementType && inputElementType.defaultAltProps) || {})
         );
-        inputElement2 = inputElement2 && React.cloneElement(inputElement2, propsOfInputElement2);
+        const inputElement2 = _inputElement2 && React.cloneElement(_inputElement2, propsOfInputElement2);
         const label = Field.getLabel(p.accessor, p.label);
         const { root } = this.refs;
         if (!root && s.messages && s.messages[0])
@@ -304,22 +351,21 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (p.onlyInput) return inputElement;
         const hasValue = (this.state.extractedValues && !Utils.isUndefined(this.state.extractedValues['default']));
         const { fixedClientWidth } = this;
-        const style: React.CSSProperties = !p.disableFixedWidth && !!fixedClientWidth ? {
-            maxWidth: `${fixedClientWidth}px`,
-            width: `${fixedClientWidth}px`,
-            minWidth: `${fixedClientWidth}px`
-        } : null;
-        this.operators = this.operators || inputElementType['filterOperators'] || defaultOperators;
+        const style: React.CSSProperties = Object.assign({}, !p.disableFixedWidth && !!fixedClientWidth ? {
+
+        } : {});
+        this.operators = this.operators || this.props.operators || inputElementType['filterOperators'] || defaultOperators;
         let classNameForRoot = Utils.classNames("field-accessor", style && 'fixed-width', classNameForField, hasError && 'has-error');
-        let className = Utils.classNames("field  is-horizontal  ", classNameFromInputType, hasValue && 'has-value', p.className);
+        let className = Utils.classNames(p.labelOnTop && 'label-on-top' + p.labelOnTop, "field  is-horizontal  ", classNameFromInputType, ((p.labelOnTop == 'always') || hasValue) && 'has-value', p.className);
         const { adjustFieldClassName } = (inputElementType || {}) as any;
         if (adjustFieldClassName instanceof Function) {
             [classNameForRoot, className] = adjustFieldClassName(inputElement.props, classNameForRoot, className);
         }
+
         return (<div ref="root" key="root"
             data-accessor-name={Field.getAccessorName(p.accessor)}
             data-message={s.messages && s.messages[0] && s.messages[0].message}
-            className={classNameForRoot} style={style} >
+            className={classNameForRoot} style={p.style} >
             {hasError && <div style={{ width: '1.71rem' }} className="error-icon" dangerouslySetInnerHTML={{ __html: errorIcon }}></div>}
 
             <div ref="container" key="container" className={className}>
@@ -343,20 +389,18 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
                 </div>}
                 {!!p.showOpeartors && <a tabIndex={-1} ref="op"
-
-
                     className="op" style={{ display: 'flex', alignItems: 'center' }} onClick={(e) => (e.preventDefault(), this.getOperatorFromUser())} >
-                    <i className="fa fa-ellipsis-v" style={{ margin: '2px 0px 0 5px' }}></i>
                     {i18n('operator-' + this.getCurrentOp())}</a>}
                 {!!s.operatorsMenuIsOpen && <Menu
                     anchorEl={this.refs.op}
-
+                    anchorOrigin={{
+                        horizontal: 'left', vertical: 'top'
+                    }}
                     open={true}
                     onClose={this.handleCloseForMenuOperators.bind(this)}
                 >
                     {this.operators.map(operator =>
-                        (
-                            <MenuItem style={{ minWidth: root && ((root.clientWidth - 30) + 'px') }} data-operator={operator} onClick={this.handleCloseForMenuOperators.bind(this)}>{i18n(`operator-${operator}`)}</MenuItem>
+                        (<MenuItem style={{ minWidth: root && ((root.clientWidth - 30) + 'px') }} data-operator={operator} onClick={this.handleCloseForMenuOperators.bind(this)}>{i18n(`operator-${operator}`)}</MenuItem>
                         )
                     )}
                 </Menu>}
@@ -482,54 +526,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const textReader = (type && type.textReader);
         return textReader && (val => textReader(this, children && children.props, val));
     }
-}
-const defaultTextReader = (fld, props, s) => s;
-
-//--------------------------------------------------------------------------------
-interface ObjectFieldState {
-
-}
-interface ObjectFieldProps {
-    data: Object;
-    pattern: string;
-}
-interface ObjectFieldPattern {
-
-}
-
-//--------------------------------------------------------------------------------
-interface IFieldSetProps {
-    validationSignal: number;
-    validationSignals?: any;
-    onValidaitonSuccess?: () => void;
-    data?: any;
-    children: any | any[];
-}
-interface IFieldSetState {
-    validationSignals?: any;
-    autoTest: boolean;
-    dumpMode: boolean;
-}
-
-function getAllChildren(instance): React.Component<any, any>[] {
-    const queue: React.Component<any, any>[] = [];
-    const toArray = v => v && (v instanceof Array ? v : [v]);
-    const current = instance;
-    const result = [];
-    while (queue.length) {
-        const current = queue.shift();
-        if (!(current instanceof Object)) continue;
-        const children = toArray(instance.children);
-        children && queue.push(...children);
-        result.push(current);
+    static defaultProps = {
+        sortData: {}
     }
-    return result;
-
-}
-interface IUserFieldProps {
-    extraFields?: any;
 }
 
+function getSuffix(prefix) {
+    return !prefix || prefix == 'default' ? '' : '__' + prefix;
+}
 export function bind(fakeFn: () => any) {
 
 }

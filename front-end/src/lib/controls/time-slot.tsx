@@ -8,8 +8,8 @@ import { DataForm } from '../data/data-form';
 import { ITimeSlotRange } from '@organic-ui';
 import { AdvSection } from '../controls/advanced-section';
 import { TimeEdit } from './time-edit';
-import {Callout, Button } from './inspired-components';
- 
+import { Callout, Button } from './inspired-components';
+
 const hourCount = 24;
 function handleEdit() {
     AppUtils.showDialog('sdfsdf');
@@ -175,8 +175,8 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                 <br />
                 <AdvSection className="compact" errorMessage={s.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })}>
                     <DataForm className="data-form-row"
-                        onFieldRead={key => s.rangeData[key]}
-                        onFieldWrite={(key, value) => s.rangeData[key] = value}>
+                        data={s.rangeData}
+                    >
                         <Field accessor="from">
                             <TimeEdit />
                         </Field>
@@ -219,8 +219,8 @@ class TimeSlotDialog extends BaseComponent<ITimeSlotDialogProps, any>{
         invalids = invalids || {};
         return ranges instanceof Array && ranges.map((range, index) => (
             <DataForm key={index} className={Utils.classNames(invalids && invalids[index] && 'invalid', 'data-form-row', `range${index}`)}
-                onFieldRead={key => range[key]}
-                onFieldWrite={(key, value) => (range[key] = value, this.repatch({ invalids: Utils.excl(invalids, index) }, undefined, 100))}>
+                data={range}
+            >
                 <Field key="from" accessor="from">
                     <TimeEdit />
                 </Field>

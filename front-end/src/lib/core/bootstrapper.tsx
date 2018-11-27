@@ -82,49 +82,7 @@ export function startApp(appModel: IAppModel) {
     loadLocalizationResource().then(() => mountViewToRoot());
 }
 export const changeUserLanguage = lang => loadLocalizationResource(lang).then(() => mountViewToRoot());
-export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
-    if (Utils['scaningAllPermission']) {
 
-        return Promise.resolve([]);
-    }
-    Utils['scaningAllPermission'] = +new Date();
-
-    const result: ITreeListNode[] = [];
-    let appliedUrls = [];
-    const urls = Object.keys(table.data);
-    OrganicUI.Utils.setNoWarn(+new Date() as any);
-    return new Promise(resolve => {
-        urls.forEach(url => {
-            const temp = document.createElement('div');
-            renderViewToComplete(url, temp).then(() => {
-                appliedUrls.push(url);
-                if (appliedUrls.length == urls.length) {
-                    Utils['scaningAllPermission'] = 0;
-
-                    setTimeout(() => OrganicUI.Utils.setNoWarn(false), 3000);
-                    setTimeout(() => resolve(result), 1);
-                }
-                const criticalArray = Array.from(temp.querySelectorAll('.critical-content'));
-                const treeList: ITreeListNode[] =
-                    criticalArray.map(ele => ele.getAttribute('data-key'))
-                        .map<ITreeListNode>(key => ({ key, text: i18n.get(key), parentKey: url, checkBoxStatus: 0 }));
-                if (treeList.length) {
-                    treeList.unshift({
-                        key: url,
-                        parentKey: 0,
-                        text: Array.from(temp.querySelectorAll('.page-title-value')).map(p => p.getAttribute('data-page-title')).join('')
-
-                            || url,
-                        checkBoxStatus: 0
-                    })
-                }
-                result.push(...treeList);
-            });
-        });
-    });
-}
-
-export function checkPermission(permissionKey){
-    if(!appData || !appData.appModel) return true;
-    return  appData.appModel.checkPermission(permissionKey) ;
-} 
+const documentClassName = localStorage.getItem('documentClassName');
+if (documentClassName)
+    document.documentElement.classList.add(documentClassName);

@@ -11,7 +11,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     _autoUpdateState: S;
     devElement: any;
     nodes: any;
-    autoUpdateTimer: number;
+    autoUpdateTimer: any;
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
@@ -57,6 +57,14 @@ export class BaseComponent<P, S> extends Component<P, S>{
         }
 
     }
+    static selfBindMethods: string[];
+    selfBindMethodsApplied: boolean;
+    applySelfBindMethods() {
+        const { selfBindMethods } = (this as any).__proto__;
+        if (!(selfBindMethods instanceof Array)) return;
+        for (const methodName of selfBindMethods)
+            this[methodName] = (this[methodName] as Function).bind(this);
+    }
     /** initialize autoUpdateState if needed */
     componentWillMount() {
         if (this.autoUpdateState && Object.keys(this.autoUpdateState).length) {
@@ -78,6 +86,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
      */
     constructor(props: P) {
         super(props);
+        this.forceUpdate = this.forceUpdate.bind(this);
         this.childrenByRole = this.getChildrenByRole((props as any).children);
         this.repatch = this.repatch.bind(this);
         this.state = {} as any;
@@ -87,12 +96,11 @@ export class BaseComponent<P, S> extends Component<P, S>{
             .map(child => (child as any).props);
         const refId = ++BaseComponent.refIdCounter;
         Object.assign(this.state, { refId });
-
         this.tryCountLimits = {};
 
     }
     _getChildrenByRole(accum, child) {
-        const { role } = child.props;
+        const role = child.props.role || child.props['data-role'];
         return Object.assign(accum, {
             [role]: (accum[role] || []).concat([child])
         })
@@ -100,7 +108,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     getChildrenByRole(children) {
         return (children instanceof Array ? children
             : React.Children.toArray(children))
-            .filter((c: any) => c && c.props && c.props.role)
+            .filter((c: any) => c && c.props && (c.props.role || c.props['data-role']))
             .reduce(this._getChildrenByRole, {});
     } /*  */
     tryCountLimits: { [key: string]: number };
@@ -114,30 +122,36 @@ export class BaseComponent<P, S> extends Component<P, S>{
     defaultState(delta: Partial<S>) {
         Utils.assignDefaultValues(this.state, delta);
     }
-
+    asyncRepatch(key: keyof S, asyncFunc: Function, ...args) {
+        this.repatch({
+            [key]: this.state[key] || asyncFunc(...args).then(result => this.repatch({ [key]: result } as any)
+            ) as any
+        } as any);
+    }
     repatch(delta: Partial<S>, target?, delay?) {
         if (delay) {
             setTimeout(this.repatch.bind(this), delay, delta, target);
             return;
         }
         if (!OrganicUI.isProdMode()) {
-            if (delta['debug']) debugger;
+            if (delta && delta['debug']) debugger;
             if (window['repatchDebug'] && !OrganicUI.isProdMode()) debugger;
         }
         target = target || this.state;
-        Object.assign(target, delta);
-        const keys = Object.keys(delta);
+        Object.assign(target, delta || {});
+        const keys = Object.keys(delta || {});
         if (this.stateListener && this.stateListener.length) {
             for (var key in keys) {
                 const matchedStateListeners = this.stateListener.filter(sl => sl.target == key);
                 matchedStateListeners.forEach(sl => sl.onChange(delta[sl.target]));
             }
         }
-        this.forceUpdate();
+        return new Promise(resolve => this.forceUpdate(() => resolve(delta)));
     }
     querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[] {
         const { root } = this.refs;
-        console.assert(!!root, `root is null@queryAllComponentRefs with ${cssSelector}`);
+        console.assert(!!root, `root is null,@queryAllComponentRefs with ${cssSelector}`);
+        if (!(target || root)) return [];
         return (Array.from(((target || root) as HTMLElement).querySelectorAll(cssSelector)))
             .filter((item: any) => (item as IComponentRefer<T>).componentRef)
             .map((item: any) => (item as IComponentRefer<T>).componentRef as any)
@@ -166,8 +180,10 @@ export class BaseComponent<P, S> extends Component<P, S>{
                 if (parent.id == 'root') break;
                 parent = parent.parentElement;
             }
-            root.setAttribute('data-page-title', title);
-            root.classList.add('page-title-value');
+            if (root) {
+                root.setAttribute('data-page-title', title);
+                root.classList.add('page-title-value');
+            }
             this.pageTitle = title;
             if (!!parent)
                 document.title = title;
@@ -177,10 +193,17 @@ export class BaseComponent<P, S> extends Component<P, S>{
     }
     static DefaultOfLayoutCompleteLimit = 10;
     layoutCompleteLimit = BaseComponent.DefaultOfLayoutCompleteLimit;
+    componentRefCounter: number = 0;
     render() {
-        if (this.refs.root && !this.refs.root['componentRef'])
-            setTimeout(() => this.componentDidMount(), 100);
+        if (!this.selfBindMethodsApplied) {
+            this.selfBindMethodsApplied = true;
+            this.applySelfBindMethods();
+        }
 
+        if (this.refs.root && (this.componentRefCounter || 0) < 3) {
+            setTimeout(() => this.componentDidMount(), 100);
+            this.componentRefCounter = (this.componentRefCounter || 0) + 1;
+        }
         if (this.devElement) {
             return <div ref="root" className="developer-features">{this.devElement}</div>
         }
@@ -194,7 +217,9 @@ export class BaseComponent<P, S> extends Component<P, S>{
         else this.layoutCompleteLimit = BaseComponent.DefaultOfLayoutCompleteLimit;
         return this.renderContent();
     }
-    renderErrorMode(title, subtitle) {
+    renderErrorMode(title, subtitle?) {
+        if (!subtitle)
+            return <span className="error-mode" style={{ background: 'red' }}>{title}</span>
         return (<section className="error-mode hero is-danger is-centered" dir="ltr" ref="root">
             <div className="hero-body" dir="ltr">
                 <div className="container" dir="ltr">
@@ -214,8 +239,9 @@ export class BaseComponent<P, S> extends Component<P, S>{
         this.autoUpdateTimer = 0;
     }
 }
-export function CriticalContent(p: { permissionKey: string, children?}) {
-
-    return <div className={"critical-content"} data-key={p.permissionKey}>{p.children}</div>
+export function CriticalContent(p: OrganicUi.CriticalContentProps) {
+    return <>
+        {p.permissionValue && <span className="critical-content" data-value={p.permissionValue.toString()} data-key={p.permissionKey} />}
+        {p.children}
+    </>
 }
-  

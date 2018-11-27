@@ -3,10 +3,36 @@
 }
 
 .pagination {
+    position: relative;
     margin-top: 5px;
     list-style: none;
     li {
         list-style: none;
+    }
+    .MuiButtonBase-root {
+        min-width: 32px;
+    }
+    .pagination-next,
+    .pagination-next:hover,
+    .pagination-next:active {
+        border: none !important;
+        box-shadow: none !important
+    }
+    .total-rows {
+        font-size: 1.71rem;
+        min-width: auto;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 80px;
+        display: flex;
+        align-items: center;
+        label {
+            padding: 1rem;
+            &:after {
+                content: ':'
+            }
+        }
     }
 }
 
@@ -119,6 +145,9 @@
         display: flex;
         padding: 0;
         position: relative;
+        .MuiSelect-selectMenu {
+            padding-top: 1.4rem;
+        }
     }
     .label {
         text-align: left;
@@ -134,8 +163,16 @@
         padding: 0;
         bottom: 0;
         font-size: 1.14rem !important;
+        display: flex;
+        align-items: center;
+        width: auto;
+        position: absolute;
+        left: 10px;
+        top: 30px;
+        right: auto;
         span {
             font-size: 1.14rem !important;
+            float:right;
         }
     }
     .messages * {
@@ -164,16 +201,46 @@
         right: 0;
     }
 }
-.scrollY{
-    overflow-y: scroll;
+
+.scrollY {
+    overflow-y: auto;
 }
+
 .data-list {
+    .ms-DetailsHeader-cellName {
+        .sort-icon {
+            float: left;
+        }
+        .fa {
+            display: none;
+        }
+    }
+    .sort-column-desc {
+        .fa-arrow-up {
+            display: inline
+        }
+    }
+    .sort-column-asc {
+        .fa-arrow-down {
+            display: inline
+        }
+    }
+    .ms-DetailsHeader-cellTitle {
+        width: 100%;
+    }
+    .fake {
+        background: rgba(255, 255, 255, 0.5);
+        min-width: 20px;
+        max-height: 20px;
+        color: rgba(0, 0, 0, 0);
+        font-size: 10px;
+    }
     .data-list-c1,
     .ms-Viewport,
     .ms-DetailsList,
     [role=grid],
     [role=grid]>[role=presentation]:nth-child(2),
-    [role=grid]>[role=presentation]:nth-child(2)>.ms-FocusZone ,
+    [role=grid]>[role=presentation]:nth-child(2)>.ms-FocusZone,
     .ms-SelectionZone,
     .ms-List {
         display: flex;
@@ -385,4 +452,10 @@ a.close {
 /// reinvent
 .dashboard-widget {
     min-height: 100%;
+}
+
+label.caption {
+    &:after {
+        content: ':'
+    }
 }

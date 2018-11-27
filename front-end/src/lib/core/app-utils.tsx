@@ -4,6 +4,9 @@ import { Utils } from "./utils";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../controls/inspired-components';
 
 import { ReactElement, cloneElement } from "react";
+import { Modal } from "../controls/modal";
+import { SelfBind } from "../core/decorators";
+import { TipsBar } from "../controls/tip-bar";
 
 interface IDialogProps {
     title?, content?: any;
@@ -15,6 +18,8 @@ interface IDialogProps {
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
     static dialogInstance: IDialogProps;
+    static networkError: IDialogProps;
+    static tips: any[] = [];
     static closeDialog() {
         AppUtils.showDialog(null);
     }
@@ -54,41 +59,54 @@ export class AppUtils extends BaseComponent<any, any>{
                     reject();
                 }
             }
-            content = cloneElement(content, { onFieldWrite: (key, value) => data[key] = value, onFieldRead: key => data[key] });
+            content = cloneElement(content, { data });
             AppUtils.showDialog(content, opts);
         });
     }
+    @SelfBind()
     handleClose() {
         AppUtils.dialogInstance = null;
         this.repatch({});
     }
     renderContent() {
         AppUtils.Instance = this;
-        const { dialogInstance } = AppUtils;
-        return <section className="app-utils" >
-            {<Dialog open={!!dialogInstance} onClose={this.handleClose}  >
-                <DialogTitle>
-                    <div style={{ display: 'flex' }}>
-                        <div style={{ flex: '10' }}>
-                            {i18n((dialogInstance && dialogInstance.title))}
-                        </div>
-                        {!(dialogInstance && dialogInstance.noClose) && <a href="#" className="close-dialog" onClick={e => {
-                            e.preventDefault();
-                            AppUtils.showDialog(null);
-                        }}><i className="fa fa-times" /></a>}
-                    </div>
-                </DialogTitle>
+        return <div className="app-utils" style={{ width: '100%' }} >
+            <TipsBar tips={AppUtils.tips} />
+            {this.renderUserDialog(AppUtils.dialogInstance)}
+            {this.renderNetworkError(AppUtils.networkError)}
 
-                <DialogContent style={{ overflow: dialogInstance && dialogInstance.hasScrollBar ? null : 'hidden' }}>
-                    {dialogInstance && dialogInstance.content}
-                </DialogContent>
-                <DialogActions>
-                    {dialogInstance && dialogInstance.actions && Utils.renderButtons(dialogInstance.actions)}
-                </DialogActions>
-            </Dialog>}
-        </section>
+        </div>
+    }
+    renderNetworkError(dialog: IDialogProps) {
+        return !!dialog && <Modal title={dialog.title} buttons={dialog.actions} >
+            {dialog.content}
+        </Modal>
+    }
+    renderUserDialog(dialog: IDialogProps) {
+
+        return <Dialog open={!!dialog} onClose={this.handleClose}  >
+            {!!dialog && !!dialog.title && <DialogTitle>
+                <div style={{ display: 'flex' }}>
+                    <div style={{ flex: '10' }}>
+                        {i18n((dialog && dialog.title))}
+                    </div>
+                    {!(dialog && dialog.noClose) && <a href="#" className="close-dialog" onClick={e => {
+                        e.preventDefault();
+                        AppUtils.showDialog(null);
+                    }}><i className="fa fa-times" /></a>}
+                </div>
+            </DialogTitle>}
+
+            <DialogContent style={{ overflow: dialog && dialog.hasScrollBar ? null : 'hidden' }}>
+                {dialog && dialog.content}
+            </DialogContent>
+            {dialog && dialog.actions && <DialogActions>
+                Utils.renderButtons(dialog.actions)
+            </DialogActions>}
+        </Dialog>
     }
     static afterREST({ method, url, data, result }) {
         return result;
     }
-} 
+}
+

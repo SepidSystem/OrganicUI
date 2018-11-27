@@ -1,4 +1,5 @@
-import { openBindingSource } from "./binding-source";
+import { BindingSource, openBindingSource } from "./binding-source";
+
 
 
 const quietChain = new Proxy({}, {
@@ -47,7 +48,7 @@ function templatedView(templName, extraParams) {
     }
     const templComponentType = templates[templName];
     if (!templComponentType) throw `template-name is missing  , template:${templName}`;
-    const result :MethodDecorator = function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
+    const result: MethodDecorator = function (target, propertyName, propertyDescriptor: TypedPropertyDescriptor<any>) {
         const orginalMethod = propertyDescriptor.value;
         propertyDescriptor.value = function () {
             const result = orginalMethod.apply(this, arguments);
@@ -60,14 +61,16 @@ function templatedView(templName, extraParams) {
 
     return result;
 }
+ 
 export const reinvent: typeof _reinvent & {
     query, factoryTable, prefix,
     baseClassFactory: Function, templates: { [key: string]: React.ComponentClass<any> | Function },
     utils: any,
-    modules: { [key: string]: any }
+    modules: { [key: string]: any }, BindingSource: typeof BindingSource,openBindingSource:typeof openBindingSource
 } = Object.assign(_reinvent, {
     baseClassFactory: () => { throw ' baseClassFactory is missed' },
-    query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView,
-    openBindingHub: openBindingSource
+    query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView, BindingSource,
+    openBindingSource
+
 });
 Object.assign(window, { reinvent });

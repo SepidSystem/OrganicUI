@@ -1,10 +1,11 @@
 import { reinvent } from "./reinvent";
-import { openBindingSource, globalBindingSource } from './binding-source';
+
 // from organic-ui framework
 import { BaseComponent } from "../core/base-component";
 import { Utils } from "../core/utils";
 import { AppUtils } from '../core/app-utils';
 import { routeTable } from "../core/router";
+import { BindingSource } from "./binding-source";
 
 const proxyHandler: ProxyHandler<BaseComponent<any, any>> = {
     get: (target, key) => target.state[key],
@@ -19,9 +20,11 @@ function baseClassFactory<S>({ chainMethods, className }) {
         private static className = className;
         static StaticValues: any = {};
         static afterConsturct: Function;
+        static _defaultState: S;
         devPortId: any;
         proxiedState: S;
         bindingSource: any;
+        data: any;
         constructor(p) {
             super(p);
             this.devPortId = Utils.accquireDevPortId();
@@ -31,9 +34,14 @@ function baseClassFactory<S>({ chainMethods, className }) {
                     .filter(h => h.type == 'watcher')
                     .reduce((a, { hookName, callback }) => Object.assign(a, { [hookName]: callback }), {})
             this.proxiedState = (new Proxy(this, proxyHandler) as any) as S;
+            if (ReinventComponent._defaultState)
+                Object.assign(this.state, ReinventComponent._defaultState);
+
             if (ReinventComponent.afterConsturct instanceof Function)
                 ReinventComponent.afterConsturct.apply(this, [p]);
-            this.bindingSource = globalBindingSource();
+
+            this.data = {};
+            this.bindingSource = new BindingSource();
         }
         static queryChains(callerName: string, callbackFn: Function, ...args) {
             const items = Array.from(ReinventComponent[`_${callerName}Array`] || []) as Function[];
@@ -49,7 +57,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
         }
 
         static applyChain(callerName: string, ...args) {
-            return ReinventComponent.queryChain(callerName, (method, ...array) => method(...array), ...args);
+            return ReinventComponent.queryChain(callerName, (method, ...array) => method instanceof Function && method(...array), ...args);
         }
         private static getHookMonitor(): Function {
             return !!OrganicUI.DeveloperBar.developerFriendlyEnabled && ReinventComponent['hookMonitor'];
@@ -109,7 +117,7 @@ function baseClassFactory<S>({ chainMethods, className }) {
                 </div>
             }
             catch (exc) {
-
+                console.log({ exc });
                 return this.renderErrorMode(`problem in renderMode`, exc.toString());
             }
         }
@@ -117,16 +125,16 @@ function baseClassFactory<S>({ chainMethods, className }) {
         getDevButton() {
             return Utils.renderDevButton({ prefix: "Reinvent", targetText: <i className="fa fa-info" /> }, this);
         }
-       static  done({moduleId}) {
+        static done({ moduleId }) {
             if (doneCheckerTimeOut) clearTimeout(doneCheckerTimeOut);
             if (ReinventComponent.doneFunc instanceof Function)
                 ReinventComponent.doneFunc();
-            reinvent.modules[moduleId]=ReinventComponent;
+            reinvent.modules[moduleId] = ReinventComponent;
             return ReinventComponent;
         }
         static assignRoute(pattern: string) {
             routeTable(pattern, ReinventComponent);
-            return  ReinventComponent;
+            return ReinventComponent;
         }
     }
     Array.from(chainMethods || [])
@@ -155,4 +163,3 @@ reinvent.factoryTable['frontend'] = function () {
     return baseClassFactory({ className: 'frontend', chainMethods: [] });
 };
 
- 

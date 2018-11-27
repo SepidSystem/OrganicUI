@@ -16,23 +16,25 @@ function injectRandomNumberToObject(obj) {
     }
 
 }
+
 function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptions):
     Reinvent.IDashboardWidgetReinvent<TData, TState> {
     const chainMethods = ['paramInitializer', 'dataLoader', 'dataRenderer', 'size'];
     const AClass = reinvent.baseClassFactory({ chainMethods, className: 'dashboard-widget' });
     const reactClass: typeof React.Component = AClass;
     if (options.interval) {
-
         reactClass.prototype.componentWillMount = function () {
             const tick = () => {
                 const param = AClass.applyChain('paramInitializer');
-
-                Utils.toPromise(AClass.applyChain('dataLoader', param))
+                Object.assign(this.state, { param });
+                Utils.toPromise(AClass.applyChain('dataLoader', param, this.state))
                     .then(data => {
-
-                        if (localStorage.getItem('injectRandomNumberToDataLoad')) injectRandomNumberToObject(data);
-                        this.repatch({ data });
-
+                        const hashData = Utils.hash(data);
+                        if (hashData != this.hashData) {
+                            this.hashData = hashData;
+                            if (localStorage.getItem('injectRandomNumberToDataLoad')) injectRandomNumberToObject(data);
+                            this.repatch({ data });
+                        }
                         if (options['timerActivate'])
                             setTimeout(tick, options.interval);
                         return data;
@@ -48,8 +50,10 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
     AClass.afterConsturct = function () {
         const param = AClass.applyChain('paramInitializer');
         options['timerActivate'] = !!options.interval;
-        const loader = Utils.toPromise(AClass.applyChain('dataLoader', param))
-            .then(data => this.repatch({ data }));
+        const loader = Utils.toPromise(AClass.applyChain('dataLoader', param, this.state))
+            .then(data => this.repatch({ data }),rejectReason=>{
+               this.repatch({data:rejectReason})
+            });
         Object.assign(this.state, { data: loader, param });
     };
     function getRenderParams(target) {
@@ -62,25 +66,34 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
             runAction: target.runAction.bind(this),
             root: target.refs.root,
             subrender: target.subrender.bind(target),
-            showModal: target.showModal.bind(target)
+            showModal: target.showModal.bind(target),
+            reload: delta => {
+                const p = getRenderParams(target);
+                return Utils.toPromise(AClass.applyChain('dataLoader', p.param, p.state))
+                    .then(data => target.repatch({ ...{ data }, ...delta }));
+            }
         };
 
     }
     AClass.renderer(p => {
-        if (p.state.data instanceof Promise) return <div ref="root" className="flex-center flex-full-center">
 
+        const data = p.state.data instanceof Promise ? null : p.state.data;
+        if (!data) return <div ref="root" className="flex-center flex-full-center">
             <Spinner />
         </div>;
-
+        if(React.isValidElement(data)) return data;
         return AClass.applyChain('dataRenderer', p)
-    }
-    );
+    });
+    AClass.defaultState = (_defaultState) => Object.assign(AClass, { _defaultState });
+
+
     return Object.assign(AClass, { options, getRenderParams }) as any;
 }
 reinvent.factoryTable['frontend:dashboard:widget'] = classFactory;
 
 class DashboardPage extends BaseComponent<never, never> {
     render() {
+        if (Utils.fakeLoad()) return null;
         const widgetES6Classes = reinvent.query('frontend:dashboard:widget');
         return (<article >
             <GridList cellHeight={400} spacing={20} cols={3} >

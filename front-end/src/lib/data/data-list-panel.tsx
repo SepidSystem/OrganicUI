@@ -198,7 +198,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
                     </div>
 
-                    <div ref="dataFormWrapper" className="half-column-fields">
+                    <div ref="dataFormWrapper" className={p.contentClassName}>
                         {s.targetSelector && !s.targetSelector.includes('delete') && React.createElement(DataForm,
                             {
                                 ref: "dataForm",
@@ -286,4 +286,8 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     </div>}
                 </div>));
     }
+    static defaultProps:{
+        contentClassName:'half-column-fields'
+    }
 }
+ 

@@ -27,6 +27,15 @@ declare namespace OrganicUi {
         totalRows: number;
         rows: TRow[];
     }
+    export interface DatePickerProps {
+        value?, hasTime?, popOverReversed?, style?: React.CSSProperties, onChange?: any;
+        readonly?;
+        editorPrefix?: string;
+        onFocus?: () => void;
+        placeholder?: string;
+        onBlur?: Function;
+        className?: string;
+    }
     interface IContentItem<T, TActions> {
         alt: {
             itemNo: number;
@@ -55,6 +64,17 @@ declare namespace OrganicUi {
         renderErrorMode(title, subtitle);
         defaultState(delta: Partial<S>);
         asyncRepatch(key: keyof S, asyncFunc: Function, ...args);
+        setState<K extends keyof S>(
+            state: ((prevState: Readonly<S>, props: Readonly<P>) => (Pick<S, K> | S | null)) | (Pick<S, K> | S | null),
+            callback?: () => void
+        ): void;
+
+        forceUpdate(callBack?: () => void): void;
+        render(): React.ReactNode;
+        context: any;
+        refs: {
+            [key: string]: React.ReactInstance
+        };
     }
     export interface CriticalContentProps { permissionValue: string; permissionKey: string; children?}
     export function CriticalContent(p: { permissionKey: string, children?}): JSX.Element;
@@ -89,17 +109,26 @@ declare namespace OrganicUi {
         trueDisplayText?: string;
         falseDisplayText?: string;
         filterData?: { fieldType?, ignoreFilter?: boolean };
+        sortData?: { ignoreSort?: boolean };
+        avoidSort?: boolean;
         defaultOperator?: string;
         disableFixedWidth?: boolean;
         columnProps?: Partial<TColProps>;
         defaultValue?: any;
         defaultValueAllowed?: () => boolean;
+        style?: React.CSSProperties;
     }
 
     export interface ActionsForIArrayDataViewItem {
         remove: Function;
         append: Function;
         select: Function;
+    }
+    export interface ITipsProps {
+        tips: React.ReactNode[];
+        onIgnore?: ((index: number) => (true | false));
+        onDetailClick?: ((index: number) => void);
+        defaultActiveTipIndex?: number;
     }
     export interface IArrayDataViewProps<T> {
         value: T[];
@@ -117,7 +146,7 @@ declare namespace OrganicUi {
     }
     export interface FilterItem {
         op: string;
-        value: string;
+        value?: string;
         value2?: string;
         values?: string[];
         fieldName: string;
@@ -354,7 +383,7 @@ declare namespace OrganicUi {
         dataLookup?: any;
         filterMode?: 'quick' | 'advanced' | 'none';
         noTitle?: boolean;
-
+        dataLookupProps?: DataLookupProps;
     }
     export interface ISingleViewParams {
         id;
@@ -467,11 +496,11 @@ declare namespace OrganicUi {
     export interface IAdvancedQueryFilters {
         fromRowIndex: number;
         toRowIndex: number;
-        filterModel: any[];
-        sortModel: any[];
+        filterModel: FilterItem[];
+        sortModel: ({ colId: string, sort: string })[];
     }
     export type OptionsForRESTClient = (() => any) | any;
-    function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
+    function restClient<T=any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
 
     export interface IAppModel {
         getMenuItems(): { menu: IMenu, permission?}[];
@@ -514,6 +543,7 @@ declare namespace OrganicUi {
         customDataRenderer?: (items: any[], dataList?: BaseComponent<OrganicUi.IDataListProps<any>>) => JSX.Element;
         detailsListProps?: T;
         selection?: any;
+        accquireSelection?: (selection: any) => void;
         itemIsDisabled?: (row: T) => boolean;
         customActions?: TMethods;
         noBestFit?: boolean;
@@ -526,7 +556,7 @@ declare namespace OrganicUi {
         readonly: boolean;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
-
+        contentClassName?:string;
         formMode?: 'modal' | 'callout' | 'panel' | 'section';
         dataListHeight?: number;
         avoidAdd?, avoidDelete?, avoidEdit?: boolean;
@@ -541,6 +571,7 @@ declare namespace OrganicUi {
     export interface ModalProps {
         title?: React.ReactNode;
         noClose?: boolean;
+        type?: 'error' | 'warning';
         buttons?: { [buttonName: string]: Function }
         buttonHeaders?: { [buttonName: string]: (() => Function) }
         children?: React.ReactNode;
@@ -573,6 +604,7 @@ declare namespace OrganicUi {
         style?: React.CSSProperties;
         customReadList?: Function;
         customReadListArguments?: any[];
+        filterModelAppend?: any[];
         disableAdjustEditorPadding?: boolean;
     }
     export interface IDataLookupPopupModeProps {
@@ -628,6 +660,7 @@ declare namespace OrganicUi {
         actions?: { [key: string]: Function }
         defaultValues?: any;
         noClose?: boolean;
+        width?: number;
     }
     interface AppUtilsIntf {
         (p: any): JSX.Element;
@@ -670,6 +703,7 @@ declare module '@organic-ui' {
     export const DataLookup: typeof OrganicUi.DataLookup;
     export const TreeList: typeof OrganicUi.TreeList;
     export const ImageUploader: React.SFC<OrganicUi.ImageUploaderProps>;
+    export const Modal: React.SFC<OrganicUi.ModalProps>;
     export const i18n: typeof OrganicUi.i18n;
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps<IColumn>;
@@ -694,6 +728,7 @@ declare module '@organic-ui' {
     export interface OptForRESTClient extends Partial<AxiosRequestConfig> {
         title: string;
         setBaseURL?: (baseUrl: string) => void;
+        rejectHandler?: Function;
     }
     export const appData: {
         appModel?: IAppModel
@@ -701,7 +736,7 @@ declare module '@organic-ui' {
     }
     export type OptionsForRESTClient = (() => Partial<OptForRESTClient>) | OptForRESTClient;
     export const createClientForREST: (options?: OptionsForRESTClient) => typeof restClient;
-    function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
+    function restClient<T=any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
     export type ResultSet<T> = OrganicUi.ResultSet<T>;
     export type ErrorCodeForFieldValidation = OrganicUi.ErrorCodeForFieldValidation;
     export type IDataFormAccessorMsg = OrganicUi.IDataFormAccessorMsg;
@@ -712,6 +747,8 @@ declare module '@organic-ui' {
     interface IBindableElement {
         tryToBinding();
     }
+
+
     export const Version: string;
     export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
     export class BaseComponent<P=any, S=any> extends OrganicUi.BaseComponent<P, S>{ }
@@ -725,7 +762,7 @@ declare module '@organic-ui' {
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
     export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
-    export const DatePicker: React.SFC<{ value?, hasTime?, popOverReversed?, style?: CSSProperties, onChange?, readonly?}>;
+    export const DatePicker: React.SFC<OrganicUi.DatePickerProps>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
@@ -735,6 +772,7 @@ declare module '@organic-ui' {
         showInvalidItems(invalidItems?: IDataFormAccessorMsg[]): JSX.Element;
         getFieldErrorsAsElement(): Promise<JSX.Element>
     }
+    export const MinimalMasterPage: any;
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export const DataList: React.SFC<OrganicUi.IDataListProps<IDetailsListProps>>;
     export const DataTreeList: typeof OrganicUi.DataTreeList;

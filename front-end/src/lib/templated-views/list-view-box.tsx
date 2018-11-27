@@ -1,45 +1,45 @@
 /// <reference path="../../dts/globals.d.ts" />
 
-import {   CriticalContent } from '../core/base-component';
+import { CriticalContent } from '../core/base-component';
 import { icon, i18n } from '../core/shared-vars';
 import { Utils, changeCase } from '../core/utils';
 import { FilterPanel } from '../data/filter-panel';
 import { DataList } from '../data/data-list';
 import { ISelection, Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
 import { AdvButton, Placeholder } from '../core/ui-elements';
-
-
+import { SelfBind } from '../core/decorators';
+import * as XLSX from 'xlsx';
 import OrganicBox from './organic-box';
 import { Field } from '../data/field';
 
 import { AppUtils } from '../core/app-utils';
 import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView } from '@organic-ui';
 import { createClientForREST } from '../core/rest-api';
-import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon } from '../controls/icons';
+import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon, FullScreen, FullScreenExit } from '../controls/icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { Button, Paper, TextField } from '../controls/inspired-components';
 import { SnackBar } from '../controls/snack-bar';
 import { DeveloperBar } from '../core/developer-features';
 import { reinvent } from '../reinvent/reinvent';
 import * as printerIcon from '../../../icons/printer.svg';
-import { checkPermission } from '../core/bootstrapper';
+
+import { BindingPoint } from '../reinvent/binding-source';
+import { checkPermission } from '../core/permission-management';
+import swal from 'sweetalert2';
+import { Modal } from '../controls/modal';
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
 }
-let debounceTimer: any;
-const debounce = cb => {
-    debounceTimer && clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => (debounceTimer = null, cb()), 100);
-}
-
 
 interface ListViewBoxState<T> {
     dataFormForFilterPanel: any;
     currentRow: T;
     readingList: boolean;
-    deleteDialogIsOpen?: boolean;
+    deleteDialogContent?: React.ReactNode;
     quickFilter: boolean;
+    fullScreen?: boolean;
+    searchingValue: string;
 };
 
 export class ListViewBox<T> extends
@@ -48,18 +48,21 @@ export class ListViewBox<T> extends
     devElement: any;
     devPortId: any;
 
-
     columns: IFieldProps[];
     error: any;
-    static fakeLoad() {
-        const date = (Utils['scaningAllPermission'] && +Utils['scaningAllPermission']) || 0;
-        return ((+ Date()) - date < 500);
+    @SelfBind()
+    reload() {
+        this.refs.dataList.reload()
     }
-
     getFilterPanel() {
-        this.columns = this.columns || this.getColumns();
         if (this.props && this.props.options && this.props.options.avoidAutoFilter) return undefined;
-        return <FilterPanel onApplyClick={() => this.refs.dataList.reload()} dataForm={this.state.dataFormForFilterPanel}>
+        const { filterOptions } = this.props.options;
+        const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0])
+        if (filterPanel)
+            return React.cloneElement(filterPanel,
+                { liveMode: filterOptions && filterOptions.liveMode, onApplyClick: this.reload, dataForm: this.state.dataFormForFilterPanel });
+        this.columns = this.columns || ListViewBox.getColumns(this.getDataList());
+        return <FilterPanel liveMode={filterOptions && filterOptions.liveMode} onApplyClick={this.reload} dataForm={this.state.dataFormForFilterPanel}>
             {this.columns.map(col => (<Field  {...col} />))}
         </FilterPanel>
     }
@@ -74,13 +77,7 @@ export class ListViewBox<T> extends
     }
     constructor(p) {
         super(p);
-        this.handleSelectionChanged = this.handleSelectionChanged.bind(this);
-        this.readList = this.readList.bind(this);
-
         this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
-        this.handleEdit = this.handleEdit.bind(this);
-        this.handleRemove = this.handleRemove.bind(this);
-        this.handleLoadRequestParams = this.handleLoadRequestParams.bind(this);
         this.state.quickFilter = (this.props.params.filterMode != 'advanced');
     }
     autoCreatedDataList: any;
@@ -94,12 +91,12 @@ export class ListViewBox<T> extends
 
         return dataList;
     }
-    getColumns(): IFieldProps[] {
-        const dataList = this.getDataList();
-        if (!dataList) return;
+    static getColumns(dataList: DataList): IFieldProps[] {
+        return ListViewBox.getFields(dataList).map(c => c.props)
+    }
+    static getFields(dataList: DataList): Field[] {
         const { children } = dataList.props as OrganicUi.IDataListProps;
-        return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x).map(c => c.props)
-
+        return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x)
     }
     getUrlForSingleView(id) {
         return this.props.options.routeForSingleView.replace(':id', id);
@@ -107,6 +104,7 @@ export class ListViewBox<T> extends
     getDevButton() {
         return Utils.renderDevButton('ListView', this)
     }
+    @SelfBind()
     handleEdit() {
         const { getSelectedKey } = this.selection as any;
         let id;
@@ -122,74 +120,89 @@ export class ListViewBox<T> extends
         const url = this.getUrlForSingleView(id);
         return Utils.navigate(url);
     }
-    async handleRemove() {
+    @SelfBind()
+    async handleRemove(forced: boolean) {
+
         const indices = this.selection.getSelectedIndices();
+        if (!indices || indices.length == 0) {
+            AppUtils.showDialog(i18n('not-record-selected'));
+            return;
+        }
         const allItems = this.selection.getItems() as T[];
         const items = indices.map(index => allItems[index]).filter(x => !!x) as T[];
         const { actions } = this.props;
-
-        const confrimResult = await AppUtils.confrim(<div>
-            {actions.getText instanceof Function && <ul>
+        const deleteDialogContent = (<div>
+            {actions.getText instanceof Function && <ul style={{ listStyle: 'disc' }}>
                 {items.map(item => <li>{actions.getText(item)}</li>)}
             </ul>}
-        </div>, { title: "delete-items" });
-        if (!confrimResult) return;
-        items.map(dto => this.getId(dto)).forEach(id => actions.deleteList(id));
-
-        this.refs.dataList.reload();
+        </div>);
+        if (!forced) {
+            await this.repatch({ deleteDialogContent: null });
+            await this.repatch({ deleteDialogContent });
+            return;
+        }
+        const ids = items.map(dto => this.getId(dto));
+        const result = await actions.deleteList(ids);
+        await this.refs.dataList.reload();
+        return !!result;
     }
     getId(row) {
-        const s = this.state;
+        if (!row) return row;
         if (this.actions.getId instanceof Function)
             return this.actions.getId(row);
         return Utils.defaultGetId(row);
     }
-    denyHandleSelectionChanged: number;
-
+    denyHandleSelectionChanged: boolean;
+    @SelfBind()
     handleSelectionChanged() {
-
-        const now = +new Date();
-        if (this.denyHandleSelectionChanged && (now - this.denyHandleSelectionChanged) < 500) return;
+        if (this.denyHandleSelectionChanged) return;
         const { onSelectionChanged } = this.props.params;
         const indices = this.selection.getSelectedIndices();
         onSelectionChanged instanceof Function && onSelectionChanged(indices, this.selection);
+        /* 
+        const now = +Date();
         onSelectionChanged instanceof Function &&
-            setTimeout(() => {
-
-                this.denyHandleSelectionChanged = +new Date();
-                try {
-                    if (indices.length)
-                        indices.forEach(idx => this.selection.setIndexSelected(idx, true, false))
-                } finally {
-                    this.denyHandleSelectionChanged = 0;
-                }
-
-                //this.adjustSelectedRows();
-
-            }, 20);
+              setTimeout(() => {
+                   this.denyHandleSelectionChanged = true;
+                  try {
+                      if (!this.props.params.multipleDataLookup)
+                          this.selection.selectToIndex(indices[0])
+                      else if (indices.length)
+                          indices.forEach(idx => this.selection.setIndexSelected(idx, true, true))
+                  } finally {
+                      this.denyHandleSelectionChanged = false;
+                  }
+  
+                  //this.adjustSelectedRows();
+  
+              }, 400);*/
         //this.repatch({});
     }
     static fetchFail: Function;
     static fetchFailSuppressDate: number;
+    @SelfBind()
     readList(params) {
-        if (!ListViewBox.fakeLoad()) {
-            this.state.readingList = true;
-            const readList = this.props.params.customReadList || this.actions.readList;
-            return readList(...(this.props.params.customReadListArguments || [params])).then(r => {
-                setTimeout(() => {
-                    this.adjustSelectedRows();
-                    this.state.readingList = false;
-                }, 200);
-                return r;
-            }, error => {
+        this.state.readingList = true;
+        const readList = this.props.params.customReadList || this.actions.readList;
+        return readList(...(this.props.params.customReadListArguments || [params])).then(r => {
+            setTimeout(() => {
+                this.adjustSelectedRows();
+                this.state.readingList = false;
+            }, 200);
+            return r;
+        }, error => {
 
-                this.devElement = this.makeDevElementForDiag(error);
-                return Promise.resolve({ rows: [], totalRows: 0 });
-            });
-        }
-        else {
+            this.devElement = this.makeDevElementForDiag(error);
             return Promise.resolve({ rows: [], totalRows: 0 });
-        }
+        });
+
+
+    }
+    @SelfBind()
+    readListFake(params) {
+
+        return Promise.resolve({ rows: [], totalRows: 0 });
+
     }
     makeDevElementForDiag(error) {
         if (!DeveloperBar.developerFriendlyEnabled) return null;
@@ -220,19 +233,18 @@ export class ListViewBox<T> extends
         const { params } = this.props;
 
         const { selectedId } = params;
-        let limitTry = 30;
         if (selectedId || params.defaultSelectedValues) {
-            const defaultSelectedValues =
-                params.defaultSelectedValues instanceof Function ?
-                    params.defaultSelectedValues() : (params.defaultSelectedValues || {});
+
+            const defaultSelectedValues = (params.defaultSelectedValues instanceof Function ?
+                params.defaultSelectedValues() : (params.defaultSelectedValues || {}));
             const items = this.selection.getItems();
             const selectedIds = items.map((item, index) => ({ index, id: this.getId(item) }))
                 .filter(({ id }) => !!defaultSelectedValues[id]);
             setTimeout(() => {
                 selectedIds.forEach(({ index }) => {
-                    this.denyHandleSelectionChanged = +new Date();
-                    this.selection.setIndexSelected(index, true, false);
-                    this.denyHandleSelectionChanged = 0;
+                    this.denyHandleSelectionChanged = true;
+                    this.selection && this.selection.setIndexSelected(index, true, false);
+                    this.denyHandleSelectionChanged = false;
                 });
             }, 100);
 
@@ -246,20 +258,31 @@ export class ListViewBox<T> extends
         !this.props.params.forDataLookup && this.setPageTitle(i18n.get(this.props.options.pluralName));
 
     }
+    @SelfBind()
     handleLoadRequestParams(params: OrganicUi.IAdvancedQueryFilters) {
         const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
         if (filterPanel)
-            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
+            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !Utils.isUndefined(filterItem.value));
         if (window['debugHandleLoadRequestParams']) debugger;
+        if (this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
+            params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend)
         return params;
     }
-    renderQuickFilter() {
-        return [
-            <i className="fa fa-search"></i>,
-            <TextField fullWidth />,
-            //  <i className="fa fa-bars" onClick={() => this.repatch({ quickFilter: false })}></i>,
-        ]
+    @SelfBind()
+    handleSearchQuery(e: React.ChangeEvent<HTMLInputElement>) {
+        const { currentTarget } = e;
+        if (currentTarget) {
+            const { value } = currentTarget;
+            setTimeout(() => (value == currentTarget.value) && this.repatch({ searchingValue: value }), 400);
+        }
     }
+    renderQuickFilter() {
+        return <>
+            < i className="fa fa-search" ></i >
+            <TextField fullWidth onChange={this.handleSearchQuery} />
+        </>
+    }
+
     prepareDataList(intialDataList: React.ReactElement<OrganicUi.IDataListProps>) {
         const multiple = this.getMultiple();
         const { params } = this.props;
@@ -278,9 +301,10 @@ export class ListViewBox<T> extends
                 height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
                 onDoubleClick: params.forDataLookup ? null : this.handleEdit,
                 onLoadRequestParams: this.handleLoadRequestParams,
-                multiple: this.props.params.forDataLookup,
+                multiple: this.props.params.forDataLookup && this.props.params.multipleDataLookup,
                 itemIsDisabled: params.canSelectItem && (item => !params.canSelectItem(item)),
-                loader: this.readList,
+                loader: Utils.fakeLoad() ? this.readListFake : this.readList,
+                onPageChanged: this.props.params.onPageChanged,
                 flexMode: true,
                 paginationMode: intialDataList.props.paginationMode || 'paged',
                 selection: this.selection,
@@ -292,6 +316,10 @@ export class ListViewBox<T> extends
                 } as Partial<IDetailsListProps>
                 : {} as Partial<IDetailsListProps>));
     }
+    @SelfBind()
+    handleToggleFullScreen() {
+        this.repatch({ fullScreen: !this.state.fullScreen });
+    }
     renderContent() {
         const dataList = this.getDataList();
         if (!dataList) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
@@ -299,11 +327,12 @@ export class ListViewBox<T> extends
         const s = this.state as any;
         s.toggleButtons = s.toggleButtons || {};
         const { root } = this.refs;
-        const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0]) || this.getFilterPanel();
+        const filterPanel = this.getFilterPanel();
         let dataListFound = false;
         const children = !!root &&
             React.Children.toArray(this.props.children).map((child: any) => {
                 if (child && (child.type == FilterPanel)) return null;
+                if (child && child.props && (child.props.role || child.props['data-role'])) return null;
                 if (child && (child.type && child.type.isField)) return null;
                 if (ListViewBox.isTargetedDataList(child)) {
                     dataListFound = true;
@@ -312,7 +341,9 @@ export class ListViewBox<T> extends
                 return child;
             });
         if (this.autoCreatedDataList && !dataListFound && children instanceof Array) children.push(this.prepareDataList(dataList));
-        if (!root) setTimeout(() => (this.repatch({})), 10);
+        if (!root && !Utils.fakeLoad()) setTimeout(() => (this.repatch({})), 10);
+        let { permissionKeys } = options;
+        permissionKeys = permissionKeys || {} as any;
         const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
             return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options.classNameForListView)}
@@ -327,57 +358,45 @@ export class ListViewBox<T> extends
                 {(params.filterMode != 'none') && <div className="   data-lookup__filter-panel" style={{ display: this.state.quickFilter ? 'none' : 'block' }}>
                     {filterPanel}
                 </div>}
-                {(params.filterMode != 'none') && <div className="   data-lookup__quick-filter" style={{ display: !this.state.quickFilter ? 'none' : 'flex' }}>
+                {/*(params.filterMode != 'none') && <div className="   data-lookup__quick-filter" style={{ display: !this.state.quickFilter ? 'none' : 'flex' }}>
                     {this.renderQuickFilter()}
-                </div>}
+            </div>*/}
                 <div className="data-items">
                     {children}
                 </div>
             </section>;
+        const { deleteDialogContent } = this.state;
         return <section className={Utils.classNames("list-view developer-features", options.classNameForListView)} ref="root"   >
             {!!this.error && <SnackBar style={{ width: '100%', maxWidth: '100%', minWidth: '100%' }} variant="error">{(!!this.error && this.error.message)} </SnackBar>}
 
-            <header className="  static-height list-view-header"  >
-                {filterPanel}
-                <CriticalContent permissionKey="create-permission">
-                    <AdvButton color="primary" 
-                    disabled={options.permissionKeys && !checkPermission(options.permissionKeys.forCreate)}
-                    variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
-                        <i className="fa fa-plus flag" key="flag" />
-                        <div className="content" key="content">
-                            {Utils.showIcon(options.iconCode, "iconCode")}
-                            <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>
+            {!s.fullScreen && <>
+                <header className="  static-height list-view-header"  >
+                    {filterPanel}
+                    <CriticalContent permissionValue={permissionKeys && permissionKeys.forCreate} permissionKey="create-permission">
+                        <AdvButton color="primary"
+                            disabled={options.permissionKeys && !checkPermission(options.permissionKeys.forCreate)}
+                            variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
+                            <i className="fa fa-plus flag" key="flag" />
+                            <div className="content" key="content">
+                                {Utils.showIcon(options.iconCode, "iconCode")}
+                                <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>
 
 
-                        </div>
-                    </AdvButton>
-                </CriticalContent>
-                <CriticalContent permissionKey="view-permission" />
-                <CriticalContent permissionKey="edit-permission" />
-                <CriticalContent permissionKey="delete-permission" />
-                <CriticalContent permissionKey="copy-permission" />
-                <CriticalContent permissionKey="archive-permission" />
-                <CriticalContent permissionKey="trash-permission" />
-                <div className="buttons"  >
-                    <Button   >
-                        <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '4.3rem', margin: '0.5rem 1rem' }} />
-                        {i18n('export')}
-                    </Button>
+                            </div>
+                        </AdvButton>
+                    </CriticalContent>
+                    <CriticalContent permissionValue={permissionKeys && permissionKeys.forRead} permissionKey="view-permission" />
+                    <CriticalContent permissionValue={permissionKeys && permissionKeys.forUpdate} permissionKey="edit-permission" />
+                    <CriticalContent permissionValue={permissionKeys && permissionKeys.forDelete} permissionKey="delete-permission" />
 
-                </div>
-            </header>
 
+                </header>
+                <br /> </>}
             <Paper className="  main-content column  "   >
 
-                {(!options.permissionKeys ||  checkPermission(options.permissionKeys.forDelete)) && <header className="navigator">
-
-                    <Button onClick={this.handleRemove}   >
-                        <DeleteIcon />
-                        {i18n('delete-items')}
-
-                    </Button>
-
-                </header>}
+                <header className="navigator" style={{ marginBottom: '0.5rem' }}>
+                    {this.renderNavigator()}
+                </header>
                 <div className="data-items">
                     {!!this.refs.root && children}
                 </div>
@@ -391,8 +410,68 @@ export class ListViewBox<T> extends
                     <SearchIcon />
                 </Button>
             </footer>
-
+            {!!deleteDialogContent && <Modal type="warning" buttons={{ yes: this.handleRemove.bind(this, true), no: () => true }} >
+                {i18n('are-you-sure-delete')}
+                {deleteDialogContent}
+            </Modal>}
         </section >;
+    }
+    renderNavigator() {
+        const { options } = this.props;
+        return <>
+            {(!options.permissionKeys || checkPermission(options.permissionKeys.forDelete)) && <Button onClick={this.handleRemove.bind(this, false)}   >
+                <DeleteIcon />
+                {i18n('delete-items')}
+            </Button>}
+            {this.childrenByRole['nav']}
+            <div style={{ flex: '1' }}></div>
+            <Button onClick={this.handleToggleFullScreen} className="testable__fullScreen">
+                {this.state.fullScreen ? <FullScreenExit style={{ width: '3rem', height: '3rem', margin: '0 0.2rem' }} /> : <FullScreen style={{ width: '3rem', height: '3rem', margin: '0.2rem' }} />}
+            </Button>
+            <AdvButton onClick={this.handleExcelExport}>
+                <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '3rem', margin: '0 0.7rem' }} />
+                {i18n('export')}
+            </AdvButton>
+
+        </>
+    }
+    async handlePrint() {
+
+    }
+    @SelfBind()
+    async handleExcelExport() {
+        const suffixForDownload = location.pathname.split('/').slice(-1).join('');
+
+        const inputValue: string = (localStorage.getItem('excel-limit') || 100) as string;
+        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 2000].map(n => ({ [n]: n })))
+        const title = 'تعداد رکورد های قابل اکسل';
+        const { value: rowCount } = await swal({ title, input: 'select', inputValue, heightAuto: false, inputOptions });
+        if (!rowCount) return;
+        const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
+          const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, forcedMode: false, resetCache: false, currentPageIndex: -1 })
+        const fields = ListViewBox.getFields(dataList);
+        const columns = ListViewBox.getColumns(dataList);
+        const textReaders = fields.map(fld => Field.prototype.getTextReader.apply(fld));
+        console.log({ rows, dataList, fields, textReaders });
+
+        const fieldNames = columns.map(c => Field.getAccessorName(c.accessor));
+        const fieldCaptions = columns.map(col => Field.getLabelText(col.accessor, col.label));
+        const cells = [fieldCaptions]
+            .concat(rows.map(row => fieldNames.map((fieldName: any, idx) => Utils.extractText(row[fieldName], textReaders[idx]))));
+
+        const worksheet = XLSX.utils.aoa_to_sheet(cells);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, suffixForDownload);
+
+        // Adjust Right To Left
+        if (!workbook.Workbook) workbook.Workbook = {};
+        if (!workbook.Workbook.Views) workbook.Workbook.Views = [];
+        if (!workbook.Workbook.Views[0]) workbook.Workbook.Views[0] = {};
+        workbook.Workbook.Views[0].RTL = true;
+        const cellWidths = DataList.bestFitColumn(fieldNames.length * 250, fieldNames.map((key, idx) => ({ key, name: fieldCaptions[idx] })), rows).map(wpx => ({ wpx }));
+        workbook.Sheets[suffixForDownload]['!cols'] = cellWidths;
+        XLSX.writeFile(workbook, `excel-result-${suffixForDownload}.xlsx`);
+        localStorage.setItem('excel-limit', rowCount);
     }
     static fromEnum(enumType, extraParams): StatelessListView {
         return ListViewBox.fromArray(Utils.enumToIdNames(enumType), extraParams);
@@ -419,8 +498,7 @@ export class ListViewBox<T> extends
                 {i18n(title)}</div>}
 
             <DataList>
-                {fields.map((fieldName, idx) => (<Field accessor={fieldName} onRenderCell={iconCodes && (idx == 0) && renderCellForIcon
-
+                {fields.map((fieldName, idx) => (<Field accessor={new BindingPoint(fieldName, [], false)} onRenderCell={iconCodes && (idx == 0) && renderCellForIcon
                 } />))}
             </DataList>
         </ListViewBox>);
@@ -430,4 +508,3 @@ export class ListViewBox<T> extends
 }
 Object.assign(reinvent.templates, { listView: ListViewBox });
 Object.assign(reinvent.utils, { listViewFromArray: ListViewBox.fromArray, listViewFromEnum: ListViewBox.fromEnum });
- 

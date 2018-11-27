@@ -8,11 +8,11 @@ main.main-container {
     text-align: right;
     padding-right: 6.1rem;
     padding-left: 6.1rem;
-    padding-bottom: 40px;
+    padding-bottom: 10px;
     padding-top: 10px;
     display: flex;
     flex-direction: column;
-    width: calc(100% - 280px);
+    width: calc(100% - 280px);  
     >section {
         flex: 1;
         display: flex;
@@ -202,9 +202,26 @@ aside {
                 border-width: 24px 24px 28px 0;
                 border-color: transparent rgb(4, 160, 220) transparent transparent;
                 left: -24px;
+                z-index: 1000;
+            }
+        }
+        &.mini{
+            max-width: 45px;
+            min-width: 45px;
+            overflow: hidden;
+            .Collapsible__trigger:after{
+                display: none;
+            }
+            a,.title{
+                display: none;
+                padding: 0 !important;
+            }
+            .router.active{
+                min-height: 30px !important;
             }
         }
     }
+  
 }
 
 .app-copyright {

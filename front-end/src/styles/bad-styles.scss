@@ -96,9 +96,12 @@
     .c3-axis-x text {
         font-size: 1.3rem; //change the size of the fonts
     }
-    .c3-event-rects {
+    .c3-chart,.c3-zoom-rect,.c3-event-rects {
         fill: #f9f9f9 !important;
         fill-opacity: 1 !important;
+    }
+    .c3-zoom-rect{
+        opacity: 1 !important;
     }
     path {
         stroke: #f9f9f9 !important;

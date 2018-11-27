@@ -5,7 +5,7 @@
     .label {
         position: absolute;
         top: 2.0rem;
-        right: 0.15rem;
+        right: 1.3rem;
         line-height: 1.5rem;
         pointer-events: none;
         padding-left: 0.125rem;
@@ -19,7 +19,7 @@
         margin: 0;
         min-width: auto !important;
         max-width: auto !important;
-        color: #3F3F3F 100%;
+        color: rgba(0, 0, 0, 0.6);
         transform: translateY(-60%);
         transform-origin: left center;
         transition: transform 2s ease, color 1.6s linear, opacity 1.7s linear;
@@ -41,7 +41,7 @@
     .ms-TextField-fieldGroup-hint {
         font-weight: 400;
         font-size: 0.6875rem;
-        color: #3F3F3F 100%;
+        color: rgba(0, 0, 0, 0.6);
         display: block;
     }
     .ms-TextField-suffix {
@@ -76,7 +76,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         margin: 0;
-        color: #3F3F3F 100%;
+        color: rgba(0, 0, 0, 0.6);
         transform: translateY(-50%);
         transform-origin: left center;
         transition: transform 0.28s ease, color 0.28s linear, opacity 0.28s linear;
@@ -99,12 +99,12 @@
         will-change: opacity;
     }
     .ms-TextField-field:-ms-input-placeholder {
-        color: #3F3F3F 100%;
+        color: rgba(0, 0, 0, 0.6);
         transform: scale(0.9);
         transform-origin: left top;
     }
     .ms-TextField-field::placeholder {
-        color: #3F3F3F 100%;
+        color: rgba(0, 0, 0, 0.6);
         transform: scale(0.9);
         transform-origin: left top;
     }
@@ -153,14 +153,31 @@
         min-height: 3rem;
     }
 }
+ 
+.field.bluring:not(.no-material) .label {
+    top: 2.5rem !important;
+    right: 1.3rem !important;
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all !important;
+    height: auto  !important;
+   
+    padding :0  0.125rem !important;
+    * {
+        font-size: 1.7rem !important;
+        line-height:1.5rem !important;
+    }
+}
 
 .field.focused:not(.no-material) .label,
 .field.has-value:not(.no-material) .label {
-    top: -0.5rem;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
+    top: 0.5rem;
+    right: 0.5rem;
+    
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all;
+    background: #fff;
     line-height: 1rem;
+    z-index: 1;
+    height: 20px;
+    padding: 2px 0.5rem;
     * {
         font-size: 1rem;
     }
@@ -244,7 +261,7 @@
         align-items: center;
         min-height: 100%;
         align-content: center;
-        span {
+        >span {
             display: flex;
             align-items: center;
             font-size: 2rem !important;
@@ -377,21 +394,33 @@ li.MuiButtonBase-root,
 
 .ux-modal {
     .ux-button,
-    .ux-button:hover { 
-        margin:0 0.5rem;
+    .ux-button:hover {
+        margin: 0 0.5rem;
         border: 1px solid #939393;
-        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20),0 2px 4px 0 rgba(0, 0, 0, 0.20) inset;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20), 0 2px 4px 0 rgba(0, 0, 0, 0.20) inset;
         border-radius: 4px;
         min-width: 13rem;
         max-width: 13rem;
-        
         min-height: 3.92rem;
-        
     }
-
     .ux-button.primary,
-    .ux-button.primary:hover{
+    .ux-button.primary:hover {
         background: #1492D5;
-        color:#fff; 
+        color: #fff;
     }
+}
+
+.MuiOutlinedInput-notchedOutline,
+    {
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.MuiOutlinedInput-input {
+    padding: 1.2rem 1.2rem 7px !important;
+    line-height: 2.75rem !important;
+    min-height: 2.75rem !important;
+}
+
+.MuiOutlinedInput-root {
+    min-height: 4.5rem !important;
 }

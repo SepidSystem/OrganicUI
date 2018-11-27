@@ -31,3 +31,9 @@ export const WarningIcon: any = _WarningIcon;
 
 import _MenuIcon from '@material-ui/icons/Menu';
 export const MenuIcon: any = _MenuIcon;
+
+import _FullScreen from '@material-ui/icons/Fullscreen';
+export const FullScreen: any = _FullScreen ;
+
+import _FullScreenExit from '@material-ui/icons/FullscreenExit';
+export const FullScreenExit: any = _FullScreenExit ;

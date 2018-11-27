@@ -42,6 +42,7 @@ declare namespace Reinvent {
         subrender(rendererId: string, params);
         callAction(actionName: string, actionParams): Promise<any>;
         root: HTMLElement;
+        reload:Function;
     }
     interface IReinventForCRUD<TDto> extends IBaseFrontEndReinvent<never> {
         singleView<TState=never>(renderFunc: (p: IReinventForCRUDParams<TDto, TState>) => JSX.Element): IReinventForCRUD<TDto>;

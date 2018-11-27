@@ -94,9 +94,11 @@ interface IAdvButtonProps {
     onClick?: (e: React.MouseEvent<any>) => any;
     fixedWidth?: boolean;
     className?: string;
+    outterClassName?:string;
     calloutWidth?: number;
     lastMod?: number;
     buttonComponent?: any;
+    fixedSize?: { width, height };
 }
 
 export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdvButtonProps>{
@@ -107,17 +109,23 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         this.repatch({ callout: null });
     }
     handleClick(e: React.MouseEvent<any>) {
+        const { root } = this.refs;
+        const buttonElement=root && root.querySelector('button');
+        const fixedSize = buttonElement && { width: buttonElement.clientWidth, height: buttonElement.clientHeight };
+
+
         const s = this.state, p = this.props, { repatch } = this;
         e.preventDefault();
+
         if (s.callout) return this.repatch({ callout: null });
         const asyncClick = async () => {
             const resultAsync: any = (p.onClick instanceof Function) && p.onClick(e);
             if (resultAsync instanceof Promise) {
-                this.repatch({ isLoading: true, callout: null });
+                this.repatch({ isLoading: true, callout: null, fixedSize });
 
                 resultAsync.catch(error => {
                     console.log('Advanced Button Error>>>>>', error);
-                    repatch({ isLoading: false, callout: null, isError: true });
+                    repatch({ isLoading: false, callout: null, isError: true,fixedSize:undefined });
                     repatch({ isError: false }, null, 2000);
 
                     return error;
@@ -128,7 +136,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                         const lastMod = +new Date();
                         React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
                         React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null });
+                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null,fixedSize:undefined });
                     });
             }
         }
@@ -140,6 +148,8 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         const advButton = <Button className={className}
             {...p}
             onClick={this.handleClick.bind(this)}
+            style={ s.fixedSize && { minWidth: s.fixedSize.width + 'px', maxWidth: s.fixedSize.width + 'px', minHeight: s.fixedSize.height + 'px', maxHeight: s.fixedSize.height + 'px' ,overflow:'hidden'
+        ,...(p.style || {})}}
         >
             {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
@@ -156,7 +166,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
             !s.isLoading && !s.callout && p.children,
             !s.isLoading && s.callout && i18n('hide-result'),
             s.isLoading && <Spinner />);
-        return <span ref="root" className="adv-button"
+        return <span ref="root" className={Utils.classNames("adv-button", p.outterClassName)}
         > {advButton}
             {React.isValidElement(s.callout) &&
                 <Callout directionalHint={DirectionalHint.topCenter as any} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >

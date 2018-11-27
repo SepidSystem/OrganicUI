@@ -1,10 +1,13 @@
 $below-list-height:200;
 .data-lookup {
     min-height: 40px;
+    max-height: 42px;
+    display: flex;
+    align-items: center;
     .data-lookup-textfield * {
         color: transparent;
     }
-    margin: 2px;
+    margin: 0 2px;
     position: relative;
     button {
         padding: 2px;
@@ -58,20 +61,16 @@ $below-list-height:200;
         }
     }
     .editor {
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
+         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-content: center;
         align-items: center;
+        width:100%;
     }
     .below-list {
         position: absolute;
-        top: 4rem;
+        top: 4.5rem;
         left: 0;
         right: 0;
         bottom: 3px;
@@ -218,7 +217,7 @@ $below-list-height:200;
         max-height: ($below-list-height+30)*1px !important;
         min-height: ($below-list-height+30)*1px !important;
     }
-}
+}   
 
 .full-data-lookup {
     * {
@@ -254,3 +253,4 @@ $below-list-height:200;
 .MuiTab-labelContainer {
     padding: 0 !important;
 }
+ 

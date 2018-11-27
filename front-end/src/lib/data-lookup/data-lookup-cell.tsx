@@ -7,6 +7,7 @@ interface DataLookupCellProps {
     options: IOptionsForCRUD;
     value: any;
     noRemove?: boolean;
+    text?: any;
 
 }
 export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
@@ -28,6 +29,9 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     }
     render() {
         const p = this.props;
+        if (p.text)
+            return <span className="data-lookup-cell" data-value={JSON.stringify(this.props.value)}
+                data-singularName={this.props.options.singularName} > {p.text}</span>;
         if (p.value) {
             const cacheId = this.getListViewName() + p.value;
             const { refId } = this.state;
@@ -39,10 +43,10 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
             Object.assign(DataLookupCell.cellRefsByCacheId[cacheId], { [refId]: 1 });
             if (this.state.result === undefined)
                 this.state.result = DataLookupCell.cache[cacheId] = DataLookupCell.cache[cacheId] || (p.value &&
-                    p.actions.read && p.actions.read(this.props.value)
+                    p.actions && p.actions.read && p.actions.read(this.props.value)
                         .then(dto => p.actions.getText(dto))
                         .then(result => {
-                            console.assert(!!result, 'invalid GetText', p.actions);
+                             console.assert(!!result, 'invalid GetText', p.actions);
                             return DataLookupCell.cache[cacheId] = result || 'invalid GetText';
                         })
                         .then(result => {

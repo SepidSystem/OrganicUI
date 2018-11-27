@@ -2,7 +2,8 @@
   "compilerOptions": {
     "sourceMap": true,
     "allowJs": true,
-    "target": "es2018",
+    "downlevelIteration":true,
+    "target": "es2017",
     "jsx": "react",
     "module": "commonjs",
     "experimentalDecorators": true,

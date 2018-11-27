@@ -7,7 +7,9 @@ function delayedValue<T>(v: T, timeout): Promise<T> {
 
     return new Promise(resolve => setTimeout(() => resolve(v), timeout));
 }
-
+const errorTextByStatusCode = {
+    500: 'internal-server-error'
+};
 export const instances = [];
 export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
     async function restClient<T={}>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T> {
@@ -70,20 +72,32 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
 
 
             }, async error => {
-                const errorData = error && error.response ?
+                let errorData = error && error.response ?
                     (error.response.data && changeCase.camelCase(error.response.data))
-                    : error && i18n(error.message);
-                AppUtils.networkError = {
-                    content: errorData, actions: {
-                        close: () => {
-                            AppUtils.networkError = null;
-                            return true;
+                    : error && i18n.get(error.message);
+                const { status } = (error.response || { }) as any;
+                if (console.groupCollapsed instanceof Function)
+                    console.groupCollapsed(`fail REST "${method}" ${url}, status: (${status})`);
+                console.log('error>>>', error);
+                data && console.log('request.body>>>', data);
+                console.log('response>>>', error.response);
+                if (console.groupEnd instanceof Function)
+                    console.groupEnd();
+                if (!errorData && error.response && errorTextByStatusCode[status])
+                    errorData = errorTextByStatusCode[status];
+                if (typeof errorData == 'string' && errorData && errorData.length > 2)
+                    AppUtils.networkError = {
+                        content: errorData, actions: {
+                            close: () => {
+                                AppUtils.networkError = null;
+                                return true;
+                            }
                         }
                     }
-                }
+                else AppUtils.networkError = null;
                 AppUtils.Instance.repatch({});
-                // error = errorData || error.response || error;
-                return options.rejectHandler instanceof Function ? options.rejectHandler(errorData, error) : Promise.reject(errorData || error);
+
+                return opts.rejectHandler instanceof Function ? opts.rejectHandler(errorData, error) : Promise.reject(errorData || error);
             }).then(result => afterREST instanceof Function ? afterREST({ url, data, method, result }) : result);
         Object.assign(result, { url, method, data });
         return result;

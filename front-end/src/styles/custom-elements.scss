@@ -42,7 +42,7 @@
 .checkbox-field {
     .label {
         height: 50px;
-        color: #3F3F3F 100% !important;
+        color: rgba(0,0,0,0.6);
         font-weight: normal;
     }
 }
@@ -61,12 +61,7 @@
         direction: ltr;
     }
 }
-
-.dropdown-field .control,
-.filter-panel .checkbox-field .control,
-.filter-panel .switch-field .control {
-    height: 42px;
-}
+ 
 
 .server-side-error {
     padding: 10px 15px;
@@ -208,7 +203,10 @@
 .c3 svg {
     font: 1rem Yekan !important;
 }
-
+ 
 .icon {
     height: auto;
+}
+.date-picker-edit input{
+    padding-left:2ch;
 }

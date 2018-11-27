@@ -30,6 +30,7 @@
         max-height: 25px !important;
     }
     .choices {
+        display: none;
         padding: 2px 20px;
     }
     .expand-icon {
@@ -96,6 +97,10 @@
     }
     .MuiIconButton-root {
         width: 30px;
+    }
+    .MuiCheckbox-colorSecondary.MuiCheckbox-checked{
+        color:rgb(240, 41, 41);
+
     }
 }
 

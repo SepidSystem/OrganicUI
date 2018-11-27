@@ -1,6 +1,6 @@
 /// <reference path="../dts/globals.d.ts" />
 
-import { Utils, AdvButton, AppUtils, BaseComponent,   ListViewBox, FormControlLabel, Checkbox, Tabs, Tab } from "@organic-ui";
+import { Utils, AdvButton, AppUtils, BaseComponent, ListViewBox, FormControlLabel, Checkbox, Tabs, Tab } from "@organic-ui";
 
 
 
@@ -59,7 +59,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                         value={baseURL} style={{ border: 'none', outline: 'none', margin: '3px' }} />
                 </span>}
 
-                
+
                 {this.props.mode == 2 && response && <div style={{ margin: '0px 8px' }} >
                     <b>Response Status : </b>{response.status}{' '}{response.statusText}
                 </div>}
@@ -114,7 +114,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                 value={this.state.mode}
                 indicatorColor="primary"
                 textColor="primary"
-                onChange={this.handleChange.bind(this)}
+                onChange={(e, mode) => this.repatch({ mode })}
             >
                 <Tab label="Request Body" disabled={!this.props.data} />
                 <Tab label="Headers" />
@@ -167,9 +167,9 @@ function restInspector(p) {
 OrganicUI.devTools.set('REST|Set Base URL', target => {
     let { options } = target as any;
     options = options instanceof Function ? options() : options;
-    const baseURL = prompt('baseURL',options.baseURL || '');
-     
-    baseURL &&  options.setBaseURL( baseURL);
+    const baseURL = prompt('baseURL', options.baseURL || '');
+
+    baseURL && options.setBaseURL(baseURL);
 
 });
 OrganicUI.devTools.set('REST|Enable/Disable Inspector', target => {

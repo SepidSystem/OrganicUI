@@ -2,8 +2,8 @@
 import { reinvent } from "./reinvent";
 import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
-import { openBindingSource } from "./binding-source";
- import { routeTable } from "../core/router";
+import { routeTable } from "../core/router";
+import { BindingSource } from "./binding-source";
 interface IParams<TDto> { actions: OrganicUi.IActionsForCRUD<TDto>, customActions, options: OrganicUi.IOptionsForCRUD };
 function classFactory<TDto>(p: IParams<TDto>):
     Reinvent.IReinventForCRUD<TDto> {
@@ -23,17 +23,19 @@ function classFactory<TDto>(p: IParams<TDto>):
     function getRenderParams(target) {
         const { state } = target;
         const { data } = target.state;
-        return {
+        const bindingSource = target.bindingSource = target.bindingSource || new BindingSource();
+        const result = {
             state: target.target || {}, props: target.props,
-            data, bindingSource: openBindingSource<TDto>(),
-            binding: openBindingSource(),
+            data, bindingSource,
+            binding: bindingSource,
             repatch: target.repatch.bind(target),
             runAction: target.runAction.bind(this),
             root: target.refs.root,
             subrender: target.subrender.bind(target),
-            showModal: target.showModal.bind(target)
+            showModal: target.showModal.bind(target),
+            reload: () => target && target.refs && target.refs.main&& target.refs.main.reload && target.refs.main.reload()
         };
-
+        return result;
     }
     AClass.renderer(p => {
         const { id } = p.props, { data } = p.state;
@@ -44,7 +46,7 @@ function classFactory<TDto>(p: IParams<TDto>):
         const componentClass = reinvent.templates[targetKey] as React.ComponentClass<any>;
         const result = AClass.applyChain(targetKey, p) as React.ReactElement<any>;
         const children = React.Children.toArray(result.props.children);
-        return React.createElement(componentClass, { actions, params: p.props, options, customActions }, ...children);
+        return React.createElement(componentClass, { ref: "main", actions, params: p.props, options, customActions }, ...children);
     });
     return Object.assign(AClass, { options, getRenderParams, beforeSave, doneFunc, actions, dataLookupActions: actions, dataLookupOptions: options }) as any;
 }

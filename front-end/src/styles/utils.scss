@@ -8,8 +8,8 @@
         flex-wrap: wrap;
     }
     .field-accessor {
-        min-width: 15.14rem;
-        max-width: 15.14rem;
+        min-width: 18.14rem;
+        max-width: 18.14rem;
         margin: 0 1.7rem;
         float: right;
     }
@@ -19,10 +19,13 @@
     .panel-content {
         display: flex;
         flex-wrap: wrap;
+        justify-content: space-between;
     }
     .field-accessor {
         min-width: 49%;
-        float: right;
+        max-width: 49%;
+        display: flex;
+        justify-content: center;
     }
 }
 
@@ -86,7 +89,7 @@
 .focused .activate-focused-only {
     visibility: visible;
 }
-
+ 
 footer.is-centered {
     display: flex;
     justify-content: center;
@@ -204,17 +207,110 @@ hr {
 
 .tableBodyScroll {
     empty-cells: show;
-    th{
+    th {
         vertical-align: middle;
-        padding:0 1rem;
+        padding: 0 1rem;
     }
     tbody {
         display: block;
-         overflow-y: scroll;
+        overflow-y: scroll;
     }
     thead,
     tbody tr {
         display: table;
         width: 100%;
+    }
+}
+
+@mixin fade-transition($element) {
+    transition: $element 0.15s ease-in-out;
+}
+
+.shine-me {
+    /*  styling */
+    position: relative;
+    /*  centering */
+    overflow: hidden;
+    .shine-me-child {
+        z-index: 100000;
+        /*   positioning */
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        left: 0;
+        background: white;
+        /*  forming the shine element
+        play around with the width, skew and gradient to get different effects
+      */
+        width: 15%;
+        height: 100%;
+        transform: skew(-10deg, 0deg);
+        /*  animating it  */
+        animation: move 2s;
+        animation-iteration-count: infinite;
+        animation-delay: 1s;
+    }
+}
+
+@keyframes move {
+    0% {
+        left: 0;
+        opacity: 1.0;
+    }
+    48% {
+        left: 40%;
+        opacity: 0.5;
+    }
+    80% {
+        opacity: 0.7;
+    }
+    100% {
+        left: 82%
+    }
+}
+
+.body.swal2-height-auto {
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+.toggle-up {
+    animation-name: toggle-up;
+    animation-delay: 0.25s;
+    animation-duration: 0.75s;
+    animation-fill-mode: forwards;
+}
+.center-content{
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    align-content: center;
+    justify-content: center;
+    
+}
+.toggle-down {
+    animation-name: toggle-down;
+    animation-delay: 0.25s;
+    animation-duration: 0.75s;
+    animation-fill-mode: forwards;
+}
+
+/*animations*/
+
+@keyframes toggle-up {
+    0% {
+        transform: rotate(-180deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes toggle-down {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(-180deg);
     }
 }

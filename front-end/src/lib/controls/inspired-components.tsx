@@ -1,7 +1,6 @@
 
-import { default as _TextField, TextFieldProps } from '@material-ui/core/TextField';
-export const TextField: React.SFC<TextFieldProps> = _TextField as any;
-
+import { default as _TextField,OutlinedInputProps as TextFieldProps } from '@material-ui/core/OutlinedInput';
+export const TextField: React.SFC<Partial< TextFieldProps>> = _TextField as any;
 //import { default as _$1, $1Props } from '@material-ui/core/$1';
 //export const $1: React.SFC<$1Props> = _$1 as any;
 
@@ -78,3 +77,8 @@ export { MessageBar } from 'office-ui-fabric-react/lib/MessageBar';
 export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 export { Modal } from 'office-ui-fabric-react/lib/Modal';
 export { FocusZone } from 'office-ui-fabric-react/lib/FocusZone';
+
+import Swal from 'sweetalert2'
+import * as withReactContent from 'sweetalert2-react-content'
+const alertWrapper = (withReactContent as any)(Swal);
+export const Alert = options => new alertWrapper(options); 
