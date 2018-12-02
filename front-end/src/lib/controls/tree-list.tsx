@@ -22,10 +22,10 @@ export class TreeList extends BaseComponent<ITreeListProps, IState>{
     clearCache() {
         this.cache = {};
     }
-   
+
     isLeafNode(node: ITreeListNode): any {
         const { mapping } = this.props;
-        if ( !('isLeaf' in node)) node.isLeaf = !this.props.nodes.some(n => n[mapping.parentKey] == node[mapping.key]);
+        if (!('isLeaf' in node)) node.isLeaf = !this.props.nodes.some(n => n[mapping.parentKey] == node[mapping.key]);
         return !!node.isLeaf;
     }
     changeCheckStatus(targetNode: ITreeListNode, delta: string | number) {
@@ -174,11 +174,11 @@ export class TreeList extends BaseComponent<ITreeListProps, IState>{
         return <div className="tree-list" style={{ height: p.height ? `${p.height}px` : null, display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
 
 
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'none'/*'flex'*/ }}>
                 <TextField placeholder={i18n.get('search-in-treelist')}
-                    type="text" style={{ flex:1 }} onChange={this.handleSearch} />
+                    type="text" style={{ flex: 1 }} onChange={this.handleSearch} />
 
-                <SearchIcon style={{width:'1.6rem' }} />
+                <SearchIcon style={{ width: '1.6rem' }} />
             </div>
             <div style={{ overflowY: 'auto', flex: '1' }}>
                 {p.nodes instanceof Promise ? <Spinner /> : this.renderNodes(rootNodes)}

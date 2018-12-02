@@ -153,7 +153,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
             value = inputType && inputType.parseValue ? inputType.parseValue(value, this.props) : value;
             dataForm.onFieldWrite(p.accessor, value);
             const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
-            this.repatch({ extractedValues });
+            this.repatch({ extractedValues, messages: null });
         } finally {
             this.handleSetDataIsDirty = +new Date();
         }
@@ -225,6 +225,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     createHandleSetData(prefix: string, defaultCb: Function) {
         const that = this;
         return function (e) {
+            console.log(arguments);
             defaultCb && defaultCb(...arguments);
             that.handleSetData(e, prefix);
         };
@@ -253,7 +254,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
                     setTimeout(() => container && container.classList.remove('bluring', 'focused'), 210);
                 }
-                else  container.classList.remove( 'focused')
+                else container.classList.remove('focused')
 
             }, 100);
             this.repatch({});
@@ -312,6 +313,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (p.onMirror instanceof Function) {
             return p.onMirror(valProps, p);
         }
+        const labelText = Field.getLabelText(p.accessor, p.label);
+
         const propsOfInputElement = inputElement && Object.assign(inputElementType && inputElementType.hasDataFormProp ? { dataForm } : {}, inputElement.props,
             {
                 onChange: this.changeEvent,
@@ -320,7 +323,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 onBlur: this.blurEvent,
                 className: Utils.classNames(inputElement.props && inputElement.props.className)
             }, valProps,
-            ((inputElementType && inputElementType.defaultPrimaryProps) || {})
+            ((inputElementType && inputElementType.defaultPrimaryProps) || {}),
+            currentOp == 'between' ? { placeholder: Utils.i18nFormat('from-value-placeholder-fmt', labelText) } : {}
         );
         inputElement = inputElement && React.cloneElement(inputElement, propsOfInputElement);
 
@@ -337,10 +341,13 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 className: Utils.classNames("alt-input-element", _inputElement2.props && _inputElement2.props.className),
                 editorPrefix: 'alt'
             }, this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], this.state.extractedValues['alt'])
-            , ((inputElementType && inputElementType.defaultAltProps) || {})
+            , ((inputElementType && inputElementType.defaultAltProps) || {},
+                currentOp == 'between' ? { placeholder: Utils.i18nFormat('to-value-placeholder-fmt', labelText) } : {}
+            )
         );
         const inputElement2 = _inputElement2 && React.cloneElement(_inputElement2, propsOfInputElement2);
         const label = Field.getLabel(p.accessor, p.label);
+
         const { root } = this.refs;
         if (!root && s.messages && s.messages[0])
             setTimeout(() => this.repatch({}), 100);
@@ -355,7 +362,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
         } : {});
         this.operators = this.operators || this.props.operators || inputElementType['filterOperators'] || defaultOperators;
-        let classNameForRoot = Utils.classNames("field-accessor", style && 'fixed-width', classNameForField, hasError && 'has-error');
+        let classNameForRoot = Utils.classNames("field-accessor", style && 'fixed-width', currentOp ? "op-" + currentOp : '', classNameForField, hasError && 'has-error', s.messages && s.messages[0] && 'has-message');
         let className = Utils.classNames(p.labelOnTop && 'label-on-top' + p.labelOnTop, "field  is-horizontal  ", classNameFromInputType, ((p.labelOnTop == 'always') || hasValue) && 'has-value', p.className);
         const { adjustFieldClassName } = (inputElementType || {}) as any;
         if (adjustFieldClassName instanceof Function) {
@@ -370,7 +377,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             <div ref="container" key="container" className={className}>
 
-                <label key="label" className="label">{label}</label>
+                <label key="label" className="label">{currentOp != 'between' && label}</label>
                 <div key="control" className={Utils.classNames("control", !!p.icon && "has-icons-left", !!iconForStatus && "has-icons-right")}>
                     {inputElement}
                     {inputElement2}
@@ -385,7 +392,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
                 {!p.showOpeartors && <div className="messages fadeInUp" style={{ visibility: (s.messages && s.messages[0] ? 'visible' : 'hidden') }} >
                     {s.messages && s.messages[0] &&
-                        <p className={`custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
+                        <p className={`animated fadeIn custom-help help is-${s.messages[0].type}`}>{i18n(s.messages[0].message)}</p>}
 
                 </div>}
                 {!!p.showOpeartors && <a tabIndex={-1} ref="op"

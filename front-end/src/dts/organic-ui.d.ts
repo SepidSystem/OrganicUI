@@ -189,6 +189,9 @@ declare namespace OrganicUi {
         numberFormat(n: string | number): string;
         hash(data): string;
         persianNumber(s: string): string;
+        delay(ms:number):Promise<void>;
+        toggleClassOnHover(...classNames: string[]): Partial<React.HTMLAttributes<HTMLElement>>;
+        findPosition(element: HTMLElement):[number,number];
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -335,6 +338,7 @@ declare namespace OrganicUi {
         deleteList: (hid: any[]) => Promise<any>;
         read: (id: any) => Promise<TDto>;
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
+        readByIds: (ids:any[]) => PromisedResultSet<TDto>;
         getUrlForSingleView?(id: string): string;
         validate?: (data: any) => IDataFormAccessorMsg[];
         getText?: (dto: TDto) => string;

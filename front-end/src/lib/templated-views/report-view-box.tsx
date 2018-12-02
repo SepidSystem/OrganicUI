@@ -2,17 +2,21 @@
 
 
 import OrganicBox from './organic-box';
-import { Paper } from '../controls/inspired-components';
+import { Paper, Button } from '../controls/inspired-components';
 import { FilterPanel } from '../data/filter-panel';
 import { SelfBind } from '../core/decorators';
 import { DataList } from '../data/data-list';
 import { i18n } from '../core/shared-vars';
 import * as printerIcon from '../../../icons/printer.svg';
-
+import * as fullScreen from '../../../icons/full-screen.svg';
+import * as fullScreenExit from '../../../icons/full-screen-exit.svg';
 interface ReportViewBoxProps {
 
 };
-interface ReportViewBoxState { formData: any; validated: boolean; }
+interface ReportViewBoxState {
+    formData: any; validated: boolean;
+    fullScreen: boolean;
+}
 export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState> {
 
     refs: {
@@ -62,7 +66,7 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
         return (<section ref="root">
 
             <CriticalContent permissionValue={p.options && p.options.permissionKey} permissionKey="report-permission" >
-                {children.filter(child => !this.isDataListTargeted(child))}
+                {!this.state.fullScreen && children.filter(child => !this.isDataListTargeted(child))}
                 {!!dataList && !!dataList[0] && <>
                     <br /> <Paper className="main-content">
                         <header className="navigator" style={{ display: 'flex' }}>
@@ -79,15 +83,17 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
     }
     renderNavigator() {
         return <>
-            <span style={{minWidth:'2100p'}}></span>
+            <span style={{ minWidth: '2100p' }}></span>
 
             <div style={{ flex: '1' }}></div>
-
+            <Button onClick={ListViewBox.prototype.handleToggleFullScreen.bind(this)} className="testable__fullScreen">
+                {Utils.showIcon({ svg: this.state.fullScreen ? fullScreenExit : fullScreen, width: '3rem' })}
+            </Button>
             <AdvButton onClick={ListViewBox.prototype.handleExcelExport.bind(this)}>
                 <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '3rem', margin: '0.2rem' }} />
                 {i18n('export')}
             </AdvButton>
-
+        
         </>
     }
 

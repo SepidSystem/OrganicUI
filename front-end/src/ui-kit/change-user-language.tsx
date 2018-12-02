@@ -3,9 +3,11 @@ import { getCurrentUserLangauge, changeUserLanguage } from "../lib/core/bootstra
 import { uiKits } from "../lib/core/shared-vars";
 
 function Kit() {
-    return <a className="ui-mod change-lanauge" onClick={handleClick}>
-
-        {getCurrentUserLangauge()}
+    return <a className={"ui-mod change-lang " + getCurrentUserLangauge()} onClick={handleClick}>
+        <span className="flag">{'  '}</span>
+        <span className="text">
+            {getCurrentUserLangauge()}
+        </span>
     </a>
 }
 function handleClick(e: React.MouseEvent<any>) {

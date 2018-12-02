@@ -25,7 +25,7 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
         const [dataList] = dataLists;
         dataList.state.startFrom = 0;
         dataList.rowCount = 100 * 1000;
-        AppUtils.showDialog(<Spinner  />, { noClose: true });
+        AppUtils.showDialog(<Spinner />, { noClose: true });
         try {
             const result = await dataList.reload();
             console.assert(Boolean(result), 'result is invalid');
@@ -50,16 +50,7 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
                     <div className="  title is-2" style={{ flex: 1 }}>
                         {i18n(options.pluralName)}
                     </div>
-                    <div style={{ maxWidth: '200px', minWidth: '180px' }}>
-                        {p.dataLookupProps.appendMode && <Button style={{ background: '#59D446', maxWidth: 80, minWidth: 80 }} onClick={p.onAppend as any}  >
-                            {i18n('append-to-list')}
-                        </Button>}
-                        {!p.dataLookupProps.appendMode && <Button style={{ background: '#59D446', maxWidth: 80, minWidth: 80 }} onClick={p.onApply as any}  >
-                            {i18n('ok')}
-                        </Button>}
-                        <Button onClick={p.onClose as any}  >
-                            {i18n('close')}
-                        </Button>
+                    <div style={{ minWidth: '4rem' }}>
                         <Button style={{ maxWidth: 30, minWidth: 30 }} onClick={this.handleToggleMenuClick.bind(this)} >
                             {Utils.showIcon('fa-ellipsis-v')}
                         </Button>
@@ -75,19 +66,31 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
                     </div>
                 </header>
             </DialogTitle>}
-            <DialogContent className="content" style={{ minWidth: '900px', minHeight: '470px' }} >
+            <DialogContent className="content" style={{ minWidth: '1000px', width: '1000px', maxWidth: '1000px', minHeight: '470px' }} >
                 <section ref="root">
                     {children}
                 </section>
             </DialogContent>
+            <DialogActions>
+                <div style={{ flex: 1 }}>{' '}</div>
+                {p.dataLookupProps.appendMode && <Button style={{ maxWidth: 80, minWidth: 80 }} variant="flat" color="primary" onClick={p.onAppend as any}  >
+                    {i18n('append-to-list')}
+                </Button>}
+                {!p.dataLookupProps.appendMode && <Button style={{ maxWidth: 80, minWidth: 80 }} variant="contained" color="primary" onClick={p.onApply as any}  >
+                    {i18n('ok')}
+                </Button>}
+                <Button onClick={p.onClose as any}  >
+                    {i18n('close')}
+                </Button>
 
+            </DialogActions>
         </Dialog>
 
     }
     static renderButtons = (p: OrganicUi.DataLookupProps, { onClick, onClose }) => (<Button
         className="data-lookup-action DDD"
         onClick={onClick}
-        style={{ padding: '2px', minWidth: '30px', maxHeight: '25px',margin:'0 4px' }} color="primary">
+        style={{ padding: '2px', minWidth: '30px', maxHeight: '25px', margin: '0 4px' }} color="primary">
         <i className="fa-ellipsis-h fa"></i>
     </Button>);
 

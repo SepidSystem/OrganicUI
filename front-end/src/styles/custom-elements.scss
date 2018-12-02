@@ -42,7 +42,7 @@
 .checkbox-field {
     .label {
         height: 50px;
-        color: rgba(0,0,0,0.6);
+        color: rgba(0, 0, 0, 0.6);
         font-weight: normal;
     }
 }
@@ -61,7 +61,6 @@
         direction: ltr;
     }
 }
- 
 
 .server-side-error {
     padding: 10px 15px;
@@ -134,16 +133,17 @@
         background: linear-gradient(left, #fff, #e4e4e4);
         border: 1px solid #aaa;
     }
-    
     &::-webkit-scrollbar-thumb:active {
         background: linear-gradient(left, #22ADD4, #1E98BA);
     }
 }
+
 /*
 .data-list-c1::-webkit-scrollbar {
     visibility: hidden;
 }
 */
+
 /*
 
 .scroller::-webkit-scrollbar {
@@ -175,6 +175,7 @@
     background: linear-gradient(left, #22ADD4, #1E98BA);
 }
  */
+
 /*
 .scroller {
     &::-webkit-scrollbar {
@@ -196,6 +197,7 @@
     }
 }
 */
+
 .i18n.en {
     font-family: Arial, Helvetica, sans-serif !important;
 }
@@ -203,10 +205,20 @@
 .c3 svg {
     font: 1rem Yekan !important;
 }
- 
+
 .icon {
     height: auto;
 }
-.date-picker-edit input{
-    padding-left:2ch;
+
+.date-picker-edit input {
+    padding-left: 2ch;
+}
+
+.data-lookup-field,.date-picker-field {
+    .field.focused:not(.no-material),
+    .field.has-value {
+        .label {
+            top: 0 !important;
+        }
+    }
 }

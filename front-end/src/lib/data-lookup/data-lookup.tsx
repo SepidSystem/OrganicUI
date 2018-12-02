@@ -64,6 +64,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     }
     openRequestTime: number;
     savedScrollTop: number;
+    lastTryCalcHeight: number;
     constructor(p: OrganicUi.DataLookupProps) {
         super(p);
         this.cache = {};
@@ -222,9 +223,16 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             //  !textField && setTimeout(() => this.repatch({}), 2);
         }
         const textRef = this.refs.text;
+        const now = +new Date();
         if (textRef && this.state.textHeight != textRef.clientHeight) {
-            console.log(textRef, this.state.textHeight);
-            this.repatch({ textHeight: textRef.clientHeight });
+            if ((now - (this.lastTryCalcHeight || 0) > 500)) {
+                this.lastTryCalcHeight = +new Date();
+                this.repatch({ textHeight: textRef.clientHeight })
+                    .then(
+                        () => this.lastTryCalcHeight = +new Date());
+
+
+            }
         }
     }
     componentDidMount() {
@@ -275,7 +283,6 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     }
     @SelfBind()
     handleSetValue(value) {
-
         if (value instanceof Array && !this.props.multiple) value = value[0];
         const selectedValueDic = this.computeSelectedValueDic(value);
         this.repatch({ value, selectedValueDic, batchList: null });
@@ -403,8 +410,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         const ids = values.filter(id => !this.cachedBatchItems[id]);
         while (ids.length) {
             const splitIds = ids.splice(0, 1000)
-            const filterModel = [{ values: splitIds, op: 'IN', fieldName: 'Id', fieldType: 'enum' }];
-            const listData = await actions.readList({ fromRowIndex: 0, toRowIndex: 0, filterModel, sortModel: null });
+            //const filterModel = [{ values: splitIds, op: 'IN', fieldName: 'Id', fieldType: 'enum' }];
+            //const listData = await actions.readList({ fromRowIndex: 0, toRowIndex: 0, filterModel, sortModel: null });
+            const listData = await actions.readByIds(splitIds);
             const rows: any[] = listData.rows || listData as any;
             Object.assign(this.cachedBatchItems, ...rows.map(row => ({ [this.getId(row, actions)]: actions.getText(row) })));
         }
@@ -455,10 +463,12 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         if (s.isOpen && !listViewContainer)
             setTimeout(() => this.forceUpdate(), 10);
         const textField = !(innerText instanceof Promise) &&
-            <TextField onBlur={p.onBlur as any} className="data-lookup-textfield" multiline={multiline} style={{
+            <TextField onBlur={p.onBlur as any}
+            onKeyDown={e=>e.preventDefault()}
+            className="data-lookup-textfield" multiline={multiline} readOnly style={{
                 color: 'transparent'
 
-                , height: Math.max( 42,  this.state.textHeight - 10),
+                , height: Math.max(42, this.state.textHeight - 10),
                 maxHeight: this.state.textHeight > 80 ? 80 : 44
             }}
                 onFocus={this.handleFocus}
@@ -475,7 +485,6 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             console.log('issue(data-lookup)>> multiple >', value instanceof Array, multiple, value);
             //    return this.renderErrorMode(` multiple(data-lookup) and  value conflicted`);
         }
-        const textRef = this.refs.text;
         const multipleStyle = multiline ? {
             maxHeight: 90,
             height: this.state.textHeight
@@ -507,7 +516,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
                                     <span >
                                         {title}
                                     </span>
-                                    <a href="#" data-idx={idx} onClick={this.handleRemoveClick} className="remove-btn"><i className="fa fa-times"> </i></a>
+                                    <a href="#" data-idx={idx} onClick={this.handleRemoveClick} className="remove-btn"><i className="mi mi-close"> </i></a>
                                 </span>))))}</span></div>
 
                     {Utils.showIcon(this.props.iconCode, 'icon activate-focused-only')}

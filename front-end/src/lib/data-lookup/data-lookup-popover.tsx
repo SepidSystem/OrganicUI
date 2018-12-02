@@ -37,43 +37,41 @@ class Popover extends BaseComponent<any, IState>{
 }*/
 export class DataLookupPopOver extends BaseComponent<OrganicUi.IDataLookupPopupModeProps, any>  {
     static lastOpen: DataLookupPopOver;
-     
+
     render() {
         const p = this.props;
         const rects = p.target && p.target.getClientRects();
         const rect = rects && rects[0];
-         if(p.isOpen){ 
+        if (p.isOpen) {
             document.documentElement.classList.add('overflowY-hidden');
             document.body.classList.add('overflowY-hidden');
-            DataLookupPopOver.lastOpen=this;
+            DataLookupPopOver.lastOpen = this;
         }
-        else if(DataLookupPopOver.lastOpen==this){
-            DataLookupPopOver.lastOpen=null;
+        else if (DataLookupPopOver.lastOpen == this) {
+            DataLookupPopOver.lastOpen = null;
             document.documentElement.classList.remove('overflowY-hidden');
             document.body.classList.remove('overflowY-hidden');
         }
         const targetIsTop = rect && (rect.top < window.innerHeight * 0.7);
         return <Popover open={p.isOpen}
-        
-        style={{ zIndex: 2000000 }} onClose={() => {
-            
-            document.documentElement.classList.remove('overflowY-hidden');
-            document.body.classList.remove('overflowY-hidden');
-            
-            p.onClose && p.onClose();
-        }}
+
+            style={{ zIndex: 2000000 }} onClose={() => {
+
+                document.documentElement.classList.remove('overflowY-hidden');
+                document.body.classList.remove('overflowY-hidden');
+
+                p.onClose && p.onClose();
+            }}
             anchorEl={p.target}
-              
             getContentAnchorEl={null}
             anchorOrigin={{
-                vertical: targetIsTop ? 'top' : 'bottom',
-                horizontal: !p.reversed ? 'left' : 'right',
+                vertical: "bottom",
+                horizontal: "right",
             }}
             transformOrigin={{
-                vertical: targetIsTop ? 'top' : 'bottom',
-                horizontal: 'center',
+                horizontal: 'right', vertical: 'top'
             }}
-            
+
         >
             {p.children}
         </Popover>

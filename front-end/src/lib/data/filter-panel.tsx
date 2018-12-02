@@ -10,7 +10,7 @@ import { SelfBind } from '../core/decorators';
 
 interface IFilterPanelState {
     selectedTab?: number;
-
+    isClearing?: boolean;
 }
 
 
@@ -43,11 +43,11 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
     }
     renderContent() {
         const { liveMode } = this.props;
-        return <section ref="root" className="filter-panel  developer-features">
+        return <section ref="root" className={"filter-panel  developer-features " +(this.state.isClearing ? 'clearing' :'') }>
 
             <Paper className=""  >
 
-                <DataForm className="medium-fields" data={this.dataForm} onChange={liveMode && this.handleLiveApply.bind(this)}>
+                <DataForm className="medium-fields" data={this.dataForm}   onChange={liveMode && this.handleLiveApply.bind(this)}>
                     {React.Children.map(this.props.children, child => {
                         const { props } = child as any;
                         if (child && child['type'] == Field)
@@ -55,7 +55,7 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
                         return child;
                     })
                     }
-                    <footer style={{ minWidth: liveMode ? 100 : 230 }} >
+                    <footer style={{ minWidth: liveMode ? 100 : 210 }} >
                         <span style={{ flex: 1 }}></span>
                         {!liveMode && <AdvButton variant="raised" color="secondary" className="apply-button" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>}
                         <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear-filter')}</AdvButton>
@@ -65,12 +65,15 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
             </Paper>
         </section >
     }
-    handleClear() {
+    async handleClear() {
         for (const key of Object.keys(this.dataForm))
             delete this.dataForm[key];
         this.children = null;
         this.querySelectorAll<Field>('.field-accessor').forEach(fld => fld.clear());
-        this.repatch({});
+
+        await this.repatch({ isClearing: true });
+        await this.props.onApplyClick && this.props.onApplyClick();
+        await this.repatch({ isClearing: false }, null, 300);
     }
 }
 

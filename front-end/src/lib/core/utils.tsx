@@ -289,7 +289,7 @@ export const Utils = {
 	enumToIdNames(enumType: any, opts?: IEnumToArrayOptions): ({ Id, Name }[]) {
 		let { customCaptions } = opts || {} as IEnumToArrayOptions;
 		customCaptions = customCaptions || {};
-		 return (Utils.entries(enumType).filter(([_, value]) => value === "").length ? [] : [{ Id: undefined, Name: '' }]).concat(Object.keys(enumType)
+		return (Utils.entries(enumType).filter(([_, value]) => value === "").length ? [] : [{ Id: undefined, Name: '' }]).concat(Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
 			.map(Name => ({
 				Id: enumType[Name],
@@ -309,9 +309,9 @@ export const Utils = {
 	joinElements(items: JSX.Element[], glue) {
 		return items.map((item, idx) => ([!!idx && glue, item]));
 	},
-	safeNumber(s) {
+	safeNumber(s, defaultValue?) {
 		const result = +s;
-		if (Number.isNaN(result)) return s;
+		if (Number.isNaN(result)) return defaultValue === undefined ? s : defaultValue;
 		return result;
 	},
 	addDays(date, days) {
@@ -380,7 +380,7 @@ export const Utils = {
 		});
 	},
 	entries(obj) {
-		return Object.keys(obj).map(key => [key, obj[key]]) ;
+		return Object.keys(obj).map(key => [key, obj[key]]);
 	},
 	extractText(inputValue, filter?) {
 		if (!filter) {
@@ -394,6 +394,34 @@ export const Utils = {
 	groupLog(title, logs) {
 		console.groupCollapsed(title);
 		Object.keys(logs).forEach(key => console.log(`${key}>>>`, logs[key]))
+	},
+	delay(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	},
+	toggleClassOnHover(...classNames: string[]) {
+		if (classNames == null || classNames.length == 0) classNames = ['hover'];
+		return {
+			onMouseLeave: e => {
+				if (!e) return;
+				e.preventDefault && e.preventDefault();
+				e.currentTarget && e.currentTarget.classList && e.currentTarget.classList.remove(...classNames)
+			},
+			onMouseEnter: e => {
+				if (!e) return;
+				e.preventDefault && e.preventDefault();
+				e.currentTarget && e.currentTarget.classList && e.currentTarget.classList.add(...classNames)
+			}
+		} as Partial<React.HTMLAttributes<HTMLElement>>;
+	},
+	findPosition(element: HTMLElement):[number,number] {
+		if(!element) return [0,0]; 
+		let curLeft = 0;
+		let curTop = 0;
+		do {
+			curLeft += Utils.safeNumber(element.offsetLeft, 0);
+			curTop += Utils.safeNumber(element.offsetTop, 0);
+		} while (element = element.offsetParent as any);
+		return [curLeft, curTop];
 	}
 }
 import * as changeCaseObject from 'change-case-object';

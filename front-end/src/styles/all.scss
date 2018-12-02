@@ -5,6 +5,7 @@
 @import 'node_modules/c3/c3';
 @import './text-font';
 @import './animate';
+@import './country-flags';
 @import './material-icons';
 @import './collapsible';
 @import './custom-components';
@@ -25,8 +26,9 @@
 @import './time-slot';
 @import './login-view'; 
 @import './metal-theme.scss';
+@import './scroller.scss';
 .actionable {
-    position: relative;
+    position: relative; 
     min-height: auto;
     width: 100%;
     overflow: visible;
@@ -214,5 +216,6 @@
 }
 html{
     font-size:11px;
-}
+    overflow-y: hidden !important;
+} 
  

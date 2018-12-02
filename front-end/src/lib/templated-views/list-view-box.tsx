@@ -11,7 +11,8 @@ import { SelfBind } from '../core/decorators';
 import * as XLSX from 'xlsx';
 import OrganicBox from './organic-box';
 import { Field } from '../data/field';
-
+import * as fullScreen from '../../../icons/full-screen.svg';
+import * as fullScreenExit from '../../../icons/full-screen-exit.svg';
 import { AppUtils } from '../core/app-utils';
 import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView } from '@organic-ui';
 import { createClientForREST } from '../core/rest-api';
@@ -426,7 +427,7 @@ export class ListViewBox<T> extends
             {this.childrenByRole['nav']}
             <div style={{ flex: '1' }}></div>
             <Button onClick={this.handleToggleFullScreen} className="testable__fullScreen">
-                {this.state.fullScreen ? <FullScreenExit style={{ width: '3rem', height: '3rem', margin: '0 0.2rem' }} /> : <FullScreen style={{ width: '3rem', height: '3rem', margin: '0.2rem' }} />}
+                {Utils.showIcon({ svg: this.state.fullScreen ? fullScreenExit : fullScreen, width: '3rem' })}
             </Button>
             <AdvButton onClick={this.handleExcelExport}>
                 <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '3rem', margin: '0 0.7rem' }} />
@@ -448,7 +449,7 @@ export class ListViewBox<T> extends
         const { value: rowCount } = await swal({ title, input: 'select', inputValue, heightAuto: false, inputOptions });
         if (!rowCount) return;
         const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
-          const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, forcedMode: false, resetCache: false, currentPageIndex: -1 })
+        const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, forcedMode: false, resetCache: false, currentPageIndex: -1 })
         const fields = ListViewBox.getFields(dataList);
         const columns = ListViewBox.getColumns(dataList);
         const textReaders = fields.map(fld => Field.prototype.getTextReader.apply(fld));
@@ -486,7 +487,8 @@ export class ListViewBox<T> extends
             readList: () => Promise.resolve(items.filter(item => !!item[keyField])) as any,
             read: id => Promise.resolve(items.filter(item => (item[keyField]) == id)[0]),
             getText: iconCodes ? renderCellForIcon : dto => dto[fields[0]],
-            getId: dto => dto[keyField]
+            getId: dto => dto[keyField],
+            readByIds: () => Promise.resolve(items.filter(item => !!item[keyField])) as any
         };
         const options: Partial<IOptionsForCRUD> = {
             singularName: 'local' + (+new Date()) + 'data',

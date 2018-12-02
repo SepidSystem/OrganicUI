@@ -463,10 +463,14 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                         const displayText = textReader instanceof Function ? textReader(item[column.key]) : item[column.key];
                         return col.props.onRenderCell instanceof Function ? col.props.onRenderCell(item, index, column) : displayText;
                     }
-                } as Partial<IColumn>, col.props.columnProps || {}) as IColumn)
+                } as Partial<IColumn>, col.props.columnProps || {}) as IColumn);
+
+
+                 
         if (p.customActions && p.customActionRenderer) {
             columns.push({ key: columns[0].key, name: ' ', fieldName: columns[0].fieldName, onRender: this.getCustomActions.bind(this) })
         }
+        
         this.fields = Object.assign({}, ...columnArray.map(c => ({ [Field.getAccessorName(c.props.accessor)]: c })));
         const totalRows = listData && listData.totalRows || 0;
         const totalPages = Math.ceil(totalRows / (length)) || 0;

@@ -153,17 +153,16 @@
         min-height: 3rem;
     }
 }
- 
+
 .field.bluring:not(.no-material) .label {
     top: 2.5rem !important;
     right: 1.3rem !important;
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all !important;
-    height: auto  !important;
-   
-    padding :0  0.125rem !important;
+    height: auto !important;
+    padding: 0 0.125rem !important;
     * {
         font-size: 1.7rem !important;
-        line-height:1.5rem !important;
+        line-height: 1.5rem !important;
     }
 }
 
@@ -171,7 +170,6 @@
 .field.has-value:not(.no-material) .label {
     top: 0.5rem;
     right: 0.5rem;
-    
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all;
     background: #fff;
     line-height: 1rem;
@@ -342,7 +340,6 @@
 
 .MuiGridListTile-tile {
     .MuiPaper-root {
-        border-radius: 15px;
         overflow: hidden;
     }
 }
@@ -424,3 +421,10 @@ li.MuiButtonBase-root,
 .MuiOutlinedInput-root {
     min-height: 4.5rem !important;
 }
+
+.filter-panel,
+.single-view {
+    .MuiPaper-root {
+        padding: 5px 4rem;
+    }
+} 

@@ -1,4 +1,4 @@
-    import { DataLookup } from './data-lookup';
+import { DataLookup } from './data-lookup';
 import { Calendar } from 'react-persian-datepicker';
 import { loadPersian } from "moment-jalaali";
 import *  as moment from "moment-jalaali";
@@ -89,6 +89,8 @@ export class DatePicker extends BaseComponent<OrganicUi.DatePickerProps, any>{
             time = value.toString().substring(timeIdx, timeIdx2);
 
         }
+        if (typeof value == 'string' && value.endsWith('PM'))
+            time = time.split(':').filter((x, idx) => (idx == 0 ? (+x + 12) : x)).join(':');
         if (hasTime && !time) time = editorPrefix == 'alt' ? '23:59' : '00:00';
         if (textOnly) {
             const result = m && m.isValid() && [m.format('jYYYY/jMM/jDD'), hasTime && time].filter(notFalse => notFalse).join(' ');
@@ -98,7 +100,8 @@ export class DatePicker extends BaseComponent<OrganicUi.DatePickerProps, any>{
             <span style={{ float: 'left' }}>
                 {m && m.format('jYYYY/jMM/jDD')}
             </span>
-            {!!hasTime && <span style={{ float: 'right' }}>
+
+            {!!hasTime && <span style={{ float: 'right', margin: '0 1rem' }}>
                 {time}
             </span>}</span>
     }
@@ -133,7 +136,7 @@ export class DatePicker extends BaseComponent<OrganicUi.DatePickerProps, any>{
             date = [date.substr(0, 4), date.substr(4, 2), date.substr(6, 2)].join('/');
         const dateParts = date && inject(orgDates, date.split('/'));
         if (typeof time == 'string' && !time.includes(':')) time = time.substr(0, 2) + ':' + time.substr(3, 2);
-        const timeParts =time &&  time.split(':');
+        const timeParts = time && time.split(':');
         const newValueParts = [dateParts && dateParts.join('/'), timeParts && timeParts.join(':')].filter(notFalse => notFalse);
         const newVal = newValueParts.join(' ');
         const newValue = moment(newVal, newValueParts.length == 1 ? 'jYYYY/jMM/jDD' : 'jYYYY/jMM/jDD hh:mm');
@@ -156,9 +159,9 @@ export class DatePicker extends BaseComponent<OrganicUi.DatePickerProps, any>{
         const { value } = this.props;
         const defaultValue = DatePicker.handleDisplayText(value, hasTime, true, this.props.editorPrefix) as string;
 
-        return <TextField 
-            style={{ direction: defaultValue && hasTime ? 'ltr' : null }} className="date-picker-edit" key={(defaultValue || 'N') + key} placeholder={this.props.placeholder && i18n.get(this.props.placeholder)} 
-            inputProps={{onBlur:this.handleBlur as any}}
+        return <TextField
+            style={{ direction: defaultValue && hasTime ? 'ltr' : null }} className="date-picker-edit" key={(defaultValue || 'N') + key} placeholder={this.props.placeholder && i18n.get(this.props.placeholder)}
+            inputProps={{ onBlur: this.handleBlur as any }}
             {...{ defaultValue, onFocus, disabled }} />
 
     }

@@ -11,6 +11,8 @@ import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
 import { DataPanel } from './data-panel';
 import { Field } from "../data/field";
 import { BindingSource } from "../reinvent/binding-source";
+import { EditIcon, DeleteIcon } from "../controls/icons";
+
 interface IState {
     message?: { type, text };
     selectedItem: any;
@@ -110,7 +112,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (targetSelector && targetSelector.includes('add')) {
             this.targetItem = {};
         }
-        this.repatch(this.state.targetSelector == targetSelector ? { validated: false, isOpen: false, targetSelector: null, message: null } : { message: null, validated: false, isOpen: true, targetSelector });
+        const isClose = this.state.targetSelector == targetSelector;
+        this.repatch(isClose ?
+            { validated: false, isOpen: false, targetSelector: null, message: null } :
+            { message: null, validated: false, isOpen: true, targetSelector });
     }
     render(p = this.props, s = this.state) {
         this.selection = this.selection || new Selection({ selectionMode: SelectionMode.single });
@@ -128,7 +133,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
             setTimeout(() => this.tryToBinding(), 20);
         }
 
-        this.dataListProps = this.dataListProps || Object.assign({noBestFit:true} as OrganicUi.IDataListProps,
+        this.dataListProps = this.dataListProps || Object.assign({ noBestFit: true } as OrganicUi.IDataListProps,
             {
                 ref: 'datalist',
                 selection: this.selection,
@@ -144,8 +149,20 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             { key: 'datalist' + this.lastMod },
             extraPropsOfDetailList,
-            { layoutMode: DetailsListLayoutMode.justified }, p, {});
+            {
 
+                customActions: this.props.customActions ||
+                    {
+                        edit: this.doTargetClick.bind(this, '.edit-button'),
+                        remove: this.doTargetClick.bind(this, '.delete-button')
+                    },
+                customActionRenderer: this.props.customActionRenderer || function (funcName) {
+                    const icon = funcName == 'edit' ? EditIcon : DeleteIcon;
+                    return icon ? React.createElement(icon, {}) : funcName as any
+                }
+            },
+            { layoutMode: DetailsListLayoutMode.justified }, p, {});
+        console.log('this.dataListProps>>>', this.dataListProps);
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
         this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, p.children) as any;
@@ -159,9 +176,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         const targetClick = s => () => this.doTargetClick(s);
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
             <DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
-        !p.customBar && !p.avoidEdit &&
+        !p.customBar && !p.avoidEdit && false &&
         <DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
-        !p.customBar && !p.avoidDelete &&
+        !p.customBar && !p.avoidDelete && false &&
         <DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
         !!this.dataList && <hr style={{ margin: '4px 0' }} />,
         !!this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
@@ -208,7 +225,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                             },
                             React.Children.toArray(p.children)
                                 .filter(fld => fld && fld['type'] == Field)
-                            )
+                        )
                         }
 
                     </div>
@@ -286,8 +303,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     </div>}
                 </div>));
     }
-    static defaultProps:{
-        contentClassName:'half-column-fields'
+    static defaultProps: {
+        contentClassName: 'half-column-fields'
     }
 }
- 

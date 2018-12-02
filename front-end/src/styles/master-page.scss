@@ -12,7 +12,7 @@ main.main-container {
     padding-top: 10px;
     display: flex;
     flex-direction: column;
-    width: calc(100% - 280px);  
+    width: calc(100% - 280px);
     >section {
         flex: 1;
         display: flex;
@@ -122,6 +122,25 @@ aside {
         }
     }
     aside {
+        .content {
+            overflow: scroll;
+            direction: ltr;
+            >* {
+                direction: rtl;
+            }
+        }
+        .alt {
+            * {
+                visibility: hidden;
+            }
+            a{
+                display: none;
+            }
+            .triangle,
+            .router.active {
+                visibility: visible !important;
+            }
+        }
         header {
             margin-bottom: 40px;
             min-height: 160px;
@@ -184,14 +203,22 @@ aside {
         .router {
             position: relative;
             font-family: 'Yekan' !important;
+            min-height: 4.5rem;
+            max-height: 4.5rem;
+            
+        }
+        .content ul{
+            margin: 0
         }
         .router.active:active,
         .router.active:hover {
             background: rgb(4, 160, 220) !important;
         }
         .router.active {
-            box-shadow: 0 0 2px #333;
-        
+            box-shadow: 0 0 4px #333;
+            border-top:0px solid #fff;
+            border-right:1px solid #444;
+            border-bottom:1px solid #444;
             background: rgb(4, 160, 220) !important;
             .triangle {
                 display: inline-block;
@@ -205,23 +232,23 @@ aside {
                 z-index: 1000;
             }
         }
-        &.mini{
+        &.mini {
             max-width: 45px;
             min-width: 45px;
             overflow: hidden;
-            .Collapsible__trigger:after{
+            .Collapsible__trigger:after {
                 display: none;
             }
-            a,.title{
+            a,
+            .title {
                 display: none;
                 padding: 0 !important;
             }
-            .router.active{
+            .router.active {
                 min-height: 30px !important;
             }
         }
     }
-  
 }
 
 .app-copyright {
