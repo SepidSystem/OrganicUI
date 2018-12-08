@@ -108,8 +108,8 @@ export const Utils = {
 		return format(text, args);
 	},
 	showIcon(icon, className?: string) {
-		if (icon && (icon.svg))
-			return <div style={{ 'width': icon.width }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
+		if (typeof icon == 'object' && ('svg' in icon))
+			return <div style={{ 'width': icon.width, margin: icon.margin }} className={className} dangerouslySetInnerHTML={{ __html: icon.svg }} ></div>
 		return !!icon && <i key={icon} className={Utils.classNames(className || "icon", icon.split('-')[0], icon)} />;
 	},
 	indicateNum(current, diff, max) {
@@ -177,13 +177,16 @@ export const Utils = {
 		const callback = opts.callback || function () { };
 		return Object.keys(methods).map(
 			key => React.createElement(opts.componentClass || Button,
-				{ onClick: () => callback(methods[key](), key) } as any,
+				{
+					onClick: (() => callback(methods[key](), key)) as any,
+					variant: 'outlined', style: { margin: '0 0.3rem' },
+					color:'secondary'
+				} as Partial<ButtonProps> as any,
 				i18n(changeCase.paramCase(key)))
 		);
 	},
 	simulateClick(elem) {
 		// Create our event (with options)
-
 		var evt = new MouseEvent('click', {
 			bubbles: true,
 			cancelable: true,
@@ -413,8 +416,8 @@ export const Utils = {
 			}
 		} as Partial<React.HTMLAttributes<HTMLElement>>;
 	},
-	findPosition(element: HTMLElement):[number,number] {
-		if(!element) return [0,0]; 
+	findPosition(element: HTMLElement): [number, number] {
+		if (!element) return [0, 0];
 		let curLeft = 0;
 		let curTop = 0;
 		do {
@@ -429,6 +432,7 @@ import { IDeveloperFeatures, TMethods } from "@organic-ui";
 import { ActionButton } from "office-ui-fabric-react/lib/Button";
 import { Button } from "../controls/inspired-components";
 import * as camelCaseText0 from 'camelcase';
+import { ButtonProps } from "@material-ui/core/Button";
 function camelCaseText(s) {
 	try {
 		return camelCaseText0(s);

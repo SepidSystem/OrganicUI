@@ -33,12 +33,14 @@ function getSourcePath(filePath) {
 		return filePath.map(getSourcePath);
 	return path.join(process.env.sourceDir || process.cwd(), filePath);
 }
-const entry = Object.keys(_entry)
-	.filter(key => fileExists(getSourcePath(_entry[key])))
-	.reduce((a, key) => Object.assign(a, { [key]: getSourcePath(_entry[key]) }), {});
+const entry = Object.assign({},
+	...Object.keys(_entry)
+		.filter(key => fileExists(getSourcePath(_entry[key])))
+		.map(key => ({ [key]: getSourcePath(_entry[key]) })));
 
 const dist = join(process.env.sourceDir, 'assets', 'bundle');
 const rules = [
+
 	{
 		test: /\.css$/,
 		loaders: ['style-loader', 'css-loader?modules=true&camelCase=true&localIdentName=[local]']
@@ -46,30 +48,18 @@ const rules = [
 	},
 	{
 		test: /\.svg$/,
-		loader: 'svg-inline-loader'
-	},
-	{
-		test: /\.(scss|sass)$/,
-		use: [
-			'css-loader',
-			{
-				loader: 'fast-sass-loader'
-			}
-		]
+		loader: ['svg-inline-loader']
 	}, {
 		test: /\.jsx?$/,
 		exclude,
-		loader: {
+		loader: ['cache-loader', {
 			loader: 'babel-loader',
 			options: babelOpts
-		}
+		}]
 	}, {
 		test: /\.tsx?$/,
 		exclude,
-		loader: {
-			loader: 'ts-loader'
-
-		}
+		loader: ['cache-loader', 'ts-loader']
 	}].filter(x => !!x);
 module.exports = env => {
 	env.mode && Object.assign(env, { [env.mode]: true });

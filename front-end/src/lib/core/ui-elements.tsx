@@ -94,7 +94,7 @@ interface IAdvButtonProps {
     onClick?: (e: React.MouseEvent<any>) => any;
     fixedWidth?: boolean;
     className?: string;
-    outterClassName?:string;
+    outterClassName?: string;
     calloutWidth?: number;
     lastMod?: number;
     buttonComponent?: any;
@@ -110,7 +110,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
     }
     handleClick(e: React.MouseEvent<any>) {
         const { root } = this.refs;
-        const buttonElement=root && root.querySelector('button');
+        const buttonElement = root && root.querySelector('button');
         const fixedSize = buttonElement && { width: buttonElement.clientWidth, height: buttonElement.clientHeight };
 
 
@@ -125,7 +125,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
 
                 resultAsync.catch(error => {
                     console.log('Advanced Button Error>>>>>', error);
-                    repatch({ isLoading: false, callout: null, isError: true,fixedSize:undefined });
+                    repatch({ isLoading: false, callout: null, isError: true, fixedSize: undefined });
                     repatch({ isError: false }, null, 2000);
 
                     return error;
@@ -136,7 +136,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
                         const lastMod = +new Date();
                         React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
                         React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null,fixedSize:undefined });
+                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null, fixedSize: undefined });
                     });
             }
         }
@@ -148,8 +148,10 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         const advButton = <Button className={className}
             {...p}
             onClick={this.handleClick.bind(this)}
-            style={ s.fixedSize && { minWidth: s.fixedSize.width + 'px', maxWidth: s.fixedSize.width + 'px', minHeight: s.fixedSize.height + 'px', maxHeight: s.fixedSize.height + 'px' ,overflow:'hidden'
-        ,...(p.style || {})}}
+            style={s.fixedSize && {
+                minWidth: s.fixedSize.width + 'px', maxWidth: s.fixedSize.width + 'px', minHeight: s.fixedSize.height + 'px', maxHeight: s.fixedSize.height + 'px', overflow: 'hidden'
+                , ...(p.style || {})
+            }}
         >
             {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
@@ -166,7 +168,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
             !s.isLoading && !s.callout && p.children,
             !s.isLoading && s.callout && i18n('hide-result'),
             s.isLoading && <Spinner />);
-        return <span ref="root" className={Utils.classNames("adv-button", p.outterClassName)}
+        return <span ref="root" style={p.style} className={Utils.classNames("adv-button", p.outterClassName)}
         > {advButton}
             {React.isValidElement(s.callout) &&
                 <Callout directionalHint={DirectionalHint.topCenter as any} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
@@ -197,11 +199,11 @@ function panel(p: OrganicUi.IPanelProps, s: OrganicUi.IPanelProps, repatch: Func
 
         <div className="panel" key="panel">
             {!!p.header && <div className={"panel-heading " + ((p.actions && 'actionable') || '')}>
-                <span key="temp" className="temp"></span>
                 <div key="title" className={" title is-6 is-vcentered "}>
                     {i18n(p.header)}
                     {p.actions && <DropDownButton key="actions" onActionExecute={p.onActionExecute} actions={p.actions} />}
                 </div>
+                <span key="temp" className="temp"></span>
 
             </div>}
             {!!p.hasSearch && <div key="block" className="panel-block">

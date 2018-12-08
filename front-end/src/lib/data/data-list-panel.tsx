@@ -162,7 +162,6 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                 }
             },
             { layoutMode: DetailsListLayoutMode.justified }, p, {});
-        console.log('this.dataListProps>>>', this.dataListProps);
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
         this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, p.children) as any;
@@ -186,7 +185,8 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             .filter(x => !!x);
 
-        return <div className={Utils.classNames("data-list-panel-wrapper bindable", p.className)} ref="root" style={p.style}>{header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
+        return <div className={Utils.classNames("data-list-panel-wrapper bindable", p.className)} ref="root" style={p.style}>
+            {header ? React.createElement(DataPanel, Object.assign({}, p, { header }), ...children) : children}</div>;
     }
     renderCallout(target) {
         const s = this.state, p = this.props;

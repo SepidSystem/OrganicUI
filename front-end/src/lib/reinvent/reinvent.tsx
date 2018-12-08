@@ -52,6 +52,7 @@ function templatedView(templName, extraParams) {
         const orginalMethod = propertyDescriptor.value;
         propertyDescriptor.value = function () {
             const result = orginalMethod.apply(this, arguments);
+            if (!result) return null;
             const { children } = result && result.props;
             const props = Object.assign({ params: this.props }, extraParams || {});
             const childrenArray = React.Children.toArray(children);
@@ -61,12 +62,12 @@ function templatedView(templName, extraParams) {
 
     return result;
 }
- 
+
 export const reinvent: typeof _reinvent & {
     query, factoryTable, prefix,
     baseClassFactory: Function, templates: { [key: string]: React.ComponentClass<any> | Function },
     utils: any,
-    modules: { [key: string]: any }, BindingSource: typeof BindingSource,openBindingSource:typeof openBindingSource
+    modules: { [key: string]: any }, BindingSource: typeof BindingSource, openBindingSource: typeof openBindingSource
 } = Object.assign(_reinvent, {
     baseClassFactory: () => { throw ' baseClassFactory is missed' },
     query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView, BindingSource,

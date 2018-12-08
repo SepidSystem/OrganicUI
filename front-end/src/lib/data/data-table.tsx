@@ -6,8 +6,7 @@ export function DataTable(p: OrganicUi.DataTableProps) {
         <table style={{ width: "100%", tableLayout: 'fixed' }} className="tableBodyScroll" dir="rtl">
             <thead>
                 <tr className="ms-DetailsHeader">
-                    {
-                        p.captions.map((text, idx) => (
+                    {p.captions.map((text, idx) => (
                             <th style={{ textAlign: "right", ...(p.columnsRenders[idx].tableCellStyle || {}) }}  >
                                 <div className="ms-DetailsHeader-cell">
                                     {i18n(text)}

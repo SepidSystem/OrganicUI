@@ -5,6 +5,7 @@ html {
 }
 
 main.main-container {
+    max-height: 100vh;
     text-align: right;
     padding-right: 6.1rem;
     padding-left: 6.1rem;
@@ -36,25 +37,23 @@ main.main-container {
         .panel-heading {
             background: #fff;
             border: none !important;
-            position: relative;
+            display: flex;
+            align-content: center;
+            align-items: center;
             min-height: 40px;
             .temp {
-                position: absolute;
-                width: 100%;
-                left: 0;
-                right: 0;
+                flex: 1;
                 background: #979797;
                 height: 1px !important;
-                bottom: 6px;
             }
             .title {
-                position: absolute;
+                display: flex;
+                align-content: center;
+                align-items: center;
                 background: #fff;
                 color: #909090 !important;
                 font-weight: normal;
-                bottom: 4px;
-                right: 0;
-                padding: 1px 7px;
+                padding-left: 1rem;
                 .icon {
                     display: none;
                 }
@@ -108,6 +107,7 @@ aside {
         }
     }
     .router {
+        transition: all 0.5s ease;
         min-height: 48px;
         display: flex;
         a,
@@ -122,6 +122,7 @@ aside {
         }
     }
     aside {
+        transition: all 0.5s ease;
         .content {
             overflow: scroll;
             direction: ltr;
@@ -133,7 +134,7 @@ aside {
             * {
                 visibility: hidden;
             }
-            a{
+            a {
                 display: none;
             }
             .triangle,
@@ -188,6 +189,10 @@ aside {
                 }
             }
         }
+        footer {
+            background: rgb(72, 74, 105);
+            z-index: 1000;
+        }
         min-width: ($side-width)*1px;
         max-width: ($side-width)*1px;
         background: rgb(72, 74, 105);
@@ -205,9 +210,8 @@ aside {
             font-family: 'Yekan' !important;
             min-height: 4.5rem;
             max-height: 4.5rem;
-            
         }
-        .content ul{
+        .content ul {
             margin: 0
         }
         .router.active:active,
@@ -216,9 +220,9 @@ aside {
         }
         .router.active {
             box-shadow: 0 0 4px #333;
-            border-top:0px solid #fff;
-            border-right:1px solid #444;
-            border-bottom:1px solid #444;
+            border-top: 0px solid #fff;
+            border-right: 1px solid #444;
+            border-bottom: 1px solid #444;
             background: rgb(4, 160, 220) !important;
             .triangle {
                 display: inline-block;
@@ -232,9 +236,20 @@ aside {
                 z-index: 1000;
             }
         }
+        &.switching {
+            header {
+                visibility: hidden;
+            }
+            a,
+            span.title {
+                word-break: keep-all;
+                overflow: hidden;
+                max-height: 5rem;
+            }
+        }
         &.mini {
-            max-width: 45px;
-            min-width: 45px;
+            max-width: 55px;
+            min-width: 55px;
             overflow: hidden;
             .Collapsible__trigger:after {
                 display: none;
@@ -260,4 +275,20 @@ aside {
 button,
 .MuiButton-root {
     font-size: 1.71rem !important;
+}
+
+.title:not(:last-child) {
+    margin-bottom: 0;
+}
+
+.page-switching-before .main-container {
+    animation: fadeOut2;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+}
+
+.page-switching-after .main-container {
+    animation: fadeInUp;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
 }

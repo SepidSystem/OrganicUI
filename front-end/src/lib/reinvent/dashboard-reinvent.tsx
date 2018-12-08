@@ -51,8 +51,8 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
         const param = AClass.applyChain('paramInitializer');
         options['timerActivate'] = !!options.interval;
         const loader = Utils.toPromise(AClass.applyChain('dataLoader', param, this.state))
-            .then(data => this.repatch({ data }),rejectReason=>{
-               this.repatch({data:rejectReason})
+            .then(data => this.repatch({ data }), rejectReason => {
+                this.repatch({ data: rejectReason })
             });
         Object.assign(this.state, { data: loader, param });
     };
@@ -81,7 +81,7 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
         if (!data) return <div ref="root" className="flex-center flex-full-center">
             <Spinner />
         </div>;
-        if(React.isValidElement(data)) return data;
+        if (React.isValidElement(data)) return data;
         return AClass.applyChain('dataRenderer', p)
     });
     AClass.defaultState = (_defaultState) => Object.assign(AClass, { _defaultState });
@@ -95,10 +95,11 @@ class DashboardPage extends BaseComponent<never, never> {
     render() {
         if (Utils.fakeLoad()) return null;
         const widgetES6Classes = reinvent.query('frontend:dashboard:widget');
-        return (<article >
-            <GridList cellHeight={400} spacing={20} cols={3} >
+        this.setPageTitle('dashboard');
+        return (<article ref="root" >
+            <GridList cellHeight="auto" spacing={20} cols={3}  style={{overflow:'hidden'}}>
                 {widgetES6Classes.map((widgetES6Class: any, idx) =>
-                    <GridListTile cols={(widgetES6Class.options && widgetES6Class.options.cols) || 0}>
+                    <GridListTile  cols={(widgetES6Class.options && widgetES6Class.options.cols) || 0}>
                         {(widgetES6Class.options && widgetES6Class.options.fragment) ?
                             React.createElement(widgetES6Class, {})
                             : <Paper className="block" style={{ padding: '10px', height: '98%' }}>

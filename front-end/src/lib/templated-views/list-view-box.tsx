@@ -392,7 +392,7 @@ export class ListViewBox<T> extends
 
 
                 </header>
-                <br /> </>}
+                <div style={{ margin: "10px 0 10px 0" }} /></>}
             <Paper className="  main-content column  "   >
 
                 <header className="navigator" style={{ marginBottom: '0.5rem' }}>
@@ -419,6 +419,7 @@ export class ListViewBox<T> extends
     }
     renderNavigator() {
         const { options } = this.props;
+        const { fullScreen: isFullScreen } = this.state;
         return <>
             {(!options.permissionKeys || checkPermission(options.permissionKeys.forDelete)) && <Button onClick={this.handleRemove.bind(this, false)}   >
                 <DeleteIcon />
@@ -427,7 +428,9 @@ export class ListViewBox<T> extends
             {this.childrenByRole['nav']}
             <div style={{ flex: '1' }}></div>
             <Button onClick={this.handleToggleFullScreen} className="testable__fullScreen">
-                {Utils.showIcon({ svg: this.state.fullScreen ? fullScreenExit : fullScreen, width: '3rem' })}
+                {Utils.showIcon({ svg: isFullScreen ? fullScreenExit : fullScreen, width: '3rem', margin: '0 0.7rem' })}
+
+                {i18n(!isFullScreen ? 'full-screen' : 'full-screen-exit')}
             </Button>
             <AdvButton onClick={this.handleExcelExport}>
                 <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '3rem', margin: '0 0.7rem' }} />

@@ -59,11 +59,9 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
             if (child && (child.type == FilterPanel))
                 return React.cloneElement(child, { onApplyClick: handleApplyClick, ref: "filterPanel" } as Partial<OrganicUi.IFilterPanelProps>);
             return child;
-
-
         });
         const dataList = children.filter(this.isDataListTargeted).map(dataListElement => this.prepareDataList(dataListElement));
-        return (<section ref="root">
+        return (<section ref="root" style={{ flex: 1, flexDirection: 'column',display:'flex' }}>
 
             <CriticalContent permissionValue={p.options && p.options.permissionKey} permissionKey="report-permission" >
                 {!this.state.fullScreen && children.filter(child => !this.isDataListTargeted(child))}
@@ -93,7 +91,7 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
                 <div dangerouslySetInnerHTML={{ __html: printerIcon }} style={{ width: '3rem', margin: '0.2rem' }} />
                 {i18n('export')}
             </AdvButton>
-        
+
         </>
     }
 

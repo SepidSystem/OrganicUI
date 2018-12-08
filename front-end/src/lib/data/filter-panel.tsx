@@ -55,7 +55,7 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IFil
                         return child;
                     })
                     }
-                    <footer style={{ minWidth: liveMode ? 100 : 210 }} >
+                    <footer style={{ minWidth: '100%' }} >
                         <span style={{ flex: 1 }}></span>
                         {!liveMode && <AdvButton variant="raised" color="secondary" className="apply-button" onClick={this.props.onApplyClick}>{i18n('apply')}</AdvButton>}
                         <AdvButton onClick={this.handleClear.bind(this)}>{i18n('clear-filter')}</AdvButton>

@@ -225,7 +225,6 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     createHandleSetData(prefix: string, defaultCb: Function) {
         const that = this;
         return function (e) {
-            console.log(arguments);
             defaultCb && defaultCb(...arguments);
             that.handleSetData(e, prefix);
         };

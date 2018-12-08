@@ -3,6 +3,7 @@ import { IStateListener, StateListener } from "./state-listener";
 import { Component } from 'react';
 import { IComponentRefer } from "@organic-ui";
 import { Utils } from "./utils";
+import { i18n } from "./shared-vars";
 
 /** BaseComponent for Organic-UI  */
 export class BaseComponent<P, S> extends Component<P, S>{
@@ -186,7 +187,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
             }
             this.pageTitle = title;
             if (!!parent)
-                document.title = title;
+                document.title = i18n.get(title);
         }
         applyPageTitle.apply(this);
 

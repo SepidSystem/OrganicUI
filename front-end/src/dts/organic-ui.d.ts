@@ -58,7 +58,7 @@ declare namespace OrganicUi {
         props: P;
         state: S;
         autoUpdateState: PartialFunction<S>;
-        repatch(delta: Partial<S> & { debug?}, target?);
+        repatch(delta: Partial<S> & { debug?}, target?, delay?: number);
         querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[];
         setPageTitle(title);
         renderErrorMode(title, subtitle);
@@ -189,9 +189,9 @@ declare namespace OrganicUi {
         numberFormat(n: string | number): string;
         hash(data): string;
         persianNumber(s: string): string;
-        delay(ms:number):Promise<void>;
+        delay(ms: number): Promise<void>;
         toggleClassOnHover(...classNames: string[]): Partial<React.HTMLAttributes<HTMLElement>>;
-        findPosition(element: HTMLElement):[number,number];
+        findPosition(element: HTMLElement): [number, number];
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -297,6 +297,13 @@ declare namespace OrganicUi {
         read: ReportReadMethod;
     }
 
+    interface AnchorProps extends React.AnchorHTMLAttributes<HTMLElement> {
+        switchingInClass?:string;
+        switchingOutClass?:string;
+        switchingElement?:HTMLElement | string;
+        switchingDelay?:number;
+    }
+
     interface ComboBoxProps {
         value?: any;
         onChange?: any;
@@ -304,7 +311,6 @@ declare namespace OrganicUi {
     }
     export const ComboBox: React.SFC<ComboBoxProps>;
     export const TimeEdit: React.SFC<ITimeEditProps>;
-
     export interface DataTableProps {
         height?: any;
         data: any[];
@@ -338,7 +344,7 @@ declare namespace OrganicUi {
         deleteList: (hid: any[]) => Promise<any>;
         read: (id: any) => Promise<TDto>;
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
-        readByIds: (ids:any[]) => PromisedResultSet<TDto>;
+        readByIds: (ids: any[]) => PromisedResultSet<TDto>;
         getUrlForSingleView?(id: string): string;
         validate?: (data: any) => IDataFormAccessorMsg[];
         getText?: (dto: TDto) => string;
@@ -484,6 +490,7 @@ declare namespace OrganicUi {
         operators?: any[];
         onApplyClick?: () => any;
         liveMode?: boolean;
+        customActions?:{[key:string]:Function};
     }
     export type TMethods = Function[] | { [key: string]: Function }
     export interface IMenu {
@@ -560,7 +567,7 @@ declare namespace OrganicUi {
         readonly: boolean;
     }
     interface DataListPanelProps extends Partial<IDataPanelProps> {
-        contentClassName?:string;
+        contentClassName?: string;
         formMode?: 'modal' | 'callout' | 'panel' | 'section';
         dataListHeight?: number;
         avoidAdd?, avoidDelete?, avoidEdit?: boolean;
@@ -759,13 +766,14 @@ declare module '@organic-ui' {
     export const moduleManager: typeof OrganicUi.moduleManager;
     export type IModule = OrganicUi.IModule;
     export const UiKit: typeof OrganicUi.UiKit;
+    export const Spinner: React.SFC<{}>;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export type ISingleViewBox<T=any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance;
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
-    export const Anchor: React.SFC<AnchorHTMLAttributes<any>>;
+    export const Anchor: React.SFC<OrganicUi.AnchorProps>;
     export const DatePicker: React.SFC<OrganicUi.DatePickerProps>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;

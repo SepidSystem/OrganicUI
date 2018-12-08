@@ -4,7 +4,7 @@
     margin: 5px;
     .label {
         position: absolute;
-        top: 2.0rem;
+        top: 2.2rem;
         right: 1.3rem;
         line-height: 1.5rem;
         pointer-events: none;
@@ -155,7 +155,7 @@
 }
 
 .field.bluring:not(.no-material) .label {
-    top: 2.5rem !important;
+    top: 1.7rem !important;
     right: 1.3rem !important;
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all !important;
     height: auto !important;
@@ -351,10 +351,19 @@
 
 .medium-fields {
     .field-accessor {
-        min-width: 15.21rem;
+        min-width: 18.21rem;
     }
     .date-picker {
-        min-width: 15.21rem !important;
+        min-width: 18.21rem !important;
+        max-width: 18.21rem !important;
+    }
+}
+
+.filter-panel .medium-fields {
+    .field-accessor {
+        min-width: 15.21rem;
+    }
+    .date-picker {         min-width: 15.21rem !important;
         max-width: 15.21rem !important;
     }
 }
@@ -427,4 +436,8 @@ li.MuiButtonBase-root,
     .MuiPaper-root {
         padding: 5px 4rem;
     }
-} 
+}
+
+.content:not(:last-child) {
+    margin-bottom: 0;
+}

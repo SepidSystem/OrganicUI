@@ -43,10 +43,10 @@ $below-list-height:200;
             text-overflow: ellipsis;
             font-size: 1.71rem;
             display: inline-flex;
-            color:#333;
+            color: #333;
             border-radius: 1rem;
             background: #fcfefe;
-            border:1px solid #ddd;
+            border: 1px solid #ddd;
             z-index: 100;
         }
         .selected-items {
@@ -60,7 +60,7 @@ $below-list-height:200;
             width: 20px;
             display: flex;
             align-items: center;
-            color:#333;
+            color: #333;
         }
     }
     .selected-item:hover {
@@ -69,12 +69,12 @@ $below-list-height:200;
         }
     }
     .editor {
-         display: flex;
+        display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-content: center;
         align-items: center;
-        width:100%;
+        width: 100%;
     }
     .below-list {
         position: absolute;
@@ -208,15 +208,15 @@ $below-list-height:200;
         display: flex;
         flex-direction: column;
     }
-    .ms-List-cell div {
-        background: transparent !important;
+    /*.ms-List-cell div {
+         background: transparent !important;
     }
     .ms-DetailsRow-field {
-        background: transparent !important;
+         background: transparent !important;
     }
     .ms-DetailsRow-cell {
-        background: transparent !important;
-    }
+     background: transparent !important;
+    }*/
 }
 
 .data-lookup-field {
@@ -225,7 +225,7 @@ $below-list-height:200;
         max-height: ($below-list-height+30)*1px !important;
         min-height: ($below-list-height+30)*1px !important;
     }
-}   
+}
 
 .full-data-lookup {
     * {
@@ -236,29 +236,28 @@ $below-list-height:200;
         width: 100%;
         justify-content: center;
     }
-   .editor{
-       input{
-           text-align: center !important;
-           font-size:120%;
-       }
-   }
-   .MuiInput-root{
-       &::after{
-        display: none;
-       }
-       &:before{
-        display: none;
-       }
-   }
+    .editor {
+        input {
+            text-align: center !important;
+            font-size: 120%;
+        }
+    }
+    .MuiInput-root {
+        &::after {
+            display: none;
+        }
+        &:before {
+            display: none;
+        }
+    }
     .caret-down-wrapper {
         display: none;
     }
     .adv-button {
-        color:  #bebebe;
+        color: #bebebe;
     }
 }
 
 .MuiTab-labelContainer {
     padding: 0 !important;
 }
- 

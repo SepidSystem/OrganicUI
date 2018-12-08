@@ -64,3 +64,4 @@ package-lock.json
 assets/*.js
 database.json
 webpack/build-num.json
+.cache-loader
