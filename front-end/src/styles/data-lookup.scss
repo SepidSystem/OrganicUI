@@ -166,6 +166,10 @@ $below-list-height:200;
     min-width: 500px;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    .filter-panel-paper{
+        padding:0
+    }
     .title {
         margin: 0 !important;
         display: flex;

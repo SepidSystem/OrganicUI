@@ -1,0 +1,62 @@
+html.lang-EN_US {
+    direction: ltr;
+    text-align: left;
+    body,
+    #root,
+    .MuiPaper-root,
+    .ms-Layer,
+    .main-container {
+        direction: ltr;
+        text-align: left;
+    }
+    .master-page {
+        aside {
+            .toggle-button {
+                left: 5px !important;
+                right: auto !important;
+            }
+            .router {
+                .icon {
+                    order: 1;
+                }
+                a {
+                    order: 1;
+                }
+            }
+            .triangle {
+                left: auto !important;
+                right: -23px !important;
+                transform: rotate(180deg);
+            }
+        }
+    }
+    .toggle-button {
+        right: 5px;
+        left:auto;
+        top: 5px;
+        
+    }
+    .Collapsible__trigger:after {
+        right: 10px !important;
+        left: auto !important;
+    }
+    .field:not(.no-material) .label {
+        right: auto;
+        left: 1.3rem;
+    }
+    .field a.op {
+        left: auto;
+        right: 10px;
+    }
+    .MuiSelect-select~svg {
+        left: auto;
+        right: 0;
+    }
+    .list-view-header .insert-btn {
+        margin-left: 20px;
+    }
+    .data-lookup .caret-down-wrapper{
+        left: auto;
+        right:2px;
+    }
+}

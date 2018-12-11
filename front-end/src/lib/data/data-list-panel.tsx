@@ -174,11 +174,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (s.targetSelector.includes('add')) s.selectedItem = null;
         const targetClick = s => () => this.doTargetClick(s);
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
-            <DefaultButton primary className="add-button" onClick={targetClick('.add-button')} iconProps={{ iconName: 'Add' }} text={i18n('add') as any} />,
-        !p.customBar && !p.avoidEdit && false &&
-        <DefaultButton className="edit-button" disabled={!s.selectedItem} onClick={targetClick('.edit-button')} iconProps={{ iconName: 'Edit' }} text={i18n('edit') as any} />,
-        !p.customBar && !p.avoidDelete && false &&
-        <DefaultButton className="delete-button" disabled={!s.selectedItem} onClick={targetClick('.delete-button')} iconProps={{ iconName: 'Delete' }} text={i18n('delete') as any} />,
+            <Button variant="outlined" color="secondary" className="add-button" onClick={targetClick('.add-button')}    >{i18n('add')}</Button>,
         !!this.dataList && <hr style={{ margin: '4px 0' }} />,
         !!this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
         !!p.children && s.isOpen && this.renderCallout(callOutTarget)]

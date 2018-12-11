@@ -70,6 +70,7 @@ export { TreeList } from './lib/controls/tree-list';
 export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch, Alert } from './lib/controls/inspired-components';
 export { GridList, GridListTile } from './lib/controls/inspired-components';
 export { Headline } from './lib/controls/head-line';
+export { ScrollablePanel } from './lib/controls/scrollable-panel';
 export let currentView: any
 export { MenuIcon, ExpandMoreIcon } from './lib/controls/icons';
 import * as  _Icons from './lib/controls/icons';

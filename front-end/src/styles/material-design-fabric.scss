@@ -363,7 +363,8 @@
     .field-accessor {
         min-width: 15.21rem;
     }
-    .date-picker {         min-width: 15.21rem !important;
+    .date-picker {
+        min-width: 15.21rem !important;
         max-width: 15.21rem !important;
     }
 }
@@ -440,4 +441,8 @@ li.MuiButtonBase-root,
 
 .content:not(:last-child) {
     margin-bottom: 0;
+}
+
+.data-lookup-modal .MuiDialogTitle-root {
+    padding-bottom: 0 !important;
 }

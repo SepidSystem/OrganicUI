@@ -6,7 +6,7 @@ export function Anchor(p: OrganicUi.AnchorProps) {
     return <a {...p} onClick={async e => {
         e.preventDefault();
         const { switchingInClass, switchingOutClass, switchingElement, switchingDelay } = p;
-        const href = (e.target as HTMLAnchorElement).href;
+        const href = (e.currentTarget as HTMLAnchorElement).href;
         if (switchingInClass) {
             const targetElement: HTMLElement = (typeof switchingElement == 'string' && document.querySelector(switchingElement)) || switchingElement || document.documentElement as any;
             const targetElementIsOK: boolean = !!targetElement && !!targetElement.classList;
@@ -21,7 +21,7 @@ export function Anchor(p: OrganicUi.AnchorProps) {
             if (targetElementIsOK) {
                 targetElement.classList.add(switchingInClass);
                 await Utils.delay(switchingDelay);
-                targetElement.classList.remove(switchingInClass,switchingOutClass);
+                targetElement.classList.remove(switchingInClass, switchingOutClass);
             }
         }
         else {

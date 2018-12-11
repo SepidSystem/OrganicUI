@@ -425,7 +425,8 @@ export const Utils = {
 			curTop += Utils.safeNumber(element.offsetTop, 0);
 		} while (element = element.offsetParent as any);
 		return [curLeft, curTop];
-	}
+	},
+	 
 }
 import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";

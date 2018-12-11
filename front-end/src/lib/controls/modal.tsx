@@ -30,7 +30,7 @@ export class Modal extends BaseComponent<OrganicUi.ModalProps, IState>{
                     {children}
                 </div>
             </DialogContent>
-            <DialogActions style={{ display: 'flex', alignContent: 'center', justifyContent: 'center', width: '100%', flexDirection: 'row-reverse' }}>
+            <DialogActions style={{ display: 'flex', alignContent: 'center', justifyContent: 'center', flexDirection: 'row-reverse' }}>
                 {this.renderActions(buttons)}
             </DialogActions>
         </Dialog>

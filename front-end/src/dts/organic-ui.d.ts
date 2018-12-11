@@ -298,12 +298,16 @@ declare namespace OrganicUi {
     }
 
     interface AnchorProps extends React.AnchorHTMLAttributes<HTMLElement> {
-        switchingInClass?:string;
-        switchingOutClass?:string;
-        switchingElement?:HTMLElement | string;
-        switchingDelay?:number;
+        switchingInClass?: string;
+        switchingOutClass?: string;
+        switchingElement?: HTMLElement | string;
+        switchingDelay?: number;
     }
-
+    export interface ScrollablePanelProps extends React.DetailsHTMLAttributes<HTMLElement> {
+        contentClassName?:string;
+        onSyncScroll?:Function;
+        onGetHeight?:()=>number;
+    }
     interface ComboBoxProps {
         value?: any;
         onChange?: any;
@@ -385,6 +389,7 @@ declare namespace OrganicUi {
         onSelectionChanged?: Function;
         onPageChanged?: Function;
         customReadList?: Function;
+        customActions?:{[key:string]:Function};
         customReadListArguments?: any[];
         canSelectItem?: (row) => boolean;
         defaultSelectedValues?: () => { [key: number]: true };
@@ -490,7 +495,7 @@ declare namespace OrganicUi {
         operators?: any[];
         onApplyClick?: () => any;
         liveMode?: boolean;
-        customActions?:{[key:string]:Function};
+        customActions?: { [key: string]: Function };
     }
     export type TMethods = Function[] | { [key: string]: Function }
     export interface IMenu {
@@ -729,7 +734,7 @@ declare module '@organic-ui' {
     export type IOptionsForCRUD = OrganicUi.IOptionsForCRUD;
     export { AxiosRequestConfig as RequestConfig } from 'axios';
     import { AxiosRequestConfig } from 'axios';
-    import { IColumn, IDetailsListProps } from 'office-ui-fabric-react';
+    import { IColumn, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList';
     import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, ComponentType } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
@@ -774,9 +779,10 @@ declare module '@organic-ui' {
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
     export const Anchor: React.SFC<OrganicUi.AnchorProps>;
+    export const ScrollablePanel:React.SFC<OrganicUi.ScrollablePanelProps>;
     export const DatePicker: React.SFC<OrganicUi.DatePickerProps>;
     export const ComboBox: typeof OrganicUi.ComboBox;
-    export const TimeEdit: typeof OrganicUi.TimeEdit;
+     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export const AdvButton: typeof OrganicUi.AdvButton;
     export const Panel: typeof OrganicUi.Panel;
     export class DataForm extends BaseComponent<Partial<OrganicUi.IDataFormProps>, any> {
@@ -833,7 +839,7 @@ declare module '@organic-ui' {
     //   Inspired Components;
     export { TextField, Switch, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
     export { GridList, GridListTile } from '@material-ui/core'
-    export { Callout } from 'office-ui-fabric-react';
+    export { Callout } from 'office-ui-fabric-react/lib/Callout';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
     import { ChartConfiguration } from 'c3'
     export const C3Chart: React.SFC<ChartConfiguration>;

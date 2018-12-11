@@ -525,11 +525,10 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
             <i className="shine-me-child" />
             {isLoaded ?
                 <div className="data-list-content" ref="content">
-                    <div className="data-list-c1" style={{
+                    <div className="data-list-c1 scrollY" style={{
                         overflowX: 'auto',
                         flex: '1', display: 'block'
-                    }} onMouseEnter={this.handleMouseEnter}
-                        onMouseLeave={this.handleMouseLeave}
+                    }}  
                     >
                         {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
 

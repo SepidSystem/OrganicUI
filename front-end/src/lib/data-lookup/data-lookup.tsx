@@ -54,6 +54,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
 
     cache: { [key: string]: any };
     refs: {
+        popOver: BaseComponent<never, never>;
         listViewContainer: HTMLElement;
         textField: any;
         root: HTMLElement;
@@ -359,12 +360,24 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         return result;
 
     }
+    handleShowAll() {
+        if (!this.refs.popOver) {
+            alert('this.refs.popOver not found');
+            return;
+        }
+        const dataLists = this.refs.popOver.querySelectorAll('.data-list-wrapper') as DataList[];
+        if (dataLists.length == 0) throw 'dataList not found';
+        const [dataList] = dataLists;
+        dataList.state.startFrom = 0;
+        dataList.rowCount = 100 * 1000;
+        return dataList.reload();
+
+    }
     renderPopOver() {
         const p = this.props, s = this.state;
         const { isOpen } = this.state;
         const { root } = this.refs;
-
-        const listViewElement = p.source && React.createElement(p.source, {
+        const props = {
             forDataLookup: true,
             width: root && root.clientWidth,
             parentRefId: this.state.refId,
@@ -372,14 +385,17 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             getValue: () => [s.value, p.value].filter(v => v !== undefined)[0],
             dataLookup: this,
             multipleDataLookup: p.multiple,
-            height: 300,
+            height: -1,
             onSelectionChanged: this.handleSelectionChanged,
             setValue: this.handleSetValue.bind(this),
             customReadListArguments: p.customReadListArguments,
             dataLookupProps: p,
             customReadList: p.customReadList,
+            customActions: { 'show-all': this.handleShowAll.bind(this) },
             canSelectItem: p.canSelectItem
-        } as Partial<OrganicUi.IListViewParams>);
+        } as Partial<OrganicUi.IListViewParams>;
+        console.log({ props });
+        const listViewElement = p.source && React.createElement(p.source, props);
 
         const onClose = () => {
             this.repatch({ isOpen: false });
@@ -391,8 +407,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             onAppend: this.handleAppend.bind(this),
             onApply: this.handleApply.bind(this),
             dataLookupProps: p, dataLookup: this,
+            ref: 'popOver',
             reversed: !!p.popOverReversed
-        }, listViewElement);
+        } as OrganicUi.IDataLookupPopupModeProps as any, listViewElement);
         return <div className="list-view-container" style={{ display: 'none' }} ref="listViewContainer">{popupElement}</div>
 
     }
@@ -464,13 +481,13 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             setTimeout(() => this.forceUpdate(), 10);
         const textField = !(innerText instanceof Promise) &&
             <TextField onBlur={p.onBlur as any}
-            onKeyDown={e=>e.preventDefault()}
-            className="data-lookup-textfield" multiline={multiline} readOnly style={{
-                color: 'transparent'
+                onKeyDown={e => e.preventDefault()}
+                className="data-lookup-textfield" multiline={multiline} readOnly style={{
+                    color: 'transparent'
 
-                , height: Math.max(42, this.state.textHeight - 10),
-                maxHeight: this.state.textHeight > 80 ? 80 : 44
-            }}
+                    , height: Math.max(42, this.state.textHeight - 10),
+                    maxHeight: this.state.textHeight > 80 ? 80 : 44
+                }}
                 onFocus={this.handleFocus}
 
                 itemRef="textField" />;

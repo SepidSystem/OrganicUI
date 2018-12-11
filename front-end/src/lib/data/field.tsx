@@ -232,7 +232,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
     focusEvent: Function;
     focusEvent2: Function;
     createFocusEvent(defaultCb: Function) {
-        const cb: Function = e => this.refs.container.classList.add('focused');
+        const cb: Function = e => this.refs.container && this.refs.container.classList.add('focused');
 
         return !defaultCb ? cb : function () {
             defaultCb(...arguments);

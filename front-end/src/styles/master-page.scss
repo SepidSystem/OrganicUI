@@ -99,7 +99,6 @@ aside {
         align-items: center;
         right: $side-width*1px;
         padding: 0 20px;
-        direction: rtl;
         justify-content: flex-end;
         a {
             margin: 0 10px;
@@ -237,7 +236,7 @@ aside {
             }
         }
         &.switching {
-            header {
+            header * {
                 visibility: hidden;
             }
             a,
@@ -248,8 +247,8 @@ aside {
             }
         }
         &.mini {
-            max-width: 55px;
-            min-width: 55px;
+            max-width: 63px;
+            min-width: 63px;
             overflow: hidden;
             .Collapsible__trigger:after {
                 display: none;
@@ -291,4 +290,13 @@ button,
     animation: fadeInUp;
     animation-duration: 0.2s;
     animation-fill-mode: forwards;
+}
+
+.toggle-button {
+    width: 4rem;
+    right: 5px;
+    top: 5px;
+    position: absolute;
+    z-index: 101;
+    display: flex;
 }

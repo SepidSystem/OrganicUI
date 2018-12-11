@@ -64,9 +64,16 @@ export function renderViewToComplete(url, selector: any = '#root2') {
 }
 export const getCurrentUserLangauge = () => localStorage.getItem('lang') || 'FA_IR';
 function loadLocalizationResource(userLang?) {
+    const docElementClasses = document.documentElement.classList;
+    const documentClassList = Array.from(docElementClasses);
+    docElementClasses.remove(
+        ...(documentClassList.filter(clsName => clsName.startsWith('lang-')))
+    );
+    document.documentElement.dir = userLang == 'FA_IR' ? 'rtl' : 'ltr';
     const scripts = Array.from(document.querySelectorAll('script'));
     const domainScript = scripts.filter(({ src }) => src.includes('/domain.js'))[0];
     userLang = userLang || getCurrentUserLangauge();
+    docElementClasses.add(`lang-${userLang}`);
     const src = domainScript.src.replace('.js', `-${userLang}.js`);
     return new Promise(resolve => {
         i18n.clear();
@@ -81,6 +88,7 @@ export function startApp(appModel: IAppModel) {
     afterLoadCallback instanceof Function && afterLoadCallback();
     loadLocalizationResource().then(() => mountViewToRoot());
 }
+Object.assign(window, { initializeIcons });
 export const changeUserLanguage = lang => loadLocalizationResource(lang).then(() => mountViewToRoot());
 
 const documentClassName = localStorage.getItem('documentClassName');

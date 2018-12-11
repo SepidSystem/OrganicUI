@@ -100,7 +100,7 @@ export class AppUtils extends BaseComponent<any, any>{
             <DialogContent style={{ overflow: dialog && dialog.hasScrollBar ? null : 'hidden' }}>
                 {dialog && dialog.content}
             </DialogContent>
-            {dialog && dialog.actions && <DialogActions>
+            {dialog && dialog.actions && <DialogActions style={{width:'auto'}}>
                 Utils.renderButtons(dialog.actions)
             </DialogActions>}
         </Dialog>

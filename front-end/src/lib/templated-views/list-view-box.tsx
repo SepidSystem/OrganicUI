@@ -59,11 +59,14 @@ export class ListViewBox<T> extends
         if (this.props && this.props.options && this.props.options.avoidAutoFilter) return undefined;
         const { filterOptions } = this.props.options;
         const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0])
+
         if (filterPanel)
             return React.cloneElement(filterPanel,
-                { liveMode: filterOptions && filterOptions.liveMode, onApplyClick: this.reload, dataForm: this.state.dataFormForFilterPanel });
+                { customActions: this.props.params.customActions, liveMode: filterOptions && filterOptions.liveMode, onApplyClick: this.reload, dataForm: this.state.dataFormForFilterPanel });
         this.columns = this.columns || ListViewBox.getColumns(this.getDataList());
-        return <FilterPanel liveMode={filterOptions && filterOptions.liveMode} onApplyClick={this.reload} dataForm={this.state.dataFormForFilterPanel}>
+        return <FilterPanel liveMode={filterOptions && filterOptions.liveMode}
+            customActions={this.props.params.customActions}
+            onApplyClick={this.reload} dataForm={this.state.dataFormForFilterPanel}>
             {this.columns.map(col => (<Field  {...col} />))}
         </FilterPanel>
     }
@@ -350,8 +353,6 @@ export class ListViewBox<T> extends
             return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options.classNameForListView)}
                 data-parent-id={params.parentRefId}
                 style={{
-                    minHeight: (params.height ? params.height + 'px' : 'auto'),
-                    maxHeight: (params.height ? params.height + 'px' : 'auto'),
                     minWidth: (minWidth ? minWidth + 'px' : 'auto'),
                     overflow: 'hidden'
                 }} ref="root"  >
