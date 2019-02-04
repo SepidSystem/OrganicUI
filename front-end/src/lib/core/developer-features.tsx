@@ -4,7 +4,9 @@ import { Utils } from "./utils";
 import * as JsonInspector from 'react-json-inspector';
 import { IContextualMenuItem } from "office-ui-fabric-react";
 import { instances } from './rest-api';
-import { ActionButton } from 'office-ui-fabric-react/lib/Button';
+import ActionButton from '../controls/action-button';
+import * as CodeImage from './code-tags-check.svg';
+import Svg from '../controls/svg';
 export { JsonInspector };
 export function isDevMode() {
 
@@ -48,7 +50,7 @@ export class DeveloperBar extends BaseComponent<any, any> {
     }
     componentWillMount() {
         this.scanDevPorts();
-       this.timerId = setInterval(this.scanDevPorts.bind(this), 800);
+        this.timerId = setInterval(this.scanDevPorts.bind(this), 800);
     }
     componentWillUnmount() {
         clearInterval(this.timerId);
@@ -71,15 +73,12 @@ export class DeveloperBar extends BaseComponent<any, any> {
                         key, name: key, onClick: () => devTools.data[key](this)
                     } as IContextualMenuItem));
         }
-        const frameworkVersion=OrganicUI.Version;
+        const frameworkVersion = OrganicUI.Version;
         return <div ref="root" dir='ltr' style={{ textAlign: 'left', padding: '2px', display: !DeveloperBar.developerFriendlyEnabled && 'none' }} className="developer-bar">
             {DeveloperBar.topElement}
             {!!DeveloperBar.developerFriendlyEnabled && <ActionButton
-                menuProps={{
-                    shouldFocusOnMount: true,
-                    items: DeveloperBar.devMenuItems
-                } as any} iconProps={{ iconName: 'Code' }}
-            />}
+                menuItems={DeveloperBar.devMenuItems}
+            ><Svg image={CodeImage} width={32} height={32} /></ActionButton>}
             {!!DeveloperBar.developerFriendlyEnabled && this.renderDevButtonForRestClients()}
             {!!DeveloperBar.developerFriendlyEnabled
                 && this.devPorts && this.devPorts.map(devPort => devPort.getDevButton())}

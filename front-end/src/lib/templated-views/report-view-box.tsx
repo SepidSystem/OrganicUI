@@ -27,18 +27,30 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
     handleApplyClick() {
         const { datalist } = this.refs;
 
-        return datalist.reload();
+        return datalist && datalist.reload instanceof Function && datalist.reload();
     }
     handleLoadRequestParams(params: OrganicUi.IAdvancedQueryFilters) {
         const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
-        if (filterPanel)
-            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !!filterItem.value);
-        return params;
+        if (filterPanel) {
+            const filterModel = filterPanel.getFilterItems()
+            params.filterModel = filterModel instanceof Array ? filterModel.filter(filterItem => !Utils.isUndefined(filterItem.value)) : filterModel;
+
+            if (filterModel instanceof Array && this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
+                params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend);
+            if (params.filterModel instanceof Array &&  params.filterModel.length == 0) {
+                Utils.showErrorMessage(i18n.get('filter-is-empty'));
+                return;
+            }
+            const { onLoadRequestParams } = ((this.dataListElement && this.dataListElement.props) || {}) as any;
+            return onLoadRequestParams instanceof Function ? onLoadRequestParams(params) : params;
+        }
     }
     isDataListTargeted(child: React.ClassicElement<any>) {
         return child && child.type && child.type['isDataList'] && !child.props.loader;
     }
+    dataListElement: DataList;
     prepareDataList(dataListElement) {
+        this.dataListElement = dataListElement;
         return !Utils.fakeLoad() && React.cloneElement(dataListElement,
             {
                 loader: dataListElement.props.loader || this.actions.read,
@@ -51,6 +63,9 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
     componentDidMount() {
 
         this.props.options && this.setPageTitle(i18n.get(this.props.options.title));
+        for (const filterPanel of this.querySelectorAll<FilterPanel>('.filter-panel'))
+            filterPanel.assignValuesFromQueryString(location.search);
+
     }
     renderContent(p = this.props) {
         const handleApplyClick = this.handleApplyClick.bind(this);
@@ -61,7 +76,8 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
             return child;
         });
         const dataList = children.filter(this.isDataListTargeted).map(dataListElement => this.prepareDataList(dataListElement));
-        return (<section ref="root" style={{ flex: 1, flexDirection: 'column',display:'flex' }}>
+
+        return (<section ref="root" style={{ flex: 1, flexDirection: 'column', display: 'flex' }}>
 
             <CriticalContent permissionValue={p.options && p.options.permissionKey} permissionKey="report-permission" >
                 {!this.state.fullScreen && children.filter(child => !this.isDataListTargeted(child))}

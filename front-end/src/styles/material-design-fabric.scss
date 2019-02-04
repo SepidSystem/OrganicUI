@@ -14,8 +14,7 @@
         font-weight: normal;
         white-space: nowrap;
         overflow: visible;
-        text-overflow: ellipsis;
-        height: 0;
+        text-overflow: ellipsis; //   height: 0;
         margin: 0;
         min-width: auto !important;
         max-width: auto !important;
@@ -157,13 +156,17 @@
 .field.bluring:not(.no-material) .label {
     top: 1.7rem !important;
     right: 1.3rem !important;
-    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all !important;
+    transition: 0.2s cubic-bezier(0.1, 0.2, 0.3, 1) all !important;
     height: auto !important;
     padding: 0 0.125rem !important;
     * {
-        font-size: 1.7rem !important;
+      //  font-size: 1.7rem !important;
         line-height: 1.5rem !important;
     }
+}  
+
+hr {
+    margin: 0.5rem 0 !important;
 }
 
 .field.focused:not(.no-material) .label,
@@ -320,6 +323,9 @@
 
 .MuiPaper-root {
     direction: rtl;
+    h2 {
+        font-size: 2rem;
+    }
 }
 
 .MuiModal-root {
@@ -445,4 +451,15 @@ li.MuiButtonBase-root,
 
 .data-lookup-modal .MuiDialogTitle-root {
     padding-bottom: 0 !important;
+}
+
+.large-textarea {
+    textarea {
+        min-height: 400px !important;
+    }
+}
+.custom-actions{
+    .MuiButton-root:hover{
+        background: transparent !important;
+    }
 }

@@ -38,8 +38,8 @@
         min-width: 100%;
         float: right;
     }
-    button {
-        margin: 0 0.5rem;
+    .field {
+        margin: 0 !important;
     }
 }
 
@@ -89,7 +89,7 @@
 .focused .activate-focused-only {
     visibility: visible;
 }
- 
+
 footer.is-centered {
     display: flex;
     justify-content: center;
@@ -161,7 +161,9 @@ hr {
 .large-text {
     font-size: 32px !important;
 }
-
+.full-width{ 
+    min-width: 100% !important;
+}
 .content-no-border {
     * {
         border: none !important;
@@ -267,9 +269,8 @@ hr {
     100% {
         left: 82%
     }
-}
-
-.body.swal2-height-auto {
+} 
+html body.swal2-height-auto {
     height: 100% !important;
     min-height: 100% !important;
 }
@@ -280,14 +281,15 @@ hr {
     animation-duration: 0.75s;
     animation-fill-mode: forwards;
 }
-.center-content{
+
+.center-content {
     display: flex;
     align-items: center;
     justify-items: center;
     align-content: center;
     justify-content: center;
-    
 }
+
 .toggle-down {
     animation-name: toggle-down;
     animation-delay: 0.25s;
@@ -295,7 +297,40 @@ hr {
     animation-fill-mode: forwards;
 }
 
+.attention-required {
+    animation: back-primary 1.3s ease 0.3s 1;
+    min-width: 200px !important;
+}
+
+footer .adv-button {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
 /*animations*/
+
+@keyframes back-primary {
+    0% {
+        background: transparent;
+    }
+    10% {
+        background-color: rgb(4, 98, 148);
+        box-shadow: inset 0px 0 5px #000;
+        border-color: #000;
+        color: white;
+        text-shadow: 0 0 2px #000;
+    }
+    70% {
+        background-color: rgb(4, 98, 148);
+        box-shadow: inset 0px 0 5px #000;
+        border-color: #000;
+        color: white;
+        text-shadow: 0 0 2px #000;
+    }
+    100% {
+        background: transparent;
+    }
+}
 
 @keyframes toggle-up {
     0% {
@@ -312,5 +347,32 @@ hr {
     }
     100% {
         transform: rotate(-180deg);
+    }
+}
+
+@keyframes attention {
+    0% {
+        transform: rotate(0deg);
+        opacity: 0.2;
+    }
+    100% {
+        transform: rotate(360deg);
+        opacity: 1;
+        box-shadow: 0 0 3px #fff;
+    }
+}
+
+.description {
+    font-size: 1.71rem;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.red-checkbox{
+    svg{
+        fill:#ff0000;
     }
 }

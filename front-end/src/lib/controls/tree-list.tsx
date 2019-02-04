@@ -181,8 +181,14 @@ export class TreeList extends BaseComponent<ITreeListProps, IState>{
                 <SearchIcon style={{ width: '1.6rem' }} />
             </div>
             <div style={{ overflowY: 'auto', flex: '1' }}>
-                {p.nodes instanceof Promise ? <Spinner /> : this.renderNodes(rootNodes)}
+                {p.nodes instanceof Promise ? this.showSpinner() : this.renderNodes(rootNodes)}
+
             </div>
+        </div>
+    }
+    showSpinner() {
+        return <div className="center-content">
+            <a className="button is-large is-loading" style={{ fontSize: '10rem', border: 'none' }}></a>
         </div>
     }
 }

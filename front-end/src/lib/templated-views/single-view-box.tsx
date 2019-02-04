@@ -13,7 +13,12 @@ import { DeveloperBar } from '../core/developer-features';
 import { Icon, Paper, Button } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
 import { SelfBind } from '../core/decorators';
-interface SingleViewBoxState<T> { formData: T; validated: boolean; }
+import Svg from '../controls/svg';
+import *as ArrowLeftSvg from './arrow-left.svg'
+interface SingleViewBoxState<T> {
+    id: any;
+    formData: T; validated: boolean;
+}
 
 export class SingleViewBox<T> extends OrganicBox<
     IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState<T>> {
@@ -33,12 +38,14 @@ export class SingleViewBox<T> extends OrganicBox<
     }
     @SelfBind()
     handleNavigate(response?): any {
+
         const id = this.getId(response || this.state.formData);
         if (this.props.params && this.props.params.onNavigate) {
             return this.props.params.onNavigate(id);
         }
-        const url = [this.props.options.routeForListView, id && ('selectedId=' + id)].filter(x => !!x).join('?');
-        Utils.navigate(url);
+        const url = [this.props.options.routeForListView,
+        [id && ('selectedId=' + id), 'restoreState=1'].filter(notFalse => notFalse).join('&')].filter(x => !!x).join('?');
+        return !!response && Utils.navigate(url);
     }
     refs: {
         root: HTMLElement;
@@ -51,6 +58,7 @@ export class SingleViewBox<T> extends OrganicBox<
     }
     componentWillMount() {
         const { actions, params } = this.props;
+        this.state.id = params.id;
         const monitorFunc = SingleViewBox.getMonitorFunc();
         this.state.formData = params.id > 0
             ? actions.read(params.id)
@@ -60,12 +68,12 @@ export class SingleViewBox<T> extends OrganicBox<
                         this.devElement = this.makeDevElementForDiag(error);
                         this.repatch({});
                     }
-                ).then(formData => this.actions.mapFormData ? monitorFunc('mapFormData', formData) : formData)
+                ).then(formData => this.actions.mapFormData && monitorFunc instanceof Function ? monitorFunc('mapFormData', formData) : formData)
 
             : this.mapFormData({});
     }
     componentDidMount() {
-
+        super.componentDidMount();
         this.setPageTitle(this.getTitle());
     }
     getId(row) {
@@ -84,7 +92,17 @@ export class SingleViewBox<T> extends OrganicBox<
         formData && (formData[fieldName] = value);
     }
     addNewMode() {
-        return this.props.params.id == 'new';
+        return this.state.id == 'new';
+    }
+    renderError(error) {
+        if (!error) return null;
+        const { errors } = error;
+        if (errors instanceof Array) {
+            return <ul>
+                {errors.filter(notFalse => notFalse).map(err => <li>{err.message || err}</li>)}
+            </ul>
+        }
+        return error;
     }
     @SelfBind()
     async handleSave(navigateToListView?) {
@@ -105,7 +123,7 @@ export class SingleViewBox<T> extends OrganicBox<
             return dataForm.showInvalidItems(invalidItems);
         }
         let updateResult: Promise<any>;
-        const { id } = p.params;
+        const { id } = this.state;
         const monitorFunc = SingleViewBox.getMonitorFunc();
         const debugResult = await Utils.toPromise(!!monitorFunc && monitorFunc('beforeSave', formData));
         //console.assert(debugResult === -1, 'debugResult>>>>', { debugResult });
@@ -129,28 +147,23 @@ export class SingleViewBox<T> extends OrganicBox<
             })
             .then(
                 res => {
-                    if (res.error) return <div className="server-side-error">
-                        <i className="fa fa-exclamation-triangle"></i>
-                        {res.error}</div>;
+                    if (res.id)
+                        res.id = +res.id;
+                    if (this.state.id == 'new' && res.id) {
+                        history.replaceState(null, document.title, location.href.replace('/new', '/' + res.id));
+                    }
+                    this.state.id = res.id || this.state.id;
+                    formData.id = res.id || formData.id;
+                    if (res.error) return <div className="server-side-message">
+                        <i className="fa fa-exclamation-triangle center-content" style={{ fontSize: '40px' }}></i>
+                        <p style={{ whiteSpace: 'pre-line' }}>{this.renderError(res.error)}</p>
+                    </div>;
                     const { title, desc } = this.getSuccess();
                     if (navigateToListView)
                         setTimeout(this.handleNavigate.bind(this, res), 10);
                     else
                         setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
-                    return !navigateToListView && <div className="single-view-callout" style={{ padding: '3px' }}>
-                        <header className="columns">
-                            <div className="column" style={{ maxWidth: "70px" }}>
-                                <span className="animated tada">
-                                    <Icon iconName="SkypeCircleCheck" className="ms-font-su" />
-                                </span>
-                            </div>
-                            <div className="column" style={{ display: 'flex', alignItems: 'center' }}>
-                                <div className="title is-3">{title}</div>
-                            </div>
-                        </header>
-
-
-                    </div>;
+                    return !navigateToListView && Utils.successCallout(title);
                 }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
 
 
@@ -192,12 +205,12 @@ export class SingleViewBox<T> extends OrganicBox<
         const s = this.state;
         if (s.formData instanceof Promise) return <Spinner />;
 
-        s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({ formData } as any)) as any;
+        s.formData = s.formData || {} as any;// this.actions.read(this.props.id).then(formData => this.repatch({formData} as any)) as any;
         const hasModifyPermission = (!options.permissionKeys || checkPermission(this.addNewMode() ? options.permissionKeys.forCreate : options.permissionKeys.forUpdate));
         if (!hasModifyPermission && this.refs.root) {
 
         }
-    return (<section className="organic-box single-view developer-features" ref="root">
+        return (<section className="organic-box single-view developer-features" ref="root">
             {!p.params.noTitle && <h1 className="animated fadeInUp  title is-3 columns" style={{ margin: '0', fontSize: '2.57rem' }}>
                 <div className="column  " style={{ flex: '10' }}>
                     {this.getTitle()}
@@ -205,7 +218,7 @@ export class SingleViewBox<T> extends OrganicBox<
                 <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
                     {!p.params.onNavigate && <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.handleNavigate}   >
                         {i18n('back')}
-                        <Icon iconName="Back" />
+                        <Svg image={ArrowLeftSvg} width={32} height={32} />
                     </Button >}
                 </div>
             </h1>}
@@ -214,13 +227,14 @@ export class SingleViewBox<T> extends OrganicBox<
                     validate={s.validated}
                     onErrorCode={this.actions.validate}
                     data={s.formData}>
-                    {this.props.children}
+                    {React.Children.toArray(this.props.children).filter((c: any) => c && c.props && !c.props['role'])}
                 </DataForm>
                 {hasModifyPermission &&
                     <footer className="buttons  single-view-buttons">
-                        <AdvButton
-                            onClick={this.handleSave} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
+                        <AdvButton onClick={this.handleSave.bind(this, false)} variant="raised" color="primary" ref="primaryButton" > {i18n('save')}</AdvButton>
                         <AdvButton onClick={this.handleSave.bind(this, true)} variant="raised" color="secondary" ref="secondaryButton"   > {i18n('save-and-exit')}</AdvButton>
+                        <div style={{ flex: 1 }}></div>
+                        {this.childrenByRole['nav']}
                     </footer>}
             </Paper>
 
@@ -240,3 +254,10 @@ export class SingleViewBox<T> extends OrganicBox<
 }
 Object.assign(reinvent.templates, { singleView: SingleViewBox });
 Object.assign(reinvent.utils, { showDialogForAddNew: SingleViewBox.showDialogForAddNew })
+window.onbeforeunload = e => {
+    const dom = (document.querySelector('.organic-box.single-view') || {}) as any;
+
+    const { componentRef } = dom;
+    if (componentRef instanceof SingleViewBox)
+        return i18n.get('are-you-sure');
+} 

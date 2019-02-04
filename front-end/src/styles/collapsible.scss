@@ -10,9 +10,10 @@ $breakpointMega: 1600px;
 $breakpointLarge: 990px;
 $breakpointMed: 767px;
 //The content within the collaspable area
+
 .Collapsible__contentInner {
-    background: rgb(52, 53, 73) !important;
     overflow: visible;
+    background: rgb(52, 53, 73) !important;
     box-shadow: inset -3px 3px 3px -3px black;
     padding: 2px 0px;
     margin: 2px;

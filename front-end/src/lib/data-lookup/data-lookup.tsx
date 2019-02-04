@@ -12,7 +12,7 @@ import { TextField } from '../controls/inspired-components';
 import { DataLookupModal } from './data-lookup-modal';
 import { DataList } from '../data/data-list';
 import { SelfBind } from '../core/decorators';
-import { IActionsForCRUD } from '@organic-ui';
+import { IActionsForCRUD, IComponentRefer, DataForm } from '@organic-ui';
 
 
 interface IState {
@@ -47,7 +47,9 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     static classNameForField = (p: OrganicUi.DataLookupProps) => `data-lookup-field control-field-single-line ${!!p.bellowList ? 'has-bellow-list' : ''}`;
     static textReader = (fld, prop: OrganicUi.DataLookupProps, value) => {
         const { source } = prop as any;
-        if (!source.dataLookupActions) DataLookup.applySource(source);
+        if (prop.valueAsDisplayText && !!value)
+            return <span className="valueAsDisplayText">{value}</span>;
+        if (!source.dataLookupActions) DataLookup.applySource(source || prop.predefined && DataLookup.predefines[prop.predefined]);
         return <DataLookupCell actions={source.dataLookupActions} options={source.dataLookupOptions} value={value} />
     }
     listViewElement: React.ReactElement<OrganicUi.IListViewParams>;
@@ -66,11 +68,13 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     openRequestTime: number;
     savedScrollTop: number;
     lastTryCalcHeight: number;
+    static predefines: any = {};
     constructor(p: OrganicUi.DataLookupProps) {
         super(p);
         this.cache = {};
         this.listViewBoxNotFoundCounter = 2;
-        this.applySource(p.source);
+        const source = p.source || DataLookup.predefines[p.predefined];
+        this.applySource(source);
         this.state.selectedValueDic = p.value ? Utils.toArray(p.value).filter(id => id !== undefined && id !== null).reduce((accum, id) => Object.assign(accum, { [id]: true }), {}) : {};
     }
 
@@ -186,9 +190,12 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             document.documentElement.classList.remove('overflowY-hidden');
     }
     getSourceAttributes() {
-        const { source } = this.props;
-        if (!source) return {};
-        return { actions: (source['dataLookupActions'] as IActionsForCRUD<any>), options: source['dataLookupOptions'] };
+        let { source, predefined } = this.props;
+        if (predefined && !source) source = DataLookup.predefines[predefined];
+        if (!source && !predefined) return {};
+        return {
+            actions: (source['dataLookupActions'] as IActionsForCRUD<any>), options: source && source['dataLookupOptions']
+        };
     }
     static applySource(source) {
         if (!source) return;
@@ -206,8 +213,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         this.state.appliedSource = DataLookup.applySource(source);
     }
     componentWillReceiveProps(nextProps: OrganicUi.DataLookupProps) {
-        if (nextProps.source != this.props.source)
-            this.applySource(nextProps.source);
+        const nextSource = nextProps.source || DataLookup.predefines[nextProps.predefined];
+        const source = this.props.source || DataLookup.predefines[this.props.predefined];
+        if (nextSource != source)
+            this.applySource(nextSource);
         if (Utils.equals(nextProps.value, this.props.value))
             this.repatch({ value: nextProps.value });
 
@@ -257,12 +266,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     }
     getInnerText(): JSX.Element[] {
         const value = this.getValue();
-        const { actions, options } = this.getSourceAttributes();
-        if (!actions && value) {
-            //setTimeout(() => this.repatch({}), 300);
-            return value; //&& Promise.resolve('wait') as any;
-        }
-
+        if (this.props.valueAsDisplayText) return value && [<span className="valueAsDisplayText">{value}</span>];
+        const { actions, options: _options } = this.getSourceAttributes();
+        if (!actions)
+            return value;
         const valueArray = (value instanceof Array ? (value || []) as any[] : [value]).filter(x => !!x);
         if (this.state.batchListHash != Utils.hash(valueArray)) {
             this.state.batchListHash = Utils.hash(valueArray);
@@ -271,11 +278,13 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         this.state.batchList = this.state.batchList || this.readBatchList(valueArray).then(batchList => this.repatch({ batchList }));
         const { batchList } = this.state;
         if (batchList instanceof Promise) return [<Spinner />]
+        const options = _options || { singularName: actions['key'] };
 
-        return options && valueArray.map(value => (batchList[value] && <DataLookupCell
+        return valueArray.map(value => (batchList[value] && <DataLookupCell
             text={batchList[value]}
             actions={null}
-            options={options}
+            options={_options}
+
             key={options.singularName + value}
             value={value} />)).filter(notFalse => notFalse);
     }
@@ -394,8 +403,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             customActions: { 'show-all': this.handleShowAll.bind(this) },
             canSelectItem: p.canSelectItem
         } as Partial<OrganicUi.IListViewParams>;
-        console.log({ props });
-        const listViewElement = p.source && React.createElement(p.source, props);
+        const source = this.props.source || DataLookup.predefines[this.props.predefined];
+        const listViewElement = source && React.createElement(source, props);
 
         const onClose = () => {
             this.repatch({ isOpen: false });
@@ -425,16 +434,32 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         this.cachedBatchItems = this.cachedBatchItems || {};
         const { actions } = this.getSourceAttributes();
         const ids = values.filter(id => !this.cachedBatchItems[id]);
-        while (ids.length) {
-            const splitIds = ids.splice(0, 1000)
-            //const filterModel = [{ values: splitIds, op: 'IN', fieldName: 'Id', fieldType: 'enum' }];
-            //const listData = await actions.readList({ fromRowIndex: 0, toRowIndex: 0, filterModel, sortModel: null });
-            const listData = await actions.readByIds(splitIds);
-            const rows: any[] = listData.rows || listData as any;
-            Object.assign(this.cachedBatchItems, ...rows.map(row => ({ [this.getId(row, actions)]: actions.getText(row) })));
+
+        if (actions && actions.readByIds instanceof Function) {
+
+            while (ids.length) {
+                const splitIds = ids.splice(0, 1000)
+                //const filterModel = [{ values: splitIds, op: 'IN', fieldName: 'Id', fieldType: 'enum' }];
+                //const listData = await actions.readList({ fromRowIndex: 0, toRowIndex: 0, filterModel, sortModel: null });
+                const listData = await actions.readByIds(splitIds);
+                const rows: any[] = listData.rows || listData as any;
+                Object.assign(this.cachedBatchItems, ...rows.map(row => ({ [this.getId(row, actions)]: actions.getText(row) })));
+
+
+            }
+        }
+        else if (actions.read instanceof Function) {
+            const rows = await Promise.all(values.map(id => actions.read(id)));
+            for (let idx = 0; idx < rows.length; idx++) {
+                const row = rows[idx];
+                const id: any = values[idx];
+                this.cachedBatchItems[id] = row;
+            }
         }
         return Object.assign({}, ...values.map(id => ({ [id]: this.cachedBatchItems[id] })));
     }
+
+
     renderBelowList(): JSX.Element {
         const { options, actions } = this.getSourceAttributes();
         const value = this.getValue();
@@ -452,6 +477,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
                 text={batchList[value]}
                 actions={null}
                 options={options}
+
                 key={options.singularName + value}
                 value={value} noRemove={true} />
                 <i className="fa fa-minus" data-idx={idx} onClick={this.handleRemoveClick.bind(this)} ></i>
@@ -470,11 +496,11 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     renderContent() {
         if (this.state.value === undefined)
             this.state.value = this.props.value;
-
         const p = this.props, s = this.state;
         const multiline = p.multiple && !p.bellowList;
 
-        const innerText = p.onDisplayText instanceof Function ? undefined : this.getInnerText();
+        let innerText = p.onDisplayText instanceof Function ? undefined : this.getInnerText();
+        if (!innerText) innerText = this.getInnerText();
         console.assert(!p.bellowList || p.multiple, 'conflicted properties >>> bellowList & multiple');
         const { listViewContainer } = this.refs;
         if (s.isOpen && !listViewContainer)
@@ -485,7 +511,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
                 className="data-lookup-textfield" multiline={multiline} readOnly style={{
                     color: 'transparent'
 
-                    , height: Math.max(42, this.state.textHeight - 10),
+                    , height: Math.max(multiline ? 80 : 42, this.state.textHeight - 10),
                     maxHeight: this.state.textHeight > 80 ? 80 : 44
                 }}
                 onFocus={this.handleFocus}
@@ -506,7 +532,6 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
             maxHeight: 90,
             height: this.state.textHeight
         } : {};
-
         return <div ref="root"
             className={classNames("closable-element", "input-component", p.className, "data-lookup", s.isActive ? 'active' : 'deactive', this.props.multiple ? 'data-lookup-multiple' : 'data-lookup-single')}
             style={
@@ -525,10 +550,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
                             flexWrap: multiline ? 'wrap' : null,
                             maxWidth: maxWidthForTextOverflow + "px", display: p.bellowList ? 'none' : null
                         }}>
-                            {p.bellowList && (p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) :
+                            {p.bellowList && (p.onDisplayText instanceof Function && p.onDisplayText(this.getValue()) ? p.onDisplayText(this.getValue()) :
                                 Utils.joinElements(innerText, ' ,')
                             )}
-                            {!p.bellowList && (p.onDisplayText instanceof Function ? p.onDisplayText(this.getValue()) : innerText.map((title, idx) => Array.from({ length: 1 }, () => (
+                            {!p.bellowList && (p.onDisplayText instanceof Function && p.onDisplayText(this.getValue()) ? p.onDisplayText(this.getValue()) : innerText.map((title, idx) => Array.from({ length: 1 }, () => (
                                 <span className="selected-item">
                                     <span >
                                         {title}

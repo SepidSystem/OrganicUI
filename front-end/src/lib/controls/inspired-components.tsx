@@ -1,6 +1,6 @@
 
-import { default as _TextField,OutlinedInputProps as TextFieldProps } from '@material-ui/core/OutlinedInput';
-export const TextField: React.SFC<Partial< TextFieldProps>> = _TextField as any;
+import { default as _TextField, OutlinedInputProps as TextFieldProps } from '@material-ui/core/OutlinedInput';
+export const TextField: React.SFC<Partial<TextFieldProps>> = _TextField as any;
 //import { default as _$1, $1Props } from '@material-ui/core/$1';
 //export const $1: React.SFC<$1Props> = _$1 as any;
 
@@ -70,7 +70,6 @@ export const GridListTile: React.SFC<GridListTileProps> = _GridListTile as any;
 //----------------------------------------------------------------------------------------------
 
 export { Callout } from 'office-ui-fabric-react/lib/Callout';
-export { DefaultButton } from 'office-ui-fabric-react/lib/Button';
 export { Icon } from 'office-ui-fabric-react/lib/Icon';
 export { DetailsList } from 'office-ui-fabric-react/lib/DetailsList';
 export { MessageBar } from 'office-ui-fabric-react/lib/MessageBar';
@@ -80,5 +79,11 @@ export { FocusZone } from 'office-ui-fabric-react/lib/FocusZone';
 
 import Swal from 'sweetalert2'
 import * as withReactContent from 'sweetalert2-react-content'
+import { i18n } from '../core/shared-vars';
 const alertWrapper = (withReactContent as any)(Swal);
-export const Alert = options => new alertWrapper(options); 
+export const Alert = (options: withReactContent.ReactSweetAlertOptions) => new alertWrapper(Object.assign({
+    confirmButtonText: i18n.get('okey'),
+    cancelButtonText: i18n.get('cancel')
+} as withReactContent.ReactSweetAlertOptions,
+    options,
+    options.text ? { text: i18n.get(  options.text) } : {})); 

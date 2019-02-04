@@ -12,15 +12,17 @@ interface IState {
 export class Modal extends BaseComponent<OrganicUi.ModalProps, IState>{
     static icons = { error, warning };
     @SelfBind()
-    close() {
+    handleClose() {
         this.repatch({ isOpen: false });
+        const {onClose}=this.props;
+        onClose instanceof Function && onClose();
     }
     renderContent() {
         this.defaultState({ isOpen: true });
         const __html = Modal.icons[this.props.type];
         const { isOpen } = this.state;
         const { children, buttons } = this.props;
-        return <Dialog open={isOpen} onClose={this.close} className="ux-modal" >
+        return <Dialog open={isOpen} onClose={this.handleClose} className="ux-modal" >
             {this.props.title && <DialogTitle>{i18n(this.props.title as any)}</DialogTitle>}
             <DialogContent>
                 {!!__html && <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'center', width: '100%' }}>
@@ -37,7 +39,7 @@ export class Modal extends BaseComponent<OrganicUi.ModalProps, IState>{
     }
     async handleModalButtonClick(action: Function) {
         const result = await action();
-        this.close();
+        this.handleClose();
         return result;
     }
     renderActions(buttons: { [key: string]: Function }) {

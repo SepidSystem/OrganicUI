@@ -12,11 +12,18 @@ export const AddIcon: any = _AddIcon;
 import _SearchIcon from '@material-ui/icons/Search';
 export const SearchIcon: any = _SearchIcon;
 
+import   ViewAgenda from '@material-ui/icons/RemoveRedEye';
+export const ViewIcon:any=ViewAgenda;
 import * as _DeleteIcon from '../../../icons/delete.svg';
 export const DeleteIcon: any = () => <span className="svg-icon" dangerouslySetInnerHTML={{__html:_DeleteIcon}}></span >;
 
+
 import _CheckCircleIcon from '@material-ui/icons/CheckCircle';
 export const CheckCircleIcon: any = _CheckCircleIcon;
+
+
+import _LockIcon from '@material-ui/icons/LockSharp';
+export const LockIcon: any =_LockIcon;
 
 import _ErrorIcon from '@material-ui/icons/Error';
 export const ErrorIcon: any = _ErrorIcon;

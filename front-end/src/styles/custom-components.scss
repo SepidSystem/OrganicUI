@@ -74,6 +74,25 @@
 
 .data-list-panel-wrapper {
     width: 100%;
+   /* position: relative;
+    .add-button {
+        position: absolute;
+        bottom: 35px;
+        left: 20px;
+        z-index: 1000;
+    }
+    .MuiButton-fab {
+        width: 45px;
+        height: 45px;
+        .icon {
+            font-size: 20pt !important;
+            margin: 0;
+            width: 100%;
+        }
+    }
+    .panel-content {
+        padding: 0;
+    }*/
 }
 
 .panel-wrapper {
@@ -172,7 +191,7 @@
         right: auto;
         span {
             font-size: 1.14rem !important;
-            float:right;
+            float: right;
         }
     }
     .messages * {
@@ -203,10 +222,27 @@
 }
 
 .scrollY {
-    overflow-y: scroll; 
+    overflow-y: scroll;
 }
 
 .data-list {
+    .scrollable-panel {
+        flex: 1;
+        .scrollBarY {
+            height: auto !important;
+            width: 10px;
+            -moz-width: 17px !important;
+            margin-right: 5px;
+            position: absolute;
+            left: 0;
+            top: 6rem;
+            bottom: 0px;
+            -moz-height: auto !important;
+        }
+        .content-scroll {
+            -moz-min-width: calc(100% - 30px) !important;
+        }
+    }
     .ms-DetailsHeader-cellName {
         .sort-icon {
             float: left;
@@ -247,6 +283,10 @@
         flex: 1;
         flex-direction: column;
     }
+    .ms-List {
+        overflow: visible;
+        position: relative;
+    }
     .ms-DetailsRow-cell {
         display: flex;
         align-items: center;
@@ -259,9 +299,9 @@
 .data-list-panel-fields {
     footer {
         display: flex;
-        justify-content: center;
+        justify-content: flex-end;
         button {
-            width: 300px;
+            width: 150px;
             margin: 2px;
         }
     }
@@ -368,6 +408,7 @@ a.close {
     display: flex;
     .ms-DetailsHeader {
         height: 5.4rem;
+        z-index: 10;
     }
     &.is-large {
         .ms-DetailsHeader {
@@ -428,6 +469,7 @@ a.close {
 .ms-Dialog-main {
     overflow: visible !important;
     overflow-y: visible !important;
+    max-width: 800px;
 }
 
 .c3 {
@@ -447,6 +489,9 @@ a.close {
 
 .MuiDialogContent-root {
     overflow-y: hidden !important;
+    .list-view-container {
+        width: auto !important;
+    }
 }
 
 /// reinvent

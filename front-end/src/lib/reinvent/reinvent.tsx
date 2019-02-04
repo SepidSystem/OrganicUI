@@ -56,7 +56,8 @@ function templatedView(templName, extraParams) {
             const { children } = result && result.props;
             const props = Object.assign({ params: this.props }, extraParams || {});
             const childrenArray = React.Children.toArray(children);
-            return React.createElement(templComponentType, props, ...childrenArray);
+            const main = React.createElement(templComponentType, props, ...childrenArray);
+            return <section ref="root" className="attached-root">{main}</section>;
         };
     }
 
@@ -71,7 +72,7 @@ export const reinvent: typeof _reinvent & {
 } = Object.assign(_reinvent, {
     baseClassFactory: () => { throw ' baseClassFactory is missed' },
     query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView, BindingSource,
-    openBindingSource
+    openBindingSource, predefinesForApi: {}
 
 });
 Object.assign(window, { reinvent });

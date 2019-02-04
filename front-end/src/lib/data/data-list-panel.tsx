@@ -1,19 +1,25 @@
 import { BaseComponent } from "../core/base-component";
 import { DataList } from "./data-list";
 import { DataForm } from "./data-form";
-import { Callout, Dialog, Modal, DefaultButton, MessageBar, Button } from "../controls/inspired-components";
+import { Callout, Dialog, Modal as _Modal, MessageBar, Button } from "../controls/inspired-components";
 import { Utils } from "../core/utils";
 import { IDetailsListProps, DetailsListLayoutMode, Selection, SelectionMode } from "office-ui-fabric-react/lib/DetailsList";
 import { i18n } from "../core/shared-vars";
-import { PanelType } from "office-ui-fabric-react/lib-es2015/Panel";
 import { AdvButton } from "../core/ui-elements";
-import { MessageBarType } from "office-ui-fabric-react/lib-es2015/MessageBar";
+import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 import { DataPanel } from './data-panel';
 import { Field } from "../data/field";
-import { BindingSource } from "../reinvent/binding-source";
-import { EditIcon, DeleteIcon } from "../controls/icons";
-
+import { EditIcon, DeleteIcon, ViewIcon } from "../controls/icons";
+function Modal(p) {
+    const { children, dataFormHeight: maxHeight, ...otherProps } = p;
+    return <_Modal {...otherProps}>
+        <section className="inner" style={{ maxHeight, overflowY: maxHeight ? 'scroll' : undefined, overflowX: maxHeight ? 'hidden' : null }}>
+            {children}
+        </section>
+    </_Modal>
+}
 interface IState {
+    formSettings: any;
     message?: { type, text };
     selectedItem: any;
     selectedItemIndex: number;
@@ -22,11 +28,21 @@ interface IState {
     items: any[];
     validated?: boolean;
 }
+
+
 export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, IState>
     implements OrganicUi.IBindableElement {
     private targetItem: any;
-
-
+    static _targetItem: null;
+    static getActiveData() {
+        return DataListPanel._targetItem || {};
+    }
+    static bindDetailField(fieldName) {
+        return function () {
+            const targetItem = DataListPanel.getActiveData();
+            return targetItem[fieldName];
+        }
+    }
     items: any[];
     lastMod: number;
     selection: Selection;
@@ -97,7 +113,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                 });
         }
         return Utils.renderButtons(customBar, {
-            callback
+            callback, args: [this.getItems()]
         });
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
@@ -108,16 +124,25 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         this.doTargetClick(`.${actionId}-button`);
     }
     doTargetClick(targetSelector: string) {
+        const requireToNewItem = targetSelector && targetSelector.includes('add');
 
-        if (targetSelector && targetSelector.includes('add')) {
-            this.targetItem = {};
-        }
+        if (requireToNewItem) this.targetItem = {};
         const isClose = this.state.targetSelector == targetSelector;
         this.repatch(isClose ?
             { validated: false, isOpen: false, targetSelector: null, message: null } :
             { message: null, validated: false, isOpen: true, targetSelector });
     }
-    render(p = this.props, s = this.state) {
+    async handleAction(...args) {
+        const result = this.props.onActionExecute(...args);
+        if (result.isFieldHidden || result.isFieldReadonly) {
+            await this.repatch({ formSettings: result });
+            return;
+        }
+        else await this.repatch({ formSettings: null });
+        return result;
+
+    }
+    renderContent(p = this.props, s = this.state) {
         this.selection = this.selection || new Selection({ selectionMode: SelectionMode.single });
         const header =
             p.header === undefined ? (p.pluralName && Utils.i18nFormat('header-for-data-list-panel', p.pluralName)) : p.header;
@@ -132,7 +157,19 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (!items) {
             setTimeout(() => this.tryToBinding(), 20);
         }
-
+        const defaultActions = {
+            edit: this.doTargetClick.bind(this, '.edit-button'),
+            view: this.doTargetClick.bind(this, '.view-button'),
+            remove: this.doTargetClick.bind(this, '.delete-button')
+        }
+        const customActions = Object.assign({}, this.props.customActions || { edit: true, remove: true });
+        for (let key in customActions) {
+            const value = customActions[key];
+            if (value === true)
+                customActions[key] = defaultActions[key];
+        }
+        const childArray: any[] = React.Children.toArray(this.props.children);
+        const dataListFields = childArray.filter(c => c.props && c.type == Field && !c.props.dataEntryOnly);
         this.dataListProps = this.dataListProps || Object.assign({ noBestFit: true } as OrganicUi.IDataListProps,
             {
                 ref: 'datalist',
@@ -149,22 +186,20 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
             { key: 'datalist' + this.lastMod },
             extraPropsOfDetailList,
-            {
 
-                customActions: this.props.customActions ||
-                    {
-                        edit: this.doTargetClick.bind(this, '.edit-button'),
-                        remove: this.doTargetClick.bind(this, '.delete-button')
-                    },
+            { layoutMode: DetailsListLayoutMode.justified }, p, { children: dataListFields },
+            {
+                customActions,
                 customActionRenderer: this.props.customActionRenderer || function (funcName) {
-                    const icon = funcName == 'edit' ? EditIcon : DeleteIcon;
+                    const func = customActions[funcName];
+                    const icon = func && func.icon || IconByAction[funcName];
+                    if (React.isValidElement(icon)) return icon;
                     return icon ? React.createElement(icon, {}) : funcName as any
                 }
-            },
-            { layoutMode: DetailsListLayoutMode.justified }, p, {});
+            } as Partial<OrganicUi.IDataListProps>);
         const callOutTarget = s.targetSelector && this.refs.root.querySelector(s.targetSelector);
 
-        this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, p.children) as any;
+        this.dataList = this.dataList || React.createElement(DataList as any, this.dataListProps, dataListFields) as any;
         if (s.targetSelector && s.targetSelector.includes('delete'))
             setTimeout(() => OrganicUI.Utils.makeReadonly(this.refs['dataFormWrapper']), 100) as any;
 
@@ -172,7 +207,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
 
         s.targetSelector = s.targetSelector || '';
         if (s.targetSelector.includes('add')) s.selectedItem = null;
-        const targetClick = s => () => this.doTargetClick(s);
+        const targetClick = s => this.doTargetClick.bind(this, s);
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
             <Button variant="outlined" color="secondary" className="add-button" onClick={targetClick('.add-button')}    >{i18n('add')}</Button>,
         !!this.dataList && <hr style={{ margin: '4px 0' }} />,
@@ -186,13 +221,16 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
     }
     renderCallout(target) {
         const s = this.state, p = this.props;
-        return React.createElement((DataListPanel.formModes[p.formMode] || Callout) as any, {
+        DataListPanel._targetItem = this.targetItem;
+        return React.createElement((DataListPanel.formModes[p.formMode] || Modal) as any, {
             className: "data-list-panel-fields",
             ref: "panel",
             isOpen: s.isOpen, dialogDefaultMinWidth: '400px', dialogDefaultMaxWidth: '500px',
-            type: PanelType.large,
             hasCloseButton: false,
+            disableBackdropClick: true,
+            disableEscapeKeyDown: true,
             onDismiss: () => this.repatch({ isOpen: false, targetSelector: null }),
+            dataFormHeight: p.dataFormHeight,
             target
         } as any, (
                 <div style={{ padding: '10px 20px' }}>
@@ -217,8 +255,10 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                 ref: "dataForm",
                                 data: this.targetItem,
                                 onErrorCode: p.onErrorCode,
-                                validate: s.validated
-                            },
+                                validate: s.validated,
+                                readonly: s.targetSelector && s.targetSelector.includes('view'),
+                                settings: s.formSettings
+                            } as Partial<OrganicUi.IDataFormProps>,
                             React.Children.toArray(p.children)
                                 .filter(fld => fld && fld['type'] == Field)
                         )
@@ -227,7 +267,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     </div>
                     <footer>
                         {!s.selectedItem
-                            && <AdvButton primary
+                            && <AdvButton primary variant="raised"
                                 onClick={() => {
                                     const { dataForm } = this.refs;
                                     console.assert(!!dataForm, 'dataForm is null');
@@ -249,11 +289,14 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                         this.items = this.getItems();
                                         this.items.push(this.targetItem);
                                         this.lastMod = +new Date();
-                                        this.refs.datalist.reload().then(() => {
+                                        const { datalist } = this.refs;
+                                        datalist.reload().then(() => {
                                             this.repatch({ isOpen: false, targetSelector: null, message: { text: i18n('add-success'), type: MessageBarType.success } });
 
                                             setTimeout(() => {
-                                                this.refs.datalist.scrollToIndex(this.items.length - 1);
+                                                datalist
+                                                    && datalist.scrollToIndex instanceof Function
+                                                    && datalist.scrollToIndex(this.items.length - 1);
                                             }, 200);
                                             setTimeout(() => {
                                                 this.items.forEach((_, idx) => this.selection.setIndexSelected(idx, idx == this.items.length - 1, false));
@@ -268,6 +311,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                                 {i18n('add')}</AdvButton>}
                         {!!s.selectedItem && s.targetSelector && <OrganicUI.AdvButton
                             className={s.targetSelector.replace('.', '')}
+                            variant="raised"
                             onClick={() => {
                                 const { dataForm } = this.refs;
                                 console.assert(!!dataForm, 'dataForm is null');
@@ -301,5 +345,13 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
     }
     static defaultProps: {
         contentClassName: 'half-column-fields'
+        formMode: 'modal'
     }
+}
+
+
+const IconByAction = {
+    view: ViewIcon,
+    edit: EditIcon,
+    remove: DeleteIcon
 }

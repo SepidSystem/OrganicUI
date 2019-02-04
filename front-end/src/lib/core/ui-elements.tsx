@@ -2,13 +2,14 @@
 import { BaseComponent } from './base-component';
 import { funcAsComponentClass } from './functional-component';
 import { Utils } from './utils';
-
+import { IAdvButtonProps } from '@organic-ui';
 import { ButtonProps } from '@material-ui/core/Button';
 
 import { i18n, icon } from './shared-vars';
 import { Spinner } from './spinner';
-import { Callout, Button } from '../controls/inspired-components';
+import { Callout as _Callout, Button } from '../controls/inspired-components';
 import { DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
+const Callout: any = _Callout;
 function dropDownButton(p: IDropDownProps, s: IDropDownState, repatch) {
     const iconCode = p.iconCode || 'more';
     const isActive = !!s.root && s.root.classList && s.root.classList.contains('is-active');
@@ -81,37 +82,21 @@ export function SearchInput(p: { className?: string }) {
         </span>
     </p>
 }
-
-
-interface IAdvButtonProps {
-    children?: any;
-    isLoading?: boolean;
-    isError?: boolean;
-    callout?: any;
-    primary?: boolean;
-    type?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger';
-    size?: 'small' | 'medium' | 'large';
-    onClick?: (e: React.MouseEvent<any>) => any;
-    fixedWidth?: boolean;
-    className?: string;
-    outterClassName?: string;
-    calloutWidth?: number;
-    lastMod?: number;
-    buttonComponent?: any;
-    fixedSize?: { width, height };
+interface IState extends  IAdvButtonProps{
+    isError:boolean;
+    fixedSize:{width,height};
+    currentTarget:HTMLElement;
 }
-
-export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdvButtonProps>{
+export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IState>{
     refs: {
         root: Element
     }
     closeCallOut() {
         this.repatch({ callout: null });
     }
-    handleClick(e: React.MouseEvent<any>) {
-        const { root } = this.refs;
-        const buttonElement = root && root.querySelector('button');
-        const fixedSize = buttonElement && { width: buttonElement.clientWidth, height: buttonElement.clientHeight };
+    handleClick(e: React.MouseEvent<HTMLElement>) {
+        const { currentTarget } = e;
+        const fixedSize = currentTarget && { width: currentTarget.clientWidth, height: currentTarget.clientHeight };
 
 
         const s = this.state, p = this.props, { repatch } = this;
@@ -120,6 +105,7 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         if (s.callout) return this.repatch({ callout: null });
         const asyncClick = async () => {
             const resultAsync: any = (p.onClick instanceof Function) && p.onClick(e);
+
             if (resultAsync instanceof Promise) {
                 this.repatch({ isLoading: true, callout: null, fixedSize });
 
@@ -130,15 +116,13 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
 
                     return error;
                 })
-                Promise.all([resultAsync])
-                    .then(([result]) => {
-
-                        const lastMod = +new Date();
-                        React.isValidElement(result) && setTimeout(() => this.repatch({ isLoading: false, callout: result, lastMod }), 500);
-                        React.isValidElement(result) && setTimeout(() => s.lastMod == lastMod && this.repatch({ callout: null, isLoading: false }), 40000);
-                        !React.isValidElement(result) && repatch({ isLoading: false, callout: null, fixedSize: undefined });
-                    });
             }
+            const clickResult = await resultAsync;
+            const lastMod = +new Date();
+            React.isValidElement(clickResult) && setTimeout(() => this.repatch({ isLoading: false, callout: clickResult, lastMod, currentTarget }), 500);
+            !React.isValidElement(clickResult) && repatch({ isLoading: false, callout: null, fixedSize: undefined });
+
+
         }
         !s.isLoading && asyncClick();
 
@@ -155,26 +139,21 @@ export class AdvButton extends BaseComponent<ButtonProps & IAdvButtonProps, IAdv
         >
             {!s.isError && !s.isLoading && !s.callout && p.children}
             {!s.isLoading && s.callout && i18n('hide-result')}
-
+            {!s.isError && !s.isLoading && !s.callout && !!p.iconName && Utils.showIcon(p.iconName)}
+            {!s.isError && !s.isLoading && !s.callout && !!p.text && i18n(p.text)}
             {!!s.isError && <i className="fa fa-exclamation-triangle"></i>}
             {s.isLoading && <Spinner />}
         </Button>;
-        React.createElement(p.buttonComponent || Button,
-            Object.assign({}, p, {
-                className: Utils.classNames(p.className, p.fixedWidth && 'is-fixed-width', s.isLoading && 'is-loading', p.size && 'is-' + p.size),
-                //    iconProps: !s.isLoading && p.iconProps,
 
-            }),
-            !s.isLoading && !s.callout && p.children,
-            !s.isLoading && s.callout && i18n('hide-result'),
-            s.isLoading && <Spinner />);
-        return <span ref="root" style={p.style} className={Utils.classNames("adv-button", p.outterClassName)}
-        > {advButton}
+        return <>
+            {advButton}
             {React.isValidElement(s.callout) &&
-                <Callout directionalHint={DirectionalHint.topCenter as any} calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.refs.root} >
+                <Callout directionalHint={DirectionalHint.topCenter as any}
+                    calloutWidth={p.calloutWidth || 500} onDismiss={() => this.repatch({ callout: null, lastMod: +new Date() })} target={this.state.currentTarget}
+                >
                     {s.callout}
                 </Callout>}
-        </span>
+        </>
 
     }
 }

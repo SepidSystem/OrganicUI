@@ -8,7 +8,7 @@ interface DataLookupCellProps {
     value: any;
     noRemove?: boolean;
     text?: any;
-
+   
 }
 export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
     static cache = {};
@@ -17,7 +17,13 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
         refId: number;
     }
     getListViewName() {
-        return this.props.options.singularName || this.props.options.pluralName;
+        const opts = this.props.options;
+        if (opts)
+            return opts.singularName || this.props.options.pluralName;
+        const actions = this.props.actions as any;
+        if (actions)
+            return actions.singularName || actions.pluralName || actions.key;
+
     }
     static cellsByCacheId: { [key: string]: DataLookupCell[] } = {};
     static cellRefsByCacheId: { [key: string]: Object } = {};
@@ -28,10 +34,11 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
             cells.forEach(cell => cell.repatch(delta));
     }
     render() {
+        const {options:o}=this.props ;
         const p = this.props;
         if (p.text)
             return <span className="data-lookup-cell" data-value={JSON.stringify(this.props.value)}
-                data-singularName={this.props.options.singularName} > {p.text}</span>;
+                data-singularName={o && o.singularName} > {p.text}</span>;
         if (p.value) {
             const cacheId = this.getListViewName() + p.value;
             const { refId } = this.state;
@@ -43,10 +50,10 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
             Object.assign(DataLookupCell.cellRefsByCacheId[cacheId], { [refId]: 1 });
             if (this.state.result === undefined)
                 this.state.result = DataLookupCell.cache[cacheId] = DataLookupCell.cache[cacheId] || (p.value &&
-                    p.actions && p.actions.read && p.actions.read(this.props.value)
+                    p.actions && p.actions.read && (p.actions as any).read(this.props.value)
                         .then(dto => p.actions.getText(dto))
                         .then(result => {
-                             console.assert(!!result, 'invalid GetText', p.actions);
+                            console.assert(!!result, 'invalid GetText', p.actions);
                             return DataLookupCell.cache[cacheId] = result || 'invalid GetText';
                         })
                         .then(result => {
@@ -55,7 +62,7 @@ export class DataLookupCell extends BaseComponent<DataLookupCellProps, any>{
                         }));
         }
         return <span className="data-lookup-cell" data-value={JSON.stringify(this.props.value)}
-            data-singularName={this.props.options.singularName} >
+            data-singularName={o && o.singularName} >
             {this.state.result instanceof Promise ? <Spinner /> : (this.state.result || '')}</span>;
     }
 }

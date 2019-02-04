@@ -57,27 +57,18 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     }
     showInvalidItems(invalidItems = this.invalidItems): JSX.Element {
         if (!invalidItems || !invalidItems.length) return undefined;
-        return (<div className="error-card"   >
-            <div className="title is-5 animated fadeIn">
-                <Icon iconName="StatusErrorFull" />{'  '}
-                {i18n('error')}</div>
-            <div className="animated fadeInDown">
-                {/*i18n('description-rejected-validation')*/}
-                <ul className="invalid-items">
-                    {invalidItems
-                        .filter(invalidItem => !!invalidItem)
-                        .map(invalidItem => (<li className="invalid-item">
-                            <a className="invalid-item" href="#"
-                                data-accessor-name={invalidItem.accessor}
-                                onClick={this.handleInvalidItemClick.bind(this)}>
-
-                                {i18n(invalidItem.message)}
-                            </a>
-                        </li>
-                        ))}
-                </ul>
-            </div>
-        </div>);
+        return Utils.failCallout(<ul className="invalid-items">
+            {invalidItems
+                .filter(invalidItem => !!invalidItem)
+                .map(invalidItem => (<li className="invalid-item">
+                    <a className="invalid-item" href="#" data-accessor-name={invalidItem.accessor}
+                        onClick={this.handleInvalidItemClick.bind(this)}>
+                        {i18n(invalidItem.message)}
+                    </a>
+                </li>
+                ))}
+        </ul>
+        )
     }
     async getFieldErrorsAsElement(): Promise<JSX.Element> {
         const messages: IDataFormAccessorMsg[] = await this.revalidateAllFields();
@@ -119,7 +110,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
 
     renderContent() {
         const p = this.props;
-        if(p.data instanceof Promise) return <Spinner />
+        if (p.data instanceof Promise) return <Spinner />
         return (
             <div className={Utils.classNames("data-form", "developer-features", p.className)} ref="root" style={p.style}>
                 {this.props.children}
@@ -171,7 +162,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         if (this.props.onCustomRenderWithCaptureValues) {
             const capturedValues = Object.assign({}, ...this.querySelectorAll<Field>('.field-accessor').map(fld => fld.getValuePair()));
             this.repatch({ capturedValues });
-            
+
         }
         this.querySelectorAll<OrganicUi.IBindableElement>('.bindable').forEach(bindable => bindable.tryToBinding());
 
@@ -184,5 +175,10 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         this.processFields();
     }
 
-
+    static defaultProps={
+        settings:{
+        
+        }
+    }
 }
+ 

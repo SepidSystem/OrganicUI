@@ -14,7 +14,7 @@ import { Field } from '../data/field';
 import * as fullScreen from '../../../icons/full-screen.svg';
 import * as fullScreenExit from '../../../icons/full-screen-exit.svg';
 import { AppUtils } from '../core/app-utils';
-import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView } from '@organic-ui';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView, Alert } from '@organic-ui';
 import { createClientForREST } from '../core/rest-api';
 import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon, FullScreen, FullScreenExit } from '../controls/icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
@@ -28,6 +28,7 @@ import { BindingPoint } from '../reinvent/binding-source';
 import { checkPermission } from '../core/permission-management';
 import swal from 'sweetalert2';
 import { Modal } from '../controls/modal';
+import { ScrollablePanel } from '../controls/scrollable-panel';
 export interface TemplateForCRUDProps extends React.Props<any> {
     id: string;
     mode: 'single' | 'list';
@@ -41,9 +42,10 @@ interface ListViewBoxState<T> {
     quickFilter: boolean;
     fullScreen?: boolean;
     searchingValue: string;
+    restoreState: boolean;
 };
 
-export class ListViewBox<T> extends
+export class ListViewBox<T=any> extends
     OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
     implements IDeveloperFeatures {
     devElement: any;
@@ -52,12 +54,62 @@ export class ListViewBox<T> extends
     columns: IFieldProps[];
     error: any;
     @SelfBind()
-    reload() {
-        this.refs.dataList.reload()
+    reload(pageNo?) {
+        if (typeof pageNo != 'number') pageNo = 0;
+        this.refs.dataList.reload(pageNo)
+    }
+    storeState(initialData) {
+        if (!this.props.params.forDataLookup) {
+            const obj = Object.assign({}, this.state.dataFormForFilterPanel, initialData);
+            const scrollablePanels = this.querySelectorAll<ScrollablePanel>('.data-list .scrollable-panel')
+            const sp = scrollablePanels && scrollablePanels[0];
+            obj['_y'] = Math.round(sp && sp.scrollY || 0);
+            localStorage.setItem(
+                location.pathname + '|dataFormForFilterPanel', JSON.stringify(obj));
+
+        }
+    }
+    async waitForDataList() {
+        const that = this;
+        return new Promise(resolve => {
+            function tick() {
+
+                if (that.refs.dataList) resolve();
+                else setTimeout(tick, 200);
+
+            }
+            tick();
+        }
+        );
+    }
+    async restoreState() {
+        await this.waitForDataList();
+        if (!this.props.params.forDataLookup) {
+            const raw = localStorage.getItem(location.pathname + '|dataFormForFilterPanel');
+            if (raw) {
+                Object.assign(this.state.dataFormForFilterPanel, JSON.parse(raw));
+                const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
+                filterPanel.forceUpdate();
+            }
+            let { _pageNo: currentPageIndex, _y } = this.state.dataFormForFilterPanel;
+            currentPageIndex = currentPageIndex || 0;
+
+
+            setTimeout(async () => {
+                await this.reload(currentPageIndex);
+                const scrollablePanels = this.querySelectorAll<ScrollablePanel>('.data-list .scrollable-panel')
+                const scrollablePane = scrollablePanels && scrollablePanels[0];
+                if (!scrollablePane) return;
+                await Utils.delay(500);
+                scrollablePane.setScrollY(_y);
+            }, 100);
+        }
+
+
     }
     getFilterPanel() {
         if (this.props && this.props.options && this.props.options.avoidAutoFilter) return undefined;
-        const { filterOptions } = this.props.options;
+        const { filterOptions } = this.props.options || {} as any;
         const filterPanel = this.props.children && (React.Children.map(this.props.children, (child: any) => !!child && (child.type == FilterPanel) && child).filter(x => !!x)[0])
 
         if (filterPanel)
@@ -65,6 +117,7 @@ export class ListViewBox<T> extends
                 { customActions: this.props.params.customActions, liveMode: filterOptions && filterOptions.liveMode, onApplyClick: this.reload, dataForm: this.state.dataFormForFilterPanel });
         this.columns = this.columns || ListViewBox.getColumns(this.getDataList());
         return <FilterPanel liveMode={filterOptions && filterOptions.liveMode}
+
             customActions={this.props.params.customActions}
             onApplyClick={this.reload} dataForm={this.state.dataFormForFilterPanel}>
             {this.columns.map(col => (<Field  {...col} />))}
@@ -83,6 +136,7 @@ export class ListViewBox<T> extends
         super(p);
         this.state.dataFormForFilterPanel = this.state.dataFormForFilterPanel || {};
         this.state.quickFilter = (this.props.params.filterMode != 'advanced');
+
     }
     autoCreatedDataList: any;
     static isTargetedDataList(dataList) {
@@ -108,21 +162,34 @@ export class ListViewBox<T> extends
     getDevButton() {
         return Utils.renderDevButton('ListView', this)
     }
-    @SelfBind()
-    handleEdit() {
+    getSelectedId() {
         const { getSelectedKey } = this.selection as any;
-        let id;
         if (!getSelectedKey) {
             const indices = this.selection.getSelectedIndices();
             const index = indices[0];
             const row = (this.selection.getItems()[index]);
-            id = this.getId(row);
+            return this.getId(row);
         }
         else
-            id = getSelectedKey.apply(this.selection);
-        if (!id) return;
-        const url = this.getUrlForSingleView(id);
+            return getSelectedKey.apply(this.selection);
+    }
+    @SelfBind()
+    handleEdit() {
+        const _id = this.getSelectedId();
+        if (!_id) return;
+        const url = this.getUrlForSingleView(_id);
+        const _pageNo = this.refs.dataList.state.currentPageIndex;
+        this.storeState({ _id, _pageNo });
         return Utils.navigate(url);
+    }
+    @SelfBind()
+    selectedItems() {
+        const indices = this.selection.getSelectedIndices();
+        if (!indices || indices.length == 0) {
+            return [];
+        }
+        const allItems = this.selection.getItems() as T[];
+        return indices.map(index => allItems[index]).filter(x => !!x) as T[];
     }
     @SelfBind()
     async handleRemove(forced: boolean) {
@@ -146,9 +213,16 @@ export class ListViewBox<T> extends
             return;
         }
         const ids = items.map(dto => this.getId(dto));
-        const result = await actions.deleteList(ids);
-        await this.refs.dataList.reload();
-        return !!result;
+        try {
+            const result = await actions.deleteList(ids);
+            await this.refs.dataList.reload();
+            return !!result;
+        } catch (reason) {
+            const lines = reason.toString().split('\n');
+            const liHTML = lines.map(li => `<li>${li} </li>`).join('\n');
+            swal({ html: `<ul dir="rtl" style="list-style:disc;padding:0 20px;text-align:right" >${liHTML}</ul>`, type: 'error', confirmButtonText: i18n.get('okey') });
+            return Promise.resolve(true);
+        }
     }
     getId(row) {
         if (!row) return row;
@@ -176,9 +250,9 @@ export class ListViewBox<T> extends
                   } finally {
                       this.denyHandleSelectionChanged = false;
                   }
-  
+     
                   //this.adjustSelectedRows();
-  
+     
               }, 400);*/
         //this.repatch({});
     }
@@ -188,7 +262,11 @@ export class ListViewBox<T> extends
     readList(params) {
         this.state.readingList = true;
         const readList = this.props.params.customReadList || this.actions.readList;
-        return readList(...(this.props.params.customReadListArguments || [params])).then(r => {
+        let args = this.props.params.customReadListArguments;
+        if (args instanceof Function) args = args();
+        if (args !== undefined && !(args instanceof Array)) args = [args];
+
+        return readList(...(args || [params])).then(r => {
             setTimeout(() => {
                 this.adjustSelectedRows();
                 this.state.readingList = false;
@@ -232,15 +310,19 @@ export class ListViewBox<T> extends
         }
         tryToAnimate();
     }
-    adjustSelectedRows() {
+    async adjustSelectedRows() {
 
         const { params } = this.props;
 
-        const { selectedId } = params;
+        let { selectedId } = params;
+        selectedId = selectedId || this.state.dataFormForFilterPanel._id;
+
         if (selectedId || params.defaultSelectedValues) {
 
             const defaultSelectedValues = (params.defaultSelectedValues instanceof Function ?
-                params.defaultSelectedValues() : (params.defaultSelectedValues || {}));
+                params.defaultSelectedValues() : (params.defaultSelectedValues ||
+                    { [selectedId]: true }
+                ));
             const items = this.selection.getItems();
             const selectedIds = items.map((item, index) => ({ index, id: this.getId(item) }))
                 .filter(({ id }) => !!defaultSelectedValues[id]);
@@ -256,21 +338,34 @@ export class ListViewBox<T> extends
         }
 
     }
-
     componentDidMount() {
         super.componentDidMount();
         !this.props.params.forDataLookup && this.setPageTitle(i18n.get(this.props.options.pluralName));
 
+        if (this.state.restoreState) {
+            this.state.restoreState = false;
+            setTimeout(() => {
+                this.restoreState();
+
+            }, 10);
+        }
+        if (!this.props.params.forDataLookup) {
+            for (const filterPanel of this.querySelectorAll<FilterPanel>('.filter-panel'))
+                if (filterPanel.assignValuesFromQueryString(location.search))
+                    this.reload();
+        }
     }
     @SelfBind()
     handleLoadRequestParams(params: OrganicUi.IAdvancedQueryFilters) {
         const filterPanel = this.querySelectorAll<FilterPanel>('.filter-panel')[0];
-        if (filterPanel)
-            params.filterModel = filterPanel.getFilterItems().filter(filterItem => !Utils.isUndefined(filterItem.value));
-        if (window['debugHandleLoadRequestParams']) debugger;
-        if (this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
-            params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend)
-        return params;
+        if (filterPanel) {
+            const filterModel = filterPanel.getFilterItems()
+            params.filterModel = filterModel instanceof Array ? filterModel.filter(filterItem => !Utils.isUndefined(filterItem.value)) : filterModel;
+
+            if (filterModel instanceof Array && this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
+                params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend)
+            return params;
+        }
     }
     @SelfBind()
     handleSearchQuery(e: React.ChangeEvent<HTMLInputElement>) {
@@ -302,6 +397,9 @@ export class ListViewBox<T> extends
         return React.cloneElement(intialDataList, Object.assign(
             {}, intialDataList.props, {
                 ref: "dataList",
+                ignoreScroll: this.props.params.dataLookupProps &&
+                    this.props.params.dataLookupProps.popupMode &&
+                    this.props.params.dataLookupProps.popupMode.inlineMode,
                 height: dataItemsElement ? dataItemsElement.clientHeight : params.height,
                 onDoubleClick: params.forDataLookup ? null : this.handleEdit,
                 onLoadRequestParams: this.handleLoadRequestParams,
@@ -310,7 +408,7 @@ export class ListViewBox<T> extends
                 loader: Utils.fakeLoad() ? this.readListFake : this.readList,
                 onPageChanged: this.props.params.onPageChanged,
                 flexMode: true,
-                paginationMode: intialDataList.props.paginationMode || 'paged',
+
                 selection: this.selection,
 
             } as Partial<OrganicUi.IDataListProps>,
@@ -324,7 +422,16 @@ export class ListViewBox<T> extends
     handleToggleFullScreen() {
         this.repatch({ fullScreen: !this.state.fullScreen });
     }
+    handleNewButton() {
+
+        const url = this.getUrlForSingleView('new');
+        const _pageNo = this.refs.dataList.state.currentPageIndex;
+        this.storeState({ _pageNo });
+        Utils.navigate(url);
+
+    }
     renderContent() {
+        this.defaultState({ restoreState: !!this.props.params['restoreState'] });
         const dataList = this.getDataList();
         if (!dataList) return this.renderErrorMode(`${this.props.options.pluralName} listView is invalid`, 'add data-list as children');
         const { options, params } = this.props;
@@ -346,14 +453,15 @@ export class ListViewBox<T> extends
             });
         if (this.autoCreatedDataList && !dataListFound && children instanceof Array) children.push(this.prepareDataList(dataList));
         if (!root && !Utils.fakeLoad()) setTimeout(() => (this.repatch({})), 10);
-        let { permissionKeys } = options;
+        let { permissionKeys } = options || {} as any;
         permissionKeys = permissionKeys || {} as any;
-        const minWidth = params.width && Math.max(params.width, 500);
+        const minWidth = params.width && Math.max(params.width, 500);        
         if (params.forDataLookup)
-            return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options.classNameForListView)}
+            return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options && options.classNameForListView)}
                 data-parent-id={params.parentRefId}
                 style={{
-                    minWidth: (minWidth ? minWidth + 'px' : 'auto'),
+                    width: !this.props.params['noWidth'] &&  params.width || ('auto'),
+                    maxWidth:'100%',
                     overflow: 'hidden'
                 }} ref="root"  >
 
@@ -377,7 +485,7 @@ export class ListViewBox<T> extends
                     <CriticalContent permissionValue={permissionKeys && permissionKeys.forCreate} permissionKey="create-permission">
                         <AdvButton color="primary"
                             disabled={options.permissionKeys && !checkPermission(options.permissionKeys.forCreate)}
-                            variant="raised" onClick={() => Utils.navigate(options.routeForSingleView.replace(':id', 'new'))} className="insert-btn" >
+                            variant="raised" onClick={this.handleNewButton.bind(this)} className="insert-btn" >
                             <i className="fa fa-plus flag" key="flag" />
                             <div className="content" key="content">
                                 {Utils.showIcon(options.iconCode, "iconCode")}
@@ -453,7 +561,7 @@ export class ListViewBox<T> extends
         const { value: rowCount } = await swal({ title, input: 'select', inputValue, heightAuto: false, inputOptions });
         if (!rowCount) return;
         const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
-        const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, forcedMode: false, resetCache: false, currentPageIndex: -1 })
+        const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, currentPageIndex: -1 })
         const fields = ListViewBox.getFields(dataList);
         const columns = ListViewBox.getColumns(dataList);
         const textReaders = fields.map(fld => Field.prototype.getTextReader.apply(fld));

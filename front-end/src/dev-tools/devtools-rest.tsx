@@ -87,6 +87,7 @@ class RestInspector extends BaseComponent<IRestInspectorProps, IRestInspectorPro
                     Server Response
                 </span></div>}
             {!!error && <div className="title is-4">
+            
                 <i className="fa fa-exclamation-triangle"></i>
                 <span>
                     Server Side Error
@@ -172,6 +173,7 @@ OrganicUI.devTools.set('REST|Set Base URL', target => {
     baseURL && options.setBaseURL(baseURL);
 
 });
+OrganicUI.devTools.set('REST|Enable/Disable Remote Debug',target=>0);
 OrganicUI.devTools.set('REST|Enable/Disable Inspector', target => {
     const isEnabled = target['confrim'] == restInspector;
     target['confrim'] = isEnabled ? null : restInspector;

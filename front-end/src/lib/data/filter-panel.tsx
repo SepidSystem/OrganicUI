@@ -33,14 +33,33 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, ISta
             Utils.equals(this.dataForm, trustedData) && this.props.onApplyClick && this.props.onApplyClick();
         }, 800);
     }
+    assignValuesFromQueryString(queryString) {
+        const data = Utils.parseQueryString(queryString);
+        const fieldDic = this.getFieldDic();
+        let result=false;
+        for (const key in data) {
+            const [fieldName, currentOp] = key.split('_');
+            const field = fieldDic[fieldName];
+            if (!field) continue;
+            currentOp && field.repatch({ currentOp });
+            field.handleSetData({ value: data[key] } as any, null);
+            result=true;
+        }
+        return result;
+    }
     getDevButton() {
         return Utils.renderDevButton('FilterPanel', this);
+    }
+    getFieldDic(): ({ [key: string]: Field }) {
+        return Object.assign({},
+            ...this.getFields().map(fld => ({ [Field.getAccessorName(fld.props.accessor)]: fld })))
     }
     getFields() {
         return this.querySelectorAll<Field>('.field-accessor');
 
     }
     getFilterItems() {
+        if(this.props.customModel) return this.dataForm || {};
         return this.getFields().map(fld => Field.prototype.getFilterItem.apply(fld));
     }
     renderContent() {
@@ -54,7 +73,7 @@ export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, ISta
                     {React.Children.map(this.props.children, child => {
                         const { props } = child as any;
                         if (child && child['type'] == Field)
-                            return React.cloneElement(child as any, { renderMode: 'filterPanel', showOpeartors: true, operators: props.operators || this.props.operators } as IFieldProps)
+                            return React.cloneElement(child as any, { renderMode:!this.props.customModel && 'filterPanel', showOpeartors: !this.props.customModel, operators: props.operators || this.props.operators } as IFieldProps)
                         return child;
                     })
                     }

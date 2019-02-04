@@ -14,12 +14,13 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
     let appliedUrls = [];
     const urls = table && table.data && Object.keys(table.data);
     OrganicUI.Utils.setNoWarn(+new Date() as any);
-    return new Promise(resolve => {
 
-        urls.forEach(url => {
+    return new Promise(async resolve => {
+
+        for (const url of urls) {
             const temp = document.createElement('div');
-            renderViewToComplete(url, temp).then(() => {
-
+            try {
+                const renderResult = await renderViewToComplete(url, temp);
                 const criticalArray = Array.from(temp.querySelectorAll('.critical-content'));
                 const treeList: ITreeListNode[] =
                     criticalArray.map(ele =>
@@ -37,19 +38,29 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
                     })
                 }
                 result.push(...treeList);
+
                 appliedUrls.push(url);
                 if (appliedUrls.length == urls.length) {
-                    Utils['scaningAllPermission'] = 0;
+                    setTimeout(function () {
+                        Utils['scaningAllPermission'] = 0;
+                    }, 500);
                     OrganicUI.Utils.setNoWarn(false);
                     resolve(result);
                     return;
                 }
-            }, () => Utils['scaningAllPermission'] = 0);
-        });
+            } catch (exc) {
+                console.log({ exc });
+            }
+        }
+        // Utils['scaningAllPermission'] = 0;
+        //console.log('FFF');
+
+
     });
+
 }
 export function checkPermission(permissionKey) {
     if (!appData || !appData.appModel) return true;
     return appData.appModel.checkPermission(permissionKey);
 }
- 
+

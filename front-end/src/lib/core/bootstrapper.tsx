@@ -59,7 +59,8 @@ export function renderViewToComplete(url, selector: any = '#root2') {
                 return resolve(true)
             setTimeout(check, 200);
         }
-        check();
+        if (Utils.fakeLoad()) resolve(true);
+        else check();
     })
 }
 export const getCurrentUserLangauge = () => localStorage.getItem('lang') || 'FA_IR';

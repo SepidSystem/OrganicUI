@@ -64,13 +64,13 @@ export class DataLookupPopOver extends BaseComponent<OrganicUi.IDataLookupPopupM
             }}
             anchorEl={p.target}
             getContentAnchorEl={null}
-            anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-            }}
-            transformOrigin={{
-                horizontal: 'right', vertical: 'top'
-            }}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
+                transformOrigin={{
+                    horizontal: 'right', vertical: 'top'
+                }}
 
         >
             {p.children}

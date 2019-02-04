@@ -21,8 +21,7 @@ export default class SimpleTable extends BaseComponent<SimpleTableProps, never>{
         const p = this.props;
         const cols: SimpleTableColumn[] = p.columns.map(accessor => typeof accessor == 'string' ? { accessor, columnHeader: accessor } : accessor);
         const data = this.props.data || [];
-        console.log({t});
-        return <Table isStriped isBordered>
+         return <Table isStriped isBordered>
             <thead>
                 <tr>
                     {cols.map(col => (<th>{i18n(col.columnHeader)} </th>))}

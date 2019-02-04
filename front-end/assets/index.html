@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single-Page-Application</title>
+    <link rel="stylesheet" href="/assets/bundle/index.css">
+    <style>
+        html,
+        body,
+        #root {
+
+            margin: 0 ;
+            padding: 0 !important;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="dev-server-board"></div>
+    <div id="root"></div>
+    <div id="root2" style="display: none !important"></div>
+    <script src="/assets/bundle/vendors.js"></script>
+    <script src="/assets/bundle/organicUI.js"></script>
+    <script src="/assets/bundle/domain/domain.js" data-target="development" data-devtools="/assets/bundle/devtools.js"></script>
+    <script src="/assets/bundle/domain/domain-FA_IR.js" data-target="development"></script>
+    <script src="/assets/bundle/devtools.js"></script>
+</body>
+
+</html>

@@ -8,11 +8,12 @@ export interface OrganicBoxProps<TActions, TOptions, TParams> {
     actions?: TActions;
     options?: TOptions;
     params: TParams;
+    predefinedActions?: string;
     customActions?: Partial<TActions>;
     children?: React.ReactNode;
 
 }
- 
+
 export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComponent<OrganicBoxProps<TActions, TOptions, TParams>, S> {
     static isOrganicBox() {
         return true;
@@ -54,8 +55,8 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
     static isOrganicBoxTester = (el: JSX.Element) =>
         (el.type) && (el.type as any).isOrganicBox instanceof Function &&
         (el.type as any).isOrganicBox();
-    static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>):T {
-        const element = Utils.skinDeepRender(componentType, {isHidden:true});
+    static extractOrganicBoxFromComponent<T>(componentType: React.ComponentType<T>): T {
+        const element = Utils.skinDeepRender(componentType, { isHidden: true });
         let { organicBox } = componentType as any;
         if (organicBox) return organicBox;
         organicBox = Utils.queryElement(element, this.isOrganicBoxTester);
@@ -64,7 +65,8 @@ export default class OrganicBox<TActions, TOptions, TParams, S> extends BaseComp
     }
     constructor(p: OrganicBoxProps<TActions, TOptions, TParams>) {
         super(p);
-        this.actions = Object.assign({}, p.actions, p.customActions || {});
+        const predefinedActions = p.predefinedActions ? reinvent.predefinesForApi[p.predefinedActions] : {};
+        this.actions = Object.assign({}, predefinedActions, p.actions || {}, p.customActions || {}) as any;
         this.devPortId = Utils.accquireDevPortId();
         this.organicBoxId = 'organic-' + (++OrganicBox.OrganicBoxCounter);
         /*const stableState = localStorage.getItem('stableState')

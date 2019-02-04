@@ -2,12 +2,13 @@
 import { BaseComponent } from '../core/base-component';
 import { icon, i18n } from '../core/shared-vars';
 import { openRegistry } from '../core/registry';
-import { funcAsComponentClass } from '../core/functional-component';
 import { Spinner } from '../core/spinner';
 import { Utils, changeCase } from '../core/utils';
-import { Cache } from 'lru-cache';
+
 import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
+import { ScrollablePanel } from '../controls/scrollable-panel';
+import { AdvButton } from '../core/ui-elements'
 import { DetailsList, FocusZone, Button, Menu, MenuItem } from '../controls/inspired-components';
 import { IColumn, ConstrainMode, IDetailsListProps, Selection, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
 import { SelfBind } from '../core/decorators';
@@ -76,7 +77,6 @@ class Pagination extends BaseComponent<IPaginationProps, IPaginationProps>{
 
         }
         const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
-
         return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination" >
             {Boolean(s.anchorEl) && p.totalPages <= defaultMaxPageCount && <Menu
                 id="simple-menu"
@@ -102,9 +102,10 @@ class Pagination extends BaseComponent<IPaginationProps, IPaginationProps>{
             </span>
             <ul key="pagination-list" className="pagination-list">
                 {this.showButton(targetPageIndex, 0)}
-                {!pageNumbers.includes(1) && pageNumbers.length && ellipsis}
+                {!pageNumbers.includes(1) && !!pageNumbers.length && ellipsis}
                 {pageNumbers.map(this.showButton.bind(this, targetPageIndex))}
                 {!pageNumbers.includes(p.totalPages - 2) && (p.totalPages >= defaultNormalPageCount) && ellipsis}
+
                 {this.showButton(targetPageIndex, p.totalPages - 1, 'testable testable__lastPage')}
 
             </ul>
@@ -149,12 +150,12 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         paginationMode: 'paged'
     }
     static isDataList = true;
-    refs: {
+    refs: any;/* {
         root: HTMLElement;
         parent: HTMLElement;
         content: HTMLElement;
         detailList: DetailsList;
-    }
+    }   */
     static Templates = openRegistry<Function>()
     devPortId: number;
     detailList: JSX.Element;
@@ -164,13 +165,18 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     getFakeItems(length) {
         return Array.from({ length }, (_, idx) => idx);
     }
-    reload() {
+    reload(pageIndex?: number) {
         this.detailList = null;
         this.items = null;
         const s = this.state;
-        this.cache.reset();
         this.items = [];
-        return Utils.toPromise(this.loadDataIfNeeded(+s.startFrom));
+        if (typeof pageIndex != 'undefined') {
+            this.repatch({ currentPageIndex: pageIndex });
+        }
+        for (const sp of this.querySelectorAll<ScrollablePanel>('.scrollable-panel'))
+            sp.setScrollY(0);
+        const startFrom = pageIndex === undefined ? +s.startFrom : pageIndex * this.getRowCount();
+        return Utils.toPromise(this.loadDataIfNeeded(startFrom, { loadingPageIndex: -1, rowCount: 0, currentPageIndex: pageIndex, avoidShowData: false }));
     }
     constructor(p: OrganicUi.IDataListProps<any>) {
         super(p);
@@ -180,19 +186,23 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         this.state = this.state || defaultState as any;
         Object.assign(this.state, defaultState);
 
-        this.cache = LRU(4 * 1000);
         Object.assign(this.state, { loadingPageIndex: 0 });
-        this.handleScroll = this.handleScroll.bind(this);
-        this.adjustScroll = this.adjustScroll.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.lastModForBestFitColumnWidths = 0;
 
     }
 
-    cache: Cache<number, any>;
+
     lastDataLoading = new Date();
     accquiredSelection: any;
-    async callAction(row, rowIndex, func: Function) {
+
+    async callAction(row, rowIndex, funcName: string) {
+        const func = this.props.customActions[funcName];
+        if (this.props.onActionExecute) {
+            const customResult = this.props.onActionExecute(funcName, row, rowIndex);
+
+            if (React.isValidElement(customResult)) return customResult;
+        }
         const updatedRow = Utils.clone(await Utils.toPromise(func(row, rowIndex)));
         if (!updatedRow) return;
         if (updatedRow == 'remove') {
@@ -210,24 +220,24 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     getCustomActions(row, rowIndex) {
         return <div className="custom-actions">
             {Object.keys(this.props.customActions).map(funcKey => (
-                <Button onClick={this.callAction.bind(this, row, rowIndex, this.props.customActions[funcKey])} >
+                <AdvButton onClick={this.callAction.bind(this, row, rowIndex, funcKey)} >
                     {this.props.customActionRenderer(funcKey, this.props.customActions[funcKey])}
-                </Button>
+                </AdvButton>
             ))}
         </div>
     }
     searchItems(searchingValue) {
         this.repatch({ searchingValue });
     }
-    loadDataIfNeeded(startFrom: number, { forcedMode, currentPageIndex, resetCache, loadingPageIndex, avoidShowData, rowCount } = { loadingPageIndex: -1, resetCache: false, forcedMode: false, currentPageIndex: 0, avoidShowData: false, rowCount: 0 }) {
+    loadDataIfNeeded(startFrom: number, { currentPageIndex, loadingPageIndex, avoidShowData, rowCount } = { loadingPageIndex: -1, currentPageIndex: 0, avoidShowData: false, rowCount: 0 }) {
+        const fullHeight = this.getFullHeight();
         const s = this.state, p = this.props;
         if (!p.loader) return null;
         if (!avoidShowData) this.items = null;
         let fetchableRowCount = rowCount || p.rowCount || this.rowCount || 10;
         //if (s.isLoading) return;11
-        resetCache && this.cache.reset();
         if (!avoidShowData) {
-            Object.assign(this.state, { isLoading: true }, p.paginationMode == 'scrolled' ? { startFrom } : {})
+            Object.assign(this.state, { isLoading: true })
             setTimeout(() => {
                 if (this.state.isLoading) {
                     this.detailList = null;
@@ -235,7 +245,11 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                     this.repatch({});
                 }
             }, 1000);
+            const { root } = this.refs;
+            const surface = root && root.querySelector('.ms-List-surface') as HTMLElement;
+            surface && (surface.style.marginTop = null);
             this.lastDataLoading = new Date();
+
         }
         if (fetchableRowCount < 0) fetchableRowCount = 0;
         const colId = s.sortedColumnKey;
@@ -245,7 +259,8 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
             , sortModel: s.sortedColumnKey ? [{ colId, sort: s.sortedColumnDesc ? 'desc' : 'asc', ...(sortedField && sortedField.props && sortedField.props.sortData) }] : {}
         };
         const paramsForLoaders = this.props.onLoadRequestParams instanceof Function ? this.props.onLoadRequestParams(params) : params;
-        const promise = Utils.toPromise(this.props.loader(paramsForLoaders));
+
+        const promise: PromiseLike<any> = paramsForLoaders ? Utils.toPromise(this.props.loader(paramsForLoaders)) : Promise.resolve([]);
 
         return promise instanceof Promise && promise.then(listData => {
             if (avoidShowData) return listData;
@@ -254,16 +269,19 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                 listData = { rows: listData, totalRows: listData.length };
             }
 
-            if (listData && listData.rows) {
-                if (p.paginationMode == 'scrolled')
-                    listData.rows.forEach((row, idx) => this.cache.set(idx + (s.startFrom || 0), row));
-                else
-                    listData.rows.forEach((row, idx) => this.cache.set(idx, row));
-            }
+
             //this.rowCount = Math.max(listData.rows.length, Number.isNaN(this.rowCount) ? 0 : (this.rowCount || 0));
             this.detailList = null;
 
             this.repatch({ loadingPageIndex, listData, isLoading: false, currentPageIndex });
+            setTimeout(() => {
+
+                const scrollBarY = this.refs.root && this.refs.root.querySelector('.scrollBarY ')
+                if (scrollBarY && parseInt(scrollBarY.getAttribute('data-minheight')) != this.getFullHeight()) {
+                    //this.lastDataLoading = new Date();
+                    this.repatch({});
+                }
+            }, 100);
             const { onPageChanged } = this.props;
             if (onPageChanged instanceof Function) {
                 onPageChanged(listData);
@@ -278,38 +296,16 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     getDevButton() {
         return Utils.renderDevButton('DataList', this);
     }
-    adjustScroll() {
-        if (this.props.paginationMode == 'scrolled') {
-            this.scrollTimer && clearTimeout(this.scrollTimer);
-            this.scrollTimer = null;
-            const { content, root } = this.refs;
-            const { listData } = this.state;
-            const ratio = listData ? (root.scrollTop / (content && content.clientHeight)) : 0;
-            const diffRatio = (ratio - this.state.ratio) * 100;
-            let { startFrom } = this.state;
-            if (root.scrollTop == 0) startFrom = 0;
-            const { itemHeight, height } = this.props;
-            let times = Math.abs(Math.floor(diffRatio / 0.001));
-            if (times < 1) times = 1
-            if (times > 2)
-                startFrom += this.rowCount * times * (Math.sign(diffRatio));
-            else
-                startFrom = ratio * listData.totalRows;
-            if (startFrom < 0) startFrom = 0;
-            this.repatch({ startFrom, listData: null, ratio });
-        }
 
-    }
-    handleScroll() {
-        this.scrollTimer && clearTimeout(this.scrollTimer);
-        this.scrollTimer = setTimeout(this.adjustScroll, 50);
-        this.repatch({});
-    }
+
     handleDoubleClick(e: React.MouseEvent<any>) {
         this.props.onDoubleClick && this.props.onDoubleClick();
     }
     scrollToIndex(index) {
-        this.refs.detailList.scrollToIndex(index);
+        const { detailList } = this.refs;
+        detailList &&
+            detailList.scrollToIndex instanceof Function &&
+            detailList.scrollToIndex(index);
         const { root, parent } = this.refs;
         const detailsRow = root.querySelector('.ms-DetailsRow');
 
@@ -328,11 +324,10 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         s.listData = s.listData || (!p.startWithEmptyList && this.loadDataIfNeeded(+startFrom)) as any;
         const length = this.rowCount || 10;
         let items = this.items =
-            (s.noPaging ? s.listData && s.listData.rows :
-                Array.from({ length }, (_, idx) => this.cache.get(startFrom + idx))) || [];
+            s.listData && s.listData.rows;
 
         if (s.isLoading) items = this.getFakeItems(length);
-        items = items.filter(x => !!x);
+        items = items instanceof Array ? items.filter(notFalse => !!notFalse) : [];
         if (!this.refs.root) {
             this.repatch({}, null, 100);
         }
@@ -346,9 +341,10 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         );
     }
     private renderRow(props: IDetailsRowProps, defaultRender: any) {
-        const { itemIsDisabled } = this.props;
+        const { itemIsDisabled, onGetClassNamePerRow } = this.props;
         const rowIsDisabled = itemIsDisabled instanceof Function && itemIsDisabled(props.item);
-        props.className = Utils.classNames(rowIsDisabled && "row-disabled", props.className);
+        const classNamePerRow = onGetClassNamePerRow instanceof Function && onGetClassNamePerRow(props.item, props);
+        props.className = Utils.classNames(rowIsDisabled && "row-disabled", props.className, classNamePerRow);
         return defaultRender(props);
     }
     static toTextLength(value) {
@@ -374,7 +370,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
 
     lastDidUpdateTime: number;
     @SelfBind()
-    handleDidUpdate(detailList: DetailsList) {
+    handleDidUpdate(detailList) {
         if (this.state.isLoading) return;
         setTimeout(() => {
             const { root } = this.refs;
@@ -410,6 +406,22 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         const msList = e.currentTarget.querySelector('.ms-List');
         msList && msList.classList.remove('scrollY');
     }
+    handleSyncScroll(e) {
+        const { root } = this.refs;
+        const surface = root && root.querySelector('.ms-List-surface') as HTMLElement;
+        if (!surface) return;
+        surface.style.marginTop = `-${e.y}px`;
+    }
+    @SelfBind()
+    getFullWidth() {
+        return this.evalFromRef('root', root => root.querySelector('.ms-SelectionZone .ms-DetailsRow-fields').clientWidth);
+    }
+    @SelfBind()
+    getFullHeight() {
+        if (this.state.isLoading) return 0;
+        const fullHeight = this.evalFromRef('root', r => r.querySelector('.ms-Viewport').clientHeight);
+        return fullHeight || 1;
+    }
     @SelfBind()
     handleHeaderColumnClick(ev?: React.MouseEvent<HTMLElement>, column?: IColumn) {
         if (!ev || !column) return;
@@ -433,8 +445,20 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
             </span>
         </div>
     }
+    changePage(pageIndex) {
+        const rowCount = this.getRowCount();
+        pageIndex = pageIndex || 0;
+        this.items = [];
+        this.repatch({ loadingPageIndex: pageIndex });
+        return this.loadDataIfNeeded(pageIndex * rowCount, { loadingPageIndex: -1, rowCount: 0, currentPageIndex: pageIndex, avoidShowData: false });
+
+
+    }
+    getRowCount() {
+        return this.rowCount || 10;
+    }
     renderItems(items: any[]) {
-        const length = this.rowCount || 10;
+        const length = this.getRowCount();
         const { root } = this.refs;
         const p = this.props, s = this.state;
         const columnArray: React.ReactElement<IFieldProps>[] = this.props.children instanceof Array ? this.props.children as any : [this.props.children];
@@ -460,17 +484,17 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                             return (<span className="fake " >{'.'.repeat(length)}<i /></span>);
                         }
                         const textReader = textReaders[idx];
-                        const displayText = textReader instanceof Function ? textReader(item[column.key]) : item[column.key];
+                        const displayText = textReader instanceof Function ? textReader(item[column.key], item) : item[column.key];
                         return col.props.onRenderCell instanceof Function ? col.props.onRenderCell(item, index, column) : displayText;
                     }
                 } as Partial<IColumn>, col.props.columnProps || {}) as IColumn);
 
 
-                 
+
         if (p.customActions && p.customActionRenderer) {
-            columns.push({ key: columns[0].key, name: ' ', fieldName: columns[0].fieldName, onRender: this.getCustomActions.bind(this) })
+            columns.push({ key: columns[0].key, name: ' ', fieldName: columns[0].fieldName, onRender: this.getCustomActions.bind(this), maxWidth: 130, minWidth: 100 })
         }
-        
+
         this.fields = Object.assign({}, ...columnArray.map(c => ({ [Field.getAccessorName(c.props.accessor)]: c })));
         const totalRows = listData && listData.totalRows || 0;
         const totalPages = Math.ceil(totalRows / (length)) || 0;
@@ -484,12 +508,11 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                 columns.forEach((col, idx) => Object.assign(col, { minWidth: col.minWidth || this.bestFitColumnWidths[idx] } as IColumn))
             }
         }
-        const rowsCount = (p.paginationMode == 'scrolled'
-            ? (!!listData ? listData.totalRows : length)
-            : (!!listData && length))
+        const rowsCount = (listData && listData.totalRows) || length;
         const dataListProps: IDetailsListProps = Object.assign({ ref: "detailList" },
             this.accquiredSelection ? { selection: this.accquiredSelection } : {},
             p, {
+
                 onColumnHeaderClick: this.handleHeaderColumnClick,
                 columns,
                 onRenderRow: this.renderRow.bind(this),
@@ -504,42 +527,45 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
                 //    constrainMode: ConstrainMode.unconstrained,
                 // onCellSelected: ({ idx, rowIdx }) => (columns[idx].key == "__actions") && this.repatch({ popupActionForRowIndex: rowIdx })
             } as Partial<IDetailsListProps>, p.detailsListProps ? p.detailsListProps : {}) as any;
-        const pagination = p.paginationMode != 'scrolled' && !!s.listData
-            && <Pagination
-                {...{ totalPages, totalRows }}
-                loadingPageIndex={s.loadingPageIndex}
-                currentPageIndex={s.currentPageIndex}
-                disabled={s.isLoading}
-                onPageIndexChange={pageIndex => {
-                    this.repatch({ loadingPageIndex: pageIndex });
-                    this.loadDataIfNeeded(pageIndex * length, { loadingPageIndex: -1, rowCount: 0, resetCache: true, forcedMode: true, currentPageIndex: pageIndex, avoidShowData: false });
-
-
-                }} />;
+        const pagination = <Pagination
+            {...{ totalPages, totalRows }}
+            loadingPageIndex={s.loadingPageIndex}
+            currentPageIndex={s.currentPageIndex}
+            disabled={s.isLoading}
+            onPageIndexChange={this.changePage.bind(this)} />;
         const isLoaded = (!!this.refs.root && !!items);
-        //  console.log({ isLoaded, items, root: this.refs.root });
-        return <div /*onScroll={p.paginationMode == 'scrolled' ? this.handleScroll : null}*/
+        return <div
             ref="parent"
-            className={Utils.classNames("data-list", s.isLoading && 'shine-me', p.flexMode && 'flex-mode'/*, p.paginationMode*/)}
+            className={Utils.classNames("data-list", s.isLoading && 'loading-state shine-me', p.flexMode && 'flex-mode'/*, p.paginationMode*/)}
         >
             <i className="shine-me-child" />
             {isLoaded ?
-                <div className="data-list-content" ref="content">
-                    <div className="data-list-c1 scrollY" style={{
-                        overflowX: 'auto',
-                        flex: '1', display: 'block'
-                    }}  
-                    >
-                        {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
+                <ScrollablePanel
+                    key={+this.lastDataLoading}
+                    ignore={this.props.ignoreScroll}
+                    onSyncScroll={this.handleSyncScroll.bind(this)}
+                    onGetWidth={this.getFullWidth}
+                    onGetHeight={this.getFullHeight}
+                >
+
+                    <div className="data-list-content" ref="content">
+                        <div className="data-list-c1    " style={{
+                            overflowY: 'visible',
+                            overflowX: 'visible',
+                            flex: '1', display: 'block'
+                        }}
+                        >
+                            {this.detailList = this.detailList || React.createElement(DetailsList, dataListProps)}
+
+                        </div>
 
                     </div>
-                    {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ padding: '0 4px', maxHeight: '60px', minHeight: '60px' }}  >
-                        {pagination}
-
-                    </div>}
-                </div>
+                </ScrollablePanel>
                 : this.showSpinner()}
+            {!s.noPaging && (totalPages > 1) && !!pagination && this && <div style={{ padding: '0 4px', maxHeight: '60px', minHeight: '60px' }}  >
+                {pagination}
 
+            </div>}
         </div>
     }
     showSpinner() {

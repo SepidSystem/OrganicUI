@@ -1,33 +1,40 @@
 
 import { routeTable } from "./router";
- 
-export class NotFoundView extends React.Component<any, any> {
+import { i18n } from "./shared-vars";
 
+export class NotFoundView extends React.Component<any, any> {
+    renderForRootPage() {
+        return <div className="card-content">
+            <div className="content" dir="rtl">
+                <div className="title is-2">
+                    {i18n`please-wait`}
+                </div><br />
+            </div>
+        </div>
+    }
     render() {
-        return <div className="card" dir="ltr" style={{ textAlign: "left" }}>
-            <header className="card-header">
-                <p className="card-header-title">
-                    Not Found -  404
+        console.log(Object.keys(routeTable.data));
+        const isRootPage = location.pathname == "/";
+        return <div className="card animated fadeIn" dir="rtl" style={{ textAlign: "left", animationDelay: '0.6s' }}>
+            <header className="card-header" style={{ display: 'flex', justifyContent: 'center', justifyItems: 'center' }}>
+                <p className="card-header-title" style={{ fontSize: '3rem' }}>
+                    {i18n`logo-text`}
                 </p>
 
             </header>
-            <div className="card-content">
-                <div className="content">
+            {isRootPage && this.renderForRootPage()}
+            {!isRootPage && <div className="card-content">
+                <div className="content" dir="ltr">
                     <div className="title is-2">
-                        Oops,You want to below URL
-                </div>
-                    <div className="title is-5">
-                        {location.pathname}
+                        This page is not defined
+                </div><br />
+                <div className="title is-2">
+                    Your Address:
+                        <code>{location.pathname}</code>
                     </div>
-                    <small className="">{/*React.createElement('code',{}, ` please set View to routeTable
-                            routeTable.set('${location.pathname}',View)` as any)*/}
-                    </small>
-                    <hr />
-                    <ul className="items">
-                        {Object.keys(routeTable.data).map(r => <li key={r} className="item">{r}</li>)}
-                    </ul>
+
                 </div>
-            </div>
+            </div>}
 
         </div>
 

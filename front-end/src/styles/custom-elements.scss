@@ -26,8 +26,14 @@
     }
 }
 
-.ms-Callout-main {
+.ms-Callout-main,
+.ms-Callout-beakCurtain {
     overflow: visible !important;
+    border-radius: 5px;
+}
+
+.ms-Callout-beakCurtain {
+    top: -4px;
 }
 
 .close-dialog {
@@ -62,17 +68,31 @@
     }
 }
 
-.server-side-error {
+.server-side-message {
+    display: flex;
     padding: 10px 15px;
     font-size: 16px;
     .fa {
+        order: 1;
         color: red;
+        max-width: 60px;
+        overflow: visible;
+    }
+    .fa-check-circle {
+        color: green;
+    }
+    p {
+        flex: 1;
     }
 }
 
 .callout-messsage {
-    padding: 30px 3px;
-    padding-top: 3px;
+    padding: 10px 3px;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;
 }
 
 .date-picker-content {
@@ -121,22 +141,6 @@
 }
 
 /**  STYLE 11 */
-
-.below-list {
-    &::-webkit-scrollbar-track {
-        border-radius: 10px;
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid #ccc;
-    }
-    &::-webkit-scrollbar-thumb {
-        border-radius: 10px;
-        background: linear-gradient(left, #fff, #e4e4e4);
-        border: 1px solid #aaa;
-    }
-    &::-webkit-scrollbar-thumb:active {
-        background: linear-gradient(left, #22ADD4, #1E98BA);
-    }
-}
 
 /*
 .data-list-c1::-webkit-scrollbar {
@@ -214,7 +218,8 @@
     padding-left: 2ch;
 }
 
-.data-lookup-field,.date-picker-field {
+.data-lookup-field,
+.date-picker-field {
     .field.focused:not(.no-material),
     .field.has-value {
         .label {
@@ -222,6 +227,84 @@
         }
     }
 }
-.scrollable-panel{
+
+.scrollable-panel-reversed {
+    .scrollBarY {
+        direction: ltr;
+    }
+}
+
+.scrollable-panel {
     display: flex;
+    flex-direction: row !important;
+    position: relative;
+    overflow: hidden;
+    flex-wrap: wrap;
+    .scrollBar {
+        z-index: 100;
+        overflow-y: scroll;
+    }
+    .scrollBarX {
+        position: absolute;
+        bottom: 0px;
+        left: 7px;
+        right: 7px;
+        height: 15px;
+        z-index: 1000;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+}
+
+.attached-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.ms-Callout {
+    border-radius: 8px;
+}
+
+.ReactJsonSyntaxHighlighter {
+    direction: ltr;
+    pre {
+        font-size: 9pt;
+        white-space: normal;
+        word-wrap: break-word;
+        box-shadow: inset 0px 2px 2px 0px #888;
+        padding: 0.5rem 2px;
+    }
+    .string {
+        color: #008000;
+    }
+    .number {
+        color: #008000;
+        align-items: center;
+        background-color: whitesmoke;
+        border-radius: 290486px;
+        display: inline-flex;
+        height: auto;
+        justify-content: none;
+        margin-right: auto;
+        min-width: auto;
+        padding: 0;
+        text-align: center;
+        vertical-align: top;
+    }
+    .boolean {
+        color: #00f;
+    }
+    .null {
+        color: #f0f;
+    }
+    .key {
+        color: #f00;
+    }
+}
+
+.adv-button {
+    &.is-loading {
+        
+    }
 }

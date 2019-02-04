@@ -1,8 +1,10 @@
 .filter-panel {
     flex: 1;
     font-size: 2rem;
+   
     footer {
-        padding-right: 7px;
+        padding-right: 7px !important;
+        margin-top:1rem !important;
         min-width: 230px;
         margin: 0px;
         padding: 0px;
@@ -10,6 +12,7 @@
         display: flex;
         align-items: center;
         flex: 1;
+        
         justify-items: flex-end;
         flex-direction: row;
         .apply-button {
@@ -47,5 +50,6 @@
     }
     .field .label{
         top:1.5rem;
+        height:0;
     }
 } 

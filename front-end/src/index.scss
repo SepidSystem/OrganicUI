@@ -8,15 +8,27 @@
 ::-webkit-scrollbar-thumb {
     background: #888;
 }
+
 .data-list-c1::-webkit-scrollbar-thumb {
     visibility: hidden;
 }
-.hero-body {  
+
+.hero-body {
     flex-grow: 1;
     flex-shrink: 0;
     padding: 1rem 1.5rem;
+} 
+ 
+.swal2-popup{
+    z-index: 1000000 !important;
+    .swal2-content{
+        font-size:1.71rem !important;
+    }
+} 
+.swal2-container{
+    z-index: 1000000 !important;
+    
 }
-
 .button {
     margin: 0 0.3rem;
     .icon {

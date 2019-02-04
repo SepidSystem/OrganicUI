@@ -23,6 +23,7 @@ declare namespace Reinvent {
 
     interface IRenderFuncExtForSingleView<T, TLoadParam> {
         data: T;
+        getData():T;
         binding: BindingHub<T>;
         param: TLoadParam;
         reload: (param: TLoadParam) => Promise<any>;
@@ -35,10 +36,12 @@ declare namespace Reinvent {
     }
     interface IReinventForCRUDParams<TDto, TState> {
         data: TDto;
+        getData():TDto;
         binding: BindingHub<TDto>;
         props;
         state: TState;
         repatch(delta: Partial<TState>): void;
+        selectedItems():TDto[],
         subrender(rendererId: string, params);
         callAction(actionName: string, actionParams): Promise<any>;
         root: HTMLElement;
@@ -90,7 +93,7 @@ declare namespace Reinvent {
             listViewFromEnum<TEnum>(enumType, options?: { keyField?: string, title?, iconCodes: { [key in keyof TEnum]: string } }): OrganicUi.StatelessListView;
 
         }
-
+        predefinesForApi:any;
     }
     export interface IBindingPoint {
         __name: string;
@@ -103,7 +106,11 @@ declare namespace Reinvent {
 
     };
     type TemplateName = 'report-view' | 'dashboard' | 'login' | 'blank';
-    export function templatedView<T>(templName: 'singleView' | 'listView', opts: { actions: OrganicUi.IActionsForCRUD<T>, options: OrganicUi.IOptionsForCRUD, ref?: string, customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    export function templatedView<T>(templName: 'singleView' | 'listView', opts: { 
+        actions?: OrganicUi.IActionsForCRUD<T>, 
+        options?: OrganicUi.IOptionsForCRUD, ref?: string, 
+        predefinedActions?:string,
+        customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
     export function templatedView<T>(templName: TemplateName, opts?): MethodDecorator;
     export function templatedView<TProps>(method: React.SFC<TProps>): (templName: TemplateName, props) => React.SFC<TProps>;
 

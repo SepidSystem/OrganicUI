@@ -1,9 +1,10 @@
 import { TextField, Dialog, DialogActions, Button, DialogTitle, DialogContent } from '../controls/inspired-components';
 import { BaseComponent } from '../core/base-component';
 
- 
+
 import { i18n } from '../core/shared-vars';
- 
+import { Utils } from '../core/utils';
+
 
 export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupModeProps, any>  {
 
@@ -17,7 +18,7 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
 
     render() {
         const p = this.props;
-        const children = React.cloneElement(React.Children.only(p.children), { height: 460, filterMode: 'advanced', noTitle: true });
+        const children = React.cloneElement(React.Children.only(p.children), { height: 460,noWidth:true, filterMode: 'advanced', noTitle: true });
         const options = children && children.type && children.type['dataLookupOptions'];
         const { anchorEl } = this.state;
         return <Dialog open={p.isOpen} className="data-lookup-modal" onClose={() => {
@@ -26,14 +27,18 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
         }}
 
         >
-            {options && <DialogTitle>
-                <div className="title is-2">
-                    {i18n(options.pluralName)}
+            {options && <DialogTitle >
+                <div style={{ display: 'flex' }}>
+                    <div className="title is-2" style={{flex:1}}>
+                        {i18n(options.pluralName)}
+                    </div>
+                    <Button onClick={p.onClose as any}  variant="flat" style={{minWidth:32,minHeight:32,padding:'2px',borderRadius:'100%'}}  >
+                        {Utils.showIcon('mi-close')}
+                    </Button>
                 </div>
-
             </DialogTitle>}
-            <DialogContent className="content" style={{ minWidth: '1000px', width: '1000px', maxWidth: '1000px', minHeight: '520px',display:'flex',flexDirection:'column', paddingTop: 0, paddingBottom: 0 }} >
-                <section ref="root" style={{display:'flex',flexDirection:'column',flex:1}}>
+            <DialogContent className="content" style={{ minWidth: '1000px', width: '1000px', maxWidth: '1000px', minHeight: '520px', display: 'flex', flexDirection: 'column', paddingTop: 0, paddingBottom: 0 }} >
+                <section ref="root" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     {children}
                 </section>
             </DialogContent>
@@ -45,9 +50,7 @@ export class DataLookupModal extends BaseComponent<OrganicUi.IDataLookupPopupMod
                 {!p.dataLookupProps.appendMode && <Button style={{ maxWidth: 80, minWidth: 80 }} variant="contained" color="primary" onClick={p.onApply as any}  >
                     {i18n('ok')}
                 </Button>}
-                <Button onClick={p.onClose as any}  >
-                    {i18n('close')}
-                </Button>
+
 
             </DialogActions>
         </Dialog>

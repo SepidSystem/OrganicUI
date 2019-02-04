@@ -171,7 +171,7 @@ export class TimeSlot extends BaseComponent<OrganicUi.ITimeSlotProps, IState> {
                     {Utils.showIcon("fa-eraser")}
                 </a>
             </div >
-            {!!s.targetRange && <Callout onDismiss={() => this.repatch({ targetRange: null })} target={s.targetRange} >
+            {!!s.targetRange && <Callout onDismiss={() => this.repatch({ targetRange: null }) as any} target={s.targetRange} >
                 <br />
                 <AdvSection className="compact" errorMessage={s.errorMessage} onCloseMessage={() => this.repatch({ errorMessage: null })}>
                     <DataForm className="data-form-row"

@@ -43,8 +43,10 @@ main.main-container {
             min-height: 40px;
             .temp {
                 flex: 1;
-                background: #979797;
-                height: 1px !important;
+                background: transparent;
+                height: 1px !important; 
+                max-height: 1px;
+                border-top: 1px solid #979797;
             }
             .title {
                 display: flex;
@@ -142,8 +144,7 @@ aside {
             }
         }
         header {
-            margin-bottom: 40px;
-            min-height: 160px;
+             min-height: 200px;
             background: linear-gradient(to bottom, #484A69 0%, rgba(0, 0, 0, 1) 50%, #484A69 100%);
             .user-info {
                 font-size: 1.71rem !important;
@@ -182,9 +183,11 @@ aside {
                 }
                 .start {
                     color: white !important;
+                    margin:0 -5px!important;
                 }
                 .ng {
                     color: rgb(4, 140, 212) !important;
+                    margin:0 !important;
                 }
             }
         }
@@ -274,6 +277,10 @@ aside {
 button,
 .MuiButton-root {
     font-size: 1.71rem !important;
+    text-transform: none !important;
+    .icon{
+        margin:0 0.5rem;
+    }
 }
 
 .title:not(:last-child) {

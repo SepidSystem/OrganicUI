@@ -28,7 +28,9 @@ export { devTools, JsonInspector, DeveloperBar, isProdMode } from './lib/core/de
 
 //----- Import Data Lib ** Advanced Level
 export { Field } from './lib/data/field';
+export { Port } from './lib/data/output-port';
 export { default as SimpleTable } from './lib/data/simple-table';
+export { HiddenField } from './lib/data/hidden-field';
 export { DataList } from './lib/data/data-list';
 export { DataForm } from './lib/data/data-form';
 export { DataPanel } from './lib/data/data-panel';
@@ -67,7 +69,7 @@ export { Modal } from './lib/controls/modal';
 export { ImageUploader } from './lib/controls/image-uploader';
 export { default as C3Chart } from 'react-c3js';
 export { TreeList } from './lib/controls/tree-list';
-export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DefaultButton, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch, Alert } from './lib/controls/inspired-components';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch, Alert } from './lib/controls/inspired-components';
 export { GridList, GridListTile } from './lib/controls/inspired-components';
 export { Headline } from './lib/controls/head-line';
 export { ScrollablePanel } from './lib/controls/scrollable-panel';

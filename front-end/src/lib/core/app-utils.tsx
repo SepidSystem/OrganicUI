@@ -72,25 +72,28 @@ export class AppUtils extends BaseComponent<any, any>{
         AppUtils.Instance = this;
         return <div className="app-utils" style={{ width: '100%' }} >
             <TipsBar tips={AppUtils.tips} />
-            {this.renderUserDialog(AppUtils.dialogInstance)}
+            {AppUtils.dialogInstance && this.renderUserDialog(AppUtils.dialogInstance)}
             {this.renderNetworkError(AppUtils.networkError)}
 
-        </div>
+        </div> 
+    }
+    handleCloseNetworkError(){
+        AppUtils.networkError=null;
     }
     renderNetworkError(dialog: IDialogProps) {
-        return !!dialog && <Modal title={dialog.title} buttons={dialog.actions} >
+        return !!dialog && <Modal title={dialog.title} onClose={this.handleCloseNetworkError } buttons={dialog.actions}  >
             {dialog.content}
         </Modal>
     }
     renderUserDialog(dialog: IDialogProps) {
-
-        return <Dialog open={!!dialog} onClose={this.handleClose}  >
+        console.log(dialog);
+        return <Dialog open={!!dialog} onClose={this.handleClose}  disableBackdropClick={true} disableEscapeKeyDown={true} >
             {!!dialog && !!dialog.title && <DialogTitle>
                 <div style={{ display: 'flex' }}>
                     <div style={{ flex: '10' }}>
                         {i18n((dialog && dialog.title))}
                     </div>
-                    {!(dialog && dialog.noClose) && <a href="#" className="close-dialog" onClick={e => {
+                    {(!dialog ||  !dialog.noClose) && <a href="#" className="close-dialog" onClick={e => {
                         e.preventDefault();
                         AppUtils.showDialog(null);
                     }}><i className="fa fa-times" /></a>}

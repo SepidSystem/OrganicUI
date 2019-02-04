@@ -38,7 +38,7 @@ const entry = Object.assign({},
 		.filter(key => fileExists(getSourcePath(_entry[key])))
 		.map(key => ({ [key]: getSourcePath(_entry[key]) })));
 
-const dist = join(process.env.sourceDir, 'assets', 'bundle');
+const dist ='C:\\Taheri\\Test1\\public\\bundle';// join(process.env.sourceDir, 'assets', 'bundle');
 const rules = [
 
 	{
@@ -52,14 +52,16 @@ const rules = [
 	}, {
 		test: /\.jsx?$/,
 		exclude,
-		loader: ['cache-loader', {
+		loader: [  {
 			loader: 'babel-loader',
 			options: babelOpts
 		}]
 	}, {
 		test: /\.tsx?$/,
 		exclude,
-		loader: ['cache-loader', 'ts-loader']
+		loader:   { loader: 'ts-loader',options:{
+			transpileOnly:true
+		}}
 	}].filter(x => !!x);
 module.exports = env => {
 	env.mode && Object.assign(env, { [env.mode]: true });

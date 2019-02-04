@@ -9,6 +9,9 @@
             outline: none;
             max-width: 70px;
         }
+        select.part-input {
+            min-width: 50px;
+        }
         .parts {
             display: flex;
         }

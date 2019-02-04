@@ -2,7 +2,7 @@
 import { IStateListener, StateListener } from "./state-listener";
 import { Component } from 'react';
 import { IComponentRefer } from "@organic-ui";
-import { Utils } from "./utils";
+import { CoreUtils } from "./core-utils";
 import { i18n } from "./shared-vars";
 
 /** BaseComponent for Organic-UI  */
@@ -12,7 +12,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
     _autoUpdateState: S;
     devElement: any;
     nodes: any;
-    autoUpdateTimer: any;
+    autoUpdateTimer: any; 
     renderContent(): any {
         throw new Error("Method not implemented.");
     }
@@ -54,7 +54,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
             });
 
         if (newState.length) {
-            this.repatch(Utils.reduceEntriesToObject(newState) as S);
+            this.repatch(CoreUtils.reduceEntriesToObject(newState) as S);
         }
 
     }
@@ -121,7 +121,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
 
     }
     defaultState(delta: Partial<S>) {
-        Utils.assignDefaultValues(this.state, delta);
+        CoreUtils.assignDefaultValues(this.state, delta);
     }
     asyncRepatch(key: keyof S, asyncFunc: Function, ...args) {
         this.repatch({
@@ -137,12 +137,12 @@ export class BaseComponent<P, S> extends Component<P, S>{
         if (!result) this.repatch({}, null, 20);
         return this.refs[args[args.length - 1]];
     }
-    evalFromRef<TRef=HTMLElement>(refName: string, callback: (ref: TRef) => any) {
+    evalFromRef<TRef=HTMLElement>(refName: string, callback: (ref: TRef) => any,defaultValue?) {
         try {
             const ref = this.checkRefs(refName) as any;
             return ref && callback(ref);
         } catch{
-            return null;
+            return defaultValue;
         }
     }
     repatch(delta: Partial<S>, target?, delay?) {

@@ -17,3 +17,10 @@
 {
 	background-color: #000000;
 }
+
+.hidden-scroll::-webkit-scrollbar{
+    display: none;
+}
+ .scrollBarY,.scrollBarX,body,.main-container{
+    scrollbar-width: thin;
+ }

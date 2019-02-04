@@ -4,6 +4,9 @@ import { Utils } from "../core/utils";
 import { Spinner } from '../core/spinner';
 import { routeTable } from "../core/router";
 import { BindingSource } from "./binding-source";
+import { ListViewBox } from "../templated-views/list-view-box";
+import { SingleViewBox } from "../templated-views/single-view-box";
+import { IBaseFrontEndReinvent } from "@reinvent";
 interface IParams<TDto> { actions: OrganicUi.IActionsForCRUD<TDto>, customActions, options: OrganicUi.IOptionsForCRUD };
 function classFactory<TDto>(p: IParams<TDto>):
     Reinvent.IReinventForCRUD<TDto> {
@@ -12,9 +15,10 @@ function classFactory<TDto>(p: IParams<TDto>):
     customActions = customActions || {};
     const AClass = reinvent.baseClassFactory({ chainMethods, className: 'crud' });
     function doneFunc() {
-
-        routeTable.set(p.options.routeForSingleView, AClass, { mode: 'single-view' });
-        routeTable.set(p.options.routeForListView, AClass, { mode: 'list-view' });
+        if (p.options) {
+            routeTable.set(p.options.routeForSingleView, AClass, { mode: 'single-view' });
+            routeTable.set(p.options.routeForListView, AClass, { mode: 'list-view' });
+        }
     }
     function beforeSave(callback) {
         Object.assign(customActions, { beforeSave: callback });
@@ -27,13 +31,21 @@ function classFactory<TDto>(p: IParams<TDto>):
         const result = {
             state: target.target || {}, props: target.props,
             data, bindingSource,
+            getData: () => {
+                const singleView: SingleViewBox<any> = target.refs.main || target.querySelectorAll('.single-view')[0];
+                return singleView.state.formData;
+            },
             binding: bindingSource,
             repatch: target.repatch.bind(target),
+            selectedItems() {
+                const listView: ListViewBox = target.querySelectorAll('.list-view')[0];
+                return listView.selectedItems();
+            },
             runAction: target.runAction.bind(this),
             root: target.refs.root,
             subrender: target.subrender.bind(target),
             showModal: target.showModal.bind(target),
-            reload: () => target && target.refs && target.refs.main&& target.refs.main.reload && target.refs.main.reload()
+            reload: () => target && target.refs && target.refs.main && target.refs.main.reload && target.refs.main.reload()
         };
         return result;
     }
@@ -46,7 +58,8 @@ function classFactory<TDto>(p: IParams<TDto>):
         const componentClass = reinvent.templates[targetKey] as React.ComponentClass<any>;
         const result = AClass.applyChain(targetKey, p) as React.ReactElement<any>;
         const children = React.Children.toArray(result.props.children);
-        return React.createElement(componentClass, { ref: "main", actions, params: p.props, options, customActions }, ...children);
+        const main = React.createElement(componentClass, { ref: "main", actions, params: p.props, options, customActions }, ...children);
+        return <section ref="root" className="attached-root">{main}</section>;
     });
     return Object.assign(AClass, { options, getRenderParams, beforeSave, doneFunc, actions, dataLookupActions: actions, dataLookupOptions: options }) as any;
 }

@@ -4,9 +4,38 @@ import format = require('string-template');
 import { diff } from 'rus-diff';
 import md5 = require('md5');
 import textContent = require('react-addons-text-content');
+import * as CodeImage from './code-tags-check.svg';
 let devPortIdCounter = 0;
 interface IEnumToArrayOptions { customCaptions?: Object }
-export const Utils = {
+import { CoreUtils } from './core-utils';
+function fixDataBySchema(data, schema) {
+	const { properties } = schema;
+	if (data instanceof Array) return data.map(item => fixDataBySchema(item, schema));
+	if (properties && typeof data == 'object') {
+		const result = JSON.parse(JSON.stringify(data));
+		Object.keys(data).map(key => ([key, data[key]])).map(([propName, propValue]) => {
+			const type = properties && properties[propName] && properties[propName].type;
+			if (type == 'number' && typeof propValue == 'string' && /^[0-9]+$/.test(propValue.toString()))
+				result[propName] = +propValue
+
+			if (type == 'object') {
+				const subSchema = properties && properties[propName] && properties[propName].properties;
+				result[propName] = fixDataBySchema(data, subSchema);
+			}
+			if (type == 'array') {
+				const subSchema = properties && properties[propName] && properties[propName].items;
+				result[propName] = fixDataBySchema(propValue, subSchema);
+			}
+
+		});
+		return result;
+	}
+	return data;
+}
+export const Utils = Object.assign({}, {
+	fixDataBySchema,
+	lastNavigate: +new Date(),
+	soFastNavigateCount: 0,
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
 	},
@@ -14,8 +43,20 @@ export const Utils = {
 		return args.filter(x => x)[0];
 	},
 	navigate(url) {
+		const now = +new Date();
+		Utils.soFastNavigateCount = (now - Utils.lastNavigate <= 800) ? Utils.soFastNavigateCount + 1 : 0;
+		Utils.lastNavigate = now;
 
-		history.pushState(null, null, url);
+		if (Utils.soFastNavigateCount > 3) {
+			if (confirm('Are You Debug ,Yes=>Debugger,No=>Supress Checker ')) debugger
+			else Utils.soFastNavigateCount = -1000000000;
+		}
+		if (url.includes('/view/'))
+			history.pushState(null, null, url);
+		else {
+			location.href = url;
+			return;
+		}
 		OrganicUI['mountViewToRoot']();
 		scrollToTop(300);
 		return Promise.resolve(true);
@@ -124,12 +165,18 @@ export const Utils = {
 	warn(...args) {
 		!OrganicUI.Utils['noWarn'] && console.warn(...args);
 	},
+	showErrorMessage(text, title?) {
+		text = typeof text == 'string' ? i18n.get(text) : text;
+		title = typeof title == 'string' ? i18n.get(title) : title;
+
+		return swal({ title: title || '', text, type: 'error', confirmButtonText: i18n.get('okey'), cancelButtonText: i18n.get('cancel') });
+	},
 	renderDevButton(ident: string | { prefix, targetText }, target: IDeveloperFeatures) {
 		if (typeof ident == 'string') ident = { prefix: ident, targetText: ident };
 		const { prefix, targetText } = ident;
 		const topItems = [{
 			key: 'reset',
-			name: `Reset DevTools `,
+			name: `Reset DevTools`,
 			onClick: () => (target.devElement = null, target.forceUpdate())
 		}, {
 			key: 'assign-window',
@@ -144,33 +191,33 @@ export const Utils = {
 		}
 		].filter(item => !!item);
 		const root = target && (target as any).refs && (target as any).refs.root;
-		return <ActionButton onMouseEnter={() => (root && root.classList.add('dev-target'))}
-			onMouseLeave={() => root && root.classList.remove('dev-target')}
-			iconProps={{ iconName: 'Code' }}
-			text={targetText}
-			menuProps={{
-				shouldFocusOnMount: true,
-				items:
-					topItems.concat(
-						Object.keys(OrganicUI.devTools.data)
-							.filter(key =>
-								key.startsWith(prefix + '|'))
-							.map(key => [key, OrganicUI.devTools.data[key]])
-							.map(([key, onExecute]) => ({
-								key: key.split('|')[1],
-								name: key.split('|')[1],
-								onClick: () => {
-									onExecute(target, target)
-								}
-							})))
-			}} />;
+		return React.createElement(ActionButton, {
+			onMouseEnter: () => (root && root.classList.add('dev-target')),
+			onMouseLeave: () => root && root.classList.remove('dev-target'),
+			menuItems: topItems.concat(
+				Object.keys(OrganicUI.devTools.data)
+					.filter(key =>
+						key.startsWith(prefix + '|'))
+					.map(key => [key, OrganicUI.devTools.data[key]])
+					.map(([key, onExecute]) => ({
+						key: key.split('|')[1],
+						name: key.split('|')[1],
+						onClick: () => {
+							onExecute(target, target)
+						}
+					})),
+
+			)
+
+		}, <Svg image={CodeImage} width={32} height={32} />, targetText
+		);
 
 
 	},
 	accquireDevPortId() {
 		return ++devPortIdCounter;
 	},
-	renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function }) {
+	renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function, args?: any[] }) {
 		if (methods instanceof Array)
 			methods = methods.reduce((accumulator, method) => (accumulator[method.name] = method, accumulator), {} as TMethods);
 		opts = opts || {};
@@ -178,16 +225,17 @@ export const Utils = {
 		return Object.keys(methods).map(
 			key => React.createElement(opts.componentClass || Button,
 				{
-					onClick: (() => callback(methods[key](), key)) as any,
+					onClick: (() => callback(methods[key](...(opts.args || [])), key)) as any,
 					variant: 'outlined', style: { margin: '0 0.3rem' },
-					color:'secondary'
+					color: 'secondary'
 				} as Partial<ButtonProps> as any,
 				i18n(changeCase.paramCase(key)))
 		);
 	},
-	simulateClick(elem) {
+	simulateClick(elem, e?) {
 		// Create our event (with options)
 		var evt = new MouseEvent('click', {
+			...(e || {}),
 			bubbles: true,
 			cancelable: true,
 			view: window
@@ -203,57 +251,8 @@ export const Utils = {
 		// If cancelled, don't dispatch our event
 		return !relatedTarget.dispatchEvent(evt);
 	},
-	merge<T>(...args: Partial<T>[]): T {
-		return args.reduce((accumulator, obj) => Object.assign(accumulator, obj), {}) as T;
-	},
-	toArray(arg): any[] {
-		return arg instanceof Array ? arg : [arg];
-	},
-	reduceEntriesToObject(arg: any[][]): Object {
-		return arg.reduce((a, entry) => (a[entry[0]] = entry[1], a), {})
-	},
-	limitValue(value: number, { min = undefined, max = undefined }): number {
-		if (max !== undefined) value = Math.min(value, max);
-		if (min !== undefined) value = Math.min(value, min);
-		return value;
-	},
-	isUndefined(value) {
-		return value === undefined || value === null || value === '';
-	},
-	sumValues(numbers: number[]) {
-		return numbers.reduce((a, b) => a + b, 0);
-	},
-	clone<T>(x: T): T {
-		if (x === undefined) return undefined;
-		return JSON.parse(JSON.stringify(x))
-	},
-	uniqueArray<T>(array: T[]): T[] {
-		return Object.keys(array.reduce((a, b) => (a[b + ''] = 1, a), {})).map(key => (key as any) as T);
-	},
-	validateData<T>(data: T, callbacks: OrganicUi.PartialFunction<T>): OrganicUi.IDataFormAccessorMsg[] {
-		return Object.keys(callbacks)
-			.map(accessor => {
-				const cb = callbacks[accessor] as Function;
-				const message = cb(data[accessor]);
-				return { message, accessor };
-			}).filter(({ message }) => !!message);
-	},
-	assignDefaultValues<T>(data: T, defaultValues: Partial<T>) {
-		if (!data || !defaultValues) return;
-		if (data['__defaultState']) return;
-		Object.assign(data, { __defaultState: true });
-		Object.keys(defaultValues)
-			.forEach(key => data[key] = data[key] === undefined ? defaultValues[key] : data[key]);
-	},
-	isClass(type) {
-		const desc = Object.getOwnPropertyDescriptor(type, 'prototype')
-		return desc && desc.writable === false;
-	},
-	excl(object, ...keys) {
-		keys = keys.map(key => key + "");
-		return Utils.reduceEntriesToObject(Object.keys(object).map(key => ([key, object[key]])).filter(([key]) => !keys.includes(key)));
-	}
-	,
+
+
 	skinDeepRender(type, params) {
 		const target = Utils.isClass(type) ? new type(params) : type(params);
 		if (React.isValidElement(target)) return target;
@@ -298,6 +297,15 @@ export const Utils = {
 				Id: enumType[Name],
 				Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name
 			})))
+	},enumToRecords(enumType: any, opts?: IEnumToArrayOptions): ({ id, text }[]) {
+		let { customCaptions } = opts || {} as IEnumToArrayOptions;
+		customCaptions = customCaptions || {};
+		return   Object.keys(enumType)
+			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
+			.map(Name => ({
+				id: enumType[Name],
+				text: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name
+			}))
 	},
 	equals(left, right) {
 		const result = left == right;
@@ -426,14 +434,50 @@ export const Utils = {
 		} while (element = element.offsetParent as any);
 		return [curLeft, curTop];
 	},
-	 
-}
+	getComputedHeight(element: HTMLElement) {
+		if (element == null) return null;
+		const { parentElement } = element;
+		return parentElement.clientHeight - Utils.sumValues(Array.from(parentElement.childNodes).filter(c => c != element).map((c: HTMLElement) => c.clientHeight || 0))
+
+	}, limitNumber(value, min, max) {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	},
+	parseQueryString(qs: string | Object) {
+		if (typeof qs == 'object') return qs;
+		const queryString = qs.replace('?', '').toString();
+		return Object.assign({}, ...queryString.split('&').map(d => {
+			const array = d.split('=');
+			return { [array[0]]: array.length > 1 ? decodeURIComponent(array[1]) : true }
+		}));
+	},
+	successCallout(content) {
+		return <div className="server-side-message">
+			<i className="fa fa-check-circle" style={{ fontSize: '60px' }}></i>
+
+			<p style={{ whiteSpace: 'pre-line' }}>{i18n.get(content)}</p></div>
+	},
+	failCallout(content) {
+		return 	<div className="server-side-message">
+			<i className="fa fa-exclamation-triangle center-content" style={{ fontSize: '40px' }}></i>
+
+			<div className="animated fadeInDown " style={{ flex: 1 }}>
+				{/*i18n('description-rejected-validation')*/}
+
+				{i18n.get(content)}
+			</div>
+		</div>
+	}		
+}, CoreUtils);
 import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";
-import { ActionButton } from "office-ui-fabric-react/lib/Button";
+import ActionButton from "../controls/action-button";
 import { Button } from "../controls/inspired-components";
 import * as camelCaseText0 from 'camelcase';
 import { ButtonProps } from "@material-ui/core/Button";
+import swal from "sweetalert2";
+import Svg from "../controls/svg";
 function camelCaseText(s) {
 	try {
 		return camelCaseText0(s);
@@ -446,8 +490,9 @@ function camelCase(obj) {
 	if (obj instanceof Array) return obj.map(camelCase);
 	if (typeof obj == 'string') return (obj);
 	if (typeof obj == 'object') {
-		const array = Object.keys(obj).map(key => ({ camelKey: camelCaseText(key) || key, key })).map(({ key, camelKey }) =>
-			({ [camelCaseText(key)]: camelCase(obj[key]) }));
+		const array = Object.keys(obj).map(key => ({ camelKey: camelCaseText(key) || key, data: obj[key] }))
+			.map(({ camelKey, data }) =>
+				({ [camelKey]: camelCase(data) }));
 		return Object.assign({}, ...array);
 
 	}

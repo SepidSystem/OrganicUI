@@ -1,7 +1,8 @@
-import { changeCase } from "./utils";
+import { changeCase, Utils } from "./utils";
 import axios, { AxiosRequestConfig } from 'axios';
 import { AppUtils } from "./app-utils";
 import { i18n } from "./shared-vars";
+import { Alert } from "../controls/inspired-components";
 
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
@@ -16,6 +17,9 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
         if (restClient['bodyMapper'])
             data = restClient['bodyMapper']({ method, url, body: data });
 
+        if (Utils.fakeLoad()) {
+            return Promise.resolve({} as any);
+        }
         if (method == 'GET' && data && Object.keys(data).length) {
             url = url + (url.includes('?') ? '&' : '?') + Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&');
         }
@@ -34,8 +38,8 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
         Object.assign(params, opts);
         params.headers = params.headers || {};
         params.headers['Content-Type'] = 'application/json;charset=utf-8';
-        params.data = JSON.stringify(data);
         let showResponse = false;
+
         const { afterREST } = OrganicUI.AppUtils;
         const result = firstPromise
             .then(activate => (showResponse = !!activate, activate))
@@ -72,10 +76,15 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
 
 
             }, async error => {
+                if (!error.response) {
+                    const { whenNoResponse } = createClientForREST as any;
+                    if (whenNoResponse instanceof Function) whenNoResponse();
+                    return Promise.reject(error);
+                }
                 let errorData = error && error.response ?
                     (error.response.data && changeCase.camelCase(error.response.data))
-                    : error && i18n.get(error.message);
-                const { status } = (error.response || { }) as any;
+                    : error && i18n.get(error.exceptionMessage || error.message);
+                const { status } = (error.response || {}) as any;
                 if (console.groupCollapsed instanceof Function)
                     console.groupCollapsed(`fail REST "${method}" ${url}, status: (${status})`);
                 console.log('error>>>', error);
@@ -85,10 +94,10 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
                     console.groupEnd();
                 if (!errorData && error.response && errorTextByStatusCode[status])
                     errorData = errorTextByStatusCode[status];
-                if (typeof errorData == 'string' && errorData && errorData.length > 2)
+                if (status == 500 && typeof errorData == 'string' && errorData && errorData.length > 2)
                     AppUtils.networkError = {
                         content: errorData, actions: {
-                            close: () => {
+                            close() {
                                 AppUtils.networkError = null;
                                 return true;
                             }
@@ -107,7 +116,17 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
     Object.assign(window, { restClient });
     return restClient;
 };
+let noResponse = false;
+createClientForREST['whenNoResponse'] = () => {
+    if (noResponse) return;
+    noResponse = true;
 
+    Alert({
+        text: i18n.get('Network Error'), type: 'error',
+        onAfterClose: () => noResponse = false,
+        confirmButtonText: i18n.get('okey')
+    });
+}
 /*
 export const refetch = createClientForREST();
 const patterns = {

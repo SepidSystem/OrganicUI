@@ -4,6 +4,11 @@ export function openRegistry<T>(mapper?: (result: T, key: string) => T): Organic
     let data = {}, notFounded = {}, secondaryValues = {};
     const testers: OrganicUi.CustomTesterForRegistry[] = [], resultForTesters: T[] = [];
     function getter(key, setValue?: T): T {
+        if(key instanceof Array){
+            if(key.every(s=>typeof s=='string')){
+                key=key.toString(); // templated string 
+            }
+        }
         if (key === undefined) return;
         if (arguments.length == 2) return getter['set'](key, setValue) as any;
         if (key instanceof Object) return key;

@@ -51,9 +51,10 @@ function classFactory<TData, TState=any>(options: Reinvent.IDashboardWidgetOptio
         const param = AClass.applyChain('paramInitializer');
         options['timerActivate'] = !!options.interval;
         const loader = Utils.toPromise(AClass.applyChain('dataLoader', param, this.state))
-            .then(data => this.repatch({ data }), rejectReason => {
-                this.repatch({ data: rejectReason })
-            });
+            .then(
+                data => this.repatch({ data }),
+                rejectReason => this.repatch({ data: rejectReason })
+            );
         Object.assign(this.state, { data: loader, param });
     };
     function getRenderParams(target) {
@@ -97,9 +98,9 @@ class DashboardPage extends BaseComponent<never, never> {
         const widgetES6Classes = reinvent.query('frontend:dashboard:widget');
         this.setPageTitle('dashboard');
         return (<article ref="root" >
-            <GridList cellHeight="auto" spacing={20} cols={3}  style={{overflow:'hidden'}}>
+            <GridList cellHeight="auto" spacing={20} cols={3} style={{ overflow: 'hidden' }}>
                 {widgetES6Classes.map((widgetES6Class: any, idx) =>
-                    <GridListTile  cols={(widgetES6Class.options && widgetES6Class.options.cols) || 0}>
+                    <GridListTile cols={(widgetES6Class.options && widgetES6Class.options.cols) || 0}>
                         {(widgetES6Class.options && widgetES6Class.options.fragment) ?
                             React.createElement(widgetES6Class, {})
                             : <Paper className="block" style={{ padding: '10px', height: '98%' }}>
