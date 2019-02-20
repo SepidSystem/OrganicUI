@@ -1,5 +1,5 @@
 import { BaseComponent } from "../core/base-component";
-import { AdvButton } from "../core/ui-elements";
+import { AdvButton } from "../controls/adv-button";
 import { Button } from '../controls/inspired-components';
 import { DataLookup } from './data-lookup';
 import { Utils } from "../core/utils";

@@ -28,12 +28,23 @@ function classFactory<TDto>(p: IParams<TDto>):
         const { state } = target;
         const { data } = target.state;
         const bindingSource = target.bindingSource = target.bindingSource || new BindingSource();
+        const { props } = target;
         const result = {
-            state: target.target || {}, props: target.props,
+            state: target.target || {}, props,
             data, bindingSource,
-            getData: () => {
+            getData: ({ defaultData = null } = {}) => {
                 const singleView: SingleViewBox<any> = target.refs.main || target.querySelectorAll('.single-view')[0];
-                return singleView.state.formData;
+                const result = (singleView && singleView.state && singleView.state.formData);
+                if (result instanceof Promise || !result) {
+                    target.repatch({}, null, 10);
+
+                }
+                return result || defaultData;
+            },
+            getSubData: (key, { defaultData = null }) => {
+                let data = result.getData();
+                data = data && data[key];
+                return data || defaultData;
             },
             binding: bindingSource,
             repatch: target.repatch.bind(target),
@@ -47,20 +58,34 @@ function classFactory<TDto>(p: IParams<TDto>):
             showModal: target.showModal.bind(target),
             reload: () => target && target.refs && target.refs.main && target.refs.main.reload && target.refs.main.reload()
         };
+
         return result;
     }
-    AClass.renderer(p => {
+    AClass.renderer(function (p) {
         const { id } = p.props, { data } = p.state;
         if (data instanceof Promise) return <div ref="root" className="flex-center flex-full-center">
             <Spinner />
         </div>;
-        const targetKey = id ? 'singleView' : 'listView';
+        const protoype = Object.getPrototypeOf(this) || {};
+        const { constructor } = protoype as any;
+        const targetKey = Utils.isID(id) ? 'singleView' : 'listView';
         const componentClass = reinvent.templates[targetKey] as React.ComponentClass<any>;
         const result = AClass.applyChain(targetKey, p) as React.ReactElement<any>;
         const children = React.Children.toArray(result.props.children);
-        const main = React.createElement(componentClass, { ref: "main", actions, params: p.props, options, customActions }, ...children);
+
+        const params = {
+            ...p.props,
+            ...(protoype && protoype.getForkData instanceof Function ? protoype.getForkData() : {}),
+            ...(constructor && constructor.getForkData instanceof Function ? constructor.getForkData() : {})
+        };
+        const main = React.createElement(componentClass, { ref: "main", actions, params, options, customActions }, ...children);
         return <section ref="root" className="attached-root">{main}</section>;
     });
+    AClass.preMatch = (args, url) => {
+        if (!url.includes(':id')) return true;
+        return Utils.isID(args.id);
+
+    }
     return Object.assign(AClass, { options, getRenderParams, beforeSave, doneFunc, actions, dataLookupActions: actions, dataLookupOptions: options }) as any;
 }
 reinvent.factoryTable['frontend:crud'] = classFactory;

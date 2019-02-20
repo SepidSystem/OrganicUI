@@ -136,6 +136,10 @@ function baseClassFactory<S>({ chainMethods, className }) {
             routeTable(pattern, ReinventComponent);
             return ReinventComponent;
         }
+        static forkData = null;
+        static getForkData() {
+            return this.forkData;
+        }
     }
     Array.from(chainMethods || [])
         .forEach(key => {

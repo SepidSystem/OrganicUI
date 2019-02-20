@@ -199,6 +199,14 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 this.operators = this.operators || this.props.operators || customRenderer['filterOperators'];
                 inputElement = customRenderer(this.props);
             }
+            if (inputElement && inputElement.type && this instanceof Field) {
+                try {
+                    this.operators = this.operators || this.props.operators || inputElement.type['filterOperators'];
+                } catch{
+
+                }
+            }
+
             if (inputElement instanceof Function) {
                 inputElement = React.createElement(inputElement as any, {});
 
@@ -285,7 +293,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
 
             if (defaultValue !== undefined && !this.state.defautValueOccured) {
                 this.state.defautValueOccured = true;
-                setTimeout(() => {  
+                setTimeout(() => {
                     const currentValue = this.handleGetData('default');
                     if (currentValue === undefined)
                         this.handleSetData(defaultValue instanceof Function ? defaultValue() : defaultValue, 'default')
@@ -370,8 +378,8 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         }
         const now = +new Date();
         const isHidden = dataForm && dataForm.props && dataForm.props.settings && dataForm.props.settings.isFieldHidden instanceof Function && dataForm.props.settings.isFieldHidden(p.accessor);
-        if(inputElementType && inputElementType.customFieldRender instanceof Function){
-            return  <span ref="root">{inputElementType.customFieldRender(this.props)}</span>;
+        if (inputElementType && inputElementType.customFieldRender instanceof Function) {
+            return <span ref="root">{inputElementType.customFieldRender(this.props)}</span>;
         }
         return (<div ref="root" key="root"
             data-accessor-name={accessorName}

@@ -17,7 +17,8 @@ export { IStateListener, StateListener } from './lib/core/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData } from './lib/core/bootstrapper';
 export { AppUtils } from './lib/core/app-utils';
 export { SubRender, Action, Helper, SelfBind } from './lib/core/decorators';
-export { AdvButton, DropDownButton, Panel, Placeholder, SearchInput } from './lib/core/ui-elements';
+export {   DropDownButton, Panel, Placeholder, SearchInput } from './lib/core/ui-elements';
+
 export { Spinner } from './lib/core/spinner';
 export { scanAllPermission } from './lib/core/permission-management';
 export { ComboBox } from './lib/core/combo-box'
@@ -62,6 +63,7 @@ import './lib/reinvent/dashboard-reinvent';
 export { default as Collapsible } from 'react-collapsible';
 // Controls ** Beginnner Level
 export { SnackBar } from './lib/controls/snack-bar';
+export {AdvButton} from './lib/controls/adv-button';
 export { TimeSlot } from './lib/controls/time-slot';
 export { default as Version } from './version';
 export { UiKit } from './ui-kit/ui-kit';

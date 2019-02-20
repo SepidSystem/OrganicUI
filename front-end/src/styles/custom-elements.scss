@@ -231,7 +231,9 @@
 .scrollable-panel-reversed {
     .scrollBarY {
         direction: ltr;
+       
     }
+  
 }
 
 .scrollable-panel {
@@ -253,6 +255,14 @@
         z-index: 1000;
         overflow-x: scroll;
         overflow-y: hidden;
+    }
+    .scrollBar {
+        visibility: hidden ;
+    }
+    &.after-one-second {
+        .scrollBar  {
+            visibility: visible;
+        }
     }
 }
 
@@ -304,7 +314,5 @@
 }
 
 .adv-button {
-    &.is-loading {
-        
-    }
+    &.is-loading {}
 }

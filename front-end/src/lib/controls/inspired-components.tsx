@@ -77,7 +77,7 @@ export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 export { Modal } from 'office-ui-fabric-react/lib/Modal';
 export { FocusZone } from 'office-ui-fabric-react/lib/FocusZone';
 
-import Swal from 'sweetalert2'
+import Swal, { SweetAlertResult } from 'sweetalert2'
 import * as withReactContent from 'sweetalert2-react-content'
 import { i18n } from '../core/shared-vars';
 const alertWrapper = (withReactContent as any)(Swal);
@@ -86,4 +86,4 @@ export const Alert = (options: withReactContent.ReactSweetAlertOptions) => new a
     cancelButtonText: i18n.get('cancel')
 } as withReactContent.ReactSweetAlertOptions,
     options,
-    options.text ? { text: i18n.get(  options.text) } : {})); 
+    options.text ? { text: i18n.get(  options.text) } : {})) as  Promise<SweetAlertResult>; 

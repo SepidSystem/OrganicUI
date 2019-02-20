@@ -2,7 +2,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '../controls/i
 import { BaseComponent } from '../core/base-component';
 import { SelfBind } from '../core/decorators';
 import { i18n } from '../core/shared-vars';
-import { AdvButton } from '../core/ui-elements';
+import { AdvButton } from "../controls/adv-button";
 import { Utils, changeCase } from '../core/utils';
 import * as error from '../../../icons/ic_error.svg';
 import * as warning from '../../../icons/warning.svg';

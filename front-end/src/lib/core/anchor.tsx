@@ -4,9 +4,14 @@ import { Utils } from './utils';
 
 export function Anchor(p: OrganicUi.AnchorProps) {
     return <a {...p} onClick={async e => {
-        e.preventDefault();
-        const { switchingInClass, switchingOutClass, switchingElement, switchingDelay } = p;
         const href = (e.currentTarget as HTMLAnchorElement).href;
+        e.preventDefault();
+        const dom: any = document.querySelector('.organic-box') || {};
+        const { componentRef } = dom;
+        if (componentRef && componentRef.beforeNavigate instanceof Function)
+            await componentRef.beforeNavigate();
+
+        const { switchingInClass, switchingOutClass, switchingElement, switchingDelay } = p;
         if (switchingInClass) {
             const targetElement: HTMLElement = (typeof switchingElement == 'string' && document.querySelector(switchingElement)) || switchingElement || document.documentElement as any;
             const targetElementIsOK: boolean = !!targetElement && !!targetElement.classList;

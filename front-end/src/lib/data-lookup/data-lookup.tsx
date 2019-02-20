@@ -47,9 +47,10 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     static classNameForField = (p: OrganicUi.DataLookupProps) => `data-lookup-field control-field-single-line ${!!p.bellowList ? 'has-bellow-list' : ''}`;
     static textReader = (fld, prop: OrganicUi.DataLookupProps, value) => {
         const { source } = prop as any;
+        if(!source) return;
         if (prop.valueAsDisplayText && !!value)
             return <span className="valueAsDisplayText">{value}</span>;
-        if (!source.dataLookupActions) DataLookup.applySource(source || prop.predefined && DataLookup.predefines[prop.predefined]);
+        if ( source &&  !source.dataLookupActions) DataLookup.applySource(source || prop.predefined && DataLookup.predefines[prop.predefined]);
         return <DataLookupCell actions={source.dataLookupActions} options={source.dataLookupOptions} value={value} />
     }
     listViewElement: React.ReactElement<OrganicUi.IListViewParams>;
@@ -572,3 +573,4 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         </div >
     }
 }
+DataLookup['filterOperators'] = ['eq', 'neq']; 

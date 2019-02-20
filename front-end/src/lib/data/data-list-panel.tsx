@@ -5,7 +5,7 @@ import { Callout, Dialog, Modal as _Modal, MessageBar, Button } from "../control
 import { Utils } from "../core/utils";
 import { IDetailsListProps, DetailsListLayoutMode, Selection, SelectionMode } from "office-ui-fabric-react/lib/DetailsList";
 import { i18n } from "../core/shared-vars";
-import { AdvButton } from "../core/ui-elements";
+import { AdvButton } from "../controls/adv-button";
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 import { DataPanel } from './data-panel';
 import { Field } from "../data/field";
@@ -70,6 +70,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         setTimeout(
             () => this.refs.datalist && this.refs.datalist.reload(), 400);
     }
+    resetData() {
+        this.items = null;
+    }
     getItems() {
         if (this.items) return this.items;
         const { root } = this.refs;
@@ -112,9 +115,9 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
                     this.forceUpdate();
                 });
         }
-        return Utils.renderButtons(customBar, {
+        return <header className="custom-bar">{Utils.renderButtons(customBar, {
             callback, args: [this.getItems()]
-        });
+        })}</header>;
     }
     afterActiveItemChanged(selectedItem, selectedItemIndex) {
         this.targetItem = JSON.parse(JSON.stringify(selectedItem));
@@ -209,7 +212,7 @@ export class DataListPanel extends BaseComponent<OrganicUi.DataListPanelProps, I
         if (s.targetSelector.includes('add')) s.selectedItem = null;
         const targetClick = s => this.doTargetClick.bind(this, s);
         const children = [p.customBar && this.getCustomBar(), !p.customBar && !p.avoidAdd &&
-            <Button variant="outlined" color="secondary" className="add-button" onClick={targetClick('.add-button')}    >{i18n('add')}</Button>,
+            <AdvButton variant="outlined" color="secondary" className="add-button" onClick={targetClick('.add-button')}    >{i18n('add')}</AdvButton>,
         !!this.dataList && <hr style={{ margin: '4px 0' }} />,
         !!this.dataList && <div className="dataList-wrapper" >{this.dataList} </div>,
         !!p.children && s.isOpen && this.renderCallout(callOutTarget)]

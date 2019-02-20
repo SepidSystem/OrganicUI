@@ -27,16 +27,14 @@ export function route(path: string, args: Object): typeof React.Component {
                 const paramName = parameters.shift();
 
                 const value = m[idx];
-                if (paramName in args) {
-
+                if (paramName in args)
                     args[paramName] = args[paramName] instanceof Array ? args[paramName].concat([value]) : [args[paramName], value];
-                }
                 else
                     args[paramName] = value;
 
             }
             const query = location.href.split('?')[1] || '';
-            query.split('&').filter(x=>x).map(part => part.split('=')).forEach(([key, value]) => args[key] = decodeURIComponent(value));
+            query.split('&').filter(x => x).map(part => part.split('=')).forEach(([key, value]) => args[key] = decodeURIComponent(value));
 
             return true;
         }
@@ -47,7 +45,10 @@ export function route(path: string, args: Object): typeof React.Component {
     matchedRoutes.forEach(routeURL => Object.assign(routeTable(routeURL) || {}, { routeURL }));
     const lastSecondaryValue = matchedRoutes.map(key => routeTable.secondaryValues[key])[0]
     Object.assign(route, { lastSecondaryValue });
-    if (matchedRoutes.length == 1) return matchedRoutes.map(routeTable)[0] as any;
+    if (matchedRoutes.length >= 1) return matchedRoutes.map<any>(url => [url, routeTable(url)])
+        .filter(([url, view]) => !!view)
+        .filter(([url, view]) => !(view.preMatch instanceof Function) || view.preMatch(args, url))
+        .map(([url, v]) => v)[0] as any;
     OrganicUI.Utils.warn({ matchedRoutes });
 }
 Object.assign(route, { lastSecondaryValue: null });

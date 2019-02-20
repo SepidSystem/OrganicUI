@@ -130,11 +130,12 @@ export class BaseComponent<P, S> extends Component<P, S>{
         } as any);
     }
     tryCheckRefs: number;
+    noRetryCheckRef:boolean;
     checkRefs(...args: string[]): boolean {
-        if (this.tryCheckRefs > 5) return;
+        if (this.tryCheckRefs > 2) return;
         this.tryCheckRefs = this.tryCheckRefs || 0;;
         const result = args.reduce((a, key) => a && this.refs[key], true);
-        if (!result) this.repatch({}, null, 20);
+        if (!this.noRetryCheckRef && !result) this.repatch({}, null, 20);
         return this.refs[args[args.length - 1]];
     }
     evalFromRef<TRef=HTMLElement>(refName: string, callback: (ref: TRef) => any,defaultValue?) {

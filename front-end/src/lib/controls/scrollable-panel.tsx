@@ -7,24 +7,54 @@ export class ScrollablePanel extends BaseComponent<OrganicUi.ScrollablePanelProp
     refs: {
         content: HTMLElement;
         scrollerY: HTMLElement;
-        scrollerX:HTMLElement;
+        scrollerX: HTMLElement;
         focusInput: HTMLElement;
         root: HTMLElement;
     }
+    /**
+     *
+     */
+    constructor(p) {
+        super(p);
+
+        this.noRetryCheckRef = true;
+
+    }
+
     scrollTimeouts: Object = {};
     contentTop: number;
     avoidSync: boolean;
+    disableAutoRepatch: boolean;
+    componentDidMount() {
+        super.componentDidMount();
+        if (!this.disableAutoRepatch) {
+            this.disableAutoRepatch = true;
+            this.repatch({}, null, 200);
+            setTimeout(() => this.refs.root && this.refs.root.classList.add('after-one-second'), 500);
+        }
+    }
+    overWheelCount: number;
     handleWheel(e: React.WheelEvent<HTMLElement>) {
-        const { scrollerY,scrollerX } = this.refs;
+
+        const { scrollerY, scrollerX } = this.refs;
         const maxY = scrollerY && (scrollerY.scrollHeight - scrollerY.clientHeight);
-        const maxX =scrollerX && (  scrollerX.scrollWidth - scrollerX.clientWidth)  ;
-
-        const scrollTop = Utils.limitNumber((this.scrollY || 0) + Math.round(e.deltaY / 5)
-            , 0, maxY);
-
+        const maxX = scrollerX && (scrollerX.scrollWidth - scrollerX.clientWidth);
+        const scrollTop = Utils.limitNumber((this.scrollY || 0) + Math.round(e.deltaY / 5), 0, maxY);
         let scrollLeft = Utils.limitNumber((this.scrollX || 0) + Math.round(e.deltaX / 5)
             , 0, maxX);
- 
+
+        if ((e.deltaY < 0 && scrollTop > 0) ||
+            (e.deltaY > 0 && scrollTop < maxY) || e.deltaX) {
+            this.overWheelCount = 0;
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        else {
+            if (this.overWheelCount++ < 5) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
         this.doScroll(scrollTop, scrollLeft, null);
         scrollerY && (scrollerY.scrollTop = scrollTop);
 
@@ -72,7 +102,7 @@ export class ScrollablePanel extends BaseComponent<OrganicUi.ScrollablePanelProp
         this.scrollTimeouts[refAttr] = setTimeout(() => {
             this.scrollTimeouts[refAttr] = null;
             const x = target.scrollWidth - target.clientWidth - target.scrollLeft;
-                this.doScroll(this.scrollY, x, target);
+            this.doScroll(this.scrollY, x, target);
         }, 10);
     }
     setScrollY(y: number) {
@@ -81,7 +111,7 @@ export class ScrollablePanel extends BaseComponent<OrganicUi.ScrollablePanelProp
     showScrollBarY(minHeight) {
         const scrollHeight = this.props.onGetInnerHeight ?
             this.props.onGetInnerHeight()
-            : this.evalFromRef('root', ele => ele.clientHeight);
+            : (this.refs.root ? this.refs.root.clientHeight : 0);// this.evalFromRef('root', ele => ele.clientHeight);
         if (!scrollHeight) {
             this.repatch({}, null, 10);
             return;
@@ -106,16 +136,18 @@ export class ScrollablePanel extends BaseComponent<OrganicUi.ScrollablePanelProp
     renderContent() {
         if (this.props.ignore)
             return <>{this.props.children}</>
+        const { root } = this.refs;
         const minHeight = this.props.onGetHeight instanceof Function ?
             this.props.onGetHeight() :
             this.evalFromRef('content', c => c.querySelector('section').clientHeight);
-        const minWidth =
-            this.evalFromRef('content', c => c.querySelector('section').clientWidth);
+        const rootWidth = root && root.clientWidth
+        const minWidth = this.evalFromRef('root', c => c.querySelector('section').clientWidth);
+        const accutalWidth = this.props.onGetWidth instanceof Function ? this.props.onGetWidth() : 0;
         const hasLoadingState = this.evalFromRef('root', r => r.querySelector('.loading-state'), true);
         if (hasLoadingState) {
             this.repatch({}, null, 100);
         }
-        
+
         this.rootHeight = this.evalFromRef('root', root => Utils.getComputedHeight(root));
 
 
@@ -148,10 +180,14 @@ export class ScrollablePanel extends BaseComponent<OrganicUi.ScrollablePanelProp
                 </div>
             </section>
             {!p.reversed && this.showScrollBarY(minHeight)}
-            {this.props.onGetWidth && <div className="scrollBar scrollBarX" ref="scrollerX"
+            {this.props.onGetWidth && accutalWidth && <div className="scrollBar scrollBarX" ref="scrollerX"
                 data-ref="scrollerX"
+                style={{ display: (!accutalWidth || !minWidth || (Math.max(accutalWidth, rootWidth, minWidth) - Math.min(accutalWidth, rootWidth)) < 45) ? 'none' : undefined }}
+                data-width={minWidth || 0}
+                data-rootWidth={rootWidth}
+                data-get-width={accutalWidth || 0}
                 onScroll={this.syncScrollX.bind(this)}>
-                <div style={{ minHeight: 2, minWidth: this.props.onGetWidth() }}></div>
+                <div style={{ minHeight: 2, minWidth:Math.max(accutalWidth, rootWidth, minWidth) }}></div>
             </div>}
         </div>
     }

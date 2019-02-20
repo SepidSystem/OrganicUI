@@ -4,28 +4,39 @@ import { Utils } from '../core/utils';
 import { checkPermission } from '../core/permission-management';
 import { DataForm } from '../data/data-form';
 import { Spinner } from '../core/spinner';
-import { AdvButton, Placeholder } from '../core/ui-elements';
+import { AdvButton } from '../controls/adv-button';
 import OrganicBox from './organic-box';
 import { IActionsForCRUD, IOptionsForCRUD, ISingleViewParams } from '@organic-ui';
 import { AppUtils } from '../core/app-utils';
 import { createClientForREST } from '../core/rest-api';
 import { DeveloperBar } from '../core/developer-features';
-import { Icon, Paper, Button } from '../controls/inspired-components';
+import { Icon, Paper, Button, Alert } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
 import { SelfBind } from '../core/decorators';
 import Svg from '../controls/svg';
 import *as ArrowLeftSvg from './arrow-left.svg'
-interface SingleViewBoxState<T> {
+import { IErrorItem, errorTranslationServices } from './error-translation';
+interface IState<T> {
     id: any;
     formData: T; validated: boolean;
+    initialFormData: T;
+    formKey: number;
 }
 
 export class SingleViewBox<T> extends OrganicBox<
-    IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, SingleViewBoxState<T>> {
+    IActionsForCRUD<T>, IOptionsForCRUD, ISingleViewParams, IState<T>> {
     undefinedFields: Object;
     objectCreation: number;
     static fetchFail: Function;
     static monitorFunc: Function;
+    static TranslateError(errorItem: IErrorItem) {
+        if (typeof errorItem == 'string') return errorItem;
+        if (errorItem.message && errorItem.argument) {
+            for (const service of errorTranslationServices)
+                if (service.check(errorItem)) return service.translate(errorItem);
+        }
+        console.log({ errorItem });
+    }
     static getMonitorFunc(): Function {
         const { monitorFunc } = SingleViewBox;
         return !!DeveloperBar.developerFriendlyEnabled && monitorFunc;
@@ -54,6 +65,8 @@ export class SingleViewBox<T> extends OrganicBox<
         secondaryButton: AdvButton;
     }
     mapFormData(formData) {
+        if (this.state.id && !this.state.initialFormData)
+            setTimeout(() => this.repatch({ initialFormData: Utils.clone(this.getFormData()) }), 300);
         return this.actions.mapFormData ? this.actions.mapFormData(formData) : formData;
     }
     componentWillMount() {
@@ -75,6 +88,8 @@ export class SingleViewBox<T> extends OrganicBox<
     componentDidMount() {
         super.componentDidMount();
         this.setPageTitle(this.getTitle());
+        if (this.state.id && !this.state.initialFormData)
+            setTimeout(() => this.repatch({ initialFormData: Utils.clone(this.getFormData()) }), 1500);
     }
     getId(row) {
         if (this.actions.getId instanceof Function)
@@ -94,12 +109,21 @@ export class SingleViewBox<T> extends OrganicBox<
     addNewMode() {
         return this.state.id == 'new';
     }
+    handleAnchorForErrorClick(e: React.MouseEvent<HTMLElement>) {
+        e.preventDefault();
+        const { currentTarget } = e;
+        const argument = currentTarget.getAttribute('data-argument');
+        this.refs.dataForm.setFocusByAcccesor(argument);
+    }
     renderError(error) {
         if (!error) return null;
         const { errors } = error;
         if (errors instanceof Array) {
             return <ul>
-                {errors.filter(notFalse => notFalse).map(err => <li>{err.message || err}</li>)}
+                {errors.filter(notFalse => notFalse).slice(0, 5).map(err => <li>
+                    <a href="#" onClick={this.handleAnchorForErrorClick.bind(this)} data-argument={err.argument}>
+                        {SingleViewBox.TranslateError(err)}
+                    </a></li>)}
             </ul>
         }
         return error;
@@ -146,14 +170,23 @@ export class SingleViewBox<T> extends OrganicBox<
                 return Promise.resolve({ error })
             })
             .then(
-                res => {
+                async res => {
                     if (res.id)
                         res.id = +res.id;
                     if (this.state.id == 'new' && res.id) {
                         history.replaceState(null, document.title, location.href.replace('/new', '/' + res.id));
                     }
                     this.state.id = res.id || this.state.id;
+
                     formData.id = res.id || formData.id;
+                    console.log({ res, formData });
+                    const entity = await this.props.actions.read(formData.id);
+
+                    this.querySelectorAll('*')
+                        .filter(c => c && c.resetData instanceof Function)
+                        .forEach(c => c.resetData());
+                    this.repatch({ formData: this.mapFormData(entity), formKey: +new Date() });
+
                     if (res.error) return <div className="server-side-message">
                         <i className="fa fa-exclamation-triangle center-content" style={{ fontSize: '40px' }}></i>
                         <p style={{ whiteSpace: 'pre-line' }}>{this.renderError(res.error)}</p>
@@ -199,6 +232,18 @@ export class SingleViewBox<T> extends OrganicBox<
         const p = this.props;
         return Utils.i18nFormat(p.params.id > 0 ? 'edit-entity-fmt' : 'add-entity-fmt', { s: i18n.get(p.options.singularName) })
     }
+    static lastBeforeNavigateOccur = 0;
+    async beforeNavigate(checkOnlyFormChanged: boolean) {
+        const { initialFormData, formData } = this.state;
+        const formChanged = !!initialFormData && !!formData &&
+            !Utils.equals(initialFormData, formData);
+        if (checkOnlyFormChanged) return formChanged;
+        if (!formChanged) return Promise.resolve(true);
+        const userReaction = await Alert({ type: 'question', text: i18n.get('are-you-sure'), showCancelButton: true });
+        SingleViewBox.lastBeforeNavigateOccur = +new Date();
+        return (userReaction && userReaction.value) ? Promise.resolve(true) : Promise.reject('cancel-by-user');
+
+    }
     renderContent(p = this.props) {
 
         const { options } = this.props;
@@ -226,7 +271,9 @@ export class SingleViewBox<T> extends OrganicBox<
                 <DataForm ref="dataForm"
                     validate={s.validated}
                     onErrorCode={this.actions.validate}
-                    data={s.formData}>
+                    data={s.formData}
+                    key={s.formKey || 0}
+                >
                     {React.Children.toArray(this.props.children).filter((c: any) => c && c.props && !c.props['role'])}
                 </DataForm>
                 {hasModifyPermission &&
@@ -258,6 +305,7 @@ window.onbeforeunload = e => {
     const dom = (document.querySelector('.organic-box.single-view') || {}) as any;
 
     const { componentRef } = dom;
-    if (componentRef instanceof SingleViewBox)
+    if (componentRef instanceof SingleViewBox && componentRef.beforeNavigate(true))
         return i18n.get('are-you-sure');
-} 
+}
+

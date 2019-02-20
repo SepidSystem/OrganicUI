@@ -11,6 +11,9 @@
     }
     .MuiButtonBase-root {
         min-width: 32px;
+        *{
+            white-space: nowrap;
+        }
     }
     .pagination-next,
     .pagination-next:hover,
@@ -74,7 +77,12 @@
 
 .data-list-panel-wrapper {
     width: 100%;
-   /* position: relative;
+    .custom-bar {
+        .adv-button {
+            margin: 0 3px;
+        }
+    }
+    /* position: relative;
     .add-button {
         position: absolute;
         bottom: 35px;
@@ -240,7 +248,7 @@
             -moz-height: auto !important;
         }
         .content-scroll {
-            -moz-min-width: calc(100% - 30px) !important;
+            min-width: calc(100% - 30px) !important;
         }
     }
     .ms-DetailsHeader-cellName {

@@ -17,6 +17,7 @@
         }
         .suffix {
             margin: 0 !important;
+            
             input {
                 margin: 0rem;
                 margin-top: 13px;
@@ -52,15 +53,17 @@
         color: azure;
     }
     .parts {
-        font-size: 47px;
+        font-size: 40px;
         position: absolute;
         left: 40px;
         right: 70px;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-items: center;
         justify-content: center;
         height: 50px;
+        white-space: nowrap;
+        bottom: 5px;
     }
     .part1 {
         width: 50px;
@@ -77,12 +80,14 @@
     .suffix {
         width: 40px;
         float: right;
-        margin-top: 3px;
-        margin-left: 5px;
+          margin-left: 5px;
+        position: absolute;
+        right:0;    
+        bottom: 10px;
     }
     span {
         background: transparent !important;
-        font-size: 32px;
+        font-size: 30px;
     }
 }
 

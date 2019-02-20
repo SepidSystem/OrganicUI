@@ -8,7 +8,7 @@ import { Utils, changeCase } from '../core/utils';
 import { Field } from '../data/field';
 import { IListData, IDeveloperFeatures, IFieldProps } from '@organic-ui';
 import { ScrollablePanel } from '../controls/scrollable-panel';
-import { AdvButton } from '../core/ui-elements'
+import { AdvButton } from "../controls/adv-button";
 import { DetailsList, FocusZone, Button, Menu, MenuItem } from '../controls/inspired-components';
 import { IColumn, ConstrainMode, IDetailsListProps, Selection, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
 import { SelfBind } from '../core/decorators';
@@ -68,14 +68,12 @@ class Pagination extends BaseComponent<IPaginationProps, IPaginationProps>{
     renderContent() {
         const p = this.props, s = this.state;
 
-        const targetPageIndex = p.loadingPageIndex < 0 ? p.currentPageIndex : p.loadingPageIndex;
-        const pushNum = n => (n > 0) && (n < p.totalPages - 1) && !pageNumbers.includes(n) && pageNumbers.push(n);
-        const pageNumbers = [];
-
-        for (let i = -defaultNormalPageCount; i < defaultNormalPageCount; i++) {
-            pushNum(i + targetPageIndex);
-
-        }
+        const targetPageIndex = p.loadingPageIndex < 0 ? (p.currentPageIndex || 0) : p.loadingPageIndex;
+        const currentPageIndex = p.currentPageIndex || 0;
+        const pageNumbers = Array.from({ length: p.totalPages })
+            .map((_, idx) => idx)
+            .slice(Math.max(0, currentPageIndex - defaultNormalPageCount), currentPageIndex + defaultNormalPageCount)
+            .filter(n => n > 0 && n < p.totalPages - 1);
         const ellipsis = (<li className=""><span className="pagination-ellipsis">&hellip;</span></li>);
         return <nav key="pagination" className="pagination   is-centered" role="navigation" aria-label="pagination" >
             {Boolean(s.anchorEl) && p.totalPages <= defaultMaxPageCount && <Menu
@@ -96,15 +94,15 @@ class Pagination extends BaseComponent<IPaginationProps, IPaginationProps>{
             </span>
 
             <Button variant="raised" className="pagination-previous" disabled={targetPageIndex <= 0} onClick={() => p.loadingPageIndex < 0 && p.onPageIndexChange(targetPageIndex - 1)}>{Utils.showIcon('fa-chevron-right')}</Button>
-            <span className="pagination-next" style={{ display: 'flex' }} >
 
-                <Button variant="raised" disabled={targetPageIndex >= p.totalPages - 1} data-loading-idx={p.loadingPageIndex} onClick={() => p.loadingPageIndex < 0 && p.onPageIndexChange(targetPageIndex + 1)} >{Utils.showIcon('fa-chevron-left')}</Button>
-            </span>
+
+            <Button variant="raised" className="pagination-next" disabled={targetPageIndex >= p.totalPages - 1} data-loading-idx={p.loadingPageIndex} onClick={() => p.loadingPageIndex < 0 && p.onPageIndexChange(targetPageIndex + 1)} >{Utils.showIcon('fa-chevron-left')}</Button>
+
             <ul key="pagination-list" className="pagination-list">
                 {this.showButton(targetPageIndex, 0)}
                 {!pageNumbers.includes(1) && !!pageNumbers.length && ellipsis}
                 {pageNumbers.map(this.showButton.bind(this, targetPageIndex))}
-                {!pageNumbers.includes(p.totalPages - 2) && (p.totalPages >= defaultNormalPageCount) && ellipsis}
+                {!pageNumbers.includes(p.totalPages - 2) && !!pageNumbers.length && (p.totalPages >= defaultNormalPageCount) && ellipsis}
 
                 {this.showButton(targetPageIndex, p.totalPages - 1, 'testable testable__lastPage')}
 
@@ -196,14 +194,14 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     lastDataLoading = new Date();
     accquiredSelection: any;
 
-    async callAction(row, rowIndex, funcName: string) {
+    async callAction(row, rowIndex, rows, funcName: string) {
         const func = this.props.customActions[funcName];
         if (this.props.onActionExecute) {
-            const customResult = this.props.onActionExecute(funcName, row, rowIndex);
+            const customResult = this.props.onActionExecute(funcName, row, rows);
 
             if (React.isValidElement(customResult)) return customResult;
         }
-        const updatedRow = Utils.clone(await Utils.toPromise(func(row, rowIndex)));
+        const updatedRow = Utils.clone(await Utils.toPromise(func(row, rows)));
         if (!updatedRow) return;
         if (updatedRow == 'remove') {
             this.items.splice(rowIndex, 1);
@@ -220,7 +218,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     getCustomActions(row, rowIndex) {
         return <div className="custom-actions">
             {Object.keys(this.props.customActions).map(funcKey => (
-                <AdvButton onClick={this.callAction.bind(this, row, rowIndex, funcKey)} >
+                <AdvButton noSpinMode={funcKey == 'handleEdit' || funcKey == 'handleRemove'} onClick={this.callAction.bind(this, row, rowIndex, this.items, funcKey)} >
                     {this.props.customActionRenderer(funcKey, this.props.customActions[funcKey])}
                 </AdvButton>
             ))}
@@ -419,6 +417,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
     @SelfBind()
     getFullHeight() {
         if (this.state.isLoading) return 0;
+        if (!this.items || !this.items.length) return 0;
         const fullHeight = this.evalFromRef('root', r => r.querySelector('.ms-Viewport').clientHeight);
         return fullHeight || 1;
     }
@@ -541,7 +540,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
             <i className="shine-me-child" />
             {isLoaded ?
                 <ScrollablePanel
-                    key={+this.lastDataLoading}
+                    key={((this.items && this.items.length) || 0)}
                     ignore={this.props.ignoreScroll}
                     onSyncScroll={this.handleSyncScroll.bind(this)}
                     onGetWidth={this.getFullWidth}

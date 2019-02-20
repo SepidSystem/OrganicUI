@@ -458,6 +458,15 @@ li.MuiButtonBase-root,
         min-height: 400px !important;
     }
 }
+
+.medium-textarea {
+    textarea {
+        max-height: 180px !important;
+        min-height: 180px !important;
+        overflow: hidden;
+        overflow-y: scroll !important;
+    }
+}
 .custom-actions{
     .MuiButton-root:hover{
         background: transparent !important;

@@ -122,7 +122,7 @@ declare namespace OrganicUi {
         style?: React.CSSProperties;
         persistentCacheKey?: string;
         dataEntryOnly?: boolean;
-       
+
     }
 
     export interface ActionsForIArrayDataViewItem {
@@ -173,7 +173,9 @@ declare namespace OrganicUi {
         defaultGetId: ({ id }) => any;
         setNoWarn(v);
         warn(...args);
-        renderDevButton(targetText, target: IDeveloperFeatures),
+        renderDevButton(targetText, target: IDeveloperFeatures);
+        overrideComponentClass(componentClass: React.ComponentClass, extraProps);
+        overrideFunctionalComponent<T>(componentClass: React.SFC<T>, extraProps:Partial<T>):React.SFC<T>;
         accquireDevPortId();
         renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function });
         reduceEntriesToObject(data: any): any;
@@ -191,7 +193,7 @@ declare namespace OrganicUi {
         diff(a, b): any;
         getCascadeAttribute(element: HTMLElement, attributeName: string, errorRaised?: boolean): string;
         enumToIdNames(enumType: any): ({ Id, Name }[]);
-        enumToRecords(enumType: any): ({ id,text }[]);
+        enumToRecords(enumType: any): ({ id, text }[]);
         addDays(date: Date, days: number): Date;
         numberFormat(n: string | number): string;
         hash(data): string;
@@ -203,6 +205,7 @@ declare namespace OrganicUi {
         fixDataBySchema<T>(data: T, schema): T;
         successCallout(content: React.ReactNode): JSX.Element;
         failCallout(content: React.ReactNode): JSX.Element;
+        setDefaultProp<P,KV extends keyof P>(componentType:React.ComponentType<P>,key:KV,value:P[KV]);
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -366,6 +369,7 @@ declare namespace OrganicUi {
         update: (id: any, dto: TDto) => Promise<any>;
         deleteList: (hid: any[]) => Promise<any>;
         read: (id: any) => Promise<TDto>;
+        readListByMode?: Map<string, (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>>;
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
         readByIds: (ids: any[]) => PromisedResultSet<TDto>;
         getUrlForSingleView?(id: string): string;
@@ -394,7 +398,8 @@ declare namespace OrganicUi {
         filterOptions?: {
             liveMode?: boolean;
         }
-        iconCode;
+        getUrlForSingleView?:Function;
+        iconCode?:any;
     }
     interface IListViewParams {
         forDataLookup?: boolean;
@@ -408,6 +413,7 @@ declare namespace OrganicUi {
         onSelectionChanged?: Function;
         onPageChanged?: Function;
         customReadList?: Function;
+        readListMode?: string;
         customActions?: { [key: string]: Function };
         customReadListArguments?: any[];
         canSelectItem?: (row) => boolean;
@@ -505,7 +511,7 @@ declare namespace OrganicUi {
         className?: string;
         style?: React.CSSProperties;
         children?: any;
-        settings:OrganicUi.DataForm.FormSettings;
+        settings: OrganicUi.DataForm.FormSettings;
         onCustomRenderWithCaptureValues?: Function;
         onFieldValidate?: (p: OrganicUi.IFieldProps) => string;
     }
@@ -635,7 +641,7 @@ declare namespace OrganicUi {
         static bindDetailField<T>(fieldName: keyof T): Function;
     }
     export namespace DataListPanel {
-      
+
     }
     export const FilterPanel: React.SFC<IFilterPanelProps>;
     interface DataLookupProps {
@@ -685,13 +691,14 @@ declare namespace OrganicUi {
         static predefines: { [key: string]: React.ComponentType<IListViewParams> }
     }
     export class TreeList extends BaseComponent<ITreeListProps, any>{ }
-    export namespace DataForm{
+    export namespace DataForm {
         export interface FormSettings {
-            isFieldHidden?: (fieldAccessor: OrganicUi.TAccessor)=>boolean;
-            isFieldReadonly?: (fieldAccessor: OrganicUi.TAccessor,fldProps?:OrganicUi.IFieldProps)=>boolean;
+            isFieldHidden?: (fieldAccessor: OrganicUi.TAccessor) => boolean;
+            isFieldReadonly?: (fieldAccessor: OrganicUi.TAccessor, fldProps?: OrganicUi.IFieldProps) => boolean;
         }
     }
-   export  interface IAdvButtonProps {
+    export interface IAdvButtonProps {
+        noSpinMode?:boolean;
         iconName?: string;
         children?: any;
         isLoading?: boolean;
@@ -714,6 +721,7 @@ declare namespace OrganicUi {
         color?: 'inherit' | 'primary' | 'secondary' | 'default';
         disabled?: boolean;
         text?: string;
+
     }
     export const AdvButton: React.SFC<IAdvButtonProps>;
     // Custom Components for  SepidSystem Company 
@@ -765,7 +773,7 @@ declare module '@organic-ui' {
     export const Utils: typeof OrganicUi.Utils;
     export const AppUtils: typeof OrganicUi.AppUtils;
     export const DataLookup: typeof OrganicUi.DataLookup;
-    export const HiddenField :React.SFC<any>;
+    export const HiddenField: React.SFC<any>;
     export const TreeList: typeof OrganicUi.TreeList;
     export const ImageUploader: React.SFC<OrganicUi.ImageUploaderProps>;
     export const Modal: React.SFC<OrganicUi.ModalProps>;
@@ -773,7 +781,7 @@ declare module '@organic-ui' {
     export const routeTable: typeof OrganicUi.routeTable;
     export type IFieldProps = OrganicUi.IFieldProps<IColumn>;
     export class Field extends OrganicUi.Field<IColumn>{
-        static getAccessorName(accessor) :string;
+        static getAccessorName(accessor): string;
     }
     export type IAppModel = OrganicUi.IAppModel;
     export const startApp: typeof OrganicUi.startApp;
@@ -785,6 +793,8 @@ declare module '@organic-ui' {
     import { AxiosRequestConfig } from 'axios';
     import { SweetAlertOptions, SweetAlertResult, SweetAlertType } from 'sweetalert2';
     import { IColumn, IDetailsListProps, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
+    import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
+
     import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, ComponentType } from 'react';
     export const JssProvider: any;
     export function scanAllPermission(table: { data }): Promise<ITreeListNode[]>;
@@ -833,15 +843,17 @@ declare module '@organic-ui' {
     export const DatePicker: React.SFC<OrganicUi.DatePickerProps>;
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
-    export type IAdvButtonProps = OrganicUi.IAdvButtonProps; 
-    export const AdvButton: typeof OrganicUi.AdvButton;
+    export type IAdvButtonProps = OrganicUi.IAdvButtonProps & {
+        menuItems?: IContextualMenuItem[];
+    };
+    export const AdvButton: React.SFC<IAdvButtonProps>;
     export const Panel: typeof OrganicUi.Panel;
     export class DataForm extends BaseComponent<Partial<OrganicUi.IDataFormProps>, any> {
         revalidateAllFields(): Promise<IDataFormAccessorMsg[]>;
         showInvalidItems(invalidItems?: IDataFormAccessorMsg[]): JSX.Element;
         getFieldErrorsAsElement(): Promise<JSX.Element>
     }
-    
+
     export class Port extends BaseComponent<OrganicUi.PortProps>{
 
     }

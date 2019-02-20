@@ -20,12 +20,17 @@ declare namespace Reinvent {
         renderer(renderFunc: TRenderFunc<S>): IBaseFrontEndReinvent<S>;
         done({ moduleId: string }): IBaseFrontEndReinvent<S, THookFuncParam>;
     }
+    interface IGetDataParams {
+        defaultData?:any;
+    }
 
     interface IRenderFuncExtForSingleView<T, TLoadParam> {
         data: T;
-        getData():T;
+        getData(params?: IGetDataParams): T;
+        getSubData<KV extends keyof T>(key: keyof T, params?: IGetDataParams): T[KV];
         binding: BindingHub<T>;
         param: TLoadParam;
+
         reload: (param: TLoadParam) => Promise<any>;
     }
     interface IRenderFuncExtForDashboard<TData, TState, TLoadParam> {
@@ -36,16 +41,18 @@ declare namespace Reinvent {
     }
     interface IReinventForCRUDParams<TDto, TState> {
         data: TDto;
-        getData():TDto;
+        getData(params?: IGetDataParams): TDto;
+        getSubData<KV extends keyof TDto>(key: keyof TDto, params?: IGetDataParams): TDto[KV];
         binding: BindingHub<TDto>;
         props;
+        params: any;
         state: TState;
         repatch(delta: Partial<TState>): void;
-        selectedItems():TDto[],
+        selectedItems(): TDto[],
         subrender(rendererId: string, params);
         callAction(actionName: string, actionParams): Promise<any>;
         root: HTMLElement;
-        reload:Function;
+        reload: Function;
     }
     interface IReinventForCRUD<TDto> extends IBaseFrontEndReinvent<never> {
         singleView<TState=never>(renderFunc: (p: IReinventForCRUDParams<TDto, TState>) => JSX.Element): IReinventForCRUD<TDto>;
@@ -85,7 +92,7 @@ declare namespace Reinvent {
         <TState>(type: 'frontend'): IBaseFrontEndReinvent<TState>;
         <TState>(type: 'frontend:monitoring', { interval }): IBaseFrontEndReinvent<TState>;
         (type: 'frontend:editor'): IEditorReinvent;
-
+  
         query(selector): any[];
         utils: {
             listViewFromArray<T>(items: T[], options?: { keyField?: string, fields?: string[], title?, iconCode?}): OrganicUi.StatelessListView;
@@ -93,7 +100,7 @@ declare namespace Reinvent {
             listViewFromEnum<TEnum>(enumType, options?: { keyField?: string, title?, iconCodes: { [key in keyof TEnum]: string } }): OrganicUi.StatelessListView;
 
         }
-        predefinesForApi:any;
+        predefinesForApi: any;
     }
     export interface IBindingPoint {
         __name: string;
@@ -106,11 +113,12 @@ declare namespace Reinvent {
 
     };
     type TemplateName = 'report-view' | 'dashboard' | 'login' | 'blank';
-    export function templatedView<T>(templName: 'singleView' | 'listView', opts: { 
-        actions?: OrganicUi.IActionsForCRUD<T>, 
-        options?: OrganicUi.IOptionsForCRUD, ref?: string, 
-        predefinedActions?:string,
-        customActions?: Partial<OrganicUi.IActionsForCRUD<T>> }): MethodDecorator;
+    export function templatedView<T>(templName: 'singleView' | 'listView', opts: {
+        actions?: OrganicUi.IActionsForCRUD<T>,
+        options?: OrganicUi.IOptionsForCRUD, ref?: string,
+        predefinedActions?: string,
+        customActions?: Partial<OrganicUi.IActionsForCRUD<T>>
+    }): MethodDecorator;
     export function templatedView<T>(templName: TemplateName, opts?): MethodDecorator;
     export function templatedView<TProps>(method: React.SFC<TProps>): (templName: TemplateName, props) => React.SFC<TProps>;
 
@@ -124,6 +132,7 @@ declare namespace Reinvent {
         constructor(data: any);
     }
     export function openBindingSource<T>(): BindingHub<T>;
+    export function    fork<T>(sourceClass:T,options):T;
 }
 
 

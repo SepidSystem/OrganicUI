@@ -42,24 +42,30 @@ export const Utils = Object.assign({}, {
 	coalesce(...args: any[]): any {
 		return args.filter(x => x)[0];
 	},
-	navigate(url) {
-		const now = +new Date();
-		Utils.soFastNavigateCount = (now - Utils.lastNavigate <= 800) ? Utils.soFastNavigateCount + 1 : 0;
-		Utils.lastNavigate = now;
+	async navigate(url) {
+		try {
 
-		if (Utils.soFastNavigateCount > 3) {
-			if (confirm('Are You Debug ,Yes=>Debugger,No=>Supress Checker ')) debugger
-			else Utils.soFastNavigateCount = -1000000000;
+
+			const now = +new Date();
+			Utils.soFastNavigateCount = (now - Utils.lastNavigate <= 800) ? Utils.soFastNavigateCount + 1 : 0;
+			Utils.lastNavigate = now;
+			if (Utils.soFastNavigateCount > 3) {
+				if (confirm('Are You Debug ,Yes=>Debugger,No=>Supress Checker ')) debugger
+				else Utils.soFastNavigateCount = -1000000000;
+			}
+			if (url && url.includes('/view/'))
+				history.pushState(null, null, url);
+			else {
+				console.log({ url });
+				location.href = url;
+				return;
+			}
+			OrganicUI['mountViewToRoot']();
+			scrollToTop(300);
+			return Promise.resolve(true);
+		} catch (reason) {
+			console.log('reason>>>', reason);
 		}
-		if (url.includes('/view/'))
-			history.pushState(null, null, url);
-		else {
-			location.href = url;
-			return;
-		}
-		OrganicUI['mountViewToRoot']();
-		scrollToTop(300);
-		return Promise.resolve(true);
 	},
 	debounce(func, wait, immediate?) {
 		var timeout;
@@ -77,6 +83,7 @@ export const Utils = Object.assign({}, {
 	},
 	makeWritable(root: HTMLElement) {
 		if (!root) return;
+
 		Array.from(root.querySelectorAll('*'))
 			.filter(node => node.nodeType == Node.ELEMENT_NODE)
 			.forEach((element: HTMLElement) => {
@@ -223,7 +230,7 @@ export const Utils = Object.assign({}, {
 		opts = opts || {};
 		const callback = opts.callback || function () { };
 		return Object.keys(methods).map(
-			key => React.createElement(opts.componentClass || Button,
+			key => React.createElement(opts.componentClass || OrganicUI.AdvButton,
 				{
 					onClick: (() => callback(methods[key](...(opts.args || [])), key)) as any,
 					variant: 'outlined', style: { margin: '0 0.3rem' },
@@ -297,10 +304,10 @@ export const Utils = Object.assign({}, {
 				Id: enumType[Name],
 				Name: customCaptions[Name] || i18n.get(changeCase.paramCase(Name)) || changeCase.paramCase(Name) || Name
 			})))
-	},enumToRecords(enumType: any, opts?: IEnumToArrayOptions): ({ id, text }[]) {
+	}, enumToRecords(enumType: any, opts?: IEnumToArrayOptions): ({ id, text }[]) {
 		let { customCaptions } = opts || {} as IEnumToArrayOptions;
 		customCaptions = customCaptions || {};
-		return   Object.keys(enumType)
+		return Object.keys(enumType)
 			.filter(key => (/[a-z]/.test((key[0] || '').toLowerCase())))
 			.map(Name => ({
 				id: enumType[Name],
@@ -459,7 +466,7 @@ export const Utils = Object.assign({}, {
 			<p style={{ whiteSpace: 'pre-line' }}>{i18n.get(content)}</p></div>
 	},
 	failCallout(content) {
-		return 	<div className="server-side-message">
+		return <div className="server-side-message">
 			<i className="fa fa-exclamation-triangle center-content" style={{ fontSize: '40px' }}></i>
 
 			<div className="animated fadeInDown " style={{ flex: 1 }}>
@@ -468,7 +475,15 @@ export const Utils = Object.assign({}, {
 				{i18n.get(content)}
 			</div>
 		</div>
-	}		
+	},
+	isID(id) {
+		if (id === undefined) return false;
+		return id == +id || id == 'new' || id.startsWith('draft')
+	} ,
+	setDefaultProp<P,KV extends keyof P>(componentType:React.ComponentType<P>,key:KV,value:any){
+		componentType.defaultProps=componentType.defaultProps || {};
+		componentType.defaultProps[key]=value;
+	}
 }, CoreUtils);
 import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";

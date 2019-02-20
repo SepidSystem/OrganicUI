@@ -63,16 +63,23 @@ function templatedView(templName, extraParams) {
 
     return result;
 }
+function fork(sourceClass, forkData) {
+    class ForkedClass extends sourceClass {
 
+    }
+    Object.assign(ForkedClass, { forkData });
+    return ForkedClass;
+}
 export const reinvent: typeof _reinvent & {
     query, factoryTable, prefix,
+   
     baseClassFactory: Function, templates: { [key: string]: React.ComponentClass<any> | Function },
     utils: any,
     modules: { [key: string]: any }, BindingSource: typeof BindingSource, openBindingSource: typeof openBindingSource
 } = Object.assign(_reinvent, {
     baseClassFactory: () => { throw ' baseClassFactory is missed' },
     query, factoryTable, templates, prefix: '', modules, utils: {}, templatedView, BindingSource,
-    openBindingSource, predefinesForApi: {}
+    openBindingSource, predefinesForApi: {}, fork 
 
 });
 Object.assign(window, { reinvent });

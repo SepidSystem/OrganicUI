@@ -10,7 +10,8 @@
     .field-accessor {
         min-width: 18.14rem;
         max-width: 18.14rem;
-        margin: 0 1.7rem;
+        margin: 0;
+        margin-left: 3.4rem;
         float: right;
     }
 }
@@ -161,9 +162,11 @@ hr {
 .large-text {
     font-size: 32px !important;
 }
-.full-width{ 
+
+.full-width {
     min-width: 100% !important;
 }
+
 .content-no-border {
     * {
         border: none !important;
@@ -269,7 +272,8 @@ hr {
     100% {
         left: 82%
     }
-} 
+}
+
 html body.swal2-height-auto {
     height: 100% !important;
     min-height: 100% !important;
@@ -371,8 +375,9 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-.red-checkbox{
-    svg{
-        fill:#ff0000;
+
+.red-checkbox {
+    svg {
+        fill: #ff0000;
     }
 }

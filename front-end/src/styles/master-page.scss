@@ -111,6 +111,7 @@ aside {
         transition: all 0.5s ease;
         min-height: 48px;
         display: flex;
+        
         a,
         .icon {
             padding: 12px 15px;
@@ -212,6 +213,7 @@ aside {
             font-family: 'Yekan' !important;
             min-height: 4.5rem;
             max-height: 4.5rem;
+            margin-right: 0.5rem;
         }
         .content ul {
             margin: 0

@@ -34,6 +34,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         accessor = Field.getAccessorName(accessor);
         const fldHtmlElement = Array.from(this.refs.root.querySelectorAll('.field-accessor'))
             .filter(fld => fld.getAttribute('data-accessor-name') == accessor)[0];
+        if (!fldHtmlElement) return;
         const { componentRef } = fldHtmlElement as any;
         if (componentRef) {
             componentRef.repatch({});
@@ -72,7 +73,7 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
     }
     async getFieldErrorsAsElement(): Promise<JSX.Element> {
         const messages: IDataFormAccessorMsg[] = await this.revalidateAllFields();
-        if (messages && messages[0])
+        if (messages && messages[0] && messages[0].accessor)
             this.setFocusByAcccesor(messages[0].accessor);
         return this.showInvalidItems(messages);
     }
@@ -175,10 +176,9 @@ export class DataForm extends BaseComponent<OrganicUi.IDataFormProps, IState> im
         this.processFields();
     }
 
-    static defaultProps={
-        settings:{
-        
+    static defaultProps = {
+        settings: {
+
         }
     }
 }
- 

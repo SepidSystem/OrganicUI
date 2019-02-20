@@ -6,7 +6,7 @@ import { Utils, changeCase } from '../core/utils';
 import { FilterPanel } from '../data/filter-panel';
 import { DataList } from '../data/data-list';
 import { ISelection, Selection, IDetailsListProps } from 'office-ui-fabric-react/lib/DetailsList'
-import { AdvButton, Placeholder } from '../core/ui-elements';
+import { AdvButton } from '../controls/adv-button';
 import { SelfBind } from '../core/decorators';
 import * as XLSX from 'xlsx';
 import OrganicBox from './organic-box';
@@ -14,11 +14,11 @@ import { Field } from '../data/field';
 import * as fullScreen from '../../../icons/full-screen.svg';
 import * as fullScreenExit from '../../../icons/full-screen-exit.svg';
 import { AppUtils } from '../core/app-utils';
-import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView, Alert } from '@organic-ui';
+import { IOptionsForCRUD, IActionsForCRUD, IListViewParams, IDeveloperFeatures, IFieldProps, StatelessListView } from '@organic-ui';
 import { createClientForREST } from '../core/rest-api';
 import { PrintIcon, DeleteIcon, EditIcon, SearchIcon, AddIcon, FullScreen, FullScreenExit } from '../controls/icons';
 import { SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
-import { Button, Paper, TextField } from '../controls/inspired-components';
+import { Button, Paper, TextField, Alert } from '../controls/inspired-components';
 import { SnackBar } from '../controls/snack-bar';
 import { DeveloperBar } from '../core/developer-features';
 import { reinvent } from '../reinvent/reinvent';
@@ -34,7 +34,7 @@ export interface TemplateForCRUDProps extends React.Props<any> {
     mode: 'single' | 'list';
 }
 
-interface ListViewBoxState<T> {
+interface IState<T> {
     dataFormForFilterPanel: any;
     currentRow: T;
     readingList: boolean;
@@ -43,10 +43,11 @@ interface ListViewBoxState<T> {
     fullScreen?: boolean;
     searchingValue: string;
     restoreState: boolean;
+    error: any;
 };
 
 export class ListViewBox<T=any> extends
-    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, ListViewBoxState<T>>
+    OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, IState<T>>
     implements IDeveloperFeatures {
     devElement: any;
     devPortId: any;
@@ -140,7 +141,7 @@ export class ListViewBox<T=any> extends
     }
     autoCreatedDataList: any;
     static isTargetedDataList(dataList) {
-        return dataList && dataList.type && dataList.type.isDataList && !dataList.props.loader;
+        return dataList && dataList.type && dataList.type.isDataList && (!dataList.props.loader);
     }
     getDataList() {
         const dataList = React.Children.toArray(this.props.children || []).filter(ListViewBox.isTargetedDataList)[0] as React.ReactElement<DataList>;
@@ -157,6 +158,9 @@ export class ListViewBox<T=any> extends
         return React.Children.map(children || [], (child: any) => child && child.type == Field && child).filter(x => !!x)
     }
     getUrlForSingleView(id) {
+        const { getUrlForSingleView } = this.props.options;
+        if (getUrlForSingleView instanceof Function)
+            return getUrlForSingleView(id, this.props.params);
         return this.props.options.routeForSingleView.replace(':id', id);
     }
     getDevButton() {
@@ -196,7 +200,7 @@ export class ListViewBox<T=any> extends
 
         const indices = this.selection.getSelectedIndices();
         if (!indices || indices.length == 0) {
-            AppUtils.showDialog(i18n('not-record-selected'));
+            Alert({ type: 'error', text: i18n.get('not-record-selected') });
             return;
         }
         const allItems = this.selection.getItems() as T[];
@@ -261,19 +265,24 @@ export class ListViewBox<T=any> extends
     @SelfBind()
     readList(params) {
         this.state.readingList = true;
-        const readList = this.props.params.customReadList || this.actions.readList;
+        const { mode } = this.props.params as any;
+        const { readListByMode } = this.props.actions;
+        const readList = this.props.params.customReadList ||
+            (mode && readListByMode && readListByMode[mode])
+            || this.actions.readList;
         let args = this.props.params.customReadListArguments;
         if (args instanceof Function) args = args();
         if (args !== undefined && !(args instanceof Array)) args = [args];
-
         return readList(...(args || [params])).then(r => {
             setTimeout(() => {
                 this.adjustSelectedRows();
                 this.state.readingList = false;
             }, 200);
             return r;
-        }, error => {
-
+        }, async error => {
+            const alertResult = await Alert({ text: i18n.get(error), type: 'error', confirmButtonText: i18n.get('okey') });
+            const repatchResult = await this.repatch({ error });
+            console.log({ error, alertResult, repatchResult });
             this.devElement = this.makeDevElementForDiag(error);
             return Promise.resolve({ rows: [], totalRows: 0 });
         });
@@ -423,7 +432,6 @@ export class ListViewBox<T=any> extends
         this.repatch({ fullScreen: !this.state.fullScreen });
     }
     handleNewButton() {
-
         const url = this.getUrlForSingleView('new');
         const _pageNo = this.refs.dataList.state.currentPageIndex;
         this.storeState({ _pageNo });
@@ -455,13 +463,13 @@ export class ListViewBox<T=any> extends
         if (!root && !Utils.fakeLoad()) setTimeout(() => (this.repatch({})), 10);
         let { permissionKeys } = options || {} as any;
         permissionKeys = permissionKeys || {} as any;
-        const minWidth = params.width && Math.max(params.width, 500);        
+        const minWidth = params.width && Math.max(params.width, 500);
         if (params.forDataLookup)
             return <section className={Utils.classNames(`developer-features list-view-data-lookup `, options && options.classNameForListView)}
                 data-parent-id={params.parentRefId}
                 style={{
-                    width: !this.props.params['noWidth'] &&  params.width || ('auto'),
-                    maxWidth:'100%',
+                    width: !this.props.params['noWidth'] && params.width || ('auto'),
+                    maxWidth: '100%',
                     overflow: 'hidden'
                 }} ref="root"  >
 
@@ -490,8 +498,6 @@ export class ListViewBox<T=any> extends
                             <div className="content" key="content">
                                 {Utils.showIcon(options.iconCode, "iconCode")}
                                 <div key="addText" className="add-text">{Utils.i18nFormat('new-entity-fmt', options.singularName)}</div>
-
-
                             </div>
                         </AdvButton>
                     </CriticalContent>
@@ -502,7 +508,7 @@ export class ListViewBox<T=any> extends
 
                 </header>
                 <div style={{ margin: "10px 0 10px 0" }} /></>}
-            <Paper className="  main-content column  "   >
+            <Paper className="main-content column  "   >
 
                 <header className="navigator" style={{ marginBottom: '0.5rem' }}>
                     {this.renderNavigator()}

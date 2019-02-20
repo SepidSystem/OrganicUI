@@ -1,7 +1,7 @@
 
 
 import { BaseComponent } from "../core/base-component";
-import { AdvButton } from "../core/ui-elements";
+import { AdvButton } from "../controls/adv-button";
 import { Field } from "./field";
 import { DataForm } from "./data-form";
 

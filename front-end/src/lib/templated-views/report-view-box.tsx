@@ -115,6 +115,6 @@ export class ReportViewBox extends OrganicBox<any, any, any, ReportViewBoxState>
 import { reinvent } from '../reinvent/reinvent';
 import { Utils } from '../core/utils';
 import { CriticalContent } from '../core/base-component';
-import { AdvButton } from '../core/ui-elements';
+import { AdvButton } from "../controls/adv-button";
 import { ListViewBox } from './list-view-box';
 Object.assign(reinvent.templates, { 'report-view': ReportViewBox });

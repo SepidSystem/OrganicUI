@@ -17,7 +17,7 @@ export function scanAllPermission(table: { data }): Promise<ITreeListNode[]> {
 
     return new Promise(async resolve => {
 
-        for (const url of urls) {
+        for (const url of urls) {   
             const temp = document.createElement('div');
             try {
                 const renderResult = await renderViewToComplete(url, temp);

@@ -1,6 +1,6 @@
 import { BaseComponent } from "../core/base-component";
 import { SelfBind } from "../core/decorators";
-import { AdvButton } from "../core/ui-elements";
+import { AdvButton } from "../controls/adv-button";
 import { i18n } from "../core/shared-vars";
 import { Utils } from "../core/utils";
 import { AppUtils } from "../core/app-utils";

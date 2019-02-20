@@ -5,7 +5,7 @@ import { Field, FilterItem } from "../data/field";
 import { Utils } from "../core/utils";
 import { IDeveloperFeatures, IFieldProps } from "@organic-ui";
 import { Paper, Button } from "../controls/inspired-components";
-import { AdvButton } from "../core/ui-elements";
+import { AdvButton } from "../controls/adv-button";
 import { SelfBind } from '../core/decorators';
 
 interface IState {
