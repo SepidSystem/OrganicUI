@@ -117,8 +117,8 @@ function baseClassFactory<S>({ chainMethods, className }) {
                 </div>
             }
             catch (exc) {
-                console.log({ exc });
-                return this.renderErrorMode(`problem in renderMode`, exc.toString());
+                console.log('renderError>>>>', exc);
+                return this.renderErrorMode(`problem in renderContent`, exc.toString());
             }
         }
 

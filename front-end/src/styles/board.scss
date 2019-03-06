@@ -1,0 +1,141 @@
+.sepid-board {
+    width: 100%;
+    background-color: #3179ba;
+    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2321486b' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+    .MuiPaper-root {
+        background-color: #3179ba !important;
+        background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2321486b' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E") !important;
+    }
+    .comPlainTextContentEditable {
+        background: #fff;
+        padding: 5px;
+    }
+    .toggle-button {
+        margin: 0 4px;
+        margin-top: 4px;
+        padding: 0;
+        left: 0;
+        right: 0;
+    }
+    .more {
+        display: none;
+    }
+    .less {
+        display: flex;
+    }
+    .collapsible {
+        .more {
+            display: flex !important;
+        }
+        .less {
+            display: none !important;
+        }
+    }
+    .lane-title-wrapper {
+        button {
+            border-radius: 100%;
+            border: 1px solid rgba(0, 0, 0, 0);
+        }
+        button:hover {
+            border: 1px solid #777;
+        }
+    }
+    .react-trello-lane {
+        background: #fff !important;
+        padding: 0 4px !important;
+        padding-bottom:10px !important;
+        box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+        .smooth-dnd-draggable-wrapper {
+            width: 97%;
+        }
+        .smooth-dnd-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+        >div {
+            margin: 0;
+            padding: 0;
+        }
+        .popover__trigger {
+            display: none;
+        }
+        header {
+            padding: 10px 0;
+            button {
+                padding: 0;
+                min-width: auto;
+            }
+            span {
+                width: 100% !important;
+                min-width: 100% !important;
+                font-size: 14px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                justify-items: center;
+            }
+            span:nth-of-type(2) {
+                display: none;
+            }
+        }
+    }
+    .react-trello-card {
+        background: #f5f5f5 !important;
+        direction: rtl;
+        border: none !important;
+        margin-bottom: 2px !important;
+        min-width: 100% !important;
+        header {
+            padding: 0.5rem 0;
+            span {
+                width: 100% !important;
+                min-width: 100% !important;
+                font-size: 14px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                justify-items: center;
+            }
+            span:nth-of-type(2) {
+                display: none;
+            }
+        }
+        footer {
+            button {
+                padding: 6px;
+                min-width: 32px;
+                margin: 4px;
+            }
+        }
+    }
+    .react-trello-card::after {
+        min-height: 1px;
+        border-top: 1px dashed #666;
+    }
+    .react-trello-board {
+        background: transparent !important;
+        direction: ltr;
+      /*  width: 100%;
+        display: flex;
+         flex-direction: row;
+        justify-content: flex-start;*/
+    }
+}
+
+.sepid-board-header {
+    max-height: 0;
+    overflow: visible;
+//    flex-direction: row-reverse;
+    button {
+        z-index: 10000;
+        color: white;
+        text-shadow: 0 0 2px #000;
+        font-size: 24px !important;
+        padding: 0;
+        margin: 0 3px;
+        min-width: 48px;
+        min-height: 48px;
+    }
+}

@@ -4,14 +4,17 @@
     border: 0px !important;
     width: 100% !important;
     padding: 0px !important;
-    .title{
-        font-size:2rem !important;
+    .title {
+        font-size: 2rem !important;
     }
 }
 
-.date-picker {
+.filter-panel .date-picker {
     max-width: 350px;
     min-width: 300px;
+}
+
+.date-picker {
     .activate-focused-only {
         visibility: visible !important;
     }
@@ -35,9 +38,8 @@
     }
 }
 
- .calendarContainer .dayWrapper.selected button {
+.calendarContainer .dayWrapper.selected button {
     border-radius: 100% !important;
     width: 36px !important;
-    height: 36px; 
-     
-} 
+    height: 36px;
+}

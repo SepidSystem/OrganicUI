@@ -14,6 +14,8 @@ interface IDialogProps {
     defaultValues?: any;
     noClose?: boolean;
     hasScrollBar?: boolean;
+    onClose: Function;
+    disableEscapeKeyDown?:boolean;
 }
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
@@ -24,11 +26,11 @@ export class AppUtils extends BaseComponent<any, any>{
         AppUtils.showDialog(null);
     }
     static showDialog(content, opts?: IDialogProps) {
-        AppUtils.dialogInstance = content && Object.assign({ content }, opts || {});
+        AppUtils.dialogInstance = content && Object.assign({ content }, opts || {}) as any;
         AppUtils.Instance && AppUtils.Instance.forceUpdate();
     }
     static confrim(content, opts?: IDialogProps) {
-        opts = opts || {} as any;
+        opts = { ...(opts || {}) } as IDialogProps;
         return new Promise((resolve, reject) => {
             opts.actions = {
                 yes() {
@@ -47,8 +49,10 @@ export class AppUtils extends BaseComponent<any, any>{
     }
     static showDataDialog<T>(content: ReactElement<Partial<OrganicUi.IDataFormProps<T>>>, opts?: IDialogProps): Promise<T> {
         return new Promise((resolve, reject) => {
-            opts = opts || {} as any;
-            let data: T = opts.defaultValues || {} as any;
+            opts = { onClose: reject, ...(opts || {}) } as IDialogProps;
+
+            let data: T = Object.assign(
+                content.props && content.props.data || {},opts.defaultValues || {} as any);
             opts.actions = {
                 accept() {
                     AppUtils.showDialog(null);
@@ -65,6 +69,8 @@ export class AppUtils extends BaseComponent<any, any>{
     }
     @SelfBind()
     handleClose() {
+        AppUtils.dialogInstance.onClose instanceof Function &&
+            AppUtils.dialogInstance.onClose();
         AppUtils.dialogInstance = null;
         this.repatch({});
     }
@@ -75,25 +81,25 @@ export class AppUtils extends BaseComponent<any, any>{
             {AppUtils.dialogInstance && this.renderUserDialog(AppUtils.dialogInstance)}
             {this.renderNetworkError(AppUtils.networkError)}
 
-        </div> 
+        </div>
     }
-    handleCloseNetworkError(){
-        AppUtils.networkError=null;
+    handleCloseNetworkError() {
+        AppUtils.networkError = null;
     }
     renderNetworkError(dialog: IDialogProps) {
-        return !!dialog && <Modal title={dialog.title} onClose={this.handleCloseNetworkError } buttons={dialog.actions}  >
+        return !!dialog && <Modal title={dialog.title} onClose={this.handleCloseNetworkError} buttons={dialog.actions}  >
             {dialog.content}
         </Modal>
     }
     renderUserDialog(dialog: IDialogProps) {
-        console.log(dialog);
-        return <Dialog open={!!dialog} onClose={this.handleClose}  disableBackdropClick={true} disableEscapeKeyDown={true} >
+
+        return <Dialog open={!!dialog} onClose={this.handleClose} disableBackdropClick={true} disableEscapeKeyDown={dialog.disableEscapeKeyDown} >
             {!!dialog && !!dialog.title && <DialogTitle>
                 <div style={{ display: 'flex' }}>
                     <div style={{ flex: '10' }}>
                         {i18n((dialog && dialog.title))}
                     </div>
-                    {(!dialog ||  !dialog.noClose) && <a href="#" className="close-dialog" onClick={e => {
+                    {(!dialog || !dialog.noClose) && <a href="#" className="close-dialog" onClick={e => {
                         e.preventDefault();
                         AppUtils.showDialog(null);
                     }}><i className="fa fa-times" /></a>}
@@ -103,8 +109,8 @@ export class AppUtils extends BaseComponent<any, any>{
             <DialogContent style={{ overflow: dialog && dialog.hasScrollBar ? null : 'hidden' }}>
                 {dialog && dialog.content}
             </DialogContent>
-            {dialog && dialog.actions && <DialogActions style={{width:'auto'}}>
-                Utils.renderButtons(dialog.actions)
+            {dialog && dialog.actions && <DialogActions style={{ width: 'auto' }}>
+                {Utils.renderButtons(dialog.actions)}
             </DialogActions>}
         </Dialog>
     }

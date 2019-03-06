@@ -437,11 +437,13 @@ li.MuiButtonBase-root,
 .MuiOutlinedInput-root {
     min-height: 4.5rem !important;
 }
-
+:root{
+    --single-view-padding:5px 4rem;
+}
 .filter-panel,
 .single-view {
     .MuiPaper-root {
-        padding: 5px 4rem;
+        padding:  var(--single-view-padding);
     }
 }
 
@@ -461,8 +463,8 @@ li.MuiButtonBase-root,
 
 .medium-textarea {
     textarea {
-        max-height: 180px !important;
-        min-height: 180px !important;
+        max-height: 120px !important;
+        min-height: 120px !important;
         overflow: hidden;
         overflow-y: scroll !important;
     }

@@ -17,7 +17,7 @@ export { IStateListener, StateListener } from './lib/core/state-listener';
 export { mountViewToRoot, renderViewToComplete, startApp, setAfterLoadCallback, appData } from './lib/core/bootstrapper';
 export { AppUtils } from './lib/core/app-utils';
 export { SubRender, Action, Helper, SelfBind } from './lib/core/decorators';
-export {   DropDownButton, Panel, Placeholder, SearchInput } from './lib/core/ui-elements';
+export { DropDownButton, Panel, Placeholder, SearchInput } from './lib/core/ui-elements';
 
 export { Spinner } from './lib/core/spinner';
 export { scanAllPermission } from './lib/core/permission-management';
@@ -63,7 +63,7 @@ import './lib/reinvent/dashboard-reinvent';
 export { default as Collapsible } from 'react-collapsible';
 // Controls ** Beginnner Level
 export { SnackBar } from './lib/controls/snack-bar';
-export {AdvButton} from './lib/controls/adv-button';
+export { AdvButton } from './lib/controls/adv-button';
 export { TimeSlot } from './lib/controls/time-slot';
 export { default as Version } from './version';
 export { UiKit } from './ui-kit/ui-kit';
@@ -71,7 +71,8 @@ export { Modal } from './lib/controls/modal';
 export { ImageUploader } from './lib/controls/image-uploader';
 export { default as C3Chart } from 'react-c3js';
 export { TreeList } from './lib/controls/tree-list';
-export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch, Alert } from './lib/controls/inspired-components';
+export { TextField, Checkbox, Select, Button, RadioGroup, FormControlLabel, Callout, Dialog, DialogActions, DialogTitle, DialogContent, DetailsList, Icon, MessageBar, IconButton, SnackbarContent, Tab, Tabs, Fabric, Paper, Radio, Switch, Alert, Trello }
+    from './lib/controls/inspired-components';
 export { GridList, GridListTile } from './lib/controls/inspired-components';
 export { Headline } from './lib/controls/head-line';
 export { ScrollablePanel } from './lib/controls/scrollable-panel';
@@ -79,8 +80,9 @@ export let currentView: any
 export { MenuIcon, ExpandMoreIcon } from './lib/controls/icons';
 import * as  _Icons from './lib/controls/icons';
 export const Icons = _Icons;
-
-
+import Board from './lib/controls/board';
+export { Board }
+export * from './lib/data/compact-data-view';
 // Others 
 import "./customization-material";
 export { default as JssProvider } from 'react-jss/lib/JssProvider';

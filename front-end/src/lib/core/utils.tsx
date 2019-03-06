@@ -5,6 +5,8 @@ import { diff } from 'rus-diff';
 import md5 = require('md5');
 import textContent = require('react-addons-text-content');
 import * as CodeImage from './code-tags-check.svg';
+import {v4} from 'uuid';
+ 
 let devPortIdCounter = 0;
 interface IEnumToArrayOptions { customCaptions?: Object }
 import { CoreUtils } from './core-utils';
@@ -36,6 +38,7 @@ export const Utils = Object.assign({}, {
 	fixDataBySchema,
 	lastNavigate: +new Date(),
 	soFastNavigateCount: 0,
+	uuid:v4,
 	classNames(...args: string[]): string {
 		return args.filter(x => x).join(' ');
 	},
@@ -397,9 +400,7 @@ export const Utils = Object.assign({}, {
 			reader.readAsDataURL(file);
 		});
 	},
-	entries(obj) {
-		return Object.keys(obj).map(key => [key, obj[key]]);
-	},
+	 
 	extractText(inputValue, filter?) {
 		if (!filter) {
 			if (React.isValidElement(inputValue))
@@ -483,7 +484,7 @@ export const Utils = Object.assign({}, {
 	setDefaultProp<P,KV extends keyof P>(componentType:React.ComponentType<P>,key:KV,value:any){
 		componentType.defaultProps=componentType.defaultProps || {};
 		componentType.defaultProps[key]=value;
-	}
+	},
 }, CoreUtils);
 import * as changeCaseObject from 'change-case-object';
 import { IDeveloperFeatures, TMethods } from "@organic-ui";

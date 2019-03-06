@@ -86,4 +86,9 @@ export const Alert = (options: withReactContent.ReactSweetAlertOptions) => new a
     cancelButtonText: i18n.get('cancel')
 } as withReactContent.ReactSweetAlertOptions,
     options,
-    options.text ? { text: i18n.get(  options.text) } : {})) as  Promise<SweetAlertResult>; 
+    options.text ? { text: i18n.get(options.text) } : {})) as Promise<SweetAlertResult>;
+
+
+import * as Trello from 'react-trello'
+export { Trello }
+ 

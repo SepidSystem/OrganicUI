@@ -94,6 +94,8 @@ declare namespace OrganicUi {
         operators?: string[];
         onGet?, onSet?: Function;
         onChange?: (value) => void;
+        onCapture?: (value) => void;
+        onCaptureDataForm?: (dataForm) => void;
         onErrorCode?: (v: any) => ErrorCodeForFieldValidation;
         onRenderCell?: (item?: any, index?: number, column?: any) => any;
         onInitialRead?: (value: any, row: any) => void;
@@ -122,7 +124,7 @@ declare namespace OrganicUi {
         style?: React.CSSProperties;
         persistentCacheKey?: string;
         dataEntryOnly?: boolean;
-
+        iconName?: string;
     }
 
     export interface ActionsForIArrayDataViewItem {
@@ -158,6 +160,7 @@ declare namespace OrganicUi {
         fieldName: string;
     }
     interface UtilsIntf {
+        uuid(): string;
         classNames(...args: string[]): string;
         coalesce(...args: any[]): any;
         navigate(url);
@@ -175,7 +178,7 @@ declare namespace OrganicUi {
         warn(...args);
         renderDevButton(targetText, target: IDeveloperFeatures);
         overrideComponentClass(componentClass: React.ComponentClass, extraProps);
-        overrideFunctionalComponent<T>(componentClass: React.SFC<T>, extraProps:Partial<T>):React.SFC<T>;
+        overrideFunctionalComponent<T>(componentClass: React.SFC<T>, extraProps: Partial<T>): React.SFC<T>;
         accquireDevPortId();
         renderButtons(methods: TMethods, opts?: { componentClass?: React.ComponentType, callback?: Function });
         reduceEntriesToObject(data: any): any;
@@ -205,7 +208,7 @@ declare namespace OrganicUi {
         fixDataBySchema<T>(data: T, schema): T;
         successCallout(content: React.ReactNode): JSX.Element;
         failCallout(content: React.ReactNode): JSX.Element;
-        setDefaultProp<P,KV extends keyof P>(componentType:React.ComponentType<P>,key:KV,value:P[KV]);
+        setDefaultProp<P, KV extends keyof P>(componentType: React.ComponentType<P>, key: KV, value: P[KV]);
     }
     export const Utils: UtilsIntf;
     export const changeCase: { camelCase: Function, snakeCase: Function, paramCase: Function };
@@ -228,8 +231,36 @@ declare namespace OrganicUi {
         customTester(v: CustomTesterForRegistry, value: T);
         clear();
     }
+    export interface DataEntryFor {
 
+    }
+    type TrelloCardProps<P> = P & {
+        onUpdate: (data: P) => void,
 
+    }
+    type TrelloCardActionProps<P> = {
+        onUpdate: (data: P) => void;
+        onDelete: (data: P) => void;
+    }
+    export interface ITrelloCard<P> {
+        contentComponent: React.ComponentType<TrelloCardProps<P>>;
+        titleComponent: React.ComponentType<TrelloCardProps<P>>;
+        actions: { iconName, text, handler: (card: P, actionProps: TrelloCardActionProps<P>) => void }[];
+        fetchNewCard: () => Promise<P>;
+    }
+    interface ICardMappingForBoard<TCard> {
+        id: keyof TCard;
+        laneId: keyof TCard;
+        cardType: keyof TCard;
+    }
+    export interface BoardProps<TCard> {
+        lanes: Function | Array<{ id, laneTitle }>;
+        cards: Function | Array<TCard>;
+        cardMapping: ICardMappingForBoard<TCard>;
+        cardTypes: { [index: string]: ITrelloCard<any> }
+        onDataChange: ({ cards, lanes }) => void;
+        accquireLaneId: () => any;
+    }
     export class Menu implements IMenu {
         id: number;
         title: string;
@@ -398,8 +429,8 @@ declare namespace OrganicUi {
         filterOptions?: {
             liveMode?: boolean;
         }
-        getUrlForSingleView?:Function;
-        iconCode?:any;
+        getUrlForSingleView?: Function;
+        iconCode?: any;
     }
     interface IListViewParams {
         forDataLookup?: boolean;
@@ -500,6 +531,10 @@ declare namespace OrganicUi {
     export interface PortProps {
         id: string;
         mode: 'log' | 'form';
+    }
+    export interface ICompactDataViewProps {
+        data: any;
+        children: any;
     }
     export interface IDataFormProps<T=any> {
         validate?: boolean;
@@ -698,7 +733,7 @@ declare namespace OrganicUi {
         }
     }
     export interface IAdvButtonProps {
-        noSpinMode?:boolean;
+        noSpinMode?: boolean;
         iconName?: string;
         children?: any;
         isLoading?: boolean;
@@ -794,6 +829,8 @@ declare module '@organic-ui' {
     import { SweetAlertOptions, SweetAlertResult, SweetAlertType } from 'sweetalert2';
     import { IColumn, IDetailsListProps, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
     import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
+    import { MenuItemProps } from '@material-ui/core/MenuItem';
+    export { MenuItemProps } from '@material-ui/core/MenuItem';
 
     import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, ComponentType } from 'react';
     export const JssProvider: any;
@@ -844,7 +881,7 @@ declare module '@organic-ui' {
     export const ComboBox: typeof OrganicUi.ComboBox;
     export const TimeEdit: typeof OrganicUi.TimeEdit;
     export type IAdvButtonProps = OrganicUi.IAdvButtonProps & {
-        menuItems?: IContextualMenuItem[];
+        menuItems?: MenuItemProps[];
     };
     export const AdvButton: React.SFC<IAdvButtonProps>;
     export const Panel: typeof OrganicUi.Panel;
@@ -853,7 +890,7 @@ declare module '@organic-ui' {
         showInvalidItems(invalidItems?: IDataFormAccessorMsg[]): JSX.Element;
         getFieldErrorsAsElement(): Promise<JSX.Element>
     }
-
+    export const CompactDataView: React.SFC<OrganicUi.ICompactDataViewProps>;
     export class Port extends BaseComponent<OrganicUi.PortProps>{
 
     }
@@ -906,8 +943,8 @@ declare module '@organic-ui' {
     export function SelfBind(): MethodDecorator;
     export const Icons: typeof OrganicUi.Icons;
     //   Inspired Components;
-    export { TextField, Switch, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
-
+    export { TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Switch, Checkbox, Select, Button, RadioGroup, FormControlLabel, Icon, IconButton, SnackbarContent, Tab, Tabs, Paper, Radio } from '@material-ui/core';
+    export const Trello: any;
     export { GridList, GridListTile } from '@material-ui/core'
     export { Callout } from 'office-ui-fabric-react/lib/Callout';
     export { Fabric } from 'office-ui-fabric-react/lib/Fabric';
@@ -931,7 +968,8 @@ declare module '@organic-ui' {
         (options: ReactSweetAlertOptions & { useRejections?: false }): Promise<SweetAlertResult>;
         (options: ReactSweetAlertOptions & { useRejections: true }): Promise<any>;
     }
-
+    export type ITrelloCard<P> = OrganicUi.ITrelloCard<P>;
+    export function Board<TCard>(p: OrganicUi.BoardProps<TCard>): React.SFCElement<OrganicUi.BoardProps<TCard>>;
 }
 
 declare module '*.jpg';

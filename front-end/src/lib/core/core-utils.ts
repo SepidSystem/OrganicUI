@@ -35,11 +35,12 @@ export const CoreUtils = {
 			}).filter(({ message }) => !!message);
 	},
 	assignDefaultValues<T>(data: T, defaultValues: Partial<T>) {
-		if (!data || !defaultValues) return;
-		if (data['__defaultState']) return;
+		if (!data || !defaultValues) return false;
+		if (data['__defaultState']) return false;
 		Object.assign(data, { __defaultState: true });
 		Object.keys(defaultValues)
 			.forEach(key => data[key] = data[key] === undefined ? defaultValues[key] : data[key]);
+			return true;
 	},
 	isClass(type) {
 		const desc = Object.getOwnPropertyDescriptor(type, 'prototype')
@@ -53,5 +54,12 @@ export const CoreUtils = {
 		if (pattern instanceof RegExp) return pattern.test(s);
 		if (pattern instanceof Function) return pattern(s);
 		if (typeof pattern == 'string') return s.includes(pattern);
+	},
+	fromEntries<T>(entries: Array<[string, T]>): { [key: string]: T } {
+		return Object.assign({}, ...entries.map(([key, value]) => ({ [key]: value })))
+	},
+	entries<T>(obj:{ [key: string]: T }):Array<[string, T]>{
+		const {entries:entries0}=Object as any;
+		return entries0(obj);
 	}
 }

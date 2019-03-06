@@ -179,23 +179,25 @@ export class SingleViewBox<T> extends OrganicBox<
                     this.state.id = res.id || this.state.id;
 
                     formData.id = res.id || formData.id;
-                    console.log({ res, formData });
-                    const entity = await this.props.actions.read(formData.id);
+                    if (formData.id) {
+                      /*  const entity = await this.props.actions.read(formData.id);
 
-                    this.querySelectorAll('*')
-                        .filter(c => c && c.resetData instanceof Function)
-                        .forEach(c => c.resetData());
-                    this.repatch({ formData: this.mapFormData(entity), formKey: +new Date() });
+                        this.querySelectorAll('*')
+                            .filter(c => c && c.resetData instanceof Function)
+                            .forEach(c => c.resetData());
 
-                    if (res.error) return <div className="server-side-message">
-                        <i className="fa fa-exclamation-triangle center-content" style={{ fontSize: '40px' }}></i>
-                        <p style={{ whiteSpace: 'pre-line' }}>{this.renderError(res.error)}</p>
-                    </div>;
+                        this.repatch({ formData: this.mapFormData(entity), formKey: +new Date() });*/
+                    }
+                    if (res.error) return Utils.failCallout(<p style={{ whiteSpace: 'pre-line' }}>{this.renderError(res.error)}</p>);
                     const { title, desc } = this.getSuccess();
                     if (navigateToListView)
                         setTimeout(this.handleNavigate.bind(this, res), 10);
-                    else
-                        setTimeout(() => this.refs.primaryButton.closeCallOut(), 2800);
+                    else {
+                        setTimeout(() => {
+                            this.refs.primaryButton.closeCallOut();
+                            Utils.navigate(location.href);
+                        }, 2800);
+                    }
                     return !navigateToListView && Utils.successCallout(title);
                 }, error => (this.devElement = this.makeDevElementForDiag(error), this.repatch({})));
 
@@ -295,7 +297,7 @@ export class SingleViewBox<T> extends OrganicBox<
                     return resolve(id) as any;
                 }
             };
-            return AppUtils.showDialog(React.createElement(componentType, props), { hasScrollBar: true });
+            return AppUtils.showDialog(React.createElement(componentType, props), { hasScrollBar: true } as any);
         });
     }
 }

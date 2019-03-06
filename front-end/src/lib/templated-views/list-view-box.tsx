@@ -271,7 +271,7 @@ export class ListViewBox<T=any> extends
             (mode && readListByMode && readListByMode[mode])
             || this.actions.readList;
         let args = this.props.params.customReadListArguments;
-        if (args instanceof Function) args = args();
+        if (args instanceof Function) args = args( );
         if (args !== undefined && !(args instanceof Array)) args = [args];
         return readList(...(args || [params])).then(r => {
             setTimeout(() => {

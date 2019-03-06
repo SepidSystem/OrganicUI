@@ -31,6 +31,7 @@
 }
 
 .full-width-fields {
+    min-width:300px;
     .panel-content {
         display: flex;
         flex-wrap: wrap;
@@ -278,7 +279,10 @@ html body.swal2-height-auto {
     height: 100% !important;
     min-height: 100% !important;
 }
-
+.swal2-popup .swal2-select{
+    min-width:100% !important;
+    
+}
 .toggle-up {
     animation-name: toggle-up;
     animation-delay: 0.25s;
@@ -380,4 +384,7 @@ input[type=number]::-webkit-outer-spin-button {
     svg {
         fill: #ff0000;
     }
+}
+span.sep{
+    padding:0 5px;
 }

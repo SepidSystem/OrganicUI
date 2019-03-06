@@ -109,7 +109,7 @@ declare namespace Reinvent {
     }
 
     export type BindingHub<T=any> = {
-        [P in keyof T]?: T[P] extends (number | string | boolean | number[] | string[]) ? IBindingPoint : BindingHub<T[P]>;
+        [P in keyof T]?: T[P] extends (number | string | Date| boolean | number[] | string[]) ? IBindingPoint : BindingHub<T[P]>;
 
     };
     type TemplateName = 'report-view' | 'dashboard' | 'login' | 'blank';

@@ -1,0 +1,15 @@
+.compact-data-view{
+    display: flex;
+    flex-wrap:wrap; 
+
+    .field-value{
+        margin:0 1rem;
+        display: flex;
+        min-width:100px;
+        max-width: 300px;
+        label{
+             color:#000;
+            margin-left:5px;
+        }
+    }
+}

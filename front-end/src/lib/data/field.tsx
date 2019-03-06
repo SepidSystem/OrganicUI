@@ -111,6 +111,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         return result;
     }
     handleSetDataIsDirty: number;
+
     handleSetData(e: React.ChangeEvent<HTMLInputElement>, prefix: string) {
         function isSerialize(e) {
             try {
@@ -148,6 +149,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
                 value = this.handleGetData(prefix);
             }
             dataForm && dataForm.onFieldWrite(p.accessor, value);
+
             const extractedValues = Object.assign({}, this.state.extractedValues, { [prefix]: value });
             this.repatch({ extractedValues, messages: null });
             const { persistentCacheKey } = this.props;
@@ -275,7 +277,7 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         const inputElement = React.Children.only(element.props);
         return inputElement.type;
     }
-
+    dataFormCaptured: boolean;
     renderContent() {
         const p = this.props, s = this.state;
         const accessorName = !!p.accessor && Field.getAccessorName(p.accessor);
@@ -317,7 +319,15 @@ export class Field extends BaseComponent<IFieldProps, IFieldState>{
         if (classNameForField instanceof Function) classNameForField = classNameForField(inputElement.props);
         const { extractedValues } = this.state;
         const valProps = this.getValueProps(inputElement && inputElement.type && inputElement.type['dataType'], 'default' in extractedValues ? extractedValues.default : this.handleGetData('default'));
-
+        try {
+            if ('value' in valProps && this.state.extractedValues['default'] != valProps.value) {
+                p.onCapture instanceof Function && p.onCapture(valProps.value);
+            }
+            if (dataForm && !this.dataFormCaptured &&  p.onCaptureDataForm instanceof Function ) {
+                this.dataFormCaptured = true;
+                p.onCaptureDataForm(dataForm.props.data);
+            }
+        } catch (exc) { }
         if (p.onMirror instanceof Function) {
             return p.onMirror(valProps, p);
         }

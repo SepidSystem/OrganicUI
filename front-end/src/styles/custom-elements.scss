@@ -231,9 +231,7 @@
 .scrollable-panel-reversed {
     .scrollBarY {
         direction: ltr;
-       
     }
-  
 }
 
 .scrollable-panel {
@@ -257,10 +255,10 @@
         overflow-y: hidden;
     }
     .scrollBar {
-        visibility: hidden ;
+        visibility: hidden;
     }
     &.after-one-second {
-        .scrollBar  {
+        .scrollBar {
             visibility: visible;
         }
     }
@@ -313,6 +311,22 @@
     }
 }
 
-.adv-button {
-    &.is-loading {}
+ 
+
+
+.iconable-label {
+    display: flex;
+    width: 100%;
+    .prefix {
+        margin-left: 1rem;
+      
+    }
+    .content{
+        flex:1;
+        display: flex;
+        justify-content: flex-start;
+    }
+    .icon-wrapper{
+        max-width: 2rem;
+    }
 }

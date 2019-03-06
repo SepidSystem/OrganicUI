@@ -1,5 +1,6 @@
 @import 'node_modules/bulma/bulma';
 @import 'node_modules/font-awesome/scss/font-awesome';
+@import 'node_modules/@mdi/font/scss/materialdesignicons';
 @import 'node_modules/office-ui-fabric-react/dist/sass/Fabric';
 @import 'node_modules/c3/c3';
 @import './localization/lang-EN_US';
@@ -25,12 +26,14 @@
 @import './tree-list';
 @import './time-slot';
 @import './login-view'; 
-@import './metal-theme.scss';
-@import './scroller.scss';
+@import './metal-theme';
+@import './scroller';
+@import './compact-data-view';
+@import './board.scss'; 
 .actionable {
-    position: relative; 
+    position: relative;  
     min-height: auto;
-    width: 100%;
+    width: 100%; 
     overflow: visible;
     .dropdown {
         position: absolute;

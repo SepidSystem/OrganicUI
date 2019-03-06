@@ -121,7 +121,7 @@ export class BaseComponent<P, S> extends Component<P, S>{
 
     }
     defaultState(delta: Partial<S>) {
-        CoreUtils.assignDefaultValues(this.state, delta);
+       return  CoreUtils.assignDefaultValues(this.state, delta);
     }
     asyncRepatch(key: keyof S, asyncFunc: Function, ...args) {
         this.repatch({
@@ -241,11 +241,11 @@ export class BaseComponent<P, S> extends Component<P, S>{
         return (<section className="error-mode hero is-danger is-centered" dir="ltr" ref="root">
             <div className="hero-body" dir="ltr">
                 <div className="container" dir="ltr">
-                    <p className="title" dir="ltr">
+                    <p className="title"  style={{textAlign:'left',paddingBottom:'2rem '}}dir="ltr">
 
                         {title}
                     </p>
-                    <p className="subtitle" dir="ltr">
+                    <p className="subtitle" dir="ltr" style={{textAlign:'left'}}>
                         {subtitle}
                     </p>
                 </div>
