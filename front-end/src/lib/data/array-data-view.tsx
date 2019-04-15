@@ -46,8 +46,7 @@ export class ArrayDataView<T> extends BaseComponent<OrganicUi.IArrayDataViewProp
             return this.renderErrorMode('contentFunc is invalid', '');
         }
         if (!(value instanceof Array)) {
-            console.log('ArrayDataView.value>>>>', value);
-            return this.renderErrorMode('value is invalid', '');
+             return this.renderErrorMode('value is invalid', '');
         }
         const { actions } = this;
         const p = this.props;
