@@ -28,7 +28,7 @@ main.main-container {
 }
 
 .main-content {
-    padding: 4px 4rem;
+    padding:  var(--single-view-padding);
     footer {
         padding: 10px 2px;
     }
@@ -214,6 +214,7 @@ aside {
             min-height: 4.5rem;
             max-height: 4.5rem;
             margin-right: 0.5rem;
+            padding:0 1rem;
         }
         .content ul {
             margin: 0
@@ -221,6 +222,7 @@ aside {
         .router.active:active,
         .router.active:hover {
             background: rgb(4, 160, 220) !important;
+          
         }
         .router.active {
             box-shadow: 0 0 4px #333;
@@ -234,10 +236,13 @@ aside {
                 width: 0;
                 height: 0;
                 border-style: solid;
-                border-width: 24px 24px 28px 0;
+                border-width: 24px 24px 25px 0;
                 border-color: transparent rgb(4, 160, 220) transparent transparent;
                 left: -24px;
                 z-index: 1000;
+            }
+            .icon{
+                text-shadow: 1px 1px 1px #000
             }
         }
         &.switching {

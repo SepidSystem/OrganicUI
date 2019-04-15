@@ -365,6 +365,22 @@ hr {
     }
 }
 
+.small-fields {
+    .field-accessor {
+        max-width: 25%;
+        flex: 1;
+        padding: 0 3px;
+    }
+    .date-picker {
+        max-width: 25%;
+        flex: 1;
+        padding: 0 3px;
+    } 
+    .panel-content{
+        display: flex;
+    }
+}
+
 .filter-panel .medium-fields {
     .field-accessor {
         min-width: 15.21rem;
@@ -473,4 +489,13 @@ li.MuiButtonBase-root,
     .MuiButton-root:hover{
         background: transparent !important;
     }
+}
+.MuiPaper-root.MuiPaper-elevation6 {
+    font-family: Yekan !important;
+    font-size:1.76rem !important;
+    width:100%;
+}
+.confrim-content{
+    min-width: 300px;
+    min-height: 70px;
 }
