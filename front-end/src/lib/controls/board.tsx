@@ -64,7 +64,7 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
             const trelloCard = cardTypes[cardType];
             const data = (card as any).data || card;
             const menuItems: MenuItemProps[] =
-                trelloCard.actions && trelloCard.actions.map(action => ({
+                trelloCard.actions && trelloCard.actions.filter(a => !a.isAccessible || a.isAccessible()).map(action => ({
                     key: action.text, name: <>
                         {Utils.showIcon(action.iconName)}<span className="sep" />{i18n(action.text)}
                     </> as any,
@@ -121,16 +121,15 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
                 <Button variant="text" style={{ position: 'absolute', right: 5, top: -6, color: '#aa1122' }}
                     onClick={Board.handleRemoveLane.bind(null, this, lane.id)}
                     data-action="remove"   >{Utils.showIcon('mdi-folder-remove')}</Button>
-   <Button variant="text" style={{ position: 'absolute', right: 30, top: -6, color: '#666' }}
-            >{Utils.showIcon('mdi-settings')}</Button>
+                <Button variant="text" style={{ position: 'absolute', right: 30, top: -6, color: '#666' }}
+                >{Utils.showIcon('mdi-settings')}</Button>
 
                 <span className="lane-title" data-id={lane.id}>{lane.laneTitle} </span>
                 <Button variant="text" style={{ position: 'absolute', left: 0, top: -6 }} color="primary" data-action="add"
                     onClick={this.handleNewCard.bind(this, lane.id)}
-
                 >{Utils.showIcon('mdi-comment-plus')}</Button>
                 <Button variant="text" style={{ position: 'absolute', left: 30, top: -6 }}
-                    onClick={Board.handleEditLane.bind(null, this, lane.id)}
+                    onClick={this.handleEditLane.bind(this)}
                     color="secondary" data-action="add"   >{Utils.showIcon('mdi-folder-edit')}</Button>
             </div>,
 
@@ -163,8 +162,8 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
     renderInnerContent() {
 
         return <>  <header className="sepid-board-header" style={{ display: 'flex', margin: 4 }}>
-            <Button variant="outlined" onClick={this.handleAddLane.bind(this)}>{Utils.showIcon('mdi-book-plus')}</Button>
             <Button variant="outlined" onClick={this.handleFullScreenClick.bind(this)}>{Utils.showIcon(this.state.fullScreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen')}</Button>
+            <Button variant="outlined" onClick={this.handleAddLane.bind(this)}>{Utils.showIcon('mdi-book-plus')}</Button>
 
         </header>
             <Trello.Board
@@ -209,30 +208,8 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
             //  lastSpan.style.visibility = 'hidden';
         }
     }
-    static actions = {
 
-        edit: Board.handleEditLane,
-        toggle: Board.handleToggleLane
 
-    }
-    static handleClickCapureForAddLink(board: Board<any>, e: React.MouseEvent<HTMLElement>) {
-        let button = e.target as HTMLElement;
-        while (button) {
-            if (button.tagName.toUpperCase() == 'BUTTON') break;
-            button = button.parentElement;
-        }
-
-        if (!button) return;
-        const actionName = button.getAttribute('data-action');
-        if (actionName != 'add') {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-        const action = Board.actions[actionName];
-
-        if (action instanceof Function)
-            return action.apply(this, arguments);
-    }
     static getLaneIdByElement(target: HTMLElement) {
         while (target) {
             if (target.classList.contains('react-trello-lane')) break;
@@ -243,25 +220,24 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
             return laneTitleSpan.getAttribute('data-id');
 
     }
-    static async handleEditLane(board: Board<any>, evt: React.MouseEvent<HTMLElement>) {
+    async handleEditLane(evt: React.MouseEvent<HTMLElement>) {
 
         // evt.currentTarget;
         const laneId = Board.getLaneIdByElement(evt.currentTarget);
-        let lanes = board.getLanes() as any;
+        let lanes = this.getLanes() as any;
         const lane = lanes.filter(l => l.id == laneId)[0];
         if (!lane) return;
-        const alertResult = await Alert({ inputValue: lane.title, type: 'question' })
+        console.log({ lane });
+        const alertResult = await Alert({ inputValue: lane.laneTitle, input: 'text', type: 'question' })
 
         if (!alertResult || alertResult.dismiss) return;
         const { value: laneTitle } = alertResult;
         lanes = lanes.map(l => (l.id == laneId ? { ...l, laneTitle } : l));
 
-        board.repatch({ lanes, boardKey: +new Date() });
+        this.repatch({ lanes, boardKey: +new Date() });
 
     }
-    UNSAFE_componentWillMount() {
-        console.log('UNSAFE_componentWillMount>>>>  ', this.props);
-    }
+
     static async handleRemoveLane(board: Board<any>, laneId) {
         const { cardMapping, cardTypes } = board.props;
         const getLaneId = card => card[cardMapping.laneId];
@@ -306,20 +282,25 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
     }
     async handleNewCard(laneId: string) {
         const { cardTypes, cardMapping } = this.props;
+        async function getCardType() {
+            const entries = Utils.entries(cardTypes).map<[string, string]>(([key]) => ([key, key]));
+            //if (entries.length < 2)
+            return entries[0][0];
+            const alertResult = await Alert({
+                input: 'select', inputAttributes: {
 
-        const entries = Utils.entries(cardTypes).map<[string, string]>(([key]) => ([key, key]));
-        const alertResult = await Alert({
-            input: 'select', inputAttributes: {
-
-                size: "8"
-            }, inputOptions: Utils.fromEntries(entries), showCancelButton: true
-        });
-        if (!alertResult || alertResult.dismiss) throw `cancel-by-user`;
-        const _cardType = alertResult.value;
+                    size: "8"
+                }, inputOptions: Utils.fromEntries(entries), showCancelButton: true
+            });
+            if (!alertResult || alertResult.dismiss) throw `cancel-by-user`;
+            const _cardType = alertResult.value;
+            return _cardType;
+        }
+        const _cardType = await getCardType();
         const cardType = cardTypes[_cardType] as OrganicUi.ITrelloCard<any>;
 
         const _card = await cardType.fetchNewCard();
-        Object.assign(_card, { [cardMapping.cardType]: alertResult.value });
+        Object.assign(_card, { [cardMapping.cardType]: _cardType });
         //   const [card] = this.mapCards([_card]);
         const id = (--Board.cardIdentityCounter);
         Object.assign(_card, { [cardMapping.id]: id })
