@@ -1,13 +1,15 @@
 @import 'node_modules/bulma/bulma';
+// Font Libraries
+@import './material-icons';
 @import 'node_modules/font-awesome/scss/font-awesome';
 @import 'node_modules/@mdi/font/scss/materialdesignicons';
+
 @import 'node_modules/office-ui-fabric-react/dist/sass/Fabric';
 @import 'node_modules/c3/c3';
 @import './localization/lang-EN_US';
 @import './text-font';
 @import './animate';
 @import './country-flags';
-@import './material-icons';
 @import './collapsible';
 @import './custom-components';
 @import './custom-elements';

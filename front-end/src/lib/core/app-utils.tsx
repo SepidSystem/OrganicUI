@@ -14,8 +14,8 @@ interface IDialogProps {
     defaultValues?: any;
     noClose?: boolean;
     hasScrollBar?: boolean;
-    onClose: Function;
-    disableEscapeKeyDown?:boolean;
+    onClose?: Function;
+    disableEscapeKeyDown?: boolean;
 }
 export class AppUtils extends BaseComponent<any, any>{
     static Instance: AppUtils
@@ -31,6 +31,7 @@ export class AppUtils extends BaseComponent<any, any>{
     }
     static confrim(content, opts?: IDialogProps) {
         opts = { ...(opts || {}) } as IDialogProps;
+        content = typeof content == 'string' ? i18n(content) : content;
         return new Promise((resolve, reject) => {
             opts.actions = {
                 yes() {
@@ -41,7 +42,7 @@ export class AppUtils extends BaseComponent<any, any>{
                     AppUtils.showDialog(null);
                 }
             }
-            AppUtils.showDialog(content, opts);
+            AppUtils.showDialog(<div className="confrim-content">{content}</div>, opts);
         });
     }
     static confrimActionByUser(p: { actionName: string, actionData }): Promise<never> {
@@ -52,7 +53,7 @@ export class AppUtils extends BaseComponent<any, any>{
             opts = { onClose: reject, ...(opts || {}) } as IDialogProps;
 
             let data: T = Object.assign(
-                content.props && content.props.data || {},opts.defaultValues || {} as any);
+                content.props && content.props.data || {}, opts.defaultValues || {} as any);
             opts.actions = {
                 accept() {
                     AppUtils.showDialog(null);
