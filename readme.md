@@ -1,4 +1,4 @@
-# Organic Framework [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://github.com/bit-foundation/bit-framework/blob/master/LICENSE)
+# Organic Framework [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://github.com/SepidSystem/OrganicUI/blob/develop/LICENSE)
 Organic Framework is a full stack multi-purpose **RAPID Application Development Framework** for modern web-based database-driven applciations. Its frontend is based on [React](https://facebook.github.io/react/). Organic Framework is intended to support multiple back-end languages, currently including [C\#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp) and [Node.js](https://nodejs.org/en/) samples.
 
 ## Features
