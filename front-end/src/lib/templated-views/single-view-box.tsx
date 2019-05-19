@@ -241,7 +241,11 @@ export class SingleViewBox<T> extends OrganicBox<
             !Utils.equals(initialFormData, formData);
         if (checkOnlyFormChanged) return formChanged;
         if (!formChanged) return Promise.resolve(true);
-        const userReaction = await Alert({ type: 'question', text: i18n.get('are-you-sure'), showCancelButton: true });
+        const userReaction = await Alert({ type: 'question', text: i18n.get('are-you-sure-single-view'), 
+        confirmButtonText:i18n.get('confrim-single-view'),
+        cancelButtonText:i18n.get('keep-single-view'),
+        
+         showCancelButton: true });
         SingleViewBox.lastBeforeNavigateOccur = +new Date();
         return (userReaction && userReaction.value) ? Promise.resolve(true) : Promise.reject('cancel-by-user');
 
