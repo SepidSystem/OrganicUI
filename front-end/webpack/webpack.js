@@ -38,9 +38,9 @@ const entry = Object.assign({},
 		.filter(key => fileExists(getSourcePath(_entry[key])))
 		.map(key => ({ [key]: getSourcePath(_entry[key]) })));
 
-const dist ='C:\\Taheri\\Test1\\public\\bundle';// join(process.env.sourceDir, 'assets', 'bundle');
-const rules = [
-
+const dist = path.join(process.cwd(), 'dist');// join(process.env.sourceDir, 'assets', 'bundle');
+const rules = [ 
+	
 	{
 		test: /\.css$/,
 		loaders: ['style-loader', 'css-loader?modules=true&camelCase=true&localIdentName=[local]']
@@ -52,16 +52,18 @@ const rules = [
 	}, {
 		test: /\.jsx?$/,
 		exclude,
-		loader: [  {
+		loader: [{
 			loader: 'babel-loader',
 			options: babelOpts
 		}]
 	}, {
 		test: /\.tsx?$/,
 		exclude,
-		loader:   { loader: 'ts-loader',options:{
-			transpileOnly:true
-		}}
+		loader: {
+			loader: 'ts-loader', options: {
+				transpileOnly: true
+			}
+		}
 	}].filter(x => !!x);
 module.exports = env => {
 	env.mode && Object.assign(env, { [env.mode]: true });

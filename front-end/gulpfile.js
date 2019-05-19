@@ -14,7 +14,7 @@ gulp.task('sass',   () =>
 );
  
 gulp.task('sass:watch', function () {
-  gulp.watch('./src/styles/**/*', ['sass']);
+  gulp.watch('./src/styles/**/*', gulp.series('sass'));
 });
  
 gulp.task('gzip',   () =>
