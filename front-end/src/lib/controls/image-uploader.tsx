@@ -11,7 +11,6 @@ interface IState {
     height: number;
     browseButtonText: string;
 }
-const blankImageSrc = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 export class ImageUploader extends BaseComponent<OrganicUi.ImageUploaderProps, IState>{
     refs: {
         file: HTMLInputElement;
@@ -20,13 +19,7 @@ export class ImageUploader extends BaseComponent<OrganicUi.ImageUploaderProps, I
     static checkImageType(image: File): boolean {
         return (!!image.type.match('image.*'));
     }
-    componentDidMount() {
-        const { root } = this.refs;
-        if (root && !this.state.value) {
 
-            root.querySelector('img').src = blankImageSrc;
-        }
-    }
     async fileChange(files: FileList) {
         if (files.length == 0) return;
         const [file] = Array.from(files);

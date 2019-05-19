@@ -4,8 +4,9 @@ const gulp = require('gulp');
 const sass = require('gulp-sass');
 const debug=require('gulp-debug');
 var gzip = require('gulp-gzip');
-
-const destPath=`C:/Taheri/Test1/public/bundle`;
+const path=require('path');
+const destPath = path.join(process.cwd(), 'dist');// join(process.env.sourceDir, 'assets', 'bundle');
+ 
 gulp.task('sass',   () =>
    gulp.src('./src/index.scss')
      .pipe(sass().on('error', sass.logError))          

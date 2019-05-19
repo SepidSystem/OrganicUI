@@ -185,9 +185,19 @@ export const Utils = Object.assign({}, {
 		if (typeof ident == 'string') ident = { prefix: ident, targetText: ident };
 		const { prefix, targetText } = ident;
 		const topItems = [{
+			key: 'reset0',
+			name: `Reset DevTools`,
+			onClick: () => {
+				try{
+				 target.devElement = null, target.forceUpdate()}catch(exc){}
+				}
+		},{
 			key: 'reset',
 			name: `Reset DevTools`,
-			onClick: () => (target.devElement = null, target.forceUpdate())
+			onClick: () => {
+				try{
+				 target.devElement = null, target.forceUpdate()}catch(exc){}
+				}
 		}, {
 			key: 'assign-window',
 			name: 'Set As Global Var',

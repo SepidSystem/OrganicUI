@@ -5,8 +5,8 @@ import './dev-tools/devtools-single-view-box';
 import './dev-tools/devtools-rest';
 import './dev-tools/devtools-reinvent';
 
-import { TextField } from './lib/controls/inspired-components';
-import { IComponentRefer, IDeveloperFeatures, AppUtils, DataForm, Field } from '@organic-ui';
+ 
+import { IComponentRefer, IDeveloperFeatures, AppUtils, DataForm, Field,TextField } from '@organic-ui';
 OrganicUI.devTools.set('Translate', (dev) => {
     AppUtils.showDataDialog(<DataForm>
         {Object.keys(OrganicUI.i18n.notFounded).map(key => (
