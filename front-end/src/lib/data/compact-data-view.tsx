@@ -10,7 +10,7 @@ export function CompactDataView(p: OrganicUi.ICompactDataViewProps) {
             props: fld.props as IFieldProps,
             fieldName: Field.getAccessorName(fld.props.accessor)
         }));
-
+ 
     return <section className="compact-data-view">
         {textReaders.map(({ props, reader, fieldName }) => (!!p.data[fieldName] && <span data-fieldName={fieldName} className="field-value">
             {!!props.iconName && Utils.showIcon(props.iconName)}

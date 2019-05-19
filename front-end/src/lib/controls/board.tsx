@@ -312,7 +312,7 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
         Object.assign(card, { [cardMapping.laneId]: laneId });
         Object.assign(card, { _new: true });
         let cards = this.getCards();
-        cards = [...cards, card];
+        cards = [card,...cards];
 
         await this.repatch({ cards, boardKey: +new Date() });
         this.handleDataChange({ cards, lanes: this.getLanes() });
