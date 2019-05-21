@@ -173,7 +173,7 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
                 editable
                 data={this.getData()}
                 hideCardDeleteIcon
-                newCardTemplate={React.createElement(NewCard, { ...this.props, board: this }) as any}
+                newCardTemplate={React.createElement(NewCard, { ...this.props, board: this } as any) as any}
                 collapsibleLanes
                 onDataChange={this.handleDataChange.bind(this)}
                 style={{ width: '100%' }}
