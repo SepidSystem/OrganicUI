@@ -29,8 +29,16 @@ function classFactory<TDto>(p: IParams<TDto>):
         const { data } = target.state;
         const bindingSource = target.bindingSource = target.bindingSource || new BindingSource();
         const { props } = target;
+        const protoype = Object.getPrototypeOf(target) || {};
+        const { constructor } = protoype as any;
+       
+        const params = {
+            ...props,
+            ...(protoype && protoype.getForkData instanceof Function ? protoype.getForkData() : {}),
+            ...(constructor && constructor.getForkData instanceof Function ? constructor.getForkData() : {})
+        };
         const result = {
-            state: target.target || {}, props,
+            state: target.target || {}, props:params,params,
             data, bindingSource,
             getData: ({ defaultData = null } = {}) => {
                 const singleView: SingleViewBox<any> = target.refs.main || target.querySelectorAll('.single-view')[0];
