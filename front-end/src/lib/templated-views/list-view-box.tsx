@@ -563,7 +563,7 @@ export class ListViewBox<T=any> extends
 
         const inputValue: string = (localStorage.getItem('excel-limit') || 100) as string;
         const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 2000].map(n => ({ [n]: n })))
-        const title = 'تعداد رکورد های قابل اکسل';
+        const title = 'تعداد رکورد های خروجی';
         const { value: rowCount } = await swal({ title, input: 'select', inputValue, heightAuto: false, inputOptions });
         if (!rowCount) return;
         const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
