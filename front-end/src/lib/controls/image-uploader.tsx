@@ -40,12 +40,11 @@ export class ImageUploader extends BaseComponent<OrganicUi.ImageUploaderProps, I
     renderContent() {
         this.defaultState(this.props);
         const { value, isOpening, height, browseButtonText } = this.state;
-        console.log('f>>>', this.state);
         return <div className="image-uploader" ref="root" style={{ minHeight: height + 'px', display: 'flex', flexDirection: 'column' }}>
             {!!isOpening && <form style={{ maxHeight: '3px', visibility: 'hidden', maxWidth: '3px' }}>
                 <input type="file" ref="file"></input>
             </form>}
-            <img src={value || this.props.value || blankImageSrc} onClick={this.handleImageClick}  style={{flex:1}}/>
+            <img src={value || this.props.value } onClick={this.handleImageClick}  style={{flex:1}}/>
             <AdvButton color="secondary" style={{ marginTop: '1rem' }} variant="outlined" onClick={this.handleButtonClick} fullWidth >{i18n(browseButtonText)}</AdvButton>
         </div>
     }

@@ -173,7 +173,7 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
                 editable
                 data={this.getData()}
                 hideCardDeleteIcon
-                newCardTemplate={React.createElement(NewCard, { ...this.props, board: this }) as any}
+                newCardTemplate={React.createElement(NewCard, { ...this.props, board: this } as any) as any}
                 collapsibleLanes
                 onDataChange={this.handleDataChange.bind(this)}
                 style={{ width: '100%' }}
@@ -227,8 +227,7 @@ export default class Board<TCard> extends BaseComponent<OrganicUi.BoardProps<TCa
         let lanes = this.getLanes() as any;
         const lane = lanes.filter(l => l.id == laneId)[0];
         if (!lane) return;
-        console.log({ lane });
-        const alertResult = await Alert({ inputValue: lane.laneTitle, input: 'text', type: 'question' })
+          const alertResult = await Alert({ inputValue: lane.laneTitle, input: 'text', type: 'question' })
 
         if (!alertResult || alertResult.dismiss) return;
         const { value: laneTitle } = alertResult;

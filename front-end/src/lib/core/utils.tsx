@@ -59,8 +59,7 @@ export const Utils = Object.assign({}, {
 			if (url && url.includes('/view/'))
 				history.pushState(null, null, url);
 			else {
-				console.log({ url });
-				location.href = url;
+			 	location.href = url;
 				return;
 			}
 			OrganicUI['mountViewToRoot']();

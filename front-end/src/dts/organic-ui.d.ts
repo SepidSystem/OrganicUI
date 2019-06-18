@@ -245,7 +245,7 @@ declare namespace OrganicUi {
     export interface ITrelloCard<P> {
         contentComponent: React.ComponentType<TrelloCardProps<P>>;
         titleComponent: React.ComponentType<TrelloCardProps<P>>;
-        actions: { iconName, text, handler: (card: P, actionProps: TrelloCardActionProps<P>) => void }[];
+        actions: { iconName, text,isAccessible, handler: (card: P, actionProps: TrelloCardActionProps<P>) => void }[];
         fetchNewCard: () => Promise<P>;
     }
     interface ICardMappingForBoard<TCard> {
