@@ -402,6 +402,7 @@ declare namespace OrganicUi {
         read: (id: any) => Promise<TDto>;
         readListByMode?: Map<string, (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>>;
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
+        export: (format:string,params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
         readByIds: (ids: any[]) => PromisedResultSet<TDto>;
         getUrlForSingleView?(id: string): string;
         validate?: (data: any) => IDataFormAccessorMsg[];

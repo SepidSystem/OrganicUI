@@ -46,7 +46,7 @@ interface IState<T> {
     error: any;
 };
 
-export class ListViewBox<T=any> extends
+export class ListViewBox<T = any> extends
     OrganicBox<IActionsForCRUD<T>, IOptionsForCRUD, IListViewParams, IState<T>>
     implements IDeveloperFeatures {
     devElement: any;
@@ -271,7 +271,7 @@ export class ListViewBox<T=any> extends
             (mode && readListByMode && readListByMode[mode])
             || this.actions.readList;
         let args = this.props.params.customReadListArguments;
-        if (args instanceof Function) args = args( );
+        if (args instanceof Function) args = args();
         if (args !== undefined && !(args instanceof Array)) args = [args];
         return readList(...(args || [params])).then(r => {
             setTimeout(() => {
@@ -373,8 +373,8 @@ export class ListViewBox<T=any> extends
 
             if (filterModel instanceof Array && this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
                 params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend)
+            }
             return params;
-        }
     }
     @SelfBind()
     handleSearchQuery(e: React.ChangeEvent<HTMLInputElement>) {
@@ -562,19 +562,33 @@ export class ListViewBox<T=any> extends
         const suffixForDownload = location.pathname.split('/').slice(-1).join('');
 
         const inputValue: string = (localStorage.getItem('excel-limit') || 100) as string;
-        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 2000].map(n => ({ [n]: n })))
-        const { value: rowCount } = await swal({ 
-            title:'تعداد رکورد های خروجی',
-            input: 'select', 
-            inputValue, 
-            heightAuto: false, 
+        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 2000].map(n => ({ [n]: n })));
+        const handleExport = exportedFormat => {
+            async function doIt() {
+                Object.assign(window, { exportedFormat });
+                Utils.simulateClick(document.querySelector('.swal2-confirm'));
+            }
+            doIt();
+        }
+        Object.assign(window, { handleExport });
+        window['exportedFormat']='';
+        const { value: rowCount } = await swal({
+            title: 'تعداد رکورد های خروجی',
+            input: 'select',
+            inputValue,
+            heightAuto: false,
             showConfirmButton: false,
             showCloseButton: true,
             inputOptions,
-            footer:`<button onclick="alert('pdf clicked')">PDF</button>&ensp;&ensp;
-                    <button onclick="alert('pdf clicked')">Excel</button>`
+            footer: `<a href="javascript:handleExport('pdf')">PDF</a>&ensp;&ensp;
+                    <a href="javascript:handleExport('excel')">Excel</a>`
         });
+        const desiredExportFormat=window['exportedFormat'];
+
         if (!rowCount) return;
+        this.props.actions.export(desiredExportFormat,this.handleLoadRequestParams({} as any));
+        return;
+
         const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
         const { rows } = await dataList.loadDataIfNeeded(0, { avoidShowData: true, rowCount, loadingPageIndex: -1, currentPageIndex: -1 })
         const fields = ListViewBox.getFields(dataList);
