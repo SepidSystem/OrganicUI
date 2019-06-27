@@ -23,7 +23,7 @@ declare namespace OrganicUi {
     export interface ActionResult extends Promise<any> {
 
     }
-    export interface IListData<TRow=any> {
+    export interface IListData<TRow = any> {
         totalRows: number;
         rows: TRow[];
     }
@@ -50,16 +50,16 @@ declare namespace OrganicUi {
     export interface IBindableElement {
         tryToBinding();
     }
-    export interface IComponentRefer<T=any> {
+    export interface IComponentRefer<T = any> {
         componentRef: T;
     }
     export const Version: string;
-    export class BaseComponent<P=any, S=any> extends React.Component<P, S>{
+    export class BaseComponent<P = any, S = any> extends React.Component<P, S>{
         props: P;
         state: S;
         autoUpdateState: PartialFunction<S>;
         repatch(delta: Partial<S> & { debug?}, target?, delay?: number);
-        querySelectorAll<T=any>(cssSelector: string, target?: HTMLElement): T[];
+        querySelectorAll<T = any>(cssSelector: string, target?: HTMLElement): T[];
         setPageTitle(title);
         renderErrorMode(title, subtitle);
         defaultState(delta: Partial<S>);
@@ -87,7 +87,7 @@ declare namespace OrganicUi {
         by?: string;
     }
     export type TAccessor = string | Reinvent.IBindingPoint | Reinvent.IBindingPoint[];
-    export interface IFieldProps<TColProps=any> {
+    export interface IFieldProps<TColProps = any> {
         accessor?: TAccessor;
         role?: string;
         showOpeartors?: boolean;
@@ -219,7 +219,7 @@ declare namespace OrganicUi {
         getTextReader();
     }
 
-    export interface IRegistry<T=any> {
+    export interface IRegistry<T = any> {
         data: any;
         secondaryValues: any;
         notFounded: any;
@@ -245,7 +245,7 @@ declare namespace OrganicUi {
     export interface ITrelloCard<P> {
         contentComponent: React.ComponentType<TrelloCardProps<P>>;
         titleComponent: React.ComponentType<TrelloCardProps<P>>;
-        actions: { iconName, text,isAccessible, handler: (card: P, actionProps: TrelloCardActionProps<P>) => void }[];
+        actions: { iconName, text, isAccessible, handler: (card: P, actionProps: TrelloCardActionProps<P>) => void }[];
         fetchNewCard: () => Promise<P>;
     }
     interface ICardMappingForBoard<TCard> {
@@ -402,7 +402,7 @@ declare namespace OrganicUi {
         read: (id: any) => Promise<TDto>;
         readListByMode?: Map<string, (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>>;
         readList: (params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
-        export: (format:string,params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
+        export: (format: string, params: IAdvancedQueryFilters) => PromisedResultSet<TDto>;
         readByIds: (ids: any[]) => PromisedResultSet<TDto>;
         getUrlForSingleView?(id: string): string;
         validate?: (data: any) => IDataFormAccessorMsg[];
@@ -537,7 +537,7 @@ declare namespace OrganicUi {
         data: any;
         children: any;
     }
-    export interface IDataFormProps<T=any> {
+    export interface IDataFormProps<T = any> {
         validate?: boolean;
         onErrorCode?: onErrorCodeResult;
         data?: T;
@@ -585,7 +585,7 @@ declare namespace OrganicUi {
         sortModel: ({ colId: string, sort: string })[];
     }
     export type OptionsForRESTClient = (() => any) | any;
-    function restClient<T=any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
+    function restClient<T = any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
 
     export interface IAppModel {
         getMenuItems(): { menu: IMenu, permission?}[];
@@ -604,7 +604,7 @@ declare namespace OrganicUi {
         rowCount: number;
 
     }
-    export interface IDataListProps<T=any> {
+    export interface IDataListProps<T = any> {
         itemHeight?: number;
         onLoadRequestParams?: Function;
         multiple?: boolean;
@@ -827,6 +827,7 @@ declare module '@organic-ui' {
     export type IOptionsForCRUD = OrganicUi.IOptionsForCRUD;
     export { AxiosRequestConfig as RequestConfig } from 'axios';
     import { AxiosRequestConfig } from 'axios';
+    export { Selection as DataListSelection } from 'office-ui-fabric-react/lib/DetailsList'
     import { SweetAlertOptions, SweetAlertResult, SweetAlertType } from 'sweetalert2';
     import { IColumn, IDetailsListProps, IDetailsRowProps } from 'office-ui-fabric-react/lib/DetailsList';
     import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
@@ -850,29 +851,29 @@ declare module '@organic-ui' {
     }
     export type OptionsForRESTClient = (() => Partial<OptForRESTClient>) | OptForRESTClient;
     export const createClientForREST: (options?: OptionsForRESTClient) => typeof restClient;
-    function restClient<T=any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
+    function restClient<T = any>(method: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'PATCH' | 'DELETE', url: string, data?): Promise<T>;
     export type ResultSet<T> = OrganicUi.ResultSet<T>;
     export type ErrorCodeForFieldValidation = OrganicUi.ErrorCodeForFieldValidation;
     export type IDataFormAccessorMsg = OrganicUi.IDataFormAccessorMsg;
     export type PromisedResultSet<T> = OrganicUi.PromisedResultSet<T>;
     export type ReportReadMethod = OrganicUi.ReportReadMethod;
     export type ActionResult = Promise<any>;
-    export type IListData<TRow=any> = OrganicUi.IListData;
+    export type IListData<TRow = any> = OrganicUi.IListData;
     interface IBindableElement {
         tryToBinding();
     }
 
 
     export const Version: string;
-    export type IComponentRefer<T=any> = OrganicUi.IComponentRefer;
-    export class BaseComponent<P=any, S=any> extends OrganicUi.BaseComponent<P, S>{ }
+    export type IComponentRefer<T = any> = OrganicUi.IComponentRefer;
+    export class BaseComponent<P = any, S = any> extends OrganicUi.BaseComponent<P, S>{ }
     export const moduleManager: typeof OrganicUi.moduleManager;
     export type IModule = OrganicUi.IModule;
     export const UiKit: typeof OrganicUi.UiKit;
     export const Spinner: React.SFC<any>;
     export const ViewBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
     export const DashboardBox: React.SFC<OrganicUi.OrganicBoxProps<any, any, any>>;
-    export type ISingleViewBox<T=any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance;
+    export type ISingleViewBox<T = any> = OrganicUi.ISingleViewBox<T> & React.ReactInstance;
     export type IListViewParams = OrganicUi.IListViewParams;
     export type ISingleViewParams = OrganicUi.ISingleViewParams;
     export const ListViewBox: typeof OrganicUi.ListViewBox;
@@ -899,6 +900,7 @@ declare module '@organic-ui' {
     export class ArrayDataView<T> extends OrganicUi.ArrayDataView<T>{ }
     export class DataList extends BaseComponent<OrganicUi.IDataListProps<IDetailsListProps>, never> {
         reload();
+
     }
     export const DataTreeList: typeof OrganicUi.DataTreeList;
     export const DataTable: React.SFC<OrganicUi.DataTableProps>;

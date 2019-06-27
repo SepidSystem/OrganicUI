@@ -629,7 +629,8 @@ export class ListViewBox<T = any> extends
             read: id => Promise.resolve(items.filter(item => (item[keyField]) == id)[0]),
             getText: iconCodes ? renderCellForIcon : dto => dto[fields[0]],
             getId: dto => dto[keyField],
-            readByIds: () => Promise.resolve(items.filter(item => !!item[keyField])) as any
+            readByIds: () => Promise.resolve(items.filter(item => !!item[keyField])) as any,
+            export:null
         };
         const options: Partial<IOptionsForCRUD> = {
             singularName: 'local' + (+new Date()) + 'data',

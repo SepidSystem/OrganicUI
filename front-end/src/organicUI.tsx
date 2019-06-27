@@ -88,3 +88,4 @@ import "./customization-material";
 export { default as JssProvider } from 'react-jss/lib/JssProvider';
 export { createGenerateClassName } from '@material-ui/core/styles';
 
+export {   Selection as DataListSelection } from 'office-ui-fabric-react/lib/DetailsList'
