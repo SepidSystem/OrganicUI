@@ -258,13 +258,20 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
         };
         const paramsForLoaders = this.props.onLoadRequestParams instanceof Function ? this.props.onLoadRequestParams(params) : params;
 
-        const promise: PromiseLike<any> = paramsForLoaders ? Utils.toPromise(this.props.loader(paramsForLoaders)) : Promise.resolve([]);
+        const promise: PromiseLike<any> = paramsForLoaders ? Utils.toPromise(this.props.loader(paramsForLoaders)) : Promise.resolve({
+            totalRows:0,rows:[]
+        });
 
         return promise instanceof Promise && promise.then(listData => {
             if (avoidShowData) return listData;
             if (listData instanceof Array) {
                 this.repatch({ noPaging: true });
                 listData = { rows: listData, totalRows: listData.length };
+            }
+            else{
+                if(this.state.noPaging)
+                this.repatch({ noPaging: false });
+                
             }
 
 
@@ -533,6 +540,7 @@ export class DataList extends BaseComponent<OrganicUi.IDataListProps<any>, IStat
             disabled={s.isLoading}
             onPageIndexChange={this.changePage.bind(this)} />;
         const isLoaded = (!!this.refs.root && !!items);
+        console.log('paging-info>>>',s.noPaging,totalRows);
         return <div
             ref="parent"
             className={Utils.classNames("data-list", s.isLoading && 'loading-state shine-me', p.flexMode && 'flex-mode'/*, p.paginationMode*/)}
