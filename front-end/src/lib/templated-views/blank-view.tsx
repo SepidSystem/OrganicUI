@@ -4,10 +4,13 @@ import { icon, i18n } from '../core/shared-vars';
 import { Icon, Paper, Button } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
 import { BaseComponent } from '../core/base-component';
- 
+import Svg from '../controls/svg';
+import * as ArrowLeftSvg from './arrow-left.svg'
 export class Blank extends BaseComponent<any, never>{
     handleNavigate() {
-
+        const { options } = this.props;
+         if (options.onBackButtonClick instanceof Function)
+            options.onBackButtonClick()
     }
     renderContent() {
 
@@ -18,9 +21,9 @@ export class Blank extends BaseComponent<any, never>{
                     {i18n(options.title)}
                 </div>
                 <div className="column" style={{ minWidth: '140px', maxWidth: '140px', paddingLeft: '0', paddingRight: '0', direction: 'rtl' }}>
-                    <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.handleNavigate}   >
+                    <Button variant="raised" fullWidth className="singleview-back-btn button-icon-ux" onClick={this.handleNavigate.bind(this)}   >
                         {i18n('back')}
-                        <Icon iconName="Back" />
+                        <Svg image={ArrowLeftSvg} width={32} height={32} />
                     </Button >
                 </div>
             </h1>}

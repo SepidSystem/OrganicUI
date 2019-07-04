@@ -14,7 +14,7 @@ import { Icon, Paper, Button, Alert } from '../controls/inspired-components';
 import { reinvent } from '../reinvent/reinvent';
 import { SelfBind } from '../core/decorators';
 import Svg from '../controls/svg';
-import *as ArrowLeftSvg from './arrow-left.svg'
+import * as ArrowLeftSvg from './arrow-left.svg'
 import { IErrorItem, errorTranslationServices } from './error-translation';
 interface IState<T> {
     id: any;

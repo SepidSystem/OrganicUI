@@ -6,7 +6,7 @@ export function Anchor(p: OrganicUi.AnchorProps) {
     return <a {...p} onClick={async e => {
         const href = (e.currentTarget as HTMLAnchorElement).href;
         e.preventDefault();
-        const dom: any = document.querySelector('.organic-box') || {};
+        const dom: any = document.querySelector('.organic-box,.before-unload') || {};
         const { componentRef } = dom;
         if (componentRef && componentRef.beforeNavigate instanceof Function)
             await componentRef.beforeNavigate();
