@@ -562,7 +562,7 @@ export class ListViewBox<T = any> extends
         const suffixForDownload = location.pathname.split('/').slice(-1).join('');
 
         const inputValue: string = (localStorage.getItem('excel-limit') || 100) as string;
-        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 2000].map(n => ({ [n]: n })));
+        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 10000, 100000].map(n => ({ [n]: Utils.numberFormat(  n) })));
         const handleExport = exportedFormat => {
             async function doIt() {
                 Object.assign(window, { exportedFormat });
