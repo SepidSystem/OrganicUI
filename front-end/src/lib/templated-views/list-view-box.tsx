@@ -57,7 +57,8 @@ export class ListViewBox<T = any> extends
     @SelfBind()
     reload(pageNo?) {
         if (typeof pageNo != 'number') pageNo = 0;
-        this.refs.dataList.reload(pageNo)
+        this.refs.dataList && this.refs.dataList.reload(pageNo);
+        !this.refs.dataList && setTimeout( ()=> this.refs.dataList.reload(pageNo),500);
     }
     storeState(initialData) {
         if (!this.props.params.forDataLookup) {
