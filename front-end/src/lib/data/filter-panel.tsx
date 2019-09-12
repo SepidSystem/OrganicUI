@@ -16,6 +16,7 @@ interface IState {
 
 export class FilterPanel extends BaseComponent<OrganicUi.IFilterPanelProps, IState> implements IDeveloperFeatures {
     devPortId: any;
+    queryStringApplied:boolean;
     dataForm: any;
     children: any;
     static defaultProps: Partial<OrganicUi.IFilterPanelProps> = {

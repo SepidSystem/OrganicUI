@@ -58,7 +58,7 @@ export class ListViewBox<T = any> extends
     reload(pageNo?) {
         if (typeof pageNo != 'number') pageNo = 0;
         this.refs.dataList && this.refs.dataList.reload(pageNo);
-        !this.refs.dataList && setTimeout( ()=> this.refs.dataList.reload(pageNo),500);
+        !this.refs.dataList && setTimeout(() => this.refs.dataList.reload(pageNo), 500);
     }
     storeState(initialData) {
         if (!this.props.params.forDataLookup) {
@@ -360,9 +360,14 @@ export class ListViewBox<T = any> extends
             }, 10);
         }
         if (!this.props.params.forDataLookup) {
-            for (const filterPanel of this.querySelectorAll<FilterPanel>('.filter-panel'))
+            for (const filterPanel of this.querySelectorAll<FilterPanel>('.filter-panel')) {
+        //        console.log('filterPanel>>',filterPanel,filterPanel.queryStringApplied);
+           //     if (filterPanel.queryStringApplied) return;
+                filterPanel.queryStringApplied = true;
+                debugger;
                 if (filterPanel.assignValuesFromQueryString(location.search))
                     this.reload();
+            }
         }
     }
     @SelfBind()
@@ -374,8 +379,8 @@ export class ListViewBox<T = any> extends
 
             if (filterModel instanceof Array && this.props.params.dataLookupProps && this.props.params.dataLookupProps.filterModelAppend instanceof Array && params.filterModel instanceof Array)
                 params.filterModel.push(...this.props.params.dataLookupProps.filterModelAppend)
-            }
-            return params;
+        }
+        return params;
     }
     @SelfBind()
     handleSearchQuery(e: React.ChangeEvent<HTMLInputElement>) {
@@ -563,7 +568,7 @@ export class ListViewBox<T = any> extends
         const suffixForDownload = location.pathname.split('/').slice(-1).join('');
 
         const inputValue: string = (localStorage.getItem('excel-limit') || 100) as string;
-        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 10000, 100000].map(n => ({ [n]: Utils.numberFormat(  n) })));
+        const inputOptions = Object.assign({}, ...[50, 100, 500, 1000, 10000, 100000].map(n => ({ [n]: Utils.numberFormat(n) })));
         const handleExport = exportedFormat => {
             async function doIt() {
                 Object.assign(window, { exportedFormat });
@@ -572,7 +577,7 @@ export class ListViewBox<T = any> extends
             doIt();
         }
         Object.assign(window, { handleExport });
-        window['exportedFormat']='';
+        window['exportedFormat'] = '';
         const { value: rowCount } = await swal({
             title: 'تعداد رکورد های خروجی',
             input: 'select',
@@ -590,10 +595,10 @@ export class ListViewBox<T = any> extends
                         <label style="margin: 1em;float:right;">Excel</label>
                     </a>`
         });
-        const desiredExportFormat=window['exportedFormat'];
+        const desiredExportFormat = window['exportedFormat'];
 
         if (!rowCount) return;
-        this.props.actions.export(desiredExportFormat,this.handleLoadRequestParams({} as any));
+        this.props.actions.export(desiredExportFormat, this.handleLoadRequestParams({} as any));
         return;
 
         const dataList: DataList = this.querySelectorAll('.data-list-wrapper')[0] || this.refs.dataList;
@@ -637,7 +642,7 @@ export class ListViewBox<T = any> extends
             getText: iconCodes ? renderCellForIcon : dto => dto[fields[0]],
             getId: dto => dto[keyField],
             readByIds: () => Promise.resolve(items.filter(item => !!item[keyField])) as any,
-            export:null
+            export: null
         };
         const options: Partial<IOptionsForCRUD> = {
             singularName: 'local' + (+new Date()) + 'data',
