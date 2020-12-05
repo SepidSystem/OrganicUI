@@ -1,7 +1,6 @@
 import { BindingSource, openBindingSource } from "./binding-source";
 
-
-
+declare var   React:any;
 const quietChain = new Proxy({}, {
     get: () => () => quietChain
 });
@@ -36,7 +35,7 @@ function templatedView(templName, extraParams) {
                 const result = func.apply(this, arguments);
                 const { children } = (result && result.props) || {} as any;
                 const childrenArray = React.Children.toArray(children);
-                return React.createElement(templComponent, Object.assign({ params }, props), ...childrenArray)
+                return React.createElement(templComponent, Object.assign({ params  }, props), ...childrenArray)
 
             }
             const resultFilter = templates[templName + '_resultFilter'];

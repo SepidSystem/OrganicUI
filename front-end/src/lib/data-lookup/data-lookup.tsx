@@ -294,6 +294,8 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
     }
     @SelfBind()
     handleSetValue(value) {
+        if(value instanceof Array)  
+            value=Array.from(new Set(value.map(item=>typeof item=='number' ? item.toString() : item  )));
         if (value instanceof Array && !this.props.multiple) value = value[0];
         const selectedValueDic = this.computeSelectedValueDic(value);
         this.repatch({ value, selectedValueDic, batchList: null });
@@ -346,7 +348,7 @@ export class DataLookup extends BaseComponent<OrganicUi.DataLookupProps, IState>
         const selectedKeyCollection = getSelectedKeyCollection instanceof Function ? getSelectedKeyCollection.apply(dataList) : this.getSelectedKeyCollection();
         if (!selectedKeyCollection) throw 'selectedKeyCollection=null';
         const keys = Object.keys(selectedKeyCollection).filter(id => id !== undefined && id !== null).filter(id => selectedKeyCollection[id]);
-        this.handleSetValue(keys.concat(this.state.value));
+        this.handleSetValue(   keys.concat(this.state.value) );
         this.repatch({ isOpen: false });
     }
     repatch(delta: Partial<IState>, target?, delay?) {

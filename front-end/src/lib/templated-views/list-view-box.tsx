@@ -364,7 +364,6 @@ export class ListViewBox<T = any> extends
         //        console.log('filterPanel>>',filterPanel,filterPanel.queryStringApplied);
            //     if (filterPanel.queryStringApplied) return;
                 filterPanel.queryStringApplied = true;
-                debugger;
                 if (filterPanel.assignValuesFromQueryString(location.search))
                     this.reload();
             }
@@ -586,7 +585,7 @@ export class ListViewBox<T = any> extends
             showConfirmButton: false,
             showCloseButton: true,
             inputOptions,
-            footer: `<a style="padding: 5px;color: black;background: #ff0000;" href="javascript:handleExport('pdf')">
+            footer: `<a style="display:none;padding: 5px;color: black;background: #ff0000;" href="javascript:handleExport('pdf')">
                         <img style="float: left;width:4em" src="data:image/png;base64,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" />
                         <label style="margin: 1em;float:right;">PDF</label>
                     </a>&ensp;&ensp;

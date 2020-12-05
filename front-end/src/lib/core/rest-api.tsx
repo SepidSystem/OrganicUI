@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { AppUtils } from "./app-utils";
 import { i18n } from "./shared-vars";
 import { Alert } from "../controls/inspired-components";
+import swal from "sweetalert2";
 
 function delayedValue<T>(v: T, timeout): Promise<T> {
 
@@ -94,6 +95,7 @@ export function createClientForREST(options?: OrganicUi.OptionsForRESTClient) {
                     console.groupEnd();
                 if (!errorData && error.response && errorTextByStatusCode[status])
                     errorData = errorTextByStatusCode[status];
+                swal.close();                   
                 if (status == 500 && typeof errorData == 'string' && errorData && errorData.length > 2)
                     AppUtils.networkError = {
                         content: errorData, actions: {
