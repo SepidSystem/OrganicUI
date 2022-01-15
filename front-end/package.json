@@ -72,7 +72,7 @@
     "recursive-watch": "^1.1.4",
     "require-reload": "^0.2.2",
     "rus-diff": "^1.1.0",
-    "shelljs": "^0.8.2",
+    "shelljs": "^0.8.5",
     "signale": "^1.1.0",
     "string-template": "^1.0.0",
     "string.format": "^1.3.1",
