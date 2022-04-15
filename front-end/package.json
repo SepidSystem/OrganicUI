@@ -82,7 +82,7 @@
     "typy": "^2.0.1",
     "uuid": "^3.3.2",
     "wildcard": "^1.1.2",
-    "xlsx": "^0.14.0",
+    "xlsx": "^0.17.0",
     "yargs": "^10.0.3"
   },
   "devDependencies": {
